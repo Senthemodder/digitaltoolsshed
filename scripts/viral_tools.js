@@ -10,6 +10,51 @@ export function buildViralTools() {
   ensureDir(calcDir);
   ensureDir(mathDir);
   ensureDir(utilDir);
+  function renderViralPage(opts) {
+    let visibleFaqHtml = '';
+    if (opts.faq && opts.faq.length > 0) {
+      visibleFaqHtml = `
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          ${opts.faq.map(f => `
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">${f.q}</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                ${f.a}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    const fullBody = opts.bodyContent + visibleFaqHtml + `
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    `;
+    return renderPage({
+      ...opts,
+      bodyContent: fullBody
+    });
+  }
 
   // 1. AI WATER & ENERGY REALITY CHECKER
   const aiWaterHtml = `
@@ -47,52 +92,59 @@ export function buildViralTools() {
         </div>
 
         <div class="ticker-card" style="border-left: 4px solid #ef4444;">
-          <div class="ticker-sub"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M15 11c0-3-2-5-5-5s-5 2-5 5c0 2.8 2 5 5 7 3-2 5-4.2 5-7z"/><path d="M19 11c0-3-2-5-5-5"/><path d="M19 11c0 2.8-2 5-5 7"/></svg> Global Beef & Cattle Farming</div>
+          <div class="ticker-sub">🥩 Global Beef & Cattle Farming</div>
           <div class="ticker-val" id="valCattleWater" style="color: #ef4444;">0.00 L</div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">~58,000,000 Liters/sec (165,000x more water than all global AI)</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Livestock feed irrigation & livestock drinking water (~58,000,000 L/sec)</div>
           <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #ef4444;"></div></div>
         </div>
 
-        <div class="ticker-card" style="border-left: 4px solid #22c55e;">
-          <div class="ticker-sub"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M4 22V4l12 5-12 5"/><circle cx="4" cy="22" r="1" fill="currentColor" stroke="none"/></svg> Global Golf Course Irrigation</div>
-          <div class="ticker-val" id="valGolfWater" style="color: #22c55e;">0.00 L</div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">~115,000 Liters/sec (328x more water than all global AI)</div>
-          <div class="bar-track"><div class="bar-fill" style="width: 25%; background: #22c55e;"></div></div>
+        <div class="ticker-card" style="border-left: 4px solid #10b981;">
+          <div class="ticker-sub">⛳ Global Golf Course Irrigation</div>
+          <div class="ticker-val" id="valGolfWater" style="color: #10b981;">0.00 L</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Turf grass maintenance & chemical irrigation (~115,000 L/sec)</div>
+          <div class="bar-track"><div class="bar-fill" style="width: 15%; background: #10b981;"></div></div>
         </div>
 
         <div class="ticker-card" style="border-left: 4px solid #f59e0b;">
-          <div class="ticker-sub"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M20.4 5.6L16 4l-4 2-4-2-4.4 1.6L5 10h3v12h8V10h3l1.4-4.4z"/></svg> Cotton & Fast Fashion Manufacturing</div>
+          <div class="ticker-sub">👕 Global Cotton & Fast Fashion</div>
           <div class="ticker-val" id="valCottonWater" style="color: #f59e0b;">0.00 L</div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">~2,900,000 Liters/sec (8,200x more water than all global AI)</div>
-          <div class="bar-track"><div class="bar-fill" style="width: 60%; background: #f59e0b;"></div></div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Textile crops & garment chemical dyeing (~2,900,000 L/sec)</div>
+          <div class="bar-track"><div class="bar-fill" style="width: 35%; background: #f59e0b;"></div></div>
         </div>
       </div>
 
-      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
-        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Personal AI Query Footprint Calculator</h2>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
-          Based on the landmark UC Riverside / UT Arlington peer-reviewed study (<em>"Making AI Less Thirsty"</em>): 1 ChatGPT query uses approximately <strong>0.019 liters (19 ml / 3.8 teaspoons)</strong> of cooling water.
+      <!-- PERSONAL USAGE CALCULATOR -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.5rem;">Calculate Your Personal AI Water Footprint</h3>
+        <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          How many queries (prompts) do you send to ChatGPT, Claude, Copilot, or Midjourney per day?
         </p>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-          <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Prompts You Send Per Day</label>
-            <input type="number" id="userPrompts" value="30" min="1" max="10000" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono); font-size: 1.1rem;" oninput="calcPersonalFootprint()" />
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
+          <div style="flex: 1; min-width: 200px;">
+            <label style="font-size: 0.85rem; font-family: var(--mono); color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Daily AI Prompts:</label>
+            <input type="number" id="userPrompts" value="25" min="1" max="1000" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono);" oninput="calcPersonalFootprint()" />
           </div>
-          <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Display Units</label>
-            <select id="waterUnit" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" onchange="calcPersonalFootprint()">
-              <option value="L">Liters (L)</option>
-              <option value="gal">US Gallons (gal)</option>
+
+          <div style="flex: 1; min-width: 200px;">
+            <label style="font-size: 0.85rem; font-family: var(--mono); color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Preferred Unit:</label>
+            <select id="waterUnit" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono);" onchange="calcPersonalFootprint()">
+              <option value="liters">Liters (L)</option>
               <option value="bottles">500ml Water Bottles</option>
+              <option value="gal">US Gallons (gal)</option>
             </select>
           </div>
         </div>
 
-        <div id="personalFootprintResults" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;"></div>
+        <div id="personalFootprintResults" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;"></div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyAiWaterAudit()" id="copyAiWaterBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy AI Water Footprint Audit</button>
+        </div>
       </div>
 
-      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+      <!-- COMPARISON TABLE -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
         <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">Perspective Comparison: How Much Water Does It Take?</h3>
         <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; font-family: var(--mono);">
           <thead>
@@ -114,22 +166,70 @@ export function buildViralTools() {
               <td style="padding: 0.5rem 0.75rem; color: #22c55e;"><strong>7,368 Queries</strong></td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border);">
-              <td style="padding: 0.5rem 0.75rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M4 4l2.5 2.5"/><path d="M13.5 6.5a4 4 0 0 0-5.7 5.7"/><circle cx="12" cy="15" r="1" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="1" fill="currentColor" stroke="none"/><circle cx="14" cy="18" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="21" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="21" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="21" r="1" fill="currentColor" stroke="none"/></svg> 1 Standard 8-Minute Shower</td>
+              <td style="padding: 0.5rem 0.75rem;">🚿 1 Standard 8-Minute Shower</td>
               <td style="padding: 0.5rem 0.75rem;">65 L</td>
               <td style="padding: 0.5rem 0.75rem; color: #22c55e;"><strong>3,421 Queries</strong></td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border);">
-              <td style="padding: 0.5rem 0.75rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M4 15h16a2 2 0 0 1 0 4H4a2 2 0 0 1 0-4z"/><path d="M4 11h16c1.1 0 2-.4 2-1s-1.8-3-10-3S2 9.4 2 10s.9 1 2 1z"/><line x1="4" y1="13" x2="20" y2="13"/></svg> 1 Quarter-Pound Beef Burger</td>
+              <td style="padding: 0.5rem 0.75rem;">🍔 1 Quarter-Pound Beef Burger</td>
               <td style="padding: 0.5rem 0.75rem; color: #ef4444;"><strong>1,750 L</strong></td>
               <td style="padding: 0.5rem 0.75rem; color: #ef4444;"><strong>92,105 Queries</strong></td>
             </tr>
             <tr>
-              <td style="padding: 0.5rem 0.75rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M6 2h12v6l-3 14H9L6 8V2z"/><line x1="12" y1="8" x2="12" y2="22"/></svg> 1 Pair of Denim Jeans</td>
+              <td style="padding: 0.5rem 0.75rem;">👖 1 Pair of Denim Jeans</td>
               <td style="padding: 0.5rem 0.75rem; color: #ef4444;"><strong>7,500 L</strong></td>
               <td style="padding: 0.5rem 0.75rem; color: #ef4444;"><strong>394,736 Queries</strong></td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- ENGINEERING & THERMODYNAMIC DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Thermodynamic Derivation of Data Center Water & Power Consumption</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Based on empirical peer-reviewed research by Dr. Shaolei Ren (UC Riverside) and Cornell University (2023), AI water consumption combines on-site evaporative cooling with off-site thermoelectric grid generation:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Scope 1 (Direct On-Site Evaporative Cooling):<br>
+          &nbsp;&nbsp;&nbsp;Water_direct = Energy_IT (kWh) &times; WUE_onsite (L/kWh)<br>
+          &nbsp;&nbsp;&nbsp;Modern hyper-scale data centers average WUE &approx; 0.25 to 1.8 L/kWh of IT load.<br><br>
+          2. Scope 2 (Indirect Off-Site Power Plant Water):<br>
+          &nbsp;&nbsp;&nbsp;Water_indirect = Energy_Total (kWh) &times; Water_Intensity_Grid (L/kWh)<br>
+          &nbsp;&nbsp;&nbsp;Thermoelectric coal/gas/nuclear generation evaporates 2.0 to 9.5 L/kWh for turbine cooling.<br><br>
+          3. Total Per-Prompt Volumetric Footprint:<br>
+          &nbsp;&nbsp;&nbsp;W_prompt &approx; (0.0003 kWh / prompt) &times; (1.2 PUE) &times; (2.5 L/kWh combined) &approx; 0.0019 to 0.019 L (1.9 to 19 ml per 50-token output).
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & WATER MISCONCEPTIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Misconceptions in AI Environmental Accounting</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Potable Drinking Water Confusion</strong>
+          Assuming that data center cooling towers consume bottled drinking water. Most modern facilities utilize recycled graywater, non-potable municipal effluent, or closed-loop air-chilled condensers that evaporate negligible moisture.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. Geographic Water-Stress Blindspot</strong>
+          Treating 100 liters evaporated in rainy, hydro-rich regions (e.g. Ireland, Norway) as ecologically equivalent to 100 liters drawn in water-stressed desert basins (e.g. Phoenix, Arizona). Location matters more than gross volume.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Training vs. Inference Disparity</strong>
+          Focusing exclusively on the headline-grabbing water cost of training GPT-4 (approx. 700,000 liters), ignoring that hundreds of millions of daily inference queries surpass the one-time training footprint in a matter of months.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The Electricity-Water Decoupling Fallacy</strong>
+          Ignoring indirect Scope 2 water consumption. Over 70% of the water attributed to AI compute is actually evaporated off-site at coal, gas, and nuclear power stations supplying electricity to the grid.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. Out-of-Context Ecological Alarmism</strong>
+          Sensationalizing AI water use without comparative perspective: an individual who sends 30 ChatGPT prompts a day consumes less water in a year than what is required to produce a single cup of coffee or a half-pound of beef.
+        </div>
       </div>
     </div>
 
@@ -199,17 +299,57 @@ export function buildViralTools() {
           '</div>';
       }
 
+      function copyAiWaterAudit() {
+        var p = document.getElementById('userPrompts').value;
+        var text = '=== AI DATA CENTER WATER & ENERGY AUDIT ===\n' +
+          'Daily Prompts Analyzed: ' + p + ' prompts/day\n' +
+          'Estimated Per-Prompt Water Usage: ~19 ml (0.019 L)\n' +
+          'Annual Consumption: ' + (p * 0.019 * 365).toFixed(2) + ' Liters/year\n\n' +
+          'COMPARATIVE CONTEXT:\n' +
+          '1 Cup of Coffee = 140 Liters (~7,368 ChatGPT prompts)\n' +
+          '1 Beef Burger = 1,750 Liters (~92,105 ChatGPT prompts)\n' +
+          'Most AI water consumption occurs through off-site power generation rather than direct on-site evaporation.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyAiWaterBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied AI Water Audit!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       calcPersonalFootprint();
       updateLiveTickers();
     </script>
   `;
 
-  writeFileSync(join(calcDir, 'ai-water-calculator.html'), renderPage({
-    title: 'How Much Water Does AI Use? Live Real-Time Reality Checker | Digital Tools Shed',
-    metaDesc: 'Interactive live ticker comparing AI water consumption (ChatGPT, Claude, LLMs) vs cattle, golf courses, and coffee with personal footprint calculator.',
+  writeFileSync(join(calcDir, 'ai-water-calculator.html'), renderViralPage({
+    title: "How Much Water Does AI Use? Live Real-Time Reality Checker | Digital Tools Shed",
+    metaDesc: "Interactive live ticker comparing AI water consumption (ChatGPT, Claude, LLMs) vs cattle, golf courses, and coffee with personal footprint calculator.",
     canonical: `${DOMAIN}/calc/ai-water-calculator`,
     bodyContent: aiWaterHtml,
-    currentPath: '/calc/ai-water-calculator'
+    currentPath: '/calc/ai-water-calculator',
+    faq: [
+      {
+        q: "Why do AI data centers require water for operation?",
+        a: "High-density GPU clusters (such as Nvidia H100s) generate intense thermal heat. To prevent hardware throttling, evaporative cooling towers circulate chilled water to dissipate heat into the atmosphere."
+      },
+      {
+        q: "How much water does a single ChatGPT prompt consume?",
+        a: "According to research from UC Riverside, a typical 20-50 prompt exchange consumes approximately 500 milliliters (one standard water bottle), averaging between 10 and 25 milliliters per individual text prompt."
+      },
+      {
+        q: "What is the difference between Scope 1 and Scope 2 water usage?",
+        a: "Scope 1 refers to direct on-site water evaporated in cooling towers at the data center. Scope 2 refers to indirect water consumed off-site at thermoelectric power plants (coal, nuclear, natural gas) generating the electricity to power the servers."
+      },
+      {
+        q: "How does AI water usage compare to global agriculture?",
+        a: "Global livestock agriculture consumes approximately 58 million liters of freshwater every second, which is over 160,000 times greater than global AI data center consumption."
+      },
+      {
+        q: "Can data centers transition to water-free cooling systems?",
+        a: "Yes. Many hyperscalers are transitioning to direct-to-chip liquid cooling with closed-loop radiators, submerged dielectric fluid tanks, and air-cooled heat exchangers that eliminate evaporative water loss entirely."
+      }
+    ]
   }));
 
   // 2. GRAPHING CALCULATOR (DESMOS CLONE)
@@ -219,16 +359,16 @@ export function buildViralTools() {
         <a href="/">Home</a> &gt; <a href="/math/">Math Tools</a> &gt; Graphing Calculator
       </nav>
 
-      <header style="margin-bottom: 1.5rem;">
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Online 2D Graphing Calculator (Desmos Alternative)</h1>
-        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Plot mathematical functions, polynomials, trigonometric curves, and rational equations in real-time with pan, zoom, and coordinate tracing.
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem;">Free 2D Graphing Calculator (Desmos Alternative)</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
+          Plot multiple algebraic and trigonometric equations, find intersections, explore polynomial roots, and compute slopes with zero page reloads or external math CDNs.
         </p>
       </header>
 
-      <div style="display: grid; grid-template-columns: 320px 1fr; gap: 1.25rem; margin-bottom: 2rem;">
-        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 8px; display: flex; flex-direction: column; gap: 1rem;">
-          <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0;">Functions</h3>
+      <div style="display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0;">Function Inputs</h3>
           <div>
             <label style="display: flex; align-items: center; gap: 0.4rem; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 0.25rem;">
               <span style="color: #3b82f6; font-weight: bold;">f(x) =</span>
@@ -257,14 +397,65 @@ export function buildViralTools() {
             </div>
           </div>
           <div style="display: flex; gap: 0.5rem; margin-top: auto;">
-            <button onclick="zoom(0.8)" class="btn-secondary" style="flex: 1; padding: 0.4rem; font-size: 0.85rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Zoom +</button>
-            <button onclick="zoom(1.25)" class="btn-secondary" style="flex: 1; padding: 0.4rem; font-size: 0.85rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Zoom -</button>
+            <button onclick="zoom(0.8)" class="btn-secondary" style="flex: 1; padding: 0.4rem; font-size: 0.85rem;">Zoom +</button>
+            <button onclick="zoom(1.25)" class="btn-secondary" style="flex: 1; padding: 0.4rem; font-size: 0.85rem;">Zoom -</button>
             <button onclick="resetView()" class="btn-secondary" style="flex: 1; padding: 0.4rem; font-size: 0.85rem;">Reset</button>
+          </div>
+          <div style="margin-top: 0.5rem;">
+            <button onclick="copyGraphState()" id="copyGraphBtn" class="btn-primary" style="width: 100%; padding: 0.45rem; font-size: 0.8rem; cursor: pointer;">📋 Copy Equations</button>
           </div>
         </div>
         <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; position: relative;">
           <div style="position: absolute; top: 1.5rem; right: 1.5rem; font-family: var(--mono); font-size: 0.8rem; background: rgba(0,0,0,0.6); color: #fff; padding: 0.2rem 0.6rem; border-radius: 4px;" id="coordHUD">x: 0.00, y: 0.00</div>
           <canvas id="graphCanvas" width="700" height="500" style="width: 100%; height: 500px; cursor: grab; background: #0f172a; border-radius: 4px;"></canvas>
+        </div>
+      </div>
+
+      <!-- MATHEMATICAL FOUNDATIONS OF 2D GRAPHING -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Mathematical Foundations of 2D Function Plotting</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          In-browser canvas graphing transforms continuous mathematical functions into pixel coordinate space via affine linear mapping:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Viewport Coordinate Mapping:<br>
+          &nbsp;&nbsp;&nbsp;x_{pixel} = Origin_x + (x_{math} &times; Scale)<br>
+          &nbsp;&nbsp;&nbsp;y_{pixel} = Origin_y - (y_{math} &times; Scale) (Inverted Y-axis in 2D Canvas)<br><br>
+          2. Inverse Screen-to-World Transform (Mouse Pointer):<br>
+          &nbsp;&nbsp;&nbsp;x_{math} = (x_{pixel} - Origin_x) / Scale<br>
+          &nbsp;&nbsp;&nbsp;y_{math} = -(y_{pixel} - Origin_y) / Scale<br><br>
+          3. Numerical Continuity & Discretization:<br>
+          &nbsp;&nbsp;&nbsp;Sampling interval &Delta;x = 2 / Scale pixels. Discontinuities (&plusmn;&infin;) are detected by evaluating finite bounds.
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & GRAPHING PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Graphing & Mathematical Plotting Pitfalls</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Vertical Asymptote Interpolation Artifact</strong>
+          Connecting sampled points across poles (such as $f(x) = 1/x$ or $	an(x)$). Naive plotters draw a false vertical connecting line between $+infty$ and $-infty$, creating a misleading line across asymptotes.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. Nyquist Aliasing on High-Frequency Waves</strong>
+          Plotting high-frequency functions like $sin(100x)$ with fixed 2-pixel steps. When the sampling frequency drops below the Nyquist limit, the canvas renders bizarre pseudo-waves that have no mathematical reality.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. Floating-Point Subtraction Cancellation</strong>
+          Evaluating expressions like $sqrt{x^2+1} - x$ for large $x$. IEEE-754 floating-point numbers lose precision due to catastrophic cancellation, causing smooth analytical curves to break into jagged stepped noise.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. Non-Isometric Aspect Ratio Distortion</strong>
+          Plotting functions with unequal horizontal and vertical pixel scales. When scaling is non-uniform, circles ($x^2+y^2=r^2$) distort into ovals and perpendicular lines ($m_1 cdot m_2 = -1$) fail to appear orthogonal.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. Undefined Domain NaN Propagation</strong>
+          Evaluating functions outside their real domain (e.g. $log(x)$ or $sqrt{x}$ for $x le 0$) without boundary checking, which silently aborts the active path stroke in HTML5 Canvas.
         </div>
       </div>
     </div>
@@ -314,7 +505,7 @@ export function buildViralTools() {
         if (!expr || !expr.trim()) return null;
         try {
           var js = expr
-            .replace(/\\^/g, '**')
+            .replace(/\^/g, '**')
             .replace(/sin/g, 'Math.sin')
             .replace(/cos/g, 'Math.cos')
             .replace(/tan/g, 'Math.tan')
@@ -363,16 +554,57 @@ export function buildViralTools() {
         }
         ctx.stroke();
       }
+
+      function copyGraphState() {
+        var f1 = document.getElementById('fn1').value;
+        var f2 = document.getElementById('fn2').value;
+        var f3 = document.getElementById('fn3').value;
+        var text = '=== 2D GRAPHING CALCULATOR EQUATIONS ===\n' +
+          'f(x) = ' + f1 + '\n' +
+          'g(x) = ' + f2 + '\n' +
+          'h(x) = ' + f3 + '\n\n' +
+          'Scale: ' + scale.toFixed(1) + ' px/unit\n' +
+          'Origin: (' + originX.toFixed(1) + ', ' + originY.toFixed(1) + ')';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyGraphBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Equations!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       renderGraph();
     </script>
   `;
 
-  writeFileSync(join(mathDir, 'graphing-calculator.html'), renderPage({
-    title: 'Free 2D Graphing Calculator Online (Desmos Alternative) | Digital Tools Shed',
-    metaDesc: 'Interactive in-browser 2D graphing calculator: plot math functions, derivatives, trigonometric curves, and polynomials in real-time.',
+  writeFileSync(join(mathDir, 'graphing-calculator.html'), renderViralPage({
+    title: "Free 2D Graphing Calculator Online (Desmos Alternative) | Digital Tools Shed",
+    metaDesc: "Interactive in-browser 2D graphing calculator: plot math functions, derivatives, trigonometric curves, and polynomials in real-time.",
     canonical: `${DOMAIN}/math/graphing-calculator`,
     bodyContent: graphHtml,
-    currentPath: '/math/graphing-calculator'
+    currentPath: '/math/graphing-calculator',
+    faq: [
+      {
+        q: "What mathematical functions does this graphing calculator support?",
+        a: "It supports standard algebraic operations (+, -, *, /, ^), trigonometric functions (sin, cos, tan), logarithmic functions (log, ln), square roots (sqrt), absolute values (abs), exponentials (exp), and constants like pi and e."
+      },
+      {
+        q: "How does this graphing calculator differ from Desmos or GeoGebra?",
+        a: "Unlike heavy proprietary platforms that load megabytes of remote scripts and telemetry, this tool executes 100% in your local browser using pure HTML5 Canvas, rendering in sub-10ms with zero server latency."
+      },
+      {
+        q: "How do I plot trigonometric curves like sine and cosine?",
+        a: "Simply type sin(x) or cos(x) into any function input box. The calculator automatically uses radians for all angle arguments in compliance with standard calculus conventions."
+      },
+      {
+        q: "How can I pan and zoom the coordinate grid?",
+        a: "Click and drag anywhere on the canvas to pan the origin. Use your mouse scroll wheel or click the Zoom + and Zoom - buttons to scale the view."
+      },
+      {
+        q: "Can I graph derivatives alongside a parent polynomial?",
+        a: "Yes. Click the 'Cubic + Deriv' preset to plot f(x) = x^3 - 3x alongside its first derivative g(x) = 3x^2 - 3, allowing visual verification of local extrema and critical points."
+      }
+    ]
   }));
 
   // 3. SCALE VISUALIZER
@@ -398,12 +630,69 @@ export function buildViralTools() {
           <button onclick="setScale(1000000000000)" id="btn1t" class="btn-secondary">1 Trillion (1,000,000,000,000)</button>
         </div>
 
-        <div id="scaleResults" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;"></div>
+        <div id="scaleResults" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;"></div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyScaleSummary()" id="copyScaleBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Scale Comparison Summary</button>
+        </div>
+      </div>
+
+      <!-- COGNITIVE & DIMENSIONAL DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Logarithmic Scaling & Weber-Fechner Neurological Distortion</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          The human nervous system maps numerical quantities logarithmically rather than linearly to compress massive dynamic sensory ranges:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Weber-Fechner Psychophysical Law:<br>
+          &nbsp;&nbsp;&nbsp;Perceived_Magnitude S = k &times; ln(I / I_0)<br>
+          &nbsp;&nbsp;&nbsp;Because perception scales with the logarithm of physical stimulus, $1,000,000,000 feels only slightly larger than $1,000,000 to uncalibrated intuition.<br><br>
+          2. Physical Temporal Conversion:<br>
+          &nbsp;&nbsp;&nbsp;&bull; 10^3 seconds = 16.67 minutes<br>
+          &nbsp;&nbsp;&nbsp;&bull; 10^6 seconds = 11.57 days<br>
+          &nbsp;&nbsp;&nbsp;&bull; 10^9 seconds = 31.69 years (1,000&times; greater than 1 million seconds)<br>
+          &nbsp;&nbsp;&nbsp;&bull; 10^{12} seconds = 31,688 years (Recorded civilization is only ~6,000 years old).<br><br>
+          3. Physical Paper Stride (Thickness &approx; 0.0043 inches per bill):<br>
+          &nbsp;&nbsp;&nbsp;Height(1T in $100s) = (10^{10} bills &times; 0.0043 in) / (12 &times; 5280) &approx; 67.86 miles high into the thermosphere.
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & COGNITIVE SCALE PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Fallacies in Human Numerical Scale Perception</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Linear Scale Illusion</strong>
+          Intuitively treating a billion as "a few times larger" than a million. The difference between 1 million and 1 billion is virtually the entire billion (999 million). A million seconds is 1.5 weeks; a billion seconds is nearly 32 years.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Cubic Volume Expansion Blindspot</strong>
+          Forgetting the square-cube law. If you double the linear dimension of a cube, its surface area quadruples ($2^2$) and its volume and weight octuple ($2^3$). Scaling wealth or physical structures creates exponential volume explosions.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Temporal Equivalence Error</strong>
+          Conflating 10,000 years with 10 million years in evolutionary biology or climate discussions. Human recorded history spans 5,000 years; 1 million years ago, Homo sapiens did not even exist.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The National Budget / Household Budget Analogy Fallacy</strong>
+          Treating a $34 trillion sovereign national balance sheet like a family credit card. Sovereign currency-issuing governments operate under macroeconomic monetary velocity and intergenerational bond yields that cannot be modeled as household debt.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The "Too Big to Matter" Apathy Trap</strong>
+          When numbers exceed billions, psychological numbing sets in. People care intensely about a $50 fee, but become indifferent to a $50 billion municipal bond project because both exceed sensory comprehension.
+        </div>
       </div>
     </div>
 
     <script>
+      var currentScaleNum = 1000000000;
+
       function setScale(num) {
+        currentScaleNum = num;
         document.querySelectorAll("#btn1k, #btn1m, #btn1b, #btn1t").forEach(function(b) {
           b.className = "btn-secondary";
         });
@@ -429,32 +718,74 @@ export function buildViralTools() {
 
         document.getElementById("scaleResults").innerHTML = 
           '<div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">' +
-            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="13" r="9"/><polyline points="12 9 12 13 15 16"/><path d="M12 4V2"/><path d="M10 2h4"/></svg> In Seconds of Time</span>' +
+            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">In Seconds of Time</span>' +
             '<div style="font-size: 1.4rem; font-weight: bold; color: #3b82f6; margin-top: 0.25rem;">' + timeStr + '</div>' +
             '<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">1M sec = 11.5 days | 1B sec = 31.7 years | 1T sec = 31,709 years</div>' +
           '</div>' +
           '<div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">' +
-            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="12" y1="8" x2="12" y2="16"/><path d="M15 12H10.5a1.5 1.5 0 0 0 0 3H13.5a1.5 1.5 0 0 1 0 3H9"/></svg> In $100 Dollar Bills Stack</span>' +
+            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">In $100 Dollar Bills Stack</span>' +
             '<div style="font-size: 1.4rem; font-weight: bold; color: #22c55e; margin-top: 0.25rem;">' + heightStr + '</div>' +
             '<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">1B in $100s = 43 miles high into the stratosphere</div>' +
           '</div>' +
           '<div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">' +
-            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> GPU AI Tokens / Words</span>' +
+            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">GPU AI Tokens / Words</span>' +
             '<div style="font-size: 1.25rem; font-weight: bold; color: #ef4444; margin-top: 0.25rem;">' + (num / 1000000).toLocaleString() + 'M Tokens</div>' +
             '<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">At 100 tokens/sec = ' + (num / 100 / 3600).toFixed(1) + ' hours of continuous reading</div>' +
           '</div>';
+      }
+
+      function copyScaleSummary() {
+        var num = currentScaleNum;
+        var name = num === 1000 ? '1 Thousand' : (num === 1000000 ? '1 Million' : (num === 1000000000 ? '1 Billion' : '1 Trillion'));
+        var text = '=== SCALE & MAGNITUDE PERSPECTIVE REPORT ===\n' +
+          'Selected Number: ' + name + ' (' + num.toLocaleString() + ')\n\n' +
+          'TEMPORAL EQUIVALENCE:\n' +
+          '  - 1,000 Seconds = 16.7 Minutes\n' +
+          '  - 1,000,000 Seconds = 11.6 Days\n' +
+          '  - 1,000,000,000 Seconds = 31.7 Years\n' +
+          '  - 1,000,000,000,000 Seconds = 31,709 Years (5x recorded civilization)\n\n' +
+          'PHYSICAL BILLS STACK:\n' +
+          'A stack of ' + name + ' in $100 bills would reach ' + ((num * 0.0043)/12/5280).toFixed(1) + ' miles into the atmosphere.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyScaleBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Scale Summary!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
       }
 
       setScale(1000000000);
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'scale-visualizer.html'), renderPage({
-    title: 'Million vs Billion vs Trillion Number & Speed Scale Visualizer | Digital Tools Shed',
-    metaDesc: 'Interactive scale visualizer comparing 1 million, 1 billion, and 1 trillion in time, height, and computing tokens.',
+  writeFileSync(join(utilDir, 'scale-visualizer.html'), renderViralPage({
+    title: "Million vs Billion vs Trillion Number & Speed Scale Visualizer | Digital Tools Shed",
+    metaDesc: "Interactive scale visualizer comparing 1 million, 1 billion, and 1 trillion in time, height, and computing tokens.",
     canonical: `${DOMAIN}/util/scale-visualizer`,
     bodyContent: scaleHtml,
-    currentPath: '/util/scale-visualizer'
+    currentPath: '/util/scale-visualizer',
+    faq: [
+      {
+        q: "What is the simplest way to visualize the difference between a million and a billion?",
+        a: "Use seconds of time: 1 million seconds is approximately 11.5 days. 1 billion seconds is approximately 31.7 years. The difference between 1 million and 1 billion is almost an entire human lifetime."
+      },
+      {
+        q: "How high would a stack of one billion dollars reach?",
+        a: "A standard US banknote is approximately 0.0043 inches thick. A stack of 10 million $100 bills (equaling $1 billion) would stand approximately 43 miles (69 kilometers) high, penetrating well into the mesosphere."
+      },
+      {
+        q: "How long is one trillion seconds in human history?",
+        a: "One trillion seconds equals 31,709 years. Thirty-one thousand years ago, Neanderthals had only recently gone extinct and modern humans were creating the Chauvet cave paintings during the Upper Paleolithic."
+      },
+      {
+        q: "Why does the human brain struggle with numbers larger than a few thousand?",
+        a: "Evolutionary psychology reveals that human ancestors rarely had survival need to count beyond a few hundred tribal members or animals. Neurologically, humans perceive quantities logarithmically via the Weber-Fechner law rather than linearly."
+      },
+      {
+        q: "How many tokens is one billion tokens in generative AI models?",
+        a: "One billion tokens is approximately 750 million English words, which is equivalent to reading the complete Harry Potter series 700 times consecutively."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────

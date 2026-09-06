@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Million vs Billion vs Trillion Number & Speed Scale Visualizer free to use?",
+      "name": "What is the simplest way to visualize the difference between a million and a billion?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Million vs Billion vs Trillion Number & Speed Scale Visualizer on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Use seconds of time: 1 million seconds is approximately 11.5 days. 1 billion seconds is approximately 31.7 years. The difference between 1 million and 1 billion is almost an entire human lifetime."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "How high would a stack of one billion dollars reach?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "A standard US banknote is approximately 0.0043 inches thick. A stack of 10 million $100 bills (equaling $1 billion) would stand approximately 43 miles (69 kilometers) high, penetrating well into the mesosphere."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Million vs Billion vs Trillion Number & Speed Scale Visualizer work on mobile devices?",
+      "name": "How long is one trillion seconds in human history?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "One trillion seconds equals 31,709 years. Thirty-one thousand years ago, Neanderthals had only recently gone extinct and modern humans were creating the Chauvet cave paintings during the Upper Paleolithic."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the human brain struggle with numbers larger than a few thousand?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Evolutionary psychology reveals that human ancestors rarely had survival need to count beyond a few hundred tribal members or animals. Neurologically, humans perceive quantities logarithmically via the Weber-Fechner law rather than linearly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many tokens is one billion tokens in generative AI models?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "One billion tokens is approximately 750 million English words, which is equivalent to reading the complete Harry Potter series 700 times consecutively."
       }
     }
   ]
@@ -1046,12 +1062,69 @@
           <button onclick="setScale(1000000000000)" id="btn1t" class="btn-secondary">1 Trillion (1,000,000,000,000)</button>
         </div>
 
-        <div id="scaleResults" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;"></div>
+        <div id="scaleResults" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;"></div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="copyScaleSummary()" id="copyScaleBtn" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">📋 Copy Scale Comparison Summary</button>
+        </div>
+      </div>
+
+      <!-- COGNITIVE & DIMENSIONAL DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">Logarithmic Scaling & Weber-Fechner Neurological Distortion</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          The human nervous system maps numerical quantities logarithmically rather than linearly to compress massive dynamic sensory ranges:
+        </p>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; margin-bottom: 1.25rem;">
+          1. Weber-Fechner Psychophysical Law:<br>
+          &nbsp;&nbsp;&nbsp;Perceived_Magnitude S = k &times; ln(I / I_0)<br>
+          &nbsp;&nbsp;&nbsp;Because perception scales with the logarithm of physical stimulus, $1,000,000,000 feels only slightly larger than $1,000,000 to uncalibrated intuition.<br><br>
+          2. Physical Temporal Conversion:<br>
+          &nbsp;&nbsp;&nbsp;&bull; 10^3 seconds = 16.67 minutes<br>
+          &nbsp;&nbsp;&nbsp;&bull; 10^6 seconds = 11.57 days<br>
+          &nbsp;&nbsp;&nbsp;&bull; 10^9 seconds = 31.69 years (1,000&times; greater than 1 million seconds)<br>
+          &nbsp;&nbsp;&nbsp;&bull; 10^{12} seconds = 31,688 years (Recorded civilization is only ~6,000 years old).<br><br>
+          3. Physical Paper Stride (Thickness &approx; 0.0043 inches per bill):<br>
+          &nbsp;&nbsp;&nbsp;Height(1T in $100s) = (10^{10} bills &times; 0.0043 in) / (12 &times; 5280) &approx; 67.86 miles high into the thermosphere.
+        </div>
+      </div>
+
+      <!-- FATAL TRAPS & COGNITIVE SCALE PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">5 Fatal Fallacies in Human Numerical Scale Perception</h3>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444;">1. The Linear Scale Illusion</strong>
+          Intuitively treating a billion as "a few times larger" than a million. The difference between 1 million and 1 billion is virtually the entire billion (999 million). A million seconds is 1.5 weeks; a billion seconds is nearly 32 years.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b;">2. The Cubic Volume Expansion Blindspot</strong>
+          Forgetting the square-cube law. If you double the linear dimension of a cube, its surface area quadruples ($2^2$) and its volume and weight octuple ($2^3$). Scaling wealth or physical structures creates exponential volume explosions.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981;">3. The Temporal Equivalence Error</strong>
+          Conflating 10,000 years with 10 million years in evolutionary biology or climate discussions. Human recorded history spans 5,000 years; 1 million years ago, Homo sapiens did not even exist.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6;">4. The National Budget / Household Budget Analogy Fallacy</strong>
+          Treating a $34 trillion sovereign national balance sheet like a family credit card. Sovereign currency-issuing governments operate under macroeconomic monetary velocity and intergenerational bond yields that cannot be modeled as household debt.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6;">5. The "Too Big to Matter" Apathy Trap</strong>
+          When numbers exceed billions, psychological numbing sets in. People care intensely about a $50 fee, but become indifferent to a $50 billion municipal bond project because both exceed sensory comprehension.
+        </div>
       </div>
     </div>
 
     <script>
+      var currentScaleNum = 1000000000;
+
       function setScale(num) {
+        currentScaleNum = num;
         document.querySelectorAll("#btn1k, #btn1m, #btn1b, #btn1t").forEach(function(b) {
           b.className = "btn-secondary";
         });
@@ -1077,25 +1150,129 @@
 
         document.getElementById("scaleResults").innerHTML = 
           '<div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">' +
-            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="13" r="9"/><polyline points="12 9 12 13 15 16"/><path d="M12 4V2"/><path d="M10 2h4"/></svg> In Seconds of Time</span>' +
+            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">In Seconds of Time</span>' +
             '<div style="font-size: 1.4rem; font-weight: bold; color: #3b82f6; margin-top: 0.25rem;">' + timeStr + '</div>' +
             '<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">1M sec = 11.5 days | 1B sec = 31.7 years | 1T sec = 31,709 years</div>' +
           '</div>' +
           '<div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">' +
-            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="12" y1="8" x2="12" y2="16"/><path d="M15 12H10.5a1.5 1.5 0 0 0 0 3H13.5a1.5 1.5 0 0 1 0 3H9"/></svg> In $100 Dollar Bills Stack</span>' +
+            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">In $100 Dollar Bills Stack</span>' +
             '<div style="font-size: 1.4rem; font-weight: bold; color: #22c55e; margin-top: 0.25rem;">' + heightStr + '</div>' +
             '<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">1B in $100s = 43 miles high into the stratosphere</div>' +
           '</div>' +
           '<div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">' +
-            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> GPU AI Tokens / Words</span>' +
+            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">GPU AI Tokens / Words</span>' +
             '<div style="font-size: 1.25rem; font-weight: bold; color: #ef4444; margin-top: 0.25rem;">' + (num / 1000000).toLocaleString() + 'M Tokens</div>' +
             '<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">At 100 tokens/sec = ' + (num / 100 / 3600).toFixed(1) + ' hours of continuous reading</div>' +
           '</div>';
       }
 
+      function copyScaleSummary() {
+        var num = currentScaleNum;
+        var name = num === 1000 ? '1 Thousand' : (num === 1000000 ? '1 Million' : (num === 1000000000 ? '1 Billion' : '1 Trillion'));
+        var text = '=== SCALE & MAGNITUDE PERSPECTIVE REPORT ===
+' +
+          'Selected Number: ' + name + ' (' + num.toLocaleString() + ')
+
+' +
+          'TEMPORAL EQUIVALENCE:
+' +
+          '  - 1,000 Seconds = 16.7 Minutes
+' +
+          '  - 1,000,000 Seconds = 11.6 Days
+' +
+          '  - 1,000,000,000 Seconds = 31.7 Years
+' +
+          '  - 1,000,000,000,000 Seconds = 31,709 Years (5x recorded civilization)
+
+' +
+          'PHYSICAL BILLS STACK:
+' +
+          'A stack of ' + name + ' in $100 bills would reach ' + ((num * 0.0043)/12/5280).toFixed(1) + ' miles into the atmosphere.';
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyScaleBtn');
+          var orig = btn.textContent;
+          btn.textContent = '✓ Copied Scale Summary!';
+          setTimeout(function() { btn.textContent = orig; }, 2500);
+        });
+      }
+
       setScale(1000000000);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the simplest way to visualize the difference between a million and a billion?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Use seconds of time: 1 million seconds is approximately 11.5 days. 1 billion seconds is approximately 31.7 years. The difference between 1 million and 1 billion is almost an entire human lifetime.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How high would a stack of one billion dollars reach?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                A standard US banknote is approximately 0.0043 inches thick. A stack of 10 million $100 bills (equaling $1 billion) would stand approximately 43 miles (69 kilometers) high, penetrating well into the mesosphere.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How long is one trillion seconds in human history?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                One trillion seconds equals 31,709 years. Thirty-one thousand years ago, Neanderthals had only recently gone extinct and modern humans were creating the Chauvet cave paintings during the Upper Paleolithic.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why does the human brain struggle with numbers larger than a few thousand?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Evolutionary psychology reveals that human ancestors rarely had survival need to count beyond a few hundred tribal members or animals. Neurologically, humans perceive quantities logarithmically via the Weber-Fechner law rather than linearly.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many tokens is one billion tokens in generative AI models?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                One billion tokens is approximately 750 million English words, which is equivalent to reading the complete Harry Potter series 700 times consecutively.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
