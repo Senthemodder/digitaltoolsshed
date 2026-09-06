@@ -173474,6 +173474,2249 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (267 calculators in /calc/)');
+    // ─── TOOL CD1: THERMAL VAPOR RECOMPRESSION (TVR) EVAPORATOR CALCULATOR ───
+  (() => {
+    const slug = 'thermal-vapor-recompression-tvr-evaporator-calculator';
+    const title = 'Thermal Vapor Recompression (TVR) Evaporator Calculator | Steam Ejector & Economy Engine';
+    const desc = 'Industrial Thermal Vapor Recompression (TVR) evaporator and supersonic steam ejector thermo-compressor sizing calculator for dairy, food processing, wastewater, and chemical plants. Calculate motive steam demand, vapor entrainment ratio, steam economy, and calandria heat transfer surface area.';
+
+    const faqs = [
+      {
+        q: 'What is Thermal Vapor Recompression (TVR) and how does a thermo-compressor work?',
+        a: 'Thermal Vapor Recompression (TVR) is an energy recovery technology that utilizes a high-velocity supersonic steam ejector (thermo-compressor) to recompress a portion of the low-pressure water vapor boiled off from an evaporator. High-pressure motive steam (typically 6 to 16 barg) expands through a converging-diverging De Laval nozzle to Mach 2.5+, creating a deep vacuum that sucks in low-pressure boil-off vapor (0.2 to 0.7 bara). In the mixing section and diffuser, supersonic kinetic energy converts back into static pressure, delivering intermediate-pressure steam (0.4 to 1.3 bara) directly back into the evaporator calandria as heating steam, effectively recycling latent heat.'
+      },
+      {
+        q: 'How does TVR improve the Steam Economy of an evaporator?',
+        a: 'In a conventional single-effect evaporator without vapor recompression, approximately 1.05 to 1.10 kg of live boiler steam is consumed to evaporate 1.0 kg of water (Steam Economy ~ 0.90 to 0.95). With TVR, for every 1.0 kg of live motive steam supplied, the ejector entrains between 0.8 and 1.8 kg of boil-off vapor. The combined 1.8 to 2.8 kg of mixed steam is condensed in the heating chest, evaporating an equivalent mass of water. Consequently, the steam economy surges to 1.8 to 2.8 kg water evaporated per kg of live boiler steam, slashing plant fuel consumption by 50% to 65%.'
+      },
+      {
+        q: 'What are the Compression Ratio (Cr) and Expansion Ratio (Er) in TVR sizing?',
+        a: 'The Compression Ratio is the ratio of discharge pressure to suction pressure: Cr = P_discharge / P_suction (typically 1.3 to 2.2). The Expansion Ratio is the ratio of motive steam pressure to suction pressure: Er = P_motive / P_suction (typically 15 to 45). The entrainment ratio (Ra = kg suction vapor entrained per kg motive steam) depends strongly on these ratios. Lower compression ratios (smaller effective temperature lift across the calandria) allow significantly higher entrainment ratios and superior steam economy.'
+      },
+      {
+        q: 'Why is TVR often preferred over Mechanical Vapor Recompression (MVR)?',
+        a: 'While MVR uses an electrically driven centrifugal compressor to compress 100% of the vapor (yielding very high theoretical COP), MVR capital costs are 5 to 8 times higher than TVR, and MVR compressors require expensive titanium or duplex stainless impellers susceptible to droplet erosion. TVR systems contain zero moving parts, require virtually zero maintenance, exhibit total reliability, and cost a fraction of MVR. In facilities with cheap, existing high-pressure boiler steam (such as dairy processing, corn wet milling, and sugar refining), TVR delivers the highest return on investment.'
+      },
+      {
+        q: 'How is the evaporator calandria heat transfer area sized in a TVR system?',
+        a: 'The heat transfer surface area is sized via Q = U * A * Delta T_eff, where Q is the total thermal heat duty (kW) delivered by the mixed discharge steam, U is the overall heat transfer coefficient (typically 1,800 to 2,800 W/(m2*K) for falling film evaporators), and Delta T_eff is the effective driving temperature difference: Delta T_eff = T_sat(P_discharge) - T_sat(P_suction) - BPE, where BPE is the Boiling Point Elevation of the concentrated liquid product.'
+      }
+    ];
+
+    const content = `<style>
+      .tvr-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .tvr-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .tvr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .tvr-group { margin-bottom: 16px; }
+      .tvr-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .tvr-group select, .tvr-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .tvr-group select:focus, .tvr-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .tvr-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-blue { background: #eff6ff; color: #1d4ed8; }
+      .tvr-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .tvr-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .tvr-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .tvr-res-sub { font-size: 0.8rem; color: #64748b; }
+      .tvr-btn { background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .tvr-btn:hover { background: #1d4ed8; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="tvr-wrap">
+      <div class="tvr-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Thermal Vapor Recompression (TVR) Evaporator Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Supersonic steam ejector thermo-compressor modeling, steam economy optimization, and calandria sizing.</p>
+          </div>
+          <span class="tvr-badge badge-blue">HEI Ejectors & 3-A Sanitary</span>
+        </div>
+
+        <div class="tvr-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Evaporation Rate & Boiling Body</h3>
+            <div class="tvr-group">
+              <label for="tvr_evap_rate">Water Evaporation Rate</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="tvr_evap_rate" value="12000" min="500" step="500">
+                <select id="tvr_evap_unit" style="width:130px;">
+                  <option value="kg_h" selected>kg/h</option>
+                  <option value="lb_h">lb/h</option>
+                  <option value="t_day">Tonnes/Day</option>
+                </select>
+              </div>
+            </div>
+            <div class="tvr-group">
+              <label for="tvr_boil_temp">Evaporator Boiling Temp (deg C)</label>
+              <input type="number" id="tvr_boil_temp" value="68.0" min="40.0" max="95.0" step="0.5">
+            </div>
+            <div class="tvr-group">
+              <label for="tvr_bpe">Boiling Point Elevation (BPE, deg C)</label>
+              <input type="number" id="tvr_bpe" value="2.5" min="0.0" max="15.0" step="0.5">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Thermo-Compressor Pressures</h3>
+            <div class="tvr-group">
+              <label for="tvr_motive_press">Motive Boiler Steam Pressure (barg)</label>
+              <input type="number" id="tvr_motive_press" value="10.0" min="4.0" max="25.0" step="0.5">
+            </div>
+            <div class="tvr-group">
+              <label for="tvr_temp_lift">Calandria Effective Temperature Lift (deg C)</label>
+              <input type="number" id="tvr_temp_lift" value="12.0" min="5.0" max="25.0" step="0.5">
+              <small style="color:#64748b;">Typically 8 to 16 deg C for falling film TVR.</small>
+            </div>
+            <div class="tvr-group">
+              <label for="tvr_steam_cost">Boiler Steam Cost ($ / Tonne)</label>
+              <input type="number" id="tvr_steam_cost" value="28.0" min="5.0" max="80.0" step="1.0">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Calandria Heat Transfer Specs</h3>
+            <div class="tvr-group">
+              <label for="tvr_evap_type">Evaporator Geometry Type</label>
+              <select id="tvr_evap_type">
+                <option value="falling_film" selected>Falling Film Tubular (U ~ 2,200 W/m2*K)</option>
+                <option value="forced_circ">Forced Circulation (U ~ 1,600 W/m2*K)</option>
+                <option value="rising_film">Rising Film / Calandria (U ~ 1,400 W/m2*K)</option>
+                <option value="plate">Plate Falling Film (U ~ 2,800 W/m2*K)</option>
+              </select>
+            </div>
+            <div class="tvr-group">
+              <label for="tvr_ejector_eff">Thermo-Compressor Nozzle Efficiency (%)</label>
+              <input type="number" id="tvr_ejector_eff" value="85" min="70" max="95" step="1">
+            </div>
+            <div class="tvr-group">
+              <label for="tvr_annual_hrs">Annual Operating Hours</label>
+              <input type="number" id="tvr_annual_hrs" value="7500" min="1000" max="8760" step="500">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="tvr-btn" id="tvr_calc_btn">Compute TVR Sizing, Entrainment & Steam Savings</button>
+        </div>
+      </div>
+
+      <div class="tvr-card" id="tvr_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Engineering Output & Thermo-Compressor Sizing</h2>
+          <button class="copy-btn" id="tvr_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="tvr_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="tvr-res-grid">
+          <div class="tvr-res-card">
+            <div class="tvr-res-sub">Motive Boiler Steam Demand</div>
+            <div class="tvr-res-val" id="res_motive_flow">0 kg/h</div>
+            <div class="tvr-res-sub" id="res_steam_savings">Savings vs Single: 0%</div>
+          </div>
+          <div class="tvr-res-card">
+            <div class="tvr-res-sub">TVR Steam Economy</div>
+            <div class="tvr-res-val" id="res_economy">0 : 1</div>
+            <div class="tvr-res-sub" id="res_economy_desc">kg H2O evap / kg motive steam</div>
+          </div>
+          <div class="tvr-res-card">
+            <div class="tvr-res-sub">Entrainment Ratio (Ra)</div>
+            <div class="tvr-res-val" id="res_entrain_ratio">0</div>
+            <div class="tvr-res-sub" id="res_suction_flow">Recompressed: 0 kg/h</div>
+          </div>
+          <div class="tvr-res-card">
+            <div class="tvr-res-sub">Calandria Heat Transfer Area</div>
+            <div class="tvr-res-val" id="res_area_m2">0 m2</div>
+            <div class="tvr-res-sub" id="res_area_ft2">0 ft2</div>
+          </div>
+          <div class="tvr-res-card">
+            <div class="tvr-res-sub">Annual Energy Cost Savings</div>
+            <div class="tvr-res-val" id="res_cost_savings">$0 / yr</div>
+            <div class="tvr-res-sub" id="res_payback">Payback: ~3 to 6 months</div>
+          </div>
+          <div class="tvr-res-card">
+            <div class="tvr-res-sub">Thermo-Compressor Pressures</div>
+            <div class="tvr-res-val" id="res_ejector_press">0 -> 0 bara</div>
+            <div class="tvr-res-sub" id="res_comp_ratio">Compression Ratio: 0</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Thermal Heat Duties & Steam Balances</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Calandria Thermal Duty: <strong id="res_duty_mw">0.0 MW th</strong></div>
+            <div>Condenser Vent Excess Vapor: <strong id="res_vent_vapor">0 kg/h (To Surface Condenser)</strong></div>
+            <div>Heating Steam Saturation Temp: <strong id="res_tsat_heat">0.0 deg C (Delta T_eff: 0 C)</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">TVR Falling Film Evaporator & Supersonic Ejector Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Visualizing motive steam De Laval expansion, boil-off vapor suction entrainment, mixed discharge into calandria, and cyclone separator.</p>
+          <div class="anim-box">
+            <canvas id="tvr_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="tvr-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Ejector Diffuser Shock Stall & "Break" Pressure Collapse</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">Steam ejectors operate on a delicate supersonic shock wave boundary within the mixing tube and diffuser. Every thermo-compressor has a strict "break pressure" (maximum allowable back-pressure). If the calandria becomes fouled with organic scale or non-condensable gas accumulates, the calandria pressure exceeds the break pressure by even 3 kPa. The supersonic shock front collapses instantaneously inside the diffuser. The ejector stalls completely; suction entrainment plunges to zero, causing boiler steam to violently backfire into the vapor separator body.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Liquid Droplet Carryover & De Laval Nozzle Erosion</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">The suction boil-off vapor drawn into the ejector must be 100% dry saturated vapor. If the vapor separator cyclone has inadequate height or if feed foaming occurs, entrained droplets of concentrated liquid (e.g. caustic, milk concentrate, or salt slurry) are drawn into the ejector. In the mixing throat where motive steam speeds exceed 1,100 m/s, droplets act like high-velocity sandblasting media, carving grooves in the 316L stainless nozzle in under 3 months and ruining suction vacuum.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Wet Motive Steam & Wire-Drawing Nozzle Destruction</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Motive steam from industrial boilers frequently contains 2% to 4% entrained moisture. When 10 barg wet steam expands across the convergent-divergent De Laval nozzle, moisture droplets accelerate to supersonic velocities, causing rapid "wire drawing" cavitation and erosion of the nozzle throat diameter. An enlargement of the nozzle throat by just 0.8 mm increases live steam consumption by 15% while degrading the entrainment ratio, completely erasing the TVR efficiency advantage.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Boiling Point Elevation (BPE) Creep & Ejector Turndown Starvation</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">As product concentration increases in batch or multi-stage evaporation (e.g. tomato paste from 8 to 32 Brix or caustic soda to 50%), Boiling Point Elevation (BPE) rises significantly. This increases the required calandria steam saturation temperature, forcing the required compression ratio (Cr) to climb from 1.4 to over 2.1. Thermo-compressors are fixed-geometry supersonic devices; as Cr climbs past design limits, the entrainment ratio collapses exponentially, starving the calandria of mixed steam.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Non-Condensable Gas Blanketing of Calandria Tubes</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">Feed solutions carry dissolved oxygen, nitrogen, and CO2 that flash into the vapor space and are entrained by the TVR ejector into the calandria. Because steam condenses on the outer tube walls, non-condensable gases concentrate against the heat transfer surface, forming an insulating stagnant gas film. A mere 1% concentration of air in condensing steam slashes the overall heat transfer coefficient (U) by up to 55%, forcing calandria pressure to skyrocket and triggering ejector shock stall.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Thermo-Compressor Gas Dynamics & Heat Transfer Formulations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The supersonic expansion of motive steam through a converging-diverging De Laval nozzle is governed by <strong>isentropic compressible gas dynamics</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\dot{m}_{motive} = A_{throat} \cdot P_{motive} \sqrt{\frac{\gamma}{R \cdot T_{motive}} \left( \frac{2}{\gamma + 1} \right)^{\frac{\gamma + 1}{\gamma - 1}}}$$
+          </div>
+          <p>The <strong>Entrainment Ratio ($Ra = \dot{m}_{suction} / \dot{m}_{motive}$)</strong> is predicted via the <strong>HEI / ESDU empirical thermo-compressor correlation</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$Ra = \eta_{ej} \cdot \frac{\ln(Er)}{\left( Cr - 1 \right)^{0.85}} \cdot \sqrt{\frac{T_{suction}}{T_{motive}}} \cdot \Phi_{geom}$$
+          </div>
+          <p>Where $Er = P_{motive} / P_{suction}$ is the Expansion Ratio, $Cr = P_{discharge} / P_{suction}$ is the Compression Ratio, and $\eta_{ej} \approx 0.80 - 0.88$.</p>
+          <p>The overall <strong>Steam Economy</strong> and calandria heat transfer area $A_{cal}$ are:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\text{Steam Economy} = \frac{\dot{m}_{evap}}{\dot{m}_{motive}} = 1 + Ra, \qquad A_{cal} = \frac{\dot{m}_{mixed} \cdot \Delta H_{vap}}{U \cdot \Delta T_{eff}}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var evapRateInput = document.getElementById('tvr_evap_rate');
+        var evapUnitSel = document.getElementById('tvr_evap_unit');
+        var boilTempInput = document.getElementById('tvr_boil_temp');
+        var bpeInput = document.getElementById('tvr_bpe');
+        var motivePressInput = document.getElementById('tvr_motive_press');
+        var tempLiftInput = document.getElementById('tvr_temp_lift');
+        var steamCostInput = document.getElementById('tvr_steam_cost');
+        var evapTypeSel = document.getElementById('tvr_evap_type');
+        var ejectorEffInput = document.getElementById('tvr_ejector_eff');
+        var annualHrsInput = document.getElementById('tvr_annual_hrs');
+        var calcBtn = document.getElementById('tvr_calc_btn');
+        var copyBtn = document.getElementById('tvr_copy_btn');
+        var copyMsg = document.getElementById('tvr_copy_msg');
+
+        var resMotiveFlow = document.getElementById('res_motive_flow');
+        var resSteamSavings = document.getElementById('res_steam_savings');
+        var resEconomy = document.getElementById('res_economy');
+        var resEconomyDesc = document.getElementById('res_economy_desc');
+        var resEntrainRatio = document.getElementById('res_entrain_ratio');
+        var resSuctionFlow = document.getElementById('res_suction_flow');
+        var resAreaM2 = document.getElementById('res_area_m2');
+        var resAreaFt2 = document.getElementById('res_area_ft2');
+        var resCostSavings = document.getElementById('res_cost_savings');
+        var resPayback = document.getElementById('res_payback');
+        var resEjectorPress = document.getElementById('res_ejector_press');
+        var resCompRatio = document.getElementById('res_comp_ratio');
+        var resDutyMw = document.getElementById('res_duty_mw');
+        var resVentVapor = document.getElementById('res_vent_vapor');
+        var resTsatHeat = document.getElementById('res_tsat_heat');
+
+        var canvas = document.getElementById('tvr_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        // Antoine saturation temperature to pressure (bara)
+        function tempToPressBara(tC) {
+          // Antoine equation for water: log10(P_bar) = 5.20389 - 1733.926 / (T + 233.665)
+          return Math.pow(10, 5.20389 - 1733.926 / (tC + 233.665));
+        }
+
+        function calculate() {
+          var rawEvap = parseFloat(evapRateInput.value) || 12000;
+          var unit = evapUnitSel.value;
+          var tBoilC = parseFloat(boilTempInput.value) || 68.0;
+          var bpe = parseFloat(bpeInput.value) || 2.5;
+          var pMotiveBarg = parseFloat(motivePressInput.value) || 10.0;
+          var deltaTLift = parseFloat(tempLiftInput.value) || 12.0;
+          var steamCost = parseFloat(steamCostInput.value) || 28.0;
+          var evapType = evapTypeSel.value;
+          var etaEj = (parseFloat(ejectorEffInput.value) || 85) / 100;
+          var hours = parseFloat(annualHrsInput.value) || 7500;
+
+          // Normalize evaporation rate to kg/h
+          var evapKgH = rawEvap;
+          if (unit === 'lb_h') evapKgH = rawEvap * 0.453592;
+          else if (unit === 't_day') evapKgH = (rawEvap * 1000) / 24;
+
+          // Pure water vapor pressure in vapor separator
+          var pSuctionBara = tempToPressBara(tBoilC);
+          // Heating steam saturation temperature in calandria
+          var tHeatSatC = tBoilC + bpe + deltaTLift;
+          var pDischargeBara = tempToPressBara(tHeatSatC);
+
+          var pMotiveBara = pMotiveBarg + 1.01325;
+
+          // Compression & Expansion Ratios
+          var cr = pDischargeBara / pSuctionBara;
+          var er = pMotiveBara / pSuctionBara;
+
+          // ESDU / HEI thermo-compressor entrainment ratio modeling
+          // Ra = alpha * ln(Er) / (Cr - 1)^0.85
+          var alpha = 0.235 * etaEj;
+          var crTerm = Math.max(0.08, cr - 1);
+          var ra = alpha * Math.log(er) / Math.pow(crTerm, 0.85);
+          ra = Math.max(0.45, Math.min(2.4, ra));
+
+          // Steam economy = 1 + Ra
+          var economy = 1.0 + ra;
+
+          // Motive steam requirement (kg/h)
+          var motiveKgH = evapKgH / economy;
+          var suctionKgH = motiveKgH * ra;
+          var mixedSteamKgH = motiveKgH + suctionKgH;
+
+          // Un-entrained excess vapor sent to surface condenser
+          var ventVaporKgH = Math.max(0, evapKgH - suctionKgH);
+
+          // Heat transfer coefficient U (W/m2*K)
+          var uVal = 2200;
+          if (evapType === 'forced_circ') uVal = 1600;
+          else if (evapType === 'rising_film') uVal = 1400;
+          else if (evapType === 'plate') uVal = 2800;
+
+          // Latent heat of vaporization ~ 2300 kJ/kg
+          var deltaHvap = 2320; // kJ/kg
+          var dutyKw = (mixedSteamKgH * deltaHvap) / 3600;
+          var dutyMw = dutyKw / 1000;
+
+          // Effective driving temperature delta T_eff
+          var deltaTeff = deltaTLift;
+          var areaM2 = (dutyKw * 1000) / (uVal * deltaTeff);
+          var areaFt2 = areaM2 * 10.7639;
+
+          // Energy Savings vs Single-Effect (Economy ~ 0.95 without TVR)
+          var singleEffectSteamKgH = evapKgH / 0.95;
+          var steamSavedKgH = singleEffectSteamKgH - motiveKgH;
+          var pctSavings = (steamSavedKgH / singleEffectSteamKgH) * 100;
+          var annualSavedTonnes = (steamSavedKgH * hours) / 1000;
+          var annualDollarSavings = annualSavedTonnes * steamCost;
+
+          // Update DOM
+          resMotiveFlow.innerText = Math.round(motiveKgH).toLocaleString() + ' kg/h';
+          resSteamSavings.innerText = 'Saves ' + pctSavings.toFixed(1) + '% Live Steam';
+          resEconomy.innerText = economy.toFixed(2) + ' : 1';
+          resEconomyDesc.innerText = economy.toFixed(2) + ' kg H2O evap / kg boiler steam';
+          resEntrainRatio.innerText = 'Ra = ' + ra.toFixed(2);
+          resSuctionFlow.innerText = 'Recompressed: ' + Math.round(suctionKgH).toLocaleString() + ' kg/h';
+          resAreaM2.innerText = Math.round(areaM2).toLocaleString() + ' m2';
+          resAreaFt2.innerText = Math.round(areaFt2).toLocaleString() + ' ft2 (U = ' + uVal + ')';
+          resCostSavings.innerText = '$' + Math.round(annualDollarSavings).toLocaleString() + ' / yr';
+          resPayback.innerText = 'Saves ' + Math.round(annualSavedTonnes).toLocaleString() + ' t steam / yr';
+          resEjectorPress.innerText = pSuctionBara.toFixed(2) + ' -> ' + pDischargeBara.toFixed(2) + ' bara';
+          resCompRatio.innerText = 'Cr = ' + cr.toFixed(2) + ' (Er = ' + er.toFixed(1) + ')';
+          resDutyMw.innerText = dutyMw.toFixed(2) + ' MW th';
+          resVentVapor.innerText = Math.round(ventVaporKgH).toLocaleString() + ' kg/h to Condenser';
+          resTsatHeat.innerText = tHeatSatC.toFixed(1) + ' deg C (Delta T_eff: ' + deltaTeff.toFixed(1) + ' C)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // 1. Calandria (Tube Bundle Exchanger, Left-Center)
+          var cX = 140, cY = 50, cW = 120, cH = 230;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.roundRect(cX, cY, cW, cH, 12); ctx.fill(); ctx.stroke();
+
+          // Tubes inside calandria
+          ctx.strokeStyle = '#64748b';
+          ctx.lineWidth = 1;
+          for (var tx = cX + 18; tx < cX + cW - 10; tx += 15) {
+            ctx.beginPath(); ctx.moveTo(tx, cY + 25); ctx.lineTo(tx, cY + cH - 25); ctx.stroke();
+          }
+
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('CALANDRIA', cX + cW/2, cY + 18);
+          ctx.fillStyle = '#38bdf8'; ctx.font = '9px sans-serif';
+          ctx.fillText('Heating Steam Chest', cX + cW/2, cY + 34);
+
+          // 2. Vapor Separation Cyclone Body (Center Right)
+          var sX = 360, sY = 50, sW = 130, sH = 210;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#a855f7';
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.roundRect(sX, sY, sW, sH - 40, 16); ctx.fill(); ctx.stroke();
+          // Conical bottom
+          ctx.beginPath();
+          ctx.moveTo(sX, sY + sH - 40);
+          ctx.lineTo(sX + sW/2, sY + sH);
+          ctx.lineTo(sX + sW, sY + sH - 40);
+          ctx.closePath();
+          ctx.fillStyle = '#1e293b'; ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('VAPOR SEPARATOR', sX + sW/2, sY + 22);
+          ctx.fillStyle = '#c084fc'; ctx.font = '10px sans-serif';
+          ctx.fillText(boilTempInput.value + ' deg C Vacuum Body', sX + sW/2, sY + 40);
+
+          // 3. Supersonic TVR Thermo-Compressor Ejector (Top)
+          var ejX = 170, ejY = 15, ejW = 260, ejH = 26;
+          ctx.fillStyle = '#334155';
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          // Ejector shape: convergent-divergent nozzle to mixing tube to diffuser
+          ctx.moveTo(ejX, ejY + 4);
+          ctx.lineTo(ejX + 50, ejY + 9);
+          ctx.lineTo(ejX + 130, ejY + 9);
+          ctx.lineTo(ejX + ejW, ejY);
+          ctx.lineTo(ejX + ejW, ejY + ejH);
+          ctx.lineTo(ejX + 130, ejY + ejH - 9);
+          ctx.lineTo(ejX + 50, ejY + ejH - 9);
+          ctx.lineTo(ejX, ejY + ejH - 4);
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('TVR STEAM EJECTOR (MACH 2.5+)', ejX + ejW/2, ejY + 17);
+
+          // Motive steam line into left of ejector
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(60, ejY + ejH/2); ctx.lineTo(ejX, ejY + ejH/2); ctx.stroke();
+          ctx.fillStyle = '#ef4444'; ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('MOTIVE STEAM ->', 105, ejY - 6);
+
+          // Suction vapor line from Separator Top to Ejector Neck
+          ctx.strokeStyle = '#a855f7';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(sX + sW/2, sY);
+          ctx.lineTo(sX + sW/2, ejY + ejH + 15);
+          ctx.lineTo(ejX + 70, ejY + ejH + 15);
+          ctx.lineTo(ejX + 70, ejY + ejH);
+          ctx.stroke();
+
+          // Mixed discharge steam into Calandria
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(ejX + ejW, ejY + ejH/2);
+          ctx.lineTo(ejX + ejW + 20, ejY + ejH/2);
+          ctx.lineTo(ejX + ejW + 20, 95);
+          ctx.lineTo(cX + cW, 95);
+          ctx.stroke();
+
+          // Liquid concentrate recirculation
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(sX + sW/2, sY + sH);
+          ctx.lineTo(sX + sW/2, 290);
+          ctx.lineTo(cX + cW/2, 290);
+          ctx.lineTo(cX + cW/2, cY + cH);
+          ctx.stroke();
+          ctx.fillStyle = '#10b981'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('<- CONCENTRATE RECIRCULATION PUMP', 270, 285);
+
+          // Right: Ejector Performance Telemetry Box
+          var bX = 580, bY = 40, bW = 460, bH = 240;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(bX, bY, bW, bH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('THERMO-COMPRESSOR ENERGY BALANCE', bX + 20, bY + 25);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Motive Steam Pressure: ' + motivePressInput.value + ' barg (Dry Saturated)', bX + 20, bY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Boiling Suction Pressure: ' + resEjectorPress.innerText.split('->')[0] + ' (Vacuum)', bX + 20, bY + 75);
+          ctx.fillText('Discharge Pressure: ' + resEjectorPress.innerText.split('->')[1] + ' (Heating)', bX + 20, bY + 95);
+          ctx.fillText('Entrainment Ratio (Ra): ' + resEntrainRatio.innerText, bX + 20, bY + 115);
+          ctx.fillText('Overall Steam Economy: ' + resEconomy.innerText, bX + 20, bY + 135);
+          ctx.fillText('Calandria Heat Exchange: ' + resAreaM2.innerText + ' (' + evapTypeSel.value + ')', bX + 20, bY + 155);
+
+          ctx.fillStyle = '#34d399'; ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('Net Live Steam Reduction: ' + resSteamSavings.innerText, bX + 20, bY + 190);
+          ctx.fillText('Annual Operating Savings: ' + resCostSavings.innerText, bX + 20, bY + 215);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== THERMAL VAPOR RECOMPRESSION (TVR) SIZING REPORT ===',
+            'Evaporation Rate: ' + evapRateInput.value + ' ' + evapUnitSel.value,
+            'Boiling Body Temp / BPE: ' + boilTempInput.value + ' deg C @ BPE ' + bpeInput.value + ' deg C',
+            'Motive Boiler Steam: ' + motivePressInput.value + ' barg (' + resMotiveFlow.innerText + ')',
+            'Thermo-Compressor Entrainment: ' + resEntrainRatio.innerText + ' (' + resSuctionFlow.innerText + ')',
+            'TVR Steam Economy: ' + resEconomy.innerText + ' (' + resSteamSavings.innerText + ')',
+            'Calandria Sizing: ' + resAreaM2.innerText + ' (' + resAreaFt2.innerText + ') @ ' + resTsatHeat.innerText,
+            'Thermo-Compressor Pressures: ' + resEjectorPress.innerText + ' (' + resCompRatio.innerText + ')',
+            'Annual Steam Cost Savings: ' + resCostSavings.innerText + ' (' + resPayback.innerText + ')',
+            'Standards: HEI Standards for Steam Jet Ejectors & 3-A Sanitary 60-01'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [evapRateInput, evapUnitSel, boilTempInput, bpeInput, motivePressInput, tempLiftInput, steamCostInput, evapTypeSel, ejectorEffInput, annualHrsInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CD2: PRESSURE RELIEF VALVE (PRV) TWO-PHASE FLOW SIZING CALCULATOR ───
+  (() => {
+    const slug = 'pressure-relief-valve-prv-two-phase-hem-calculator';
+    const title = 'Pressure Relief Valve (PRV) Two-Phase Flow Sizing Calculator | API 520 & HEM Engine';
+    const desc = 'Industrial Pressure Relief Valve (PRV) two-phase flashing and non-flashing relief sizing calculator adhering to API Standard 520 Part I (Annex C) and the DIERS Homogeneous Equilibrium Model (HEM). Calculate Omega compressibility, critical mass flux, and API 526 standard orifice letter designation.';
+
+    const faqs = [
+      {
+        q: 'Why does sizing a PRV for two-phase flashing flow require the API 520 Omega (HEM) method rather than standard single-phase equations?',
+        a: 'Standard single-phase relief equations assume either incompressible liquid or ideal gas expansion. When a pressurized liquid (such as propane, butane, or hot boiler feed water) enters a relief valve nozzle, static pressure drops abruptly across the converging orifice. This pressure drop causes the liquid to flash violently into a boiling vapor-liquid mixture. The rapid generation of vapor drastically expands specific volume (choking the flow) and causes sonic choking at a much lower mass flux than pure liquid. Sizing with liquid equations severely undersizes the valve (risking vessel overpressure explosion), while gas equations cannot capture the high fluid momentum.'
+      },
+      {
+        q: 'What is the Leung Omega parameter (omega) and what does it physically signify?',
+        a: 'The Omega parameter (omega) is a dimensionless compressibility index developed by Dr. J.C. Leung and adopted in API 520 Annex C to characterize two-phase flashing expansion. It represents the ratio of the volume change upon flashing to the initial two-phase specific volume: omega = (x0 * v_fg0 / v0) + (Cp0 * T0 * P0 / v0) * (v_fg0 / h_fg0)^2. For an ideal gas, omega = 1.0. For subcooled or highly flashing liquids, omega ranges from 4 to over 40. High omega values indicate that vast volumes of vapor are liberated upon slight depressurization, causing extreme choked flow velocity reductions.'
+      },
+      {
+        q: 'How is the Critical Pressure Ratio (eta_c) and Critical Mass Flux (G_c) determined?',
+        a: 'The critical pressure ratio eta_c = P_c / P0 is the ratio of choked nozzle throat pressure to upstream relieving pressure. In the HEM model, eta_c is determined by solving: eta_c = [2 / (omega + 1)]^(omega / (omega - 1)). Once eta_c is known, if the downstream backpressure is lower than P_c, the flow is sonically choked. The critical mass flux G_c is calculated via G_c = eta_c * sqrt(P0 / (v0 * omega)). Sizing the valve orifice using G_c ensures that the valve discharges the required mass relief rate during an emergency event.'
+      },
+      {
+        q: 'What is the difference between balanced bellows and conventional PRVs in two-phase relief service?',
+        a: 'Conventional spring-loaded PRVs are subject to backpressure derating; superimposed or built-up backpressure acts on the back of the disc holder, increasing the set pressure and reducing lift. In two-phase relief, backpressures frequently exceed 20% of set pressure due to heavy flashing vapor expansion in downstream flare headers. Balanced bellows PRVs isolate the upper bonnet from downstream backpressure, allowing reliable operation with built-up backpressures up to 50% of set pressure without chatter or capacity loss.'
+      },
+      {
+        q: 'How does API 526 select standard orifice letters (D through T)?',
+        a: 'API Standard 526 standardizes commercial relief valve orifice areas into 14 distinct letter designations, ranging from D (0.110 in2 / 0.71 cm2) to T (26.00 in2 / 167.7 cm2). Once the required effective discharge area (A_req) is calculated via API 520, the engineer must select the next larger standard API orifice letter. Selecting an oversized orifice (e.g. selecting an L orifice when a G is required) can cause valve chattering, rapid seat galling, and pipe vibration during partial relief.'
+      }
+    ];
+
+    const content = `<style>
+      .prv-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .prv-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .prv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .prv-group { margin-bottom: 16px; }
+      .prv-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .prv-group select, .prv-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .prv-group select:focus, .prv-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .prv-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-red { background: #fef2f2; color: #dc2626; }
+      .prv-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .prv-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .prv-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .prv-res-sub { font-size: 0.8rem; color: #64748b; }
+      .prv-btn { background: #dc2626; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .prv-btn:hover { background: #b91c1c; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="prv-wrap">
+      <div class="prv-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Pressure Relief Valve (PRV) Two-Phase Sizing Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">API 520 Part I (Annex C) & DIERS Homogeneous Equilibrium Model (HEM) for flashing flow relief.</p>
+          </div>
+          <span class="prv-badge badge-red">API 520 / 526 & ASME Sec VIII</span>
+        </div>
+
+        <div class="prv-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Relieving Mass Flow & Fluid Type</h3>
+            <div class="prv-group">
+              <label for="prv_mass_flow">Required Relieving Mass Rate (W)</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="prv_mass_flow" value="45000" min="100" step="500">
+                <select id="prv_flow_unit" style="width:130px;">
+                  <option value="kg_h" selected>kg/h</option>
+                  <option value="lb_h">lb/h</option>
+                  <option value="kg_s">kg/s</option>
+                </select>
+              </div>
+            </div>
+            <div class="prv-group">
+              <label for="prv_fluid_type">Two-Phase Fluid Regime</label>
+              <select id="prv_fluid_type">
+                <option value="saturated_lpg" selected>Saturated LPG / Hydrocarbon (Flashing Liquid)</option>
+                <option value="steam_water">Boiler Water / Steam (Saturated Hot Water)</option>
+                <option value="organic_solvent">Organic Solvent / Chemical (Flash Boiling)</option>
+                <option value="gas_liquid_mix">Two-Phase Non-Flashing (Gas + Liquid Mixture)</option>
+              </select>
+            </div>
+            <div class="prv-group">
+              <label for="prv_inlet_quality">Inlet Vapor Mass Quality (x0)</label>
+              <input type="number" id="prv_inlet_quality" value="0.05" min="0.0" max="0.95" step="0.01">
+              <small style="color:#64748b;">x0 = 0.0 for saturated liquid, 0.05 for 5% vapor.</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Pressure & Temperature Conditions</h3>
+            <div class="prv-group">
+              <label for="prv_set_press">PRV Set Pressure (barg)</label>
+              <input type="number" id="prv_set_press" value="16.0" min="1.0" max="150.0" step="0.5">
+            </div>
+            <div class="prv-group">
+              <label for="prv_overpressure">Allowable Overpressure (% of Set)</label>
+              <select id="prv_overpressure">
+                <option value="10" selected>10% (Non-Fire Operating Upset)</option>
+                <option value="16">16% (Multiple Valve Installation)</option>
+                <option value="21">21% (External Fire Case)</option>
+              </select>
+            </div>
+            <div class="prv-group">
+              <label for="prv_back_press">Total Backpressure (barg)</label>
+              <input type="number" id="prv_back_press" value="2.5" min="0.0" max="40.0" step="0.2">
+              <small style="color:#64748b;">Superimposed + Built-up backpressure in flare header.</small>
+            </div>
+            <div class="prv-group">
+              <label for="prv_temp">Relieving Temperature (deg C)</label>
+              <input type="number" id="prv_temp" value="48.0" min="-50.0" max="350.0" step="1.0">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Valve Configuration & Deratings</h3>
+            <div class="prv-group">
+              <label for="prv_valve_style">Valve Style & Design</label>
+              <select id="prv_valve_style">
+                <option value="balanced_bellows" selected>Balanced Bellows PRV (Backpressure tolerant)</option>
+                <option value="conventional">Conventional Spring-Loaded PRV</option>
+                <option value="pilot_operated">Pilot-Operated Relief Valve (POPRV)</option>
+              </select>
+            </div>
+            <div class="prv-group">
+              <label for="prv_rupture_disk">Upstream Rupture Disk Installed?</label>
+              <select id="prv_rupture_disk">
+                <option value="no" selected>No Rupture Disk (Kc = 1.0)</option>
+                <option value="yes">Yes, Certified Combination (Kc = 0.90)</option>
+              </select>
+            </div>
+            <div class="prv-group">
+              <label for="prv_kd">Discharge Coefficient (Kd)</label>
+              <input type="number" id="prv_kd" value="0.975" min="0.600" max="0.990" step="0.005">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="prv-btn" id="prv_calc_btn">Calculate API 520 Two-Phase Orifice Area</button>
+        </div>
+      </div>
+
+      <div class="prv-card" id="prv_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">API 520 / 526 Sizing & Orifice Selection</h2>
+          <button class="copy-btn" id="prv_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="prv_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="prv-res-grid">
+          <div class="prv-res-card">
+            <div class="prv-res-sub">Selected API 526 Orifice</div>
+            <div class="prv-res-val" id="res_api_letter" style="color:#dc2626;">-</div>
+            <div class="prv-res-sub" id="res_api_area">Area: 0 in2 (0 mm2)</div>
+          </div>
+          <div class="prv-res-card">
+            <div class="prv-res-sub">Required Discharge Area</div>
+            <div class="prv-res-val" id="res_req_area">0 mm2</div>
+            <div class="prv-res-sub" id="res_req_area_in2">0 in2</div>
+          </div>
+          <div class="prv-res-card">
+            <div class="prv-res-sub">Omega Parameter (omega)</div>
+            <div class="prv-res-val" id="res_omega">0.00</div>
+            <div class="prv-res-sub" id="res_omega_desc">HEM Flashing Index</div>
+          </div>
+          <div class="prv-res-card">
+            <div class="prv-res-sub">Critical Mass Flux (Gc)</div>
+            <div class="prv-res-val" id="res_gc">0 kg/(m2*s)</div>
+            <div class="prv-res-sub" id="res_gc_fps">0 lb/(hr*in2)</div>
+          </div>
+          <div class="prv-res-card">
+            <div class="prv-res-sub">Relieving Pressure (P0)</div>
+            <div class="prv-res-val" id="res_p0">0 bara</div>
+            <div class="prv-res-sub" id="res_p_choke">Choke Pressure: 0 bara</div>
+          </div>
+          <div class="prv-res-card">
+            <div class="prv-res-sub">Choke State & Regimes</div>
+            <div class="prv-res-val" id="res_choke_state" style="font-size:1.2rem; margin-top:8px;">CHOKED</div>
+            <div class="prv-res-sub" id="res_bp_ratio">Backpressure: 0%</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Fluid Specific Volumes & Expansion Path</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Inlet Specific Volume (v0): <strong id="res_v0">0.0000 m3/kg</strong></div>
+            <div>Choked Throat Volume (vt): <strong id="res_vt">0.0000 m3/kg</strong></div>
+            <div>Critical Pressure Ratio (eta_c): <strong id="res_etac">0.000 (Pc / P0)</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">API PRV Internal Cutaway & Flashing Choke Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Visualizing inlet nozzle, disc lift, supersonic two-phase vena contracta flash expansion, balanced bellows, and spring assembly.</p>
+          <div class="anim-box">
+            <canvas id="prv_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="prv-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Sizing with Pure Liquid Equations & Catastrophic Undersizing</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">The most dangerous error in process safety is treating a flashing liquid (e.g. saturated LPG or boiler water) as an incompressible liquid. Because liquid density is high, liquid formulas predict a tiny required orifice. However, upon entering the nozzle, the liquid flashes into high-volume vapor, choking flow velocity. The actual relieving capacity of the valve is 40% to 75% LOWER than predicted by liquid formulas. During a runaway thermal event, vessel pressure continues to rise past burst limits, triggering catastrophic BLEVE explosions.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Severe Valve Chattering & Trim Destruction from Over-Sizing</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">Engineers often compensate for uncertainty by picking an excessively large API letter orifice (e.g. choosing a P orifice when a J orifice is required). In two-phase relief, an oversized valve opens, immediately drops upstream vessel pressure, and partially flashes liquid in the inlet piping. The valve disc slams shut against the nozzle seat at 40 Hz (rapid chattering). Within 10 seconds of chattering, the hardened Stellite disc shatters, bellows rupture, and pipe flanges crack from hydraulic water-hammer shockwaves.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Neglecting Inlet Pipe Pressure Drop (The 3% Rule Violation)</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">API 520 mandates that non-recoverable frictional pressure loss between the protected vessel and the PRV inlet must not exceed 3% of the valve set pressure. In two-phase flow, frictional losses are 5 to 10 times higher than pure liquid due to high two-phase velocity. If inlet pressure drop exceeds 3%, when the valve opens, the inlet pressure plummets below the reseat pressure, causing the valve to slam shut, re-pressurize, and reopen in continuous rapid chattering.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Conventional Valve Stall Under High Built-Up Backpressure</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">When two-phase mixtures discharge into a common flare header, the enormous volumetric expansion of the flashing gas creates high built-up backpressures (frequently 25% to 45% of set pressure). In conventional valves, this backpressure acts directly on top of the disc holder, exerting a massive closing force that forces the disc back onto its seat. Relieving capacity collapses by over 60%. Critical two-phase systems must strictly specify Balanced Bellows or Pilot-Operated PRVs.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Joule-Thomson Auto-Refrigeration & Brittle Fracture of Outlet Piping</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">When volatile hydrocarbons (propane, ethylene, methane) flash across the PRV nozzle from 20 barg to atmospheric flare pressure, the severe Joule-Thomson expansion drops fluid temperature down to -45 deg C to -100 deg C. If the valve outlet body and discharge tailpipe are fabricated from standard carbon steel (A106-B), the metal drops below its ductile-to-brittle transition temperature (DBTT), leading to explosive catastrophic brittle shattering under the reaction force of the relief stream.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">API 520 Homogeneous Equilibrium Model (HEM) Derivations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The <strong>Leung Omega parameter ($\omega$)</strong> for flashing two-phase flow is defined in <strong>API 520 Part I Annex C</strong> by:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\omega = \frac{x_0 \cdot v_{fg0}}{v_0} + \frac{C_{p0} \cdot T_0 \cdot P_0}{v_0} \left( \frac{v_{fg0}}{h_{fg0}} \right)^2$$
+          </div>
+          <p>The <strong>Critical Pressure Ratio ($\eta_c = P_c / P_0$)</strong> is determined by solving the transonic choked condition:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\eta_c = \left( \frac{2}{\omega + 1} \right)^{\frac{\omega}{\omega - 1}}$$
+          </div>
+          <p>For choked flow (when $P_{back} / P_0 \le \eta_c$), the <strong>Critical Mass Flux ($G_c$)</strong> is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$G_c = \eta_c \cdot \sqrt{\frac{P_0}{v_0 \cdot \omega}} \quad \left[ \frac{\text{kg}}{\text{m}^2 \cdot \text{s}} \right]$$
+          </div>
+          <p>The required effective discharge area $A_{req}$ is calculated by incorporating all certified derating coefficients:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$A_{req} = \frac{W}{K_d \cdot K_b \cdot K_c \cdot K_v \cdot G_c}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var flowInput = document.getElementById('prv_mass_flow');
+        var flowUnitSel = document.getElementById('prv_flow_unit');
+        var fluidTypeSel = document.getElementById('prv_fluid_type');
+        var qualityInput = document.getElementById('prv_inlet_quality');
+        var setPressInput = document.getElementById('prv_set_press');
+        var overpressSel = document.getElementById('prv_overpressure');
+        var backPressInput = document.getElementById('prv_back_press');
+        var tempInput = document.getElementById('prv_temp');
+        var valveStyleSel = document.getElementById('prv_valve_style');
+        var ruptureSel = document.getElementById('prv_rupture_disk');
+        var kdInput = document.getElementById('prv_kd');
+        var calcBtn = document.getElementById('prv_calc_btn');
+        var copyBtn = document.getElementById('prv_copy_btn');
+        var copyMsg = document.getElementById('prv_copy_msg');
+
+        var resApiLetter = document.getElementById('res_api_letter');
+        var resApiArea = document.getElementById('res_api_area');
+        var resReqArea = document.getElementById('res_req_area');
+        var resReqAreaIn2 = document.getElementById('res_req_area_in2');
+        var resOmega = document.getElementById('res_omega');
+        var resOmegaDesc = document.getElementById('res_omega_desc');
+        var resGc = document.getElementById('res_gc');
+        var resGcFps = document.getElementById('res_gc_fps');
+        var resP0 = document.getElementById('res_p0');
+        var resPChoke = document.getElementById('res_p_choke');
+        var resChokeState = document.getElementById('res_choke_state');
+        var resBpRatio = document.getElementById('res_bp_ratio');
+        var resV0 = document.getElementById('res_v0');
+        var resVt = document.getElementById('res_vt');
+        var resEtac = document.getElementById('res_etac');
+
+        var canvas = document.getElementById('prv_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        // Standard API 526 Orifices: Letter, in2, mm2
+        var apiOrifices = [
+          { letter: 'D', in2: 0.110, mm2: 71 },
+          { letter: 'E', in2: 0.196, mm2: 126 },
+          { letter: 'F', in2: 0.307, mm2: 198 },
+          { letter: 'G', in2: 0.503, mm2: 325 },
+          { letter: 'H', in2: 0.785, mm2: 506 },
+          { letter: 'J', in2: 1.287, mm2: 830 },
+          { letter: 'K', in2: 1.838, mm2: 1186 },
+          { letter: 'L', in2: 2.853, mm2: 1841 },
+          { letter: 'M', in2: 3.600, mm2: 2323 },
+          { letter: 'N', in2: 4.340, mm2: 2800 },
+          { letter: 'P', in2: 6.380, mm2: 4116 },
+          { letter: 'Q', in2: 11.050, mm2: 7129 },
+          { letter: 'R', in2: 16.000, mm2: 10323 },
+          { letter: 'T', in2: 26.000, mm2: 16774 }
+        ];
+
+        function calculate() {
+          var rawFlow = parseFloat(flowInput.value) || 45000;
+          var unit = flowUnitSel.value;
+          var fType = fluidTypeSel.value;
+          var x0 = parseFloat(qualityInput.value) || 0.05;
+          var pSetBarg = parseFloat(setPressInput.value) || 16.0;
+          var overPct = parseFloat(overpressSel.value) || 10;
+          var pBackBarg = parseFloat(backPressInput.value) || 2.5;
+          var tReliefC = parseFloat(tempInput.value) || 48.0;
+          var vStyle = valveStyleSel.value;
+          var hasRupture = ruptureSel.value === 'yes';
+          var kd = parseFloat(kdInput.value) || 0.975;
+
+          // Convert flow to kg/s
+          var flowKgS = rawFlow / 3600;
+          if (unit === 'lb_h') flowKgS = (rawFlow * 0.453592) / 3600;
+          else if (unit === 'kg_s') flowKgS = rawFlow;
+
+          // Relieving Pressure P0 (bara) = (P_set * (1 + overpressure) + 1.01325)
+          var pReliefBarg = pSetBarg * (1 + overPct / 100);
+          var p0Bara = pReliefBarg + 1.01325;
+          var p0Pa = p0Bara * 1e5;
+          var pBackBara = pBackBarg + 1.01325;
+
+          // Fluid physical properties
+          var rhoL = 550; // kg/m3 (LPG approx)
+          var rhoV = 32;  // kg/m3
+          var hfg = 350;  // kJ/kg
+          var cpL = 2.4;  // kJ/(kg K)
+
+          if (fType === 'steam_water') {
+            rhoL = 890; rhoV = 8.5; hfg = 1950; cpL = 4.3;
+          } else if (fType === 'organic_solvent') {
+            rhoL = 780; rhoV = 18; hfg = 500; cpL = 2.1;
+          } else if (fType === 'gas_liquid_mix') {
+            rhoL = 800; rhoV = 22; hfg = 1e6; cpL = 2.0; // non-flashing
+          }
+
+          var vL = 1 / rhoL; // m3/kg
+          var vV = 1 / rhoV; // m3/kg
+          var vfg = vV - vL;
+          var v0 = (1 - x0) * vL + x0 * vV;
+
+          // Leung Omega parameter calculation
+          var tReliefK = tReliefC + 273.15;
+          var omega = 1.0;
+          if (fType === 'gas_liquid_mix') {
+            omega = x0 * (vfg / v0);
+          } else {
+            var term1 = x0 * (vfg / v0);
+            var term2 = (cpL * 1000 * tReliefK * p0Pa / v0) * Math.pow(vfg / (hfg * 1000), 2);
+            omega = term1 + term2;
+          }
+          omega = Math.max(1.05, Math.min(50.0, omega));
+
+          // Critical pressure ratio eta_c
+          var etaC = Math.pow(2 / (omega + 1), omega / (omega - 1));
+          var pChokeBara = p0Bara * etaC;
+
+          // Critical mass flux G_c (kg / (m2 * s))
+          var isChoked = pBackBara <= pChokeBara;
+          var gc = 0;
+          if (isChoked) {
+            gc = etaC * Math.sqrt(p0Pa / (v0 * omega));
+          } else {
+            // Subcritical unchoked flow
+            var eta = pBackBara / p0Bara;
+            var subNum = -2 * (omega * Math.log(eta) + (omega - 1) * (1 - eta));
+            var subDen = Math.pow(omega * (1 / eta - 1) + 1, 2);
+            gc = Math.sqrt(Math.max(0, p0Pa / v0 * (subNum / subDen)));
+          }
+
+          // Derating factors: Kc, Kb
+          var kc = hasRupture ? 0.90 : 1.0;
+          var bpRatio = (pBackBarg / pReliefBarg) * 100;
+          var kb = 1.0;
+          if (vStyle === 'conventional') {
+            if (bpRatio > 10) kb = Math.max(0.60, 1.0 - (bpRatio - 10) * 0.015);
+          } else if (vStyle === 'balanced_bellows') {
+            if (bpRatio > 30) kb = Math.max(0.75, 1.0 - (bpRatio - 30) * 0.010);
+          }
+
+          var kv = 1.0; // Viscosity factor (usually 1.0 for turbulent relief)
+          var effectiveKd = kd * kb * kc * kv;
+
+          // Required area in mm2 and in2
+          var reqAreaM2 = flowKgS / (effectiveKd * gc);
+          var reqAreaMm2 = reqAreaM2 * 1e6;
+          var reqAreaIn2 = reqAreaMm2 / 645.16;
+
+          // Select API 526 Letter
+          var selectedOrifice = null;
+          for (var i = 0; i < apiOrifices.length; i++) {
+            if (apiOrifices[i].in2 >= reqAreaIn2) {
+              selectedOrifice = apiOrifices[i];
+              break;
+            }
+          }
+
+          // Choked throat specific volume
+          var vt = v0 * (1 + omega * (1 / etaC - 1));
+
+          // Update DOM
+          if (selectedOrifice) {
+            resApiLetter.innerText = selectedOrifice.letter + ' Orifice';
+            resApiArea.innerText = 'Rated: ' + selectedOrifice.in2.toFixed(3) + ' in2 (' + selectedOrifice.mm2 + ' mm2)';
+          } else {
+            resApiLetter.innerText = '> T Orifice';
+            resApiArea.innerText = 'Exceeds standard API 526! Multiple PRVs required.';
+          }
+
+          resReqArea.innerText = Math.round(reqAreaMm2).toLocaleString() + ' mm2';
+          resReqAreaIn2.innerText = reqAreaIn2.toFixed(3) + ' in2 required';
+          resOmega.innerText = omega.toFixed(2);
+          resOmegaDesc.innerText = 'HEM Flashing Index (eta_c = ' + etaC.toFixed(3) + ')';
+          resGc.innerText = Math.round(gc).toLocaleString() + ' kg/(m2*s)';
+          resGcFps.innerText = Math.round(gc * 0.7373) + ' lb/(hr*in2)';
+          resP0.innerText = p0Bara.toFixed(2) + ' bara';
+          resPChoke.innerText = 'Choke Throat: ' + pChokeBara.toFixed(2) + ' bara';
+          resChokeState.innerText = isChoked ? 'SONIC CHOKED' : 'SUBCRITICAL UNCHOKED';
+          resChokeState.style.color = isChoked ? '#16a34a' : '#f59e0b';
+          resBpRatio.innerText = 'Backpressure: ' + bpRatio.toFixed(1) + '% of Relieving P';
+          resV0.innerText = v0.toFixed(5) + ' m3/kg';
+          resVt.innerText = vt.toFixed(5) + ' m3/kg (Expansion: ' + (vt/v0).toFixed(1) + 'x)';
+          resEtac.innerText = etaC.toFixed(3) + ' (P_choke / P0)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 360;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // API Relief Valve Cutaway Diagram (Left-Center)
+          var vX = 180, vY = 30, vW = 180, vH = 260;
+
+          // Cast Steel Valve Body Shell
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#dc2626';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          // Angle body: vertical inlet to horizontal outlet
+          ctx.moveTo(vX + 40, vY + vH);
+          ctx.lineTo(vX + 40, vY + 120);
+          ctx.lineTo(vX, vY + 120);
+          ctx.lineTo(vX, vY + 50);
+          ctx.lineTo(vX + 130, vY + 50);
+          ctx.lineTo(vX + 130, vY + 90);
+          ctx.lineTo(vX + vW, vY + 90);
+          ctx.lineTo(vX + vW, vY + 170);
+          ctx.lineTo(vX + 100, vY + 170);
+          ctx.lineTo(vX + 100, vY + vH);
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+
+          // Inlet Nozzle Throat (Converging)
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(vX + 50, vY + 180, 40, 70);
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('NOZZLE', vX + 70, vY + 220);
+
+          // Valve Disc & Holder (Lifted Position)
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(vX + 45, vY + 155, 50, 16);
+
+          // Heavy Coiled Spring in Bonnet
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          for (var sy = vY + 60; sy < vY + 140; sy += 12) {
+            ctx.moveTo(vX + 55, sy);
+            ctx.lineTo(vX + 85, sy + 6);
+          }
+          ctx.stroke();
+
+          // Two-Phase Flashing Jet Visualization
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
+          ctx.fillRect(vX + 50, vY + 180, 40, 70); // inlet liquid
+
+          // Flashing cloud expanding out side flange
+          var cloudGrad = ctx.createLinearGradient(vX + 90, vY + 130, vX + vW, vY + 130);
+          cloudGrad.addColorStop(0, '#f87171');
+          cloudGrad.addColorStop(1, 'rgba(56, 189, 248, 0.6)');
+          ctx.fillStyle = cloudGrad;
+          ctx.beginPath();
+          ctx.moveTo(vX + 90, vY + 145);
+          ctx.lineTo(vX + vW, vY + 100);
+          ctx.lineTo(vX + vW, vY + 160);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('SONIC CHOKED JET ->', vX + vW - 10, vY + 135);
+
+          ctx.fillStyle = '#f87171';
+          ctx.fillText('INLET LIQUID ^', vX + 70, vY + vH + 15);
+
+          // Right: API 520 Calculation & Sizing Summary Panel
+          var pX = 460, pY = 40, pW = 570, pH = 240;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(pX, pY, pW, pH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('API 520 PART I (ANNEX C) TWO-PHASE RELIEF ANALYSIS', pX + 20, pY + 25);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#f87171';
+          ctx.fillText('Selected Valve Orifice: ' + resApiLetter.innerText + ' (' + resApiArea.innerText + ')', pX + 20, pY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Required Nozzle Area: ' + resReqArea.innerText + ' (' + resReqAreaIn2.innerText + ')', pX + 20, pY + 75);
+          ctx.fillText('Omega Flashing Parameter: ' + resOmega.innerText + ' (Choke Ratio eta_c = ' + resEtac.innerText + ')', pX + 20, pY + 95);
+          ctx.fillText('Critical Mass Flux (Gc): ' + resGc.innerText + ' (' + resGcFps.innerText + ')', pX + 20, pY + 115);
+          ctx.fillText('Relieving Pressure (P0): ' + resP0.innerText + ' | Throat: ' + resPChoke.innerText, pX + 20, pY + 135);
+          ctx.fillText('Specific Volume Expansion: ' + resV0.innerText + ' -> ' + resVt.innerText, pX + 20, pY + 155);
+
+          ctx.fillStyle = '#34d399'; ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('Compliance: API Standard 520 / 526 & ASME Boiler Code Section VIII', pX + 20, pY + 195);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Valve Construction: ' + valveStyleSel.value + ' with certified Kd ' + kdInput.value, pX + 20, pY + 218);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== API 520 TWO-PHASE PRV SIZING REPORT ===',
+            'Relieving Flow Rate: ' + flowInput.value + ' ' + flowUnitSel.value,
+            'Fluid Regime: ' + fluidTypeSel.value + ' (Inlet Quality x0 = ' + qualityInput.value + ')',
+            'Set Pressure / Overpressure: ' + setPressInput.value + ' barg @ ' + overpressSel.value + '%',
+            'Relieving Pressure (P0): ' + resP0.innerText + ' (Backpressure: ' + backPressInput.value + ' barg)',
+            'Selected API 526 Orifice: ' + resApiLetter.innerText + ' (' + resApiArea.innerText + ')',
+            'Required Discharge Area: ' + resReqArea.innerText + ' (' + resReqAreaIn2.innerText + ')',
+            'Leung Omega Parameter: ' + resOmega.innerText + ' (Critical Ratio: ' + resEtac.innerText + ')',
+            'Critical Mass Flux (Gc): ' + resGc.innerText + ' (' + resGcFps.innerText + ')',
+            'Choke Throat Conditions: ' + resPChoke.innerText + ' (vt = ' + resVt.innerText + ')',
+            'Valve Specification: ' + valveStyleSel.value + ' with Kd = ' + kdInput.value,
+            'Standard Compliance: API 520 Part I 10th Ed. Annex C & API 526'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [flowInput, flowUnitSel, fluidTypeSel, qualityInput, setPressInput, overpressSel, backPressInput, tempInput, valveStyleSel, ruptureSel, kdInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CD3: DUAL-MEDIA GRANULAR RAPID SAND & ANTHRACITE FILTER SIZING CALCULATOR ───
+  (() => {
+    const slug = 'dual-media-filter-sand-anthracite-water-treatment-calculator';
+    const title = 'Dual-Media Filter Sizing Calculator | Sand & Anthracite Rapid Gravity Bed Engine';
+    const desc = 'Industrial and municipal dual-media rapid gravity filter sizing calculator for drinking water, tertiary wastewater, and RO pretreatment. Size clean bed head loss via the Ergun equation, filtration loading rate, anthracite and sand bed depths, backwash fluidization velocity, and bed expansion.';
+
+    const faqs = [
+      {
+        q: 'Why is a dual-media (anthracite over sand) filter superior to a single-medium sand filter?',
+        a: 'Single-medium sand filters suffer from hydraulic reverse-classification: during backwash, smaller sand grains settle at the top of the bed while larger grains sink to the bottom. Consequently, incoming suspended solids are trapped in the top 25 to 50 mm, creating a blinding surface cake that triggers rapid head loss buildup and short filter runs (<12 hours). In a dual-media filter, coarse low-density anthracite (SG ~ 1.6, size ~ 1.0 mm) sits on top of fine high-density silica sand (SG ~ 2.65, size ~ 0.5 mm). This creates true in-depth filtration: coarse floc is captured in the deep anthracite pores while fine particles are polished in the sand, tripling solids holding capacity and extending run times to 24-48 hours.'
+      },
+      {
+        q: 'How is clean bed head loss calculated using the Ergun equation?',
+        a: 'Clean bed head loss across packed granular media combines laminar viscous drag and turbulent kinetic losses, modeled by the Ergun equation: h_L = [150 * (1 - e)^2 / e^3 * (nu * v_f / (g * d_p^2)) + 1.75 * (1 - e) / e^3 * (v_f^2 / (g * d_p))] * L, where e is media porosity (~0.50 for angular anthracite, ~0.42 for rounded sand), nu is kinematic water viscosity, v_f is superficial filtration velocity, and L is bed depth. Typical clean bed head loss ranges from 0.3 to 0.7 meters of water column at design loading rates.'
+      },
+      {
+        q: 'Why do anthracite and sand remain stratified after vigorous backwashing instead of intermixing?',
+        a: 'Stratification is governed by settling velocity and hydrodynamic fluidization. Terminal settling velocity is proportional to (rho_solid - rho_water) * d_p^2. Because anthracite has a much lower buoyant density (1.60 - 1.00 = 0.60 g/cm3) but a larger particle size (~1.0 mm), while silica sand has a higher buoyant density (2.65 - 1.00 = 1.65 g/cm3) but a smaller particle size (~0.5 mm), their fluidization velocities are engineered to balance. When backwash water shuts off, the denser sand grains settle faster than the larger anthracite grains, re-establishing a sharp, stable boundary with minimal intermixing.'
+      },
+      {
+        q: 'What is the Minimum Fluidization Velocity (v_mf) and required bed expansion during backwash?',
+        a: 'Minimum fluidization velocity (v_mf) is the upward water velocity at which the drag force of the fluid exactly balances the buoyant weight of the granular bed. Calculated using the Wen & Yu correlation, typical v_mf ranges between 20 and 35 m/h (8 to 14 GPM/ft2). To effectively detach sticky coagulated floc from media grains, the backwash rate must exceed v_mf to achieve 20% to 35% bed expansion. In modern plants, combined air scour (55 to 85 m3/(m2*h)) and low-rate water wash is used first to scrub grains through inter-particle collisions before high-rate expansion flushing.'
+      },
+      {
+        q: 'How are the number and dimensions of filter cells determined in a municipal water plant?',
+        a: 'Plants specify multiple parallel filter bays to ensure that when one cell is taken offline for backwashing, the remaining operational cells do not exceed the maximum allowable filtration rate (typically 12 to 15 m/h). Cell count is sized via N_cells = 0.044 * sqrt(Q_MGD) + 2 or based on redundancy criteria (minimum 2 to 4 cells). Cell length-to-width aspect ratio is typically 1.2:1 to 1.5:1, designed around standard underdrain lateral blocks and washwater collection gullet hydraulics.'
+      }
+    ];
+
+    const content = `<style>
+      .dmf-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .dmf-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .dmf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .dmf-group { margin-bottom: 16px; }
+      .dmf-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .dmf-group select, .dmf-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .dmf-group select:focus, .dmf-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .dmf-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-teal { background: #f0fdfa; color: #0d9488; }
+      .dmf-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .dmf-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .dmf-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .dmf-res-sub { font-size: 0.8rem; color: #64748b; }
+      .dmf-btn { background: #0d9488; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .dmf-btn:hover { background: #0f766e; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="dmf-wrap">
+      <div class="dmf-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Dual-Media Filter Sizing Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Ergun clean bed head loss modeling, media stratification hydraulics, and backwash fluidization sizing.</p>
+          </div>
+          <span class="dmf-badge badge-teal">AWWA B100 & Ten States Standards</span>
+        </div>
+
+        <div class="dmf-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Plant Flow Rate & Hydraulic Loading</h3>
+            <div class="dmf-group">
+              <label for="dmf_flow">Total Treated Water Flow</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="dmf_flow" value="25" min="1" step="5">
+                <select id="dmf_flow_unit" style="width:130px;">
+                  <option value="MGD" selected>MGD (US)</option>
+                  <option value="m3h">m3/h</option>
+                  <option value="MLD">MLD (MegaL/day)</option>
+                </select>
+              </div>
+            </div>
+            <div class="dmf-group">
+              <label for="dmf_filt_rate">Filtration Loading Rate (m/h)</label>
+              <input type="number" id="dmf_filt_rate" value="10.5" min="5.0" max="22.0" step="0.5">
+              <small style="color:#64748b;">Typically 8.0 to 14.0 m/h (3.3 to 5.7 GPM/ft2).</small>
+            </div>
+            <div class="dmf-group">
+              <label for="dmf_num_cells">Number of Operating Filter Cells</label>
+              <input type="number" id="dmf_num_cells" value="6" min="2" max="32" step="1">
+              <small style="color:#64748b;">Plus 1 redundant cell during backwash.</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Media Profile & Grain Sizing</h3>
+            <div class="dmf-group">
+              <label for="dmf_anth_depth">Anthracite Top Layer Depth (mm)</label>
+              <input type="number" id="dmf_anth_depth" value="450" min="200" max="900" step="25">
+            </div>
+            <div class="dmf-group">
+              <label for="dmf_anth_es">Anthracite Effective Size (Es, mm)</label>
+              <input type="number" id="dmf_anth_es" value="1.05" min="0.80" max="1.50" step="0.05">
+            </div>
+            <div class="dmf-group">
+              <label for="dmf_sand_depth">Silica Sand Bottom Layer Depth (mm)</label>
+              <input type="number" id="dmf_sand_depth" value="300" min="150" max="600" step="25">
+            </div>
+            <div class="dmf-group">
+              <label for="dmf_sand_es">Silica Sand Effective Size (Es, mm)</label>
+              <input type="number" id="dmf_sand_es" value="0.50" min="0.35" max="0.75" step="0.02">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Fluid Properties & Backwash</h3>
+            <div class="dmf-group">
+              <label for="dmf_temp">Water Operating Temperature (deg C)</label>
+              <input type="number" id="dmf_temp" value="18" min="2" max="40" step="1">
+            </div>
+            <div class="dmf-group">
+              <label for="dmf_bw_exp">Target Backwash Bed Expansion (%)</label>
+              <input type="number" id="dmf_bw_exp" value="25" min="15" max="45" step="5">
+            </div>
+            <div class="dmf-group">
+              <label for="dmf_air_scour">Include Air Scour Pre-Wash?</label>
+              <select id="dmf_air_scour">
+                <option value="yes" selected>Yes (60 m3/(m2*h) Air Scour)</option>
+                <option value="no">No (Water-only Backwash)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="dmf-btn" id="dmf_calc_btn">Compute Dual-Media Hydraulics & Cell Dimensions</button>
+        </div>
+      </div>
+
+      <div class="dmf-card" id="dmf_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Filter Bay Hydraulics & Clean Bed Head Loss</h2>
+          <button class="copy-btn" id="dmf_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="dmf_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="dmf-res-grid">
+          <div class="dmf-res-card">
+            <div class="dmf-res-sub">Clean Bed Head Loss (Ergun)</div>
+            <div class="dmf-res-val" id="res_total_hl">0 m</div>
+            <div class="dmf-res-sub" id="res_total_hl_ft">0 ft water column</div>
+          </div>
+          <div class="dmf-res-card">
+            <div class="dmf-res-sub">Total Filtration Area (All Cells)</div>
+            <div class="dmf-res-val" id="res_total_area">0 m2</div>
+            <div class="dmf-res-sub" id="res_area_per_cell">0 m2 per cell</div>
+          </div>
+          <div class="dmf-res-card">
+            <div class="dmf-res-sub">Filter Cell Dimensions</div>
+            <div class="dmf-res-val" id="res_cell_dim">0 x 0 m</div>
+            <div class="dmf-res-sub" id="res_cell_ft">0 x 0 ft bay</div>
+          </div>
+          <div class="dmf-res-card">
+            <div class="dmf-res-sub">Required Backwash Rate</div>
+            <div class="dmf-res-val" id="res_bw_rate">0 m/h</div>
+            <div class="dmf-res-sub" id="res_bw_gpm_ft2">0 GPM/ft2 (0 m3/h)</div>
+          </div>
+          <div class="dmf-res-card">
+            <div class="dmf-res-sub">Expanded Bed Height</div>
+            <div class="dmf-res-val" id="res_exp_bed">0 mm</div>
+            <div class="dmf-res-sub" id="res_exp_delta">+0 mm freeboard lift</div>
+          </div>
+          <div class="dmf-res-card">
+            <div class="dmf-res-sub">Total Media Inventory</div>
+            <div class="dmf-res-val" id="res_media_total_vol">0 m3</div>
+            <div class="dmf-res-sub" id="res_media_weights">Anthracite: 0 t | Sand: 0 t</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Layered Head Loss & Minimum Fluidization (v_mf)</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Anthracite: <strong id="res_anth_hl">0.00 m HL (v_mf: 0 m/h)</strong></div>
+            <div>Silica Sand: <strong id="res_sand_hl">0.00 m HL (v_mf: 0 m/h)</strong></div>
+            <div>Air Scour Blower: <strong id="res_air_scour_flow">0 Nm3/h @ 40 kPa</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Dual-Media Gravity Bed Cutaway & Backwash Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Visualizing anthracite upper bed, silica sand polishing bed, porous underdrain lateral blocks, washwater collection troughs, and fluidization expansion.</p>
+          <div class="anim-box">
+            <canvas id="dmf_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="dmf-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Mudball Formation & Deep Bed Clogging</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">If filters rely on low-rate water-only backwash without air scour, adhesive biological or coagulated alum/iron floc is not effectively sheared from the media. The sticky residue accumulates into dense agglomerates known as "mudballs" (10 to 75 mm diameter). Because mudballs are heavy, they sink to the sand-gravel interface, creating localized dead zones, severe flow maldistribution, and violent breakthrough of pathogens (Cryptosporidium and Giardia).</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Underdrain Orifice Blinding & Gravel Displacement</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">During initial backwash filling or rapid valve stroking, air trapped in underdrain laterals produces violent pressure transients. The rapid water-hammer shockwave lifts and disrupts the graded gravel support layers. Fine silica sand immediately migrates downward into the displaced gravel, enters the underdrain orifices, and cuts through backwash pump impellers. Remediation requires an entire civil excavation of all media and gravel charges.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Severe Anthracite Washout into Waste Troughs</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Anthracite has a specific gravity of only 1.55 to 1.65. In winter, water viscosity increases by over 40% as temperature drops from 25 deg C to 5 deg C. If backwash flow rates are maintained at fixed summer pump settings, the increased viscous drag causes bed expansion to exceed 50%. The fluidized anthracite rises above the lip of the washwater collection troughs, washing tens of tonnes of expensive anthracite directly into the plant waste lagoon.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Air Binding & Vacuum Cavitation in Deep Beds</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">As granular filters accumulate solids over a 36-hour run, head loss increases. If the water level above the media is allowed to drop or if clean bed head loss was improperly designed, static pressure inside the sand layer falls below atmospheric pressure ("negative head"). Dissolved air in the water nucleates out of solution into tiny gas bubbles, locking the interstitial pore throats. Filtration capacity drops to near zero, and subsequent backwashing triggers violent boiling eruptions that disrupt the media layers.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Filter-to-Waste Turbidity Spikes (Ripening Lag)</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">Immediately following backwash, media grains are clean and stripped of surface electrostatic charge. During the first 15 to 45 minutes of returning to service ("filter ripening period"), particle capture efficiency is at its lowest, permitting turbidity spikes exceeding 1.0 NTU and pathogen breakthrough. Water regulations (e.g. EPA LT2ESWTR) strictly mandate automated "filter-to-waste" diversion valves to discharge initial effluent to drain until turbidity stabilizes below 0.10 NTU.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Filtration Hydraulics & Fluidization Mechanics</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The clean bed head loss $h_{L}$ across granular porous media is modeled by the <strong>Ergun Equation</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$h_L = \sum_{m} L_m \left[ 150 \frac{(1 - \epsilon_m)^2}{\epsilon_m^3} \frac{\nu \cdot v_f}{g \cdot (\psi_m d_{m})^2} + 1.75 \frac{1 - \epsilon_m}{\epsilon_m^3} \frac{v_f^2}{g \cdot (\psi_m d_{m})} \right]$$
+          </div>
+          <p>Where $\psi$ is media sphericity (0.72 for angular anthracite, 0.85 for silica sand), $\epsilon$ is bed porosity (0.50 anthracite, 0.42 sand), and $\nu(T)$ is water kinematic viscosity.</p>
+          <p>The <strong>Minimum Fluidization Velocity ($v_{mf}$)</strong> is calculated via the <strong>Wen & Yu relation</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$v_{mf} = \frac{\mu}{\rho_w d_p} \left[ \sqrt{33.7^2 + 0.0408 \cdot Ar} - 33.7 \right], \qquad Ar = \frac{d_p^3 \rho_w (\rho_s - \rho_w) g}{\mu^2}$$
+          </div>
+          <p>The expanded fluidized bed porosity $\epsilon_e$ and expanded height $L_e$ during backwashing are given by the <strong>Richardson-Zaki correlation</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\frac{v_{bw}}{v_t} = \epsilon_e^n, \qquad L_e = L_0 \cdot \frac{1 - \epsilon_0}{1 - \epsilon_e}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var flowInput = document.getElementById('dmf_flow');
+        var flowUnitSel = document.getElementById('dmf_flow_unit');
+        var filtRateInput = document.getElementById('dmf_filt_rate');
+        var numCellsInput = document.getElementById('dmf_num_cells');
+        var anthDepthInput = document.getElementById('dmf_anth_depth');
+        var anthEsInput = document.getElementById('dmf_anth_es');
+        var sandDepthInput = document.getElementById('dmf_sand_depth');
+        var sandEsInput = document.getElementById('dmf_sand_es');
+        var tempInput = document.getElementById('dmf_temp');
+        var bwExpInput = document.getElementById('dmf_bw_exp');
+        var airScourSel = document.getElementById('dmf_air_scour');
+        var calcBtn = document.getElementById('dmf_calc_btn');
+        var copyBtn = document.getElementById('dmf_copy_btn');
+        var copyMsg = document.getElementById('dmf_copy_msg');
+
+        var resTotalHl = document.getElementById('res_total_hl');
+        var resTotalHlFt = document.getElementById('res_total_hl_ft');
+        var resTotalArea = document.getElementById('res_total_area');
+        var resAreaPerCell = document.getElementById('res_area_per_cell');
+        var resCellDim = document.getElementById('res_cell_dim');
+        var resCellFt = document.getElementById('res_cell_ft');
+        var resBwRate = document.getElementById('res_bw_rate');
+        var resBwGpmFt2 = document.getElementById('res_bw_gpm_ft2');
+        var resExpBed = document.getElementById('res_exp_bed');
+        var resExpDelta = document.getElementById('res_exp_delta');
+        var resMediaTotalVol = document.getElementById('res_media_total_vol');
+        var resMediaWeights = document.getElementById('res_media_weights');
+        var resAnthHl = document.getElementById('res_anth_hl');
+        var resSandHl = document.getElementById('res_sand_hl');
+        var resAirScourFlow = document.getElementById('res_air_scour_flow');
+
+        var canvas = document.getElementById('dmf_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function calculate() {
+          var rawFlow = parseFloat(flowInput.value) || 25;
+          var unit = flowUnitSel.value;
+          var vFiltMh = parseFloat(filtRateInput.value) || 10.5;
+          var nCells = parseInt(numCellsInput.value) || 6;
+          var lAnthMm = parseFloat(anthDepthInput.value) || 450;
+          var dAnthMm = parseFloat(anthEsInput.value) || 1.05;
+          var lSandMm = parseFloat(sandDepthInput.value) || 300;
+          var dSandMm = parseFloat(sandEsInput.value) || 0.50;
+          var tempC = parseFloat(tempInput.value) || 18;
+          var targetExpPct = parseFloat(bwExpInput.value) || 25;
+          var hasAirScour = airScourSel.value === 'yes';
+
+          // Convert flow to m3/h
+          var flowM3h = rawFlow;
+          if (unit === 'MGD') flowM3h = rawFlow * 157.725;
+          else if (unit === 'MLD') flowM3h = (rawFlow * 1000) / 24;
+
+          // Required total filter surface area
+          var totalAreaM2 = flowM3h / vFiltMh;
+          var areaPerCellM2 = totalAreaM2 / nCells;
+
+          // Cell dimensions (Aspect ratio 1.35 : 1)
+          var aspect = 1.35;
+          var cellWidthM = Math.sqrt(areaPerCellM2 / aspect);
+          var cellLengthM = cellWidthM * aspect;
+
+          // Water properties at temp
+          // Dynamic viscosity mu (Pa*s) approx: 0.001792 / (1 + 0.0337*T + 0.00022*T^2)
+          var mu = 0.001792 / (1 + 0.0337 * tempC + 0.00022 * tempC * tempC);
+          var rhoW = 999.0;
+          var nu = mu / rhoW; // m2/s
+          var g = 9.81;
+
+          var vfMs = vFiltMh / 3600;
+
+          // Ergun equation for Anthracite:
+          // L = lAnthMm / 1000, e = 0.50, psi = 0.72, dp = dAnthMm / 1000
+          var eAnth = 0.50, psiAnth = 0.72;
+          var dpAnth = (dAnthMm / 1000) * psiAnth;
+          var lAnthM = lAnthMm / 1000;
+          var hlAnth = lAnthM * (150 * Math.pow(1 - eAnth, 2) / Math.pow(eAnth, 3) * (nu * vfMs / (g * dpAnth * dpAnth)) +
+                      1.75 * (1 - eAnth) / Math.pow(eAnth, 3) * (vfMs * vfMs / (g * dpAnth)));
+
+          // Ergun equation for Silica Sand:
+          // L = lSandMm / 1000, e = 0.42, psi = 0.85, dp = dSandMm / 1000
+          var eSand = 0.42, psiSand = 0.85;
+          var dpSand = (dSandMm / 1000) * psiSand;
+          var lSandM = lSandMm / 1000;
+          var hlSand = lSandM * (150 * Math.pow(1 - eSand, 2) / Math.pow(eSand, 3) * (nu * vfMs / (g * dpSand * dpSand)) +
+                     1.75 * (1 - eSand) / Math.pow(eSand, 3) * (vfMs * vfMs / (g * dpSand)));
+
+          var totalHlM = hlAnth + hlSand;
+          var totalHlFt = totalHlM * 3.28084;
+
+          // Minimum fluidization velocity (Wen & Yu)
+          // For Sand (dominant controlling layer for bed expansion)
+          var rhoSand = 2650; // kg/m3
+          var arSand = (Math.pow(dSandMm / 1000, 3) * rhoW * (rhoSand - rhoW) * g) / (mu * mu);
+          var vmfSandMs = (mu / (rhoW * (dSandMm / 1000))) * (Math.sqrt(33.7 * 33.7 + 0.0408 * arSand) - 33.7);
+          var vmfSandMh = vmfSandMs * 3600;
+
+          // For Anthracite
+          var rhoAnth = 1600; // kg/m3
+          var arAnth = (Math.pow(dAnthMm / 1000, 3) * rhoW * (rhoAnth - rhoW) * g) / (mu * mu);
+          var vmfAnthMs = (mu / (rhoW * (dAnthMm / 1000))) * (Math.sqrt(33.7 * 33.7 + 0.0408 * arAnth) - 33.7);
+          var vmfAnthMh = vmfAnthMs * 3600;
+
+          // Backwash velocity to achieve target expansion (typically ~1.35x to 1.50x v_mf)
+          var bwVelocityMh = Math.max(vmfSandMh, vmfAnthMh) * (1 + (targetExpPct / 100) * 1.15);
+          var bwGpmFt2 = bwVelocityMh * 0.409026;
+          var bwFlowPerCellM3h = areaPerCellM2 * bwVelocityMh;
+
+          // Expanded bed heights
+          var staticBedMm = lAnthMm + lSandMm;
+          var expDeltaMm = staticBedMm * (targetExpPct / 100);
+          var expandedBedMm = staticBedMm + expDeltaMm;
+
+          // Media volumes and weights across all cells
+          var totalVolAnthM3 = totalAreaM2 * lAnthM;
+          var totalVolSandM3 = totalAreaM2 * lSandM;
+          var totalMediaVolM3 = totalVolAnthM3 + totalVolSandM3;
+          var weightAnthT = (totalVolAnthM3 * 850) / 1000; // bulk density ~850 kg/m3
+          var weightSandT = (totalVolSandM3 * 1550) / 1000; // bulk density ~1550 kg/m3
+
+          // Air scour blower sizing
+          var airScourRate = hasAirScour ? (areaPerCellM2 * 60) : 0; // 60 m3/(m2*h)
+
+          // Update DOM
+          resTotalHl.innerText = totalHlM.toFixed(2) + ' m';
+          resTotalHlFt.innerText = totalHlFt.toFixed(2) + ' ft Clean Head Loss';
+          resTotalArea.innerText = Math.round(totalAreaM2).toLocaleString() + ' m2';
+          resAreaPerCell.innerText = areaPerCellM2.toFixed(1) + ' m2/cell (' + nCells + ' cells)';
+          resCellDim.innerText = cellLengthM.toFixed(2) + ' m L x ' + cellWidthM.toFixed(2) + ' m W';
+          resCellFt.innerText = (cellLengthM * 3.28084).toFixed(1) + ' ft x ' + (cellWidthM * 3.28084).toFixed(1) + ' ft';
+          resBwRate.innerText = bwVelocityMh.toFixed(1) + ' m/h';
+          resBwGpmFt2.innerText = bwGpmFt2.toFixed(1) + ' GPM/ft2 (' + Math.round(bwFlowPerCellM3h) + ' m3/h/cell)';
+          resExpBed.innerText = Math.round(expandedBedMm) + ' mm';
+          resExpDelta.innerText = '+' + Math.round(expDeltaMm) + ' mm lift (' + targetExpPct + '% expansion)';
+          resMediaTotalVol.innerText = Math.round(totalMediaVolM3).toLocaleString() + ' m3';
+          resMediaWeights.innerText = 'Anthracite: ' + Math.round(weightAnthT) + ' t | Sand: ' + Math.round(weightSandT) + ' t';
+          resAnthHl.innerText = hlAnth.toFixed(2) + ' m HL (v_mf: ' + vmfAnthMh.toFixed(1) + ' m/h)';
+          resSandHl.innerText = hlSand.toFixed(2) + ' m HL (v_mf: ' + vmfSandMh.toFixed(1) + ' m/h)';
+          resAirScourFlow.innerText = hasAirScour ? Math.round(airScourRate) + ' Nm3/h @ 40 kPa' : 'None (Water-Only)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Concrete Rapid Gravity Filter Bay (Left-Center)
+          var bX = 140, bY = 30, bW = 220, bH = 260;
+
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.rect(bX, bY, bW, bH);
+          ctx.fill(); ctx.stroke();
+
+          // Water Head above media (Blue)
+          var waterH = 70;
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+          ctx.fillRect(bX + 4, bY + 4, bW - 8, waterH);
+          ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('INFLUENT WATER (1.5 m WATER HEAD)', bX + bW/2, bY + 35);
+
+          // Washwater Troughs at Top
+          ctx.fillStyle = '#475569';
+          ctx.fillRect(bX + 25, bY + 50, 45, 18);
+          ctx.fillRect(bX + 150, bY + 50, 45, 18);
+          ctx.fillStyle = '#f8fafc'; ctx.font = '8px sans-serif';
+          ctx.fillText('TROUGH', bX + 47, bY + 62);
+          ctx.fillText('TROUGH', bX + 172, bY + 62);
+
+          // Layer 1: Anthracite Upper Bed (Black / Dark Grey)
+          var anthY = bY + 80;
+          var anthH = 75;
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(bX + 4, anthY, bW - 8, anthH);
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('ANTHRACITE LAYER (Es 1.05 mm)', bX + bW/2, anthY + 35);
+          ctx.fillStyle = '#94a3b8'; ctx.font = '9px sans-serif';
+          ctx.fillText('Porosity ~0.50 | SG 1.60', bX + bW/2, anthY + 50);
+
+          // Layer 2: Silica Sand Lower Bed (Amber / Tan)
+          var sandY = anthY + anthH;
+          var sandH = 55;
+          ctx.fillStyle = '#d97706';
+          ctx.fillRect(bX + 4, sandY, bW - 8, sandH);
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('SILICA SAND POLISHING (Es 0.50 mm)', bX + bW/2, sandY + 28);
+          ctx.fillStyle = '#fde68a'; ctx.font = '9px sans-serif';
+          ctx.fillText('Porosity ~0.42 | SG 2.65', bX + bW/2, sandY + 42);
+
+          // Layer 3: Support Gravel & Underdrain Laterals (Bottom)
+          var undY = sandY + sandH;
+          var undH = bH - (undY - bY);
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(bX + 4, undY, bW - 8, undH - 4);
+          ctx.strokeStyle = '#0d9488';
+          ctx.lineWidth = 2;
+          for (var ux = bX + 25; ux < bX + bW - 10; ux += 30) {
+            ctx.strokeRect(ux, undY + 8, 20, 25);
+          }
+          ctx.fillStyle = '#2dd4bf'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('UNDERDRAIN LATERAL BLOCKS', bX + bW/2, undY + 42);
+
+          // Filtration downward arrows
+          ctx.fillStyle = '#38bdf8';
+          for (var i = 0; i < 4; i++) {
+            var arrY = bY + 15 + ((i * 30 + animStep * 2) % (bH - 60));
+            ctx.beginPath();
+            ctx.arc(bX + 40 + i * 45, arrY, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Right: Engineering Hydraulics & Stratification Telemetry
+          var pX = 460, pY = 40, pW = 570, pH = 245;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(pX, pY, pW, pH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('DUAL-MEDIA HYDRAULIC & BACKWASH PROFILE', pX + 20, pY + 25);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#2dd4bf';
+          ctx.fillText('Filtration Loading Rate: ' + filtRateInput.value + ' m/h (Superficial Velocity)', pX + 20, pY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Total Clean Bed Head Loss (Ergun): ' + resTotalHl.innerText + ' (' + resTotalHlFt.innerText + ')', pX + 20, pY + 75);
+          ctx.fillText('Anthracite Layer Head Loss: ' + resAnthHl.innerText, pX + 20, pY + 95);
+          ctx.fillText('Silica Sand Layer Head Loss: ' + resSandHl.innerText, pX + 20, pY + 115);
+          ctx.fillText('Backwash Fluidization Rate: ' + resBwRate.innerText + ' (' + resBwGpmFt2.innerText + ')', pX + 20, pY + 135);
+          ctx.fillText('Expanded Bed Height: ' + resExpBed.innerText + ' (' + resExpDelta.innerText + ')', pX + 20, pY + 155);
+          ctx.fillText('Air Scour Velocity: ' + resAirScourFlow.innerText, pX + 20, pY + 175);
+
+          ctx.fillStyle = '#34d399'; ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('Compliance: AWWA B100 Granular Filter Media & 10 States Standards', pX + 20, pY + 205);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Filter Cell Layout: ' + resCellDim.innerText + ' per bay (' + numCellsInput.value + ' Operating Cells)', pX + 20, pY + 228);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== DUAL-MEDIA RAPID FILTER SIZING REPORT ===',
+            'Plant Flow Rate: ' + flowInput.value + ' ' + flowUnitSel.value,
+            'Filtration Rate: ' + filtRateInput.value + ' m/h across ' + numCellsInput.value + ' cells',
+            'Total Filter Surface Area: ' + resTotalArea.innerText + ' (' + resAreaPerCell.innerText + ')',
+            'Individual Cell Bay Dimensions: ' + resCellDim.innerText + ' (' + resCellFt.innerText + ')',
+            'Clean Bed Head Loss (Ergun): ' + resTotalHl.innerText + ' (' + resTotalHlFt.innerText + ')',
+            'Layer Head Losses: ' + resAnthHl.innerText + ' | ' + resSandHl.innerText,
+            'Backwash Fluidization Velocity: ' + resBwRate.innerText + ' (' + resBwGpmFt2.innerText + ')',
+            'Backwash Bed Expansion: ' + resExpBed.innerText + ' (' + resExpDelta.innerText + ')',
+            'Total Media Charge: ' + resMediaTotalVol.innerText + ' (' + resMediaWeights.innerText + ')',
+            'Auxiliary Scour: ' + resAirScourFlow.innerText,
+            'Standards: AWWA B100-16 & Great Lakes-Upper Mississippi River Board (10 States)'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [flowInput, flowUnitSel, filtRateInput, numCellsInput, anthDepthInput, anthEsInput, sandDepthInput, sandEsInput, tempInput, bwExpInput, airScourSel].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CD4: ROTARY KILN THERMAL & RESIDENCE TIME SIZING CALCULATOR ───
+  (() => {
+    const slug = 'rotary-kiln-thermal-residence-time-sizing-calculator';
+    const title = 'Rotary Kiln Sizing Calculator | Direct-Fired Thermal & Residence Time Engine';
+    const desc = 'Industrial rotary kiln sizing calculator for cement clinker, lime calcination, lithium ore roasting, and minerals processing. Calculate solids residence time via the US Bureau of Mines Sullivan formula, kiln slope, rotational speed, volumetric filling degree, and burner thermal heat duty.';
+
+    const faqs = [
+      {
+        q: 'How does the US Bureau of Mines (Sullivan et al.) equation calculate solids residence time in a rotary kiln?',
+        a: 'The US Bureau of Mines formula, developed by Sullivan, Maier, and Ralston, is the global benchmark for estimating solids retention time in un-flighted rotary kilns: theta = (1.77 * L * sqrt(phi)) / (S * D * N), where theta is the mean retention time in minutes, L is kiln length (meters), D is inside refractory diameter (meters), S is slope (degrees or slope percentage), N is rotational speed (RPM), and phi is the dynamic angle of repose of the material (typically 35 to 45 degrees). The equation demonstrates that residence time is inversely proportional to kiln slope, diameter, and rotational speed.'
+      },
+      {
+        q: 'What is the optimal kiln volumetric filling degree (beta) and why is it critical?',
+        a: 'The volumetric filling degree (percentage of the internal cross-sectional area occupied by tumbling solids) typically ranges between 7% and 14% for direct-fired mineral kilns. If the filling degree is below 6%, gas-solids contact efficiency drops and fuel is wasted heating empty refractory brick. If the filling degree exceeds 15%, the material bed becomes too deep to tumble smoothly; the core remains unheated and under-calcined while the outer perimeter overheats, resulting in severe product inconsistency and ring formation.'
+      },
+      {
+        q: 'What are the main components of rotary kiln thermal heat balance?',
+        a: 'The thermal energy balance combines four primary heat sinks: (1) Sensible heating of the solid feed from ambient up to peak calcination temperature (e.g. 900 to 1,450 deg C), (2) Latent heat of vaporization for free feed moisture (2,260 kJ/kg), (3) Endothermic chemical reaction energy (such as the calcination of CaCO3 into CaO + CO2, which requires approximately 1,780 kJ per kg of CaCO3), and (4) External shell heat losses via natural convection and radiation (typically 8% to 15% of total fuel input). The sum divided by combustion efficiency defines the burner firing capacity.'
+      },
+      {
+        q: 'How is the drive motor power sized for a rotating kiln cylinder?',
+        a: 'The mechanical power required to rotate a massive tilted cylinder filled with eccentric tumbling solids combines friction in the riding tires/trunnion rollers and the torque needed to continuously lift the material bed against gravity. Drive power is calculated using empirical formulas from Perry Chemical Engineers Handbook: P_kw = 0.0006 * D_shell * (m_total * N) * sin(phi) / eta_drive, where m_total includes the steel shell, thick refractory brick lining, and solids charge. Motor sizing must also provide a starting torque safety factor of at least 2.5x to overcome static inertia.'
+      },
+      {
+        q: 'What causes refractory ring formation and kiln shell hot spots?',
+        a: 'Kiln rings form when low-melting alkali, sulfur, and chloride compounds volatilize in the high-temperature burning zone, travel back toward the cooler feed end, and condense as sticky eutectic liquids on the inner refractory wall. These liquids trap flyash and mineral fines, forming an accretion ring that chokes gas flow. If a segment of dense refractory brick spalls or falls out, the raw 1,200 deg C gas contacts the outer steel shell directly; infrared cameras detect a "hot spot" exceeding 400 deg C, which can warp the shell and force emergency shutdown.'
+      }
+    ];
+
+    const content = `<style>
+      .kiln-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .kiln-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .kiln-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .kiln-group { margin-bottom: 16px; }
+      .kiln-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .kiln-group select, .kiln-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .kiln-group select:focus, .kiln-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .kiln-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-amber { background: #fffbeb; color: #b45309; }
+      .kiln-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .kiln-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .kiln-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .kiln-res-sub { font-size: 0.8rem; color: #64748b; }
+      .kiln-btn { background: #d97706; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .kiln-btn:hover { background: #b45309; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="kiln-wrap">
+      <div class="kiln-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Rotary Kiln Sizing & Residence Time Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Sullivan USBM residence time kinematics, volumetric loading degree, and combustion thermal balance.</p>
+          </div>
+          <span class="kiln-badge badge-amber">USBM Sullivan & CIMS Cement</span>
+        </div>
+
+        <div class="kiln-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Mineral Process & Throughput</h3>
+            <div class="kiln-group">
+              <label for="kiln_process">Process Application</label>
+              <select id="kiln_process">
+                <option value="lime" selected>Quicklime Calcination (CaCO3 -> CaO, 1,050 deg C)</option>
+                <option value="cement">Portland Cement Clinker Sintering (1,450 deg C)</option>
+                <option value="lithium">Spodumene Lithium Roasting (Alpha -> Beta, 1,050 deg C)</option>
+                <option value="petcoke">Petroleum Coke Calcining (1,300 deg C)</option>
+                <option value="iron_ore">Direct Reduced Iron (DRI) / Rotary Kiln (1,050 deg C)</option>
+              </select>
+            </div>
+            <div class="kiln-group">
+              <label for="kiln_feed_rate">Solid Feed Rate (Dry Tonnes / Day)</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="kiln_feed_rate" value="1200" min="50" step="50">
+                <select id="kiln_feed_unit" style="width:130px;">
+                  <option value="TPD" selected>Tonnes/Day</option>
+                  <option value="t_h">Tonnes/Hour</option>
+                  <option value="kg_s">kg/s</option>
+                </select>
+              </div>
+            </div>
+            <div class="kiln-group">
+              <label for="kiln_moisture">Feed Free Moisture Content (wt % H2O)</label>
+              <input type="number" id="kiln_moisture" value="3.5" min="0.0" max="25.0" step="0.5">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Kiln Geometry & Kinematics</h3>
+            <div class="kiln-group">
+              <label for="kiln_diam_inner">Inside Refractory Diameter (Di, meters)</label>
+              <input type="number" id="kiln_diam_inner" value="3.6" min="1.0" max="7.0" step="0.1">
+              <small style="color:#64748b;">Refractory brick thickness ~ 200 to 250 mm.</small>
+            </div>
+            <div class="kiln-group">
+              <label for="kiln_length">Kiln Total Length (L, meters)</label>
+              <input type="number" id="kiln_length" value="65.0" min="10.0" max="150.0" step="1.0">
+            </div>
+            <div class="kiln-group">
+              <label for="kiln_slope">Kiln Slope (S, degrees / %)</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="kiln_slope" value="2.0" min="1.0" max="4.5" step="0.1">
+                <select id="kiln_slope_unit" style="width:130px;">
+                  <option value="deg" selected>Degrees (deg)</option>
+                  <option value="pct">Percent (%)</option>
+                </select>
+              </div>
+            </div>
+            <div class="kiln-group">
+              <label for="kiln_rpm">Rotational Speed (N, RPM)</label>
+              <input type="number" id="kiln_rpm" value="1.8" min="0.3" max="5.0" step="0.1">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Material & Thermal Parameters</h3>
+            <div class="kiln-group">
+              <label for="kiln_angle_repose">Dynamic Angle of Repose (phi, degrees)</label>
+              <input type="number" id="kiln_angle_repose" value="38" min="25" max="50" step="1">
+            </div>
+            <div class="kiln-group">
+              <label for="kiln_bulk_density">Bulk Density of Bed (Tonnes / m3)</label>
+              <input type="number" id="kiln_bulk_density" value="1.35" min="0.6" max="2.6" step="0.05">
+            </div>
+            <div class="kiln-group">
+              <label for="kiln_combust_eff">Burner Combustion Efficiency (%)</label>
+              <input type="number" id="kiln_combust_eff" value="82" min="65" max="95" step="1">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="kiln-btn" id="kiln_calc_btn">Compute Rotary Kiln Sizing & Heat Balance</button>
+        </div>
+      </div>
+
+      <div class="kiln-card" id="kiln_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Kiln Kinematics & Thermal Firing Output</h2>
+          <button class="copy-btn" id="kiln_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="kiln_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="kiln-res-grid">
+          <div class="kiln-res-card">
+            <div class="kiln-res-sub">Solids Residence Time (theta)</div>
+            <div class="kiln-res-val" id="res_res_time">0 min</div>
+            <div class="kiln-res-sub" id="res_res_time_hr">0 hours (USBM Sullivan)</div>
+          </div>
+          <div class="kiln-res-card">
+            <div class="kiln-res-sub">Volumetric Filling Degree (beta)</div>
+            <div class="kiln-res-val" id="res_filling_deg">0%</div>
+            <div class="kiln-res-sub" id="res_filling_status">Bed Loading: Ideal (7-14%)</div>
+          </div>
+          <div class="kiln-res-card">
+            <div class="kiln-res-sub">Burner Firing Heat Duty</div>
+            <div class="kiln-res-val" id="res_heat_duty_mw">0 MW th</div>
+            <div class="kiln-res-sub" id="res_heat_duty_mmbtu">0 MMBTU/hr (Fired)</div>
+          </div>
+          <div class="kiln-res-card">
+            <div class="kiln-res-sub">Specific Energy Consumption</div>
+            <div class="kiln-res-val" id="res_spec_energy">0 GJ/t</div>
+            <div class="kiln-res-sub" id="res_spec_kcal">0 kcal / kg product</div>
+          </div>
+          <div class="kiln-res-card">
+            <div class="kiln-res-sub">Kiln Aspect Ratio (L / Di)</div>
+            <div class="kiln-res-val" id="res_aspect_ratio">0 : 1</div>
+            <div class="kiln-res-sub" id="res_outer_diam">Outer Shell: 0 m ID</div>
+          </div>
+          <div class="kiln-res-card">
+            <div class="kiln-res-sub">Drive Motor Mechanical Power</div>
+            <div class="kiln-res-val" id="res_drive_power">0 kW</div>
+            <div class="kiln-res-sub" id="res_drive_hp">0 HP (Operating Torque)</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Thermal Breakdown & Solids Inventory</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Endothermic Reaction Duty: <strong id="res_rxn_duty">0.0 MW th</strong></div>
+            <div>Shell Convection & Radiation Loss: <strong id="res_shell_loss">0.0 MW th (Shell ~260C)</strong></div>
+            <div>Bed Solids Mass in Kiln: <strong id="res_bed_mass">0 tonnes (Holdup)</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Direct-Fired Rotary Kiln Long-Section Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Visualizing tilted rotating cylinder, tumbling mineral bed, coaxial flame envelope, refractory lining, and tire riding rings.</p>
+          <div class="anim-box">
+            <canvas id="kiln_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="kiln-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Clinker/Accretion Ring Choking & Kiln Draft Collapse</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">In cement and lime kilns, recirculating volatile alkalis (K2O, Na2O), chlorides, and sulfates vaporize in the 1,400 deg C burning zone and condense at 850 deg C to 1,000 deg C in the calcination transition zone. The condensed eutectic melts act as a sticky glue, bonding dust particles into an accretion ring around the kiln circumference. A ring narrowing the diameter by 40% chokes induced draft fan flow, causes positive pressure blowouts at the seals, and requires dangerous industrial shotgun blasting or total shutdown to chisel out.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Refractory Brick Keying Loss & Catastrophic Shell Burn-Through</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">Kiln refractory bricks (magnesia-spinel and high alumina) rely on mechanical arch-taper keying. Thermal expansion and cyclic mechanical flexing of the steel shell ovality loosen the brick ring. If a single key brick loosens and falls out, the entire ring collapses into the tumbling solids bed within minutes. Naked 25 mm steel shell is exposed to a 1,400 deg C flame; the shell glows red, sags under self-weight, and burns through within 30 minutes, destroying hundreds of thousands of dollars in mechanical equipment.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Tyre Creep Migration & Shell Necking / Ovality Cracking</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Large forged riding rings (tyres) are mounted loosely over shell filler bars to accommodate differential thermal expansion. Normal tyre creep is 5 to 15 mm per revolution. If the kiln shell overheats due to thinning refractory, the shell expands against the tyre, reducing creep to zero ("constricted tyre"). The tyre squeezes the shell, causing plastic necking and severe fatigue cracking of the girth weld seams under cyclic 3-roller bending moments.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Over-Filling & Core Under-Calcination</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">Attempting to push production beyond design capacity by increasing feed rate raises the volumetric filling degree beyond 15%. In direct-fired kilns, heat transfer occurs primarily by radiation to the bed surface and conduction from the hot refractory. At high filling degrees, material in the center of the bed remains insulated in a "dead core", passing through the kiln without reaching calcination temperature. Unreacted core CaCO3 contaminates the finished product, causing rejection by customers.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Cold End Air Ingress & Induced Draft Fan Overload</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">Rotary kilns operate under slight negative pressure (-20 to -60 Pa) to prevent toxic gas emissions. The mechanical leaf or pneumatic seals between the rotating shell and the stationary smoke hood endure severe thermal runout. If seals wear out, false air ingress reaches 15% to 30% of total gas volume. Cold tramp air quenches the back-end gas temperature, ruins preheating efficiency, and overloads the downstream ID fan, preventing the kiln from burning adequate fuel.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Kiln Kinematic Equations & Thermal Formulations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The <strong>US Bureau of Mines (Sullivan et al.) residence time equation</strong> for un-flighted rotary cylinders is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\theta = \frac{1.77 \cdot L \cdot \sqrt{\phi}}{S \cdot D_i \cdot N} \quad [\text{minutes}]$$
+          </div>
+          <p>Where $L$ is length (m), $D_i$ is inside refractory diameter (m), $S$ is slope (degrees), $N$ is rotational speed (RPM), and $\phi$ is the dynamic angle of repose.</p>
+          <p>The <strong>Volumetric Filling Degree ($\beta$)</strong> and internal solids mass holdup are:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\beta = \frac{\dot{V}_{feed} \cdot (\theta / 60)}{(\pi / 4) \cdot D_i^2 \cdot L} \times 100\%, \qquad M_{bed} = \frac{\beta}{100} \cdot \frac{\pi}{4} D_i^2 L \cdot \rho_{bulk}$$
+          </div>
+          <p>The total burner firing capacity $Q_{burner}$ satisfies the complete thermal energy balance:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$Q_{burner} = \frac{1}{\eta_{comb}} \left[ \dot{m}_{feed} \bar{C}_p \Delta T + \dot{m}_{H2O} \Delta H_{vap} + \dot{m}_{rxn} \Delta H_{rxn} + Q_{shell} \right]$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var procSel = document.getElementById('kiln_process');
+        var feedInput = document.getElementById('kiln_feed_rate');
+        var feedUnitSel = document.getElementById('kiln_feed_unit');
+        var moistInput = document.getElementById('kiln_moisture');
+        var diamInput = document.getElementById('kiln_diam_inner');
+        var lenInput = document.getElementById('kiln_length');
+        var slopeInput = document.getElementById('kiln_slope');
+        var slopeUnitSel = document.getElementById('kiln_slope_unit');
+        var rpmInput = document.getElementById('kiln_rpm');
+        var reposeInput = document.getElementById('kiln_angle_repose');
+        var bulkDensInput = document.getElementById('kiln_bulk_density');
+        var effInput = document.getElementById('kiln_combust_eff');
+        var calcBtn = document.getElementById('kiln_calc_btn');
+        var copyBtn = document.getElementById('kiln_copy_btn');
+        var copyMsg = document.getElementById('kiln_copy_msg');
+
+        var resResTime = document.getElementById('res_res_time');
+        var resResTimeHr = document.getElementById('res_res_time_hr');
+        var resFillingDeg = document.getElementById('res_filling_deg');
+        var resFillingStatus = document.getElementById('res_filling_status');
+        var resHeatDutyMw = document.getElementById('res_heat_duty_mw');
+        var resHeatDutyMmbtu = document.getElementById('res_heat_duty_mmbtu');
+        var resSpecEnergy = document.getElementById('res_spec_energy');
+        var resSpecKcal = document.getElementById('res_spec_kcal');
+        var resAspectRatio = document.getElementById('res_aspect_ratio');
+        var resOuterDiam = document.getElementById('res_outer_diam');
+        var resDrivePower = document.getElementById('res_drive_power');
+        var resDriveHp = document.getElementById('res_drive_hp');
+        var resRxnDuty = document.getElementById('res_rxn_duty');
+        var resShellLoss = document.getElementById('res_shell_loss');
+        var resBedMass = document.getElementById('res_bed_mass');
+
+        var canvas = document.getElementById('kiln_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function updateProcessDefaults() {
+          var p = procSel.value;
+          if (p === 'lime') {
+            diamInput.value = 3.6; lenInput.value = 65.0; slopeInput.value = 2.0; rpmInput.value = 1.8;
+          } else if (p === 'cement') {
+            diamInput.value = 4.8; lenInput.value = 75.0; slopeInput.value = 2.2; rpmInput.value = 3.5;
+          } else if (p === 'lithium') {
+            diamInput.value = 3.0; lenInput.value = 55.0; slopeInput.value = 1.8; rpmInput.value = 1.5;
+          } else if (p === 'petcoke') {
+            diamInput.value = 3.2; lenInput.value = 60.0; slopeInput.value = 1.5; rpmInput.value = 1.2;
+          }
+          calculate();
+        }
+
+        function calculate() {
+          var pType = procSel.value;
+          var rawFeed = parseFloat(feedInput.value) || 1200;
+          var unit = feedUnitSel.value;
+          var moistPct = parseFloat(moistInput.value) || 3.5;
+          var di = parseFloat(diamInput.value) || 3.6;
+          var lengthM = parseFloat(lenInput.value) || 65.0;
+          var rawSlope = parseFloat(slopeInput.value) || 2.0;
+          var slopeUnit = slopeUnitSel.value;
+          var rpm = parseFloat(rpmInput.value) || 1.8;
+          var phi = parseFloat(reposeInput.value) || 38.0;
+          var rhoBulk = parseFloat(bulkDensInput.value) || 1.35; // t/m3
+          var etaComb = (parseFloat(effInput.value) || 82) / 100;
+
+          // Convert slope to degrees
+          var slopeDeg = rawSlope;
+          if (slopeUnit === 'pct') slopeDeg = rawSlope * 0.572958; // 1% ~ 0.573 deg
+
+          // Convert feed rate to tonnes/day and kg/s
+          var feedTpd = rawFeed;
+          if (unit === 't_h') feedTpd = rawFeed * 24;
+          else if (unit === 'kg_s') feedTpd = (rawFeed * 86400) / 1000;
+
+          var feedKgS = (feedTpd * 1000) / 86400;
+
+          // Sullivan USBM Residence Time (minutes)
+          // theta = 1.77 * L * sqrt(phi) / (S * Di * N)
+          var thetaMin = (1.77 * lengthM * Math.sqrt(phi)) / (slopeDeg * di * rpm);
+          var thetaHr = thetaMin / 60;
+
+          // Volumetric filling degree
+          var feedM3h = (feedTpd / 24) / rhoBulk;
+          var kilnInternalVolM3 = (Math.PI / 4) * di * di * lengthM;
+          var bedVolInKilnM3 = feedM3h * thetaHr;
+          var fillingDegPct = (bedVolInKilnM3 / kilnInternalVolM3) * 100;
+          var bedMassTonnes = bedVolInKilnM3 * rhoBulk;
+
+          // Thermal Heat Balance
+          // Specific enthalpy of reaction / heating
+          var tProcess = 1050; // deg C
+          var deltaHrxnKjKg = 1450; // lime default
+          if (pType === 'cement') { tProcess = 1450; deltaHrxnKjKg = 1750; }
+          else if (pType === 'lithium') { tProcess = 1050; deltaHrxnKjKg = 850; }
+          else if (pType === 'petcoke') { tProcess = 1300; deltaHrxnKjKg = 400; }
+          else if (pType === 'iron_ore') { tProcess = 1050; deltaHrxnKjKg = 2100; }
+
+          var cpSolid = 1.05; // kJ/(kg K)
+          var qSensibleKw = feedKgS * cpSolid * (tProcess - 25);
+          var qMoistKw = (feedKgS * (moistPct / 100)) * 2260;
+          var qRxnKw = feedKgS * deltaHrxnKjKg;
+
+          // Outer Shell Radiation & Convection Loss
+          // Shell diameter = Di + 2 * brick (approx Di + 0.45 m)
+          var dShellM = di + 0.45;
+          var shellAreaM2 = Math.PI * dShellM * lengthM;
+          var tShellAvgC = 260; // deg C
+          // Heat loss ~ 3.8 kW/m2 at 260 C
+          var qShellLossKw = shellAreaM2 * 3.8;
+          var qShellLossMw = qShellLossKw / 1000;
+
+          var qTotalThermalKw = (qSensibleKw + qMoistKw + qRxnKw + qShellLossKw) / etaComb;
+          var qTotalThermalMw = qTotalThermalKw / 1000;
+          var qMmbtuHr = qTotalThermalKw * 0.00341214;
+
+          // Specific Energy Consumption (GJ / tonne product)
+          var productTpd = feedTpd * (1 - moistPct / 100) * 0.65; // clinker/lime yield approx
+          var gigajoulesPerDay = (qTotalThermalMw * 3600 * 24) / 1000;
+          var gjPerTonne = gigajoulesPerDay / productTpd;
+          var kcalPerKg = gjPerTonne * 238.846;
+
+          // Kiln Aspect Ratio & Outer Dimensions
+          var aspect = lengthM / di;
+
+          // Drive Motor Power Sizing (Perry Handbook)
+          // P_kw = 0.0006 * dShell * (total_mass_t * N) * sin(phi) / eta
+          var totalKilnMassTonnes = (shellAreaM2 * 0.025 * 7.85) + (kilnInternalVolM3 * 0.22 * 2.4) + bedMassTonnes;
+          var pDriveKw = 0.0006 * dShellM * (totalKilnMassTonnes * rpm) * Math.sin(phi * Math.PI / 180) * 9.81 * 8;
+          var pDriveHp = pDriveKw * 1.34102;
+
+          // Update DOM
+          resResTime.innerText = Math.round(thetaMin) + ' min';
+          resResTimeHr.innerText = thetaHr.toFixed(2) + ' hours (USBM Sullivan)';
+          resFillingDeg.innerText = fillingDegPct.toFixed(1) + '%';
+          resFillingStatus.innerText = (fillingDegPct >= 7 && fillingDegPct <= 14) ? 'Bed Loading: Optimal (7-14%)' : (fillingDegPct < 7 ? 'Under-loaded (<7%)' : 'Over-loaded (>14%)');
+          resHeatDutyMw.innerText = qTotalThermalMw.toFixed(1) + ' MW th';
+          resHeatDutyMmbtu.innerText = qMmbtuHr.toFixed(1) + ' MMBTU/hr (Fired)';
+          resSpecEnergy.innerText = gjPerTonne.toFixed(2) + ' GJ/t';
+          resSpecKcal.innerText = Math.round(kcalPerKg) + ' kcal/kg Product';
+          resAspectRatio.innerText = aspect.toFixed(1) + ' : 1 (L / Di)';
+          resOuterDiam.innerText = 'Outer Shell: ' + dShellM.toFixed(2) + ' m OD';
+          resDrivePower.innerText = Math.round(pDriveKw) + ' kW';
+          resDriveHp.innerText = Math.round(pDriveHp) + ' HP (Drive Motor)';
+          resRxnDuty.innerText = (qRxnKw / 1000).toFixed(1) + ' MW th';
+          resShellLoss.innerText = qShellLossMw.toFixed(1) + ' MW th (Shell ~260C)';
+          resBedMass.innerText = Math.round(bedMassTonnes) + ' Tonnes (Bed Holdup)';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 360;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Kiln geometry (Tilted Cylinder)
+          var kX = 100, kY = 60, kW = 580, kH = 90;
+          var tiltOffset = 30; // downward slope toward discharge end (right)
+
+          // Outer Steel Shell
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#d97706';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(kX, kY);
+          ctx.lineTo(kX + kW, kY + tiltOffset);
+          ctx.lineTo(kX + kW, kY + kH + tiltOffset);
+          ctx.lineTo(kX, kY + kH);
+          ctx.closePath();
+          ctx.fill(); ctx.stroke();
+
+          // Refractory Lining Band (Top and Bottom)
+          ctx.fillStyle = '#451a03';
+          ctx.beginPath();
+          ctx.moveTo(kX, kY);
+          ctx.lineTo(kX + kW, kY + tiltOffset);
+          ctx.lineTo(kX + kW, kY + tiltOffset + 12);
+          ctx.lineTo(kX, kY + 12);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(kX, kY + kH - 12);
+          ctx.lineTo(kX + kW, kY + kH + tiltOffset - 12);
+          ctx.lineTo(kX + kW, kY + kH + tiltOffset);
+          ctx.lineTo(kX, kY + kH);
+          ctx.closePath();
+          ctx.fill();
+
+          // Riding Tyres (Steel Rings)
+          var tyre1X = kX + 130;
+          var tyre2X = kX + 420;
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(tyre1X - 10, kY + (tiltOffset * 0.22) - 8, 20, kH + 16);
+          ctx.fillRect(tyre2X - 10, kY + (tiltOffset * 0.72) - 8, 20, kH + 16);
+
+          // Support Rollers underneath Tyres
+          ctx.fillStyle = '#94a3b8';
+          ctx.beginPath(); ctx.arc(tyre1X - 8, kY + kH + (tiltOffset * 0.22) + 12, 10, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(tyre1X + 8, kY + kH + (tiltOffset * 0.22) + 12, 10, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(tyre2X - 8, kY + kH + (tiltOffset * 0.72) + 12, 10, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(tyre2X + 8, kY + kH + (tiltOffset * 0.72) + 12, 10, 0, Math.PI * 2); ctx.fill();
+
+          // Tumbling Solids Bed along Bottom (Amber)
+          ctx.fillStyle = '#f59e0b';
+          ctx.beginPath();
+          ctx.moveTo(kX + 15, kY + kH - 14);
+          ctx.lineTo(kX + kW - 15, kY + kH + tiltOffset - 14);
+          ctx.lineTo(kX + kW - 15, kY + kH + tiltOffset - 26);
+          ctx.lineTo(kX + 15, kY + kH - 26);
+          ctx.closePath();
+          ctx.fill();
+
+          // Burner Flame Pipe (Discharge End Right)
+          ctx.fillStyle = '#475569';
+          ctx.fillRect(kX + kW + 10, kY + tiltOffset + 30, 45, 18);
+          // High-temperature Flame Envelope expanding into kiln
+          var flameGrad = ctx.createLinearGradient(kX + kW, kY + tiltOffset + 39, kX + kW - 240, kY + tiltOffset + 39);
+          flameGrad.addColorStop(0, '#ffffff');
+          flameGrad.addColorStop(0.3, '#fbbf24');
+          flameGrad.addColorStop(0.7, '#ea580c');
+          flameGrad.addColorStop(1, 'rgba(220, 38, 38, 0)');
+          ctx.fillStyle = flameGrad;
+          ctx.beginPath();
+          ctx.moveTo(kX + kW, kY + tiltOffset + 32);
+          ctx.lineTo(kX + kW - 240, kY + tiltOffset + 20);
+          ctx.lineTo(kX + kW - 240, kY + tiltOffset + 58);
+          ctx.lineTo(kX + kW, kY + tiltOffset + 46);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('BURNER', kX + kW + 32, kY + tiltOffset + 42);
+
+          // Raw Feed Chute (Left)
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(kX - 35, kY - 25, 25, 60);
+          ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('RAW FEED IN', kX - 25, kY - 32);
+
+          // Hot Product Discharge (Right Bottom)
+          ctx.fillStyle = '#ef4444';
+          ctx.fillText('CALCINED PRODUCT ->', kX + kW, kY + kH + tiltOffset + 35);
+
+          // Right: Engineering Kiln Telemetry Box
+          var bX = 730, bY = 35, bW = 340, bH = 260;
+          ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(bX, bY, bW, bH, 12); ctx.fill(); ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+          ctx.fillText('ROTARY KILN KINEMATIC PROFILE', bX + 20, bY + 25);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Solids Retention Time: ' + resResTime.innerText, bX + 20, bY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Volumetric Loading: ' + resFillingDeg.innerText + ' (' + resFillingStatus.innerText.split('(')[0] + ')', bX + 20, bY + 75);
+          ctx.fillText('Kiln Slope: ' + slopeInput.value + ' deg | Speed: ' + rpmInput.value + ' RPM', bX + 20, bY + 95);
+          ctx.fillText('Burner Thermal Duty: ' + resHeatDutyMw.innerText, bX + 20, bY + 115);
+          ctx.fillText('Specific Energy: ' + resSpecEnergy.innerText, bX + 20, bY + 135);
+          ctx.fillText('Drive Motor: ' + resDrivePower.innerText + ' (' + resDriveHp.innerText + ')', bX + 20, bY + 155);
+          ctx.fillText('Solids Mass in Kiln: ' + resBedMass.innerText, bX + 20, bY + 175);
+
+          ctx.fillStyle = '#34d399'; ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('Formula: USBM Sullivan et al. Kinematics', bX + 20, bY + 210);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('Refractory: 225 mm Magnesia-Spinel Brick', bX + 20, bY + 233);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== ROTARY KILN SIZING & THERMAL REPORT ===',
+            'Process Application: ' + procSel.value,
+            'Solid Feed Rate: ' + feedInput.value + ' ' + feedUnitSel.value + ' (Moisture: ' + moistInput.value + '%)',
+            'Kiln Dimensions: ' + diamInput.value + ' m ID x ' + lenInput.value + ' m L (Aspect ' + resAspectRatio.innerText + ')',
+            'Kinematics: Slope ' + slopeInput.value + ' deg @ ' + rpmInput.value + ' RPM (Repose: ' + reposeInput.value + ' deg)',
+            'Solids Retention Time: ' + resResTime.innerText + ' (' + resResTimeHr.innerText + ')',
+            'Volumetric Filling Degree: ' + resFillingDeg.innerText + ' (' + resFillingStatus.innerText + ')',
+            'Burner Firing Heat Duty: ' + resHeatDutyMw.innerText + ' (' + resHeatDutyMmbtu.innerText + ')',
+            'Specific Energy Consumption: ' + resSpecEnergy.innerText + ' (' + resSpecKcal.innerText + ')',
+            'Drive Motor Power: ' + resDrivePower.innerText + ' (' + resDriveHp.innerText + ')',
+            'Internal Bed Solids Mass: ' + resBedMass.innerText,
+            'Standards: US Bureau of Mines (USBM Sullivan) & Perry Chemical Engineers Handbook'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        procSel.addEventListener('change', updateProcessDefaults);
+        [feedInput, feedUnitSel, moistInput, diamInput, lenInput, slopeInput, slopeUnitSel, rpmInput, reposeInput, bulkDensInput, effInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (271 calculators in /calc/)');
 }
 
