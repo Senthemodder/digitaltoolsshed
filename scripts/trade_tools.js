@@ -165237,6 +165237,1806 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (251 calculators in /calc/)');
+  // --- TOOL BZ1: PETROLEUM REID VAPOR PRESSURE (RVP) TO TRUE VAPOR PRESSURE (TVP) CALCULATOR ---
+  (() => {
+    const slug = 'reid-vapor-pressure-true-vapor-pressure-rvp-tvp-calculator';
+    const title = 'RVP to TVP Calculator | Reid to True Vapor Pressure Conversion & Tank Emissions';
+    const desc = 'Convert Reid Vapor Pressure (RVP) to True Vapor Pressure (TVP) for crude oils, gasolines, and distillates using EPA AP-42 Chapter 7 and API MPMS Chapter 19 equations. Calculate storage tank vapor pressure, boiling margin, and breathing losses.';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'RVP to TVP Conversion', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'What is the fundamental difference between Reid Vapor Pressure (RVP) and True Vapor Pressure (TVP)?',
+        a: 'Reid Vapor Pressure (RVP) is an empirical laboratory test measurement (ASTM D323 or ASTM D5191) conducted at a fixed temperature of 37.8°C (100°F) in a closed chamber with a 4:1 vapor-to-liquid volume ratio. True Vapor Pressure (TVP), on the other hand, is the actual physical thermodynamic equilibrium vapor pressure exerted by the liquid mixture at its true ambient storage temperature (which might be -10°C in winter or 45°C in a desert tank farm). TVP dictates actual volatile organic compound (VOC) emissions, flash fire risks, and pump cavitation.'
+      },
+      {
+        q: 'How does the EPA AP-42 Chapter 7 method convert RVP to TVP?',
+        a: 'EPA AP-42 Section 7.1 correlates TVP through semi-empirical Antoine-type log relations: ln(TVP) = A - B / (T + 459.67), where A and B are empirical polynomial functions of RVP, distillation slope (S), and stock hydrocarbon category (refined motor gasoline, crude oil, or natural gasoline). For crude oils, dissolved light ends (methane, ethane, propane) cause a steeper vapor pressure response with temperature compared to stabilized finished gasolines.'
+      },
+      {
+        q: 'Why does atmospheric storage tank boiling occur if TVP exceeds atmospheric pressure?',
+        a: 'Atmospheric storage tanks (cone roof or floating roof) are designed for hydrostatic liquid containment with minimal internal gas overpressure (typically only 2 to 6 inches of water column above atmospheric pressure). If hot summer solar radiation raises liquid surface temperature such that TVP approaches or exceeds local barometric pressure (101.3 kPa / 14.7 psia), the liquid begins bulk boiling. The violent volume expansion of boiling vapors overwhelms conservation vents, causing tank over-pressurization, roof seal blowout, or catastrophic fire.'
+      },
+      {
+        q: 'What is the ASTM D86 10% distillation point slope and how does it influence TVP?',
+        a: 'The distillation slope S = (T_15% - T_5%) / 10 is an indicator of product volatility distribution. For motor gasolines, ASTM 10% evaporation temperature typically ranges from 45°C to 65°C. A steeper distillation slope means a higher concentration of highly volatile butane and pentane fractions, which produces a much higher TVP for a given 100°F RVP measurement at lower temperatures.'
+      },
+      {
+        q: 'How do floating roof tank rim seals mitigate TVP-driven VOC emissions?',
+        a: 'In internal or external floating roof tanks, a buoyant pontoon deck rests directly on the liquid hydrocarbon surface, eliminating the large vapor headspace present in fixed-roof tanks. Mechanical shoe seals, liquid-filled wipers, or secondary elastomeric seals bridge the annular gap between the floating deck and tank shell. When TVP rises, vapor pressure under the deck increases, but emissions are restricted to narrow rim seal clearances, reducing VOC losses by 95% to 98% compared to fixed-roof breathing cycles.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Convert petroleum Reid Vapor Pressure (RVP) to True Vapor Pressure (TVP) using EPA AP-42 Chapter 7 and API MPMS 19.4 thermodynamics. Assess storage tank flash hazards, true bubble point temperatures, breathing losses, and volatile organic compound (VOC) equilibrium.' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Hydrocarbon Stock & Temperature Inputs</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Hydrocarbon Stock Type</label>' +
+            '<select id="rvp_stock" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<option value="gasoline" selected>Motor Gasoline / Finished Petrol (AP-42)</option>' +
+              '<option value="crude">Crude Oil (API MPMS 19.4 / AP-42)</option>' +
+              '<option value="condensate">Natural Gasoline / Condensate (High Volatility)</option>' +
+            '</select>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Reid Vapor Pressure at 100°F (RVP)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="rvp_val" value="9.0" min="0.5" max="30.0" step="0.1" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="rvp_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="psi" selected>psi</option>' +
+                '<option value="kpa">kPa</option>' +
+                '<option value="bar">bar</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Actual Storage Liquid Temperature (T)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="rvp_temp" value="25" min="-30" max="95" step="0.5" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="rvp_temp_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="c" selected>°C</option>' +
+                '<option value="f">°F</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Distillation Slope (S, °F/%)</label>' +
+              '<input type="number" id="rvp_slope" value="3.0" min="1.0" max="6.0" step="0.1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Ambient Pressure (kPa)</label>' +
+              '<input type="number" id="rvp_patm" value="101.325" min="75" max="110" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Tank Capacity / Working Volume (m³)</label>' +
+            '<input type="number" id="rvp_tank_vol" value="10000" min="50" max="250000" step="500" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Calculated Vapor Pressure & Tank Safety</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">True Vapor Pressure (TVP)</span>' +
+                '<span id="res_rvp_tvp_kpa" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_rvp_tvp_psi" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Bubble Point Temperature</span>' +
+                '<span id="res_rvp_tbubble" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_rvp_margin" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Vapor Molecular Weight</span>' +
+                '<span id="res_rvp_mw" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_rvp_density" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Vapor Pressure Ratio (TVP/Patm)</span>' +
+                '<span id="res_rvp_ratio" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_rvp_boil_status" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">EPA Tank Compliance Rating:</span>' +
+                '<span id="res_rvp_compliance" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Est. Annual Breathing Emission:</span>' +
+                '<span id="res_rvp_emission" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Recommended Tank Type:</span>' +
+                '<span id="res_rvp_rec_tank" style="font-weight:600;color:#38bdf8;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_rvp" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Live Storage Tank Vapor Pressure & Emission Simulator</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Interactive cross-section illustrating liquid storage temperature, vapor headspace expansion, floating roof rim seal containment, and boiling margin gauge.</p>' +
+        '<div style="width:100%;height:320px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="rvp_tank_canvas" width="800" height="320" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in RVP/TVP Operations</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. Atmospheric Storage Tank Boiling from Solar Insolation</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Storing summer motor gasoline or light crude with high RVP (>10 psi) in an uninsulated cone-roof tank can heat liquid surface temperatures above 48°C (118°F) on sunny days. If TVP exceeds atmospheric pressure, liquid boils violently. Vents become choked with vapor, lifting the frangible roof joint or causing catastrophic atmospheric vapor cloud dispersion.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. Loading Rack Vapor Line Detonation from Over-Rich Vapors</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">During bottom loading of tanker trucks or railcars, displacement of vapors with TVP between 1.5 and 7.5 psia produces a vapor-air mixture squarely within the flammability zone (1.4% to 7.6% by volume for gasoline). Failure to bond ground wires or failure of detonation flame arrestors on the vapor collection header risks catastrophic explosions from electrostatic sparks.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. EPA Title V Violation: Fixed Roof Tank Exceeding 1.5 psia TVP</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Under EPA 40 CFR Part 60 Subpart Kb, storing volatile petroleum liquids in fixed-roof tanks is strictly prohibited if maximum True Vapor Pressure equals or exceeds 11.1 kPa (1.61 psia) for tanks >151 m³ (40,000 gal). Operating a fixed-roof tank on light crude without an internal floating roof (IFR) triggers severe federal environmental non-compliance penalties.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. Pipeline Pump Cavitation from Seasonal RVP Mismatch</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Winter-grade gasoline is blended with volatile butanes to an RVP of 13.5 to 15.0 psi for cold engine startability. If winter inventory lingers into late spring when ambient ground temperatures rise above 25°C, TVP rises to 60 kPa (8.7 psia). Booster pumps designed for 35 kPa NPSH margin suffer intense cavitation, destroying impellers and mechanical seals.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Dissolved Gas Under-reporting in Crude Oil RVP (ASTM D323 Error)</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Testing live crude oil using traditional ASTM D323 allows volatile methane and ethane to flash off during sample handling into air, artificially lowering measured RVP by 2 to 5 psi. True pressurized vapor pressure instruments (ASTM D6377 / VPCR4) must be utilized; otherwise, railcars and storage tanks are severely under-protected against high-pressure vapor venting.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Thermodynamic Derivations & Governing Equations</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'The conversion from Reid Vapor Pressure (RVP at 100°F) to True Vapor Pressure (TVP at storage temperature T) follows the EPA AP-42 Chapter 7 empirical formulation:' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Temperature Conversion to Absolute Rankine:<br>' +
+          '&nbsp;&nbsp;T_R = T_F + 459.67 = (T_C · 1.8 + 32) + 459.67<br><br>' +
+          '2. EPA AP-42 Gasoline Vapor Pressure Correlation:<br>' +
+          '&nbsp;&nbsp;A = 15.64 - 2.697 · ln(RVP) + 0.0884 · (ln(RVP))²<br>' +
+          '&nbsp;&nbsp;B = 5236 - 874.2 · ln(RVP) + 16.03 · (ln(RVP))²<br>' +
+          '&nbsp;&nbsp;ln(TVP_psia) = A - (B / T_R)<br><br>' +
+          '3. Crude Oil Correction (API MPMS 19.4):<br>' +
+          '&nbsp;&nbsp;TVP_crude = RVP · exp[ S · (1 - 559.67 / T_R) ]&nbsp;&nbsp;(where S ≈ 2.7 to 3.5)<br><br>' +
+          '4. Vapor Molecular Weight (M_v):<br>' +
+          '&nbsp;&nbsp;M_v = 64.0 - 0.58 · RVP_psi&nbsp;&nbsp;(Gasoline vapors ~60 to 68 g/mol)<br><br>' +
+          '5. Bubble Point Temperature Estimation (T when TVP = P_atm):<br>' +
+          '&nbsp;&nbsp;T_bubble,R = B / (A - ln(P_atm,psia))' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'stock: document.getElementById("rvp_stock"),' +
+          'rvp_val: document.getElementById("rvp_val"),' +
+          'rvp_unit: document.getElementById("rvp_unit"),' +
+          'temp: document.getElementById("rvp_temp"),' +
+          'temp_unit: document.getElementById("rvp_temp_unit"),' +
+          'slope: document.getElementById("rvp_slope"),' +
+          'patm: document.getElementById("rvp_patm"),' +
+          'tank_vol: document.getElementById("rvp_tank_vol"),' +
+          'res_tvp_kpa: document.getElementById("res_rvp_tvp_kpa"),' +
+          'res_tvp_psi: document.getElementById("res_rvp_tvp_psi"),' +
+          'res_tbubble: document.getElementById("res_rvp_tbubble"),' +
+          'res_margin: document.getElementById("res_rvp_margin"),' +
+          'res_mw: document.getElementById("res_rvp_mw"),' +
+          'res_density: document.getElementById("res_rvp_density"),' +
+          'res_ratio: document.getElementById("res_rvp_ratio"),' +
+          'res_boil_status: document.getElementById("res_rvp_boil_status"),' +
+          'res_compliance: document.getElementById("res_rvp_compliance"),' +
+          'res_emission: document.getElementById("res_rvp_emission"),' +
+          'res_rec_tank: document.getElementById("res_rvp_rec_tank"),' +
+          'btn_copy: document.getElementById("btn_copy_rvp"),' +
+          'canvas: document.getElementById("rvp_tank_canvas")' +
+        '};' +
+
+        'function calc() {' +
+          'let rvp_psi = parseFloat(els.rvp_val.value) || 9.0;' +
+          'if (els.rvp_unit.value === "kpa") rvp_psi = rvp_psi * 0.145038;' +
+          'else if (els.rvp_unit.value === "bar") rvp_psi = rvp_psi * 14.5038;' +
+
+          'let temp_c = parseFloat(els.temp.value) || 25;' +
+          'if (els.temp_unit.value === "f") temp_c = (temp_c - 32) * 5 / 9;' +
+
+          'const temp_f = temp_c * 1.8 + 32;' +
+          'const temp_r = temp_f + 459.67;' +
+          'const slope = parseFloat(els.slope.value) || 3.0;' +
+          'const patm_kpa = parseFloat(els.patm.value) || 101.325;' +
+          'const patm_psi = patm_kpa * 0.145038;' +
+          'const tankVol = parseFloat(els.tank_vol.value) || 10000;' +
+          'const stock = els.stock.value;' +
+
+          'let tvp_psi = 0;' +
+          'const lnRVP = Math.log(Math.max(0.1, rvp_psi));' +
+
+          'if (stock === "gasoline") {' +
+            'const a = 15.64 - 2.697 * lnRVP + 0.0884 * lnRVP * lnRVP;' +
+            'const b = 5236 - 874.2 * lnRVP + 16.03 * lnRVP * lnRVP;' +
+            'const lnTVP = a - (b / temp_r);' +
+            'tvp_psi = Math.exp(lnTVP);' +
+          '} else if (stock === "crude") {' +
+            'const s = 2.8 + 0.1 * slope;' +
+            'tvp_psi = rvp_psi * Math.exp(s * (1 - (559.67 / temp_r)));' +
+          '} else {' +
+            'const a = 16.2 - 2.4 * lnRVP;' +
+            'const b = 5300 - 800 * lnRVP;' +
+            'tvp_psi = Math.exp(a - (b / temp_r));' +
+          '}' +
+
+          'const tvp_kpa = tvp_psi * 6.89476;' +
+
+          'let tBubble_f = 100;' +
+          'if (stock === "gasoline") {' +
+            'const a = 15.64 - 2.697 * lnRVP + 0.0884 * lnRVP * lnRVP;' +
+            'const b = 5236 - 874.2 * lnRVP + 16.03 * lnRVP * lnRVP;' +
+            'const tBubble_r = b / (a - Math.log(patm_psi));' +
+            'tBubble_f = tBubble_r - 459.67;' +
+          '} else {' +
+            'const s = 2.8 + 0.1 * slope;' +
+            'const tBubble_r = 559.67 / (1 - (Math.log(patm_psi / rvp_psi) / s));' +
+            'tBubble_f = tBubble_r - 459.67;' +
+          '}' +
+          'const tBubble_c = (tBubble_f - 32) * 5 / 9;' +
+          'const boilMargin_c = tBubble_c - temp_c;' +
+
+          'const mw = Math.max(50, Math.min(90, 66 - 0.65 * rvp_psi));' +
+          'const rUniversal = 8.3145;' +
+          'const vaporDensity = (tvp_kpa * 1000 * (mw / 1000)) / (rUniversal * (temp_c + 273.15));' +
+
+          'const ratio = tvp_kpa / patm_kpa;' +
+
+          'els.res_tvp_kpa.textContent = tvp_kpa.toFixed(1) + " kPa";' +
+          'els.res_tvp_psi.textContent = tvp_psi.toFixed(2) + " psia (" + (tvp_kpa / 100).toFixed(3) + " bar)";' +
+          'els.res_tbubble.textContent = tBubble_c.toFixed(1) + " °C (" + tBubble_f.toFixed(1) + " °F)";' +
+          'els.res_margin.textContent = "Safety Margin to Boiling: " + boilMargin_c.toFixed(1) + " °C";' +
+
+          'els.res_mw.textContent = mw.toFixed(1) + " g/mol";' +
+          'els.res_density.textContent = "Vapor Density: " + vaporDensity.toFixed(2) + " kg/m³";' +
+          'els.res_ratio.textContent = (ratio * 100).toFixed(1) + "% of 1 atm";' +
+
+          'if (ratio >= 1.0) {' +
+            'els.res_boil_status.innerHTML = "<span style=\"color:#ef4444;font-weight:700;\">⚠️ ACTIVE BOILING IN TANK!</span>";' +
+          '} else if (ratio >= 0.75) {' +
+            'els.res_boil_status.innerHTML = "<span style=\"color:#f59e0b;font-weight:600;\">High flash hazard / boiling risk</span>";' +
+          '} else {' +
+            'els.res_boil_status.innerHTML = "<span style=\"color:#10b981;font-weight:600;\">Normal sub-boiling state</span>";' +
+          '}' +
+
+          'if (tvp_psi >= 11.1) {' +
+            'els.res_compliance.textContent = "Exceeds 11.1 psia: Pressure Vessel Required";' +
+            'els.res_rec_tank.textContent = "Spherical / Bullet Pressure Vessel";' +
+          '} else if (tvp_psi >= 1.5) {' +
+            'els.res_compliance.textContent = "EPA Subpart Kb Mandate: Floating Roof";' +
+            'els.res_rec_tank.textContent = "Internal/External Floating Roof (IFR/EFR)";' +
+          '} else {' +
+            'els.res_compliance.textContent = "Compliant for Fixed Cone Roof Tank";' +
+            'els.res_rec_tank.textContent = "Fixed Cone Roof with Conservation Vent";' +
+          '}' +
+
+          'const estTonsYr = (tankVol * 0.00015 * (tvp_kpa / 10));' +
+          'els.res_emission.textContent = estTonsYr.toFixed(1) + " metric tons VOC/year";' +
+
+          'drawTank(temp_c, tBubble_c, tvp_kpa, patm_kpa, ratio);' +
+        '}' +
+
+        'function drawTank(tempC, tBoilC, tvpKpa, pAtmKpa, ratio) {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+          'ctx.clearRect(0, 0, w, h);' +
+
+          'const tx = 140;' +
+          'const ty = 50;' +
+          'const tw = 280;' +
+          'const th = 220;' +
+
+          'ctx.strokeStyle = "#475569";' +
+          'ctx.lineWidth = 3;' +
+          'ctx.strokeRect(tx, ty, tw, th);' +
+
+          'ctx.beginPath();' +
+          'ctx.moveTo(tx - 10, ty);' +
+          'ctx.lineTo(tx + tw / 2, ty - 25);' +
+          'ctx.lineTo(tx + tw + 10, ty);' +
+          'ctx.closePath();' +
+          'ctx.fillStyle = "#334155";' +
+          'ctx.fill();' +
+          'ctx.stroke();' +
+
+          'const liquidH = th * 0.65;' +
+          'const liquidY = ty + th - liquidH;' +
+          'ctx.fillStyle = "#0284c7";' +
+          'ctx.fillRect(tx + 2, liquidY, tw - 4, liquidH - 2);' +
+
+          'const deckY = liquidY - 8;' +
+          'ctx.fillStyle = "#64748b";' +
+          'ctx.fillRect(tx + 4, deckY, tw - 8, 12);' +
+          'ctx.strokeStyle = "#94a3b8";' +
+          'ctx.strokeRect(tx + 4, deckY, tw - 8, 12);' +
+
+          'ctx.fillStyle = "#f59e0b";' +
+          'ctx.fillRect(tx + 4, deckY, 10, 12);' +
+          'ctx.fillRect(tx + tw - 14, deckY, 10, 12);' +
+
+          'const gx = 520;' +
+          'const gy = 80;' +
+          'const gw = 180;' +
+          'const gh = 180;' +
+
+          'ctx.fillStyle = "#1e293b";' +
+          'ctx.strokeStyle = "#334155";' +
+          'ctx.lineWidth = 2;' +
+          'ctx.strokeRect(gx, gy, gw, gh);' +
+          'ctx.fillRect(gx, gy, gw, gh);' +
+
+          'ctx.fillStyle = "#f8fafc";' +
+          'ctx.font = "bold 12px sans-serif";' +
+          'ctx.textAlign = "center";' +
+          'ctx.fillText("VAPOR PRESSURE GAUGE", gx + gw / 2, gy + 25);' +
+
+          'const barX = gx + 30;' +
+          'const barY = gy + 50;' +
+          'const barW = 30;' +
+          'const barH = 100;' +
+
+          'ctx.strokeStyle = "#475569";' +
+          'ctx.strokeRect(barX, barY, barW, barH);' +
+
+          'const fillFrac = Math.min(1.0, ratio);' +
+          'const fillH = barH * fillFrac;' +
+          'ctx.fillStyle = (ratio >= 1.0) ? "#ef4444" : (ratio > 0.6 ? "#f59e0b" : "#38bdf8");' +
+          'ctx.fillRect(barX, barY + barH - fillH, barW, fillH);' +
+
+          'ctx.fillStyle = "#f43f5e";' +
+          'ctx.fillRect(barX - 5, barY, barW + 10, 2);' +
+          'ctx.font = "10px sans-serif";' +
+          'ctx.textAlign = "left";' +
+          'ctx.fillText("1.0 atm (Boiling)", barX + barW + 8, barY + 4);' +
+          'ctx.fillStyle = "#38bdf8";' +
+          'ctx.fillText("TVP = " + tvpKpa.toFixed(1) + " kPa", barX + barW + 8, barY + barH - fillH + 4);' +
+
+          'ctx.fillStyle = "#f8fafc";' +
+          'ctx.font = "bold 11px sans-serif";' +
+          'ctx.textAlign = "center";' +
+          'ctx.fillText("STORAGE TANK CROSS-SECTION", tx + tw / 2, ty + 30);' +
+          'ctx.fillStyle = "#38bdf8";' +
+          'ctx.fillText("Stored Liquid @ " + tempC.toFixed(1) + "°C", tx + tw / 2, liquidY + liquidH / 2);' +
+          'ctx.fillStyle = "#f59e0b";' +
+          'ctx.fillText("Floating Roof & Rim Seals", tx + tw / 2, deckY - 8);' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== PETROLEUM RVP TO TVP CONVERSION SUMMARY ===\n" +' +
+            '"True Vapor Pressure (TVP): " + els.res_tvp_kpa.textContent + " (" + els.res_tvp_psi.textContent + ")\n" +' +
+            '"Bubble Point Temperature: " + els.res_tbubble.textContent + "\n" +' +
+            '"Boiling Safety Margin: " + els.res_margin.textContent + "\n" +' +
+            '"Vapor Molecular Weight: " + els.res_mw.textContent + " (" + els.res_density.textContent + ")\n" +' +
+            '"Vapor Pressure Ratio: " + els.res_ratio.textContent + "\n" +' +
+            '"EPA Subpart Kb Compliance: " + els.res_compliance.textContent + "\n" +' +
+            '"Recommended Storage: " + els.res_rec_tank.textContent + "\n" +' +
+            '"Inputs: RVP=" + els.rvp_val.value + " " + els.rvp_unit.value + " @ T=" + els.temp.value + " " + els.temp_unit.value + "\n" +' +
+            '"Stock Type: " + els.stock.value + "\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.stock, els.rvp_val, els.rvp_unit, els.temp, els.temp_unit, els.slope, els.patm, els.tank_vol];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+  // --- TOOL BZ2: CROSS-FLOW MEMBRANE FLUX & FOULING CALCULATOR ---
+  (() => {
+    const slug = 'cross-flow-microfiltration-membrane-flux-fouling-calculator';
+    const title = 'Cross-Flow Membrane Flux & Fouling Calculator | Microfiltration & Ultrafiltration';
+    const desc = 'Model industrial cross-flow microfiltration (MF) and ultrafiltration (UF) membrane systems. Calculate Darcy-Poiseuille resistance-in-series flux, concentration polarization (film theory), critical flux, and cross-flow shear velocity.';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'Cross-Flow Membrane Flux', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'What is the Resistance-in-Series model for membrane filtration flux?',
+        a: 'The Resistance-in-Series model expresses permeate volumetric flux as an analogue of Ohm law: J = TMP / [mu × (R_m + R_cp + R_f + R_g)], where TMP is transmembrane pressure, mu is permeate dynamic viscosity, R_m is the clean membrane hydraulic resistance, R_cp is reversible concentration polarization resistance, R_f is irreversible internal pore adsorption resistance, and R_g is external surface gel/cake resistance. As filtration progresses, fouling and boundary-layer polarization build up, restricting permeate throughput.'
+      },
+      {
+        q: 'What is Critical Flux (J_crit) and why is it the most vital operating threshold?',
+        a: 'Critical flux (first conceptualized by Field and Bacchin) is the maximum permeate flux below which hydraulic fouling remains minimal, reversible, and purely governed by concentration polarization. If an operator forces transmembrane pressure higher such that actual flux exceeds J_crit, convective drag toward the membrane overcomes cross-flow hydrodynamic shear lift. Suspended colloids and proteins irreversibly deposit into pore constrictions, forming a compacted cake layer that cannot be restored by high-speed cross-flow flushing.'
+      },
+      {
+        q: 'How does Cross-Flow Velocity (u) combat concentration polarization?',
+        a: 'In dead-end filtration, all rejected solids accumulate continuously on the membrane face. In cross-flow filtration, feed slurry sweeps tangentially across the membrane surface at high velocity (typically 2 to 5 m/s in tubular or hollow fiber modules). This vigorous tangential shear creates turbulent or inertial vortex eddies that scour away accumulated particles, increasing the boundary layer mass transfer coefficient (k) and sweeping rejected solutes back into the bulk retentate stream.'
+      },
+      {
+        q: 'What is the Concentration Polarization modulus (C_m / C_b)?',
+        a: 'According to film theory, as solvent permeates through the membrane, rejected solutes are left behind at the wall, establishing a steep exponential concentration gradient: C_m / C_b = exp(J / k), where C_m is solute concentration directly on the membrane wall, C_b is bulk feed concentration, and k is the boundary-layer mass transfer coefficient. If C_m / C_b exceeds 4 to 8, wall concentration approaches the gelation point (C_gel), precipitating an immobile, viscous gel layer that chokes flux regardless of further TMP increases (the "pressure-independent flux limit").'
+      },
+      {
+        q: 'Why does excessive Transmembrane Pressure (TMP) fail to increase flux in the gel-polarized regime?',
+        a: 'In the gel-limited regime, applying higher TMP compresses the flexible cake/gel layer on the membrane face, increasing specific cake resistance (R_g) in exact proportion to the applied pressure increase (R_g ∝ TMP^s, where compressibility s ≈ 1.0). The numerator and denominator increase at the same rate, resulting in zero net flux gain while dramatically accelerating irreversible membrane compaction and fouling.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Model industrial cross-flow microfiltration (MF) and ultrafiltration (UF) systems with multi-component transport kinetics. Compute Darcy-Poiseuille resistance-in-series flux, concentration polarization modulus, Leveque mass transfer coefficients, critical flux boundaries, and cross-flow scouring shear.' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Operating Pressures & Hydrodynamic Inputs</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Transmembrane Pressure (TMP)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="mf_tmp" value="2.0" min="0.1" max="15.0" step="0.1" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="mf_tmp_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="bar" selected>bar</option>' +
+                '<option value="kpa">kPa</option>' +
+                '<option value="psi">psi</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Cross-Flow Scouring Velocity (u)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="mf_vel" value="3.5" min="0.5" max="8.0" step="0.1" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<span style="padding:8px 12px;background:var(--card-bg, #1e293b);border:1px solid var(--border-color, #475569);border-radius:6px;color:var(--text-muted, #94a3b8);font-size:0.85rem;">m/s</span>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Feed Bulk Conc. (C_b, g/L)</label>' +
+              '<input type="number" id="mf_cb" value="15" min="0.5" max="250" step="1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Gel Limit Conc. (C_gel, g/L)</label>' +
+              '<input type="number" id="mf_cgel" value="180" min="50" max="600" step="10" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Fluid Viscosity (mPa·s / cP)</label>' +
+              '<input type="number" id="mf_visc" value="1.2" min="0.4" max="20.0" step="0.1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Channel Hydr. Diam. (d_h, mm)</label>' +
+              '<input type="number" id="mf_dh" value="6.0" min="0.5" max="25.0" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Clean Membr. R_m (×10¹² m⁻¹)</label>' +
+              '<input type="number" id="mf_rm" value="1.5" min="0.1" max="50.0" step="0.1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Fouling/Gel R_g (×10¹² m⁻¹)</label>' +
+              '<input type="number" id="mf_rg" value="2.0" min="0" max="80.0" step="0.2" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Solute Diffusion Coeff. (D, ×10⁻¹⁰ m²/s)</label>' +
+            '<input type="number" id="mf_diff" value="1.0" min="0.05" max="20.0" step="0.05" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Calculated Flux & Fouling Performance</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Permeate Flux (J)</span>' +
+                '<span id="res_mf_flux_lmh" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_mf_flux_gfd" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Critical Flux (J_crit)</span>' +
+                '<span id="res_mf_jcrit" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_mf_crit_status" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Wall Solute Conc. (C_m)</span>' +
+                '<span id="res_mf_cm" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_mf_cp_mod" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Reynolds Number (Re)</span>' +
+                '<span id="res_mf_reynolds" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_mf_regime" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Total Hydraulic Resistance:</span>' +
+                '<span id="res_mf_rtotal" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Mass Transfer Coeff (k):</span>' +
+                '<span id="res_mf_kcoeff" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Filtration Operating Regime:</span>' +
+                '<span id="res_mf_op_regime" style="font-weight:600;color:#38bdf8;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_mf" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Live Cross-Flow Membrane Boundary Layer Simulator</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Visualization of tangential shear sweeping across porous membrane surface, dynamic concentration polarization profile C(y), and permeate passage vectors.</p>' +
+        '<div style="width:100%;height:320px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="mf_channel_canvas" width="800" height="320" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in Cross-Flow Filtration</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. Operating Above Critical Flux Triggering Irreversible Pore Plugging</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Pushing TMP beyond the critical flux threshold forces colloidal particles deep into internal pore necks rather than allowing them to be scoured away by cross-flow shear. Once particles wedge internally, clean-in-place (CIP) backwashing and caustic soaks cannot dislodge them, causing irreversible permeability loss and cutting module lifespan by 70%.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. The Gel Polarization Wall (The High-Pressure Futility Trap)</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">When solute concentration at the membrane wall (C_m) reaches the gel concentration (C_gel), an immobile, highly compressed gel matrix forms. In this regime, increasing TMP by 50% compresses the gel proportionally, resulting in zero increase in permeate flux while consuming excessive pump electrical energy and overheating heat-sensitive bio-products.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. Channel Sludging from Inadequate Cross-Flow Shear Velocity</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Allowing cross-flow velocity to drop below 2.0 m/s in tubular or ceramic membranes transitions the flow regime from turbulent/inertial shear to sluggish laminar drift. Solids settle out onto the lower tube walls, initiating localized clogging that starves adjacent parallel channels and induces progressive runaway blockage across the entire housing.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. Polymeric Membrane Compaction from Excessive Initial TMP</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Applying high pressure (>4 to 6 bar) to fresh polysulfone (PS) or polyethersulfone (PES) ultrafiltration membranes crushes the microporous spongy substructure. This mechanical plastic deformation permanently collapses pore channels, increasing intrinsic resistance (R_m) permanently and reducing baseline water flux by up to 40% before filtration even begins.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Chemical Oxidation Attack During Excessive Hypochlorite CIP</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Overdosing sodium hypochlorite (>200 ppm free chlorine) or exceeding temperature/pH limits during cleaning to remove stubborn organic foulants chemically cleaves polymer backbones in polyamide and polysulfone membranes. Pores enlarge catastrophically, destroying protein/colloid retention and dumping turbidity into the permeate line.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Transport Derivations & Governing Equations</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'Cross-flow membrane flux is governed by the simultaneous coupling of Darcy-Poiseuille viscous permeation through porous media and convective-diffusive boundary layer mass transfer.' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Darcy-Poiseuille Resistance-in-Series Volumetric Flux:<br>' +
+          '&nbsp;&nbsp;J = TMP / [ μ · (R_m + R_g + R_cp) ]&nbsp;&nbsp;[m/s]<br>' +
+          '&nbsp;&nbsp;J_LMH = J · 3.6 · 10⁶&nbsp;&nbsp;[L/(m²·h)]<br><br>' +
+          '2. Concentration Polarization (Film Theory):<br>' +
+          '&nbsp;&nbsp;C_m = C_b · exp(J / k)&nbsp;&nbsp;(assuming 100% solute rejection)<br><br>' +
+          '3. Channel Hydrodynamics & Reynolds Number:<br>' +
+          '&nbsp;&nbsp;Re = (ρ · u · d_h) / μ<br>' +
+          '&nbsp;&nbsp;Sc = μ / (ρ · D)&nbsp;&nbsp;(Schmidt Number)<br><br>' +
+          '4. Boundary Layer Mass Transfer Coefficient (k):<br>' +
+          '&nbsp;&nbsp;Laminar (Leveque correlation): Sh = 1.62 · (Re · Sc · d_h / L)^0.33<br>' +
+          '&nbsp;&nbsp;Turbulent (Dittus-Boelter correlation): Sh = 0.023 · Re^0.8 · Sc^0.33<br>' +
+          '&nbsp;&nbsp;k = (Sh · D) / d_h&nbsp;&nbsp;[m/s]<br><br>' +
+          '5. Critical Flux Limit (Bacchin Gel Polarization Boundary):<br>' +
+          '&nbsp;&nbsp;J_crit = k · ln(C_gel / C_b)&nbsp;&nbsp;[m/s or LMH]' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'tmp: document.getElementById("mf_tmp"),' +
+          'tmp_unit: document.getElementById("mf_tmp_unit"),' +
+          'vel: document.getElementById("mf_vel"),' +
+          'cb: document.getElementById("mf_cb"),' +
+          'cgel: document.getElementById("mf_cgel"),' +
+          'visc: document.getElementById("mf_visc"),' +
+          'dh: document.getElementById("mf_dh"),' +
+          'rm: document.getElementById("mf_rm"),' +
+          'rg: document.getElementById("mf_rg"),' +
+          'diff: document.getElementById("mf_diff"),' +
+          'res_flux_lmh: document.getElementById("res_mf_flux_lmh"),' +
+          'res_flux_gfd: document.getElementById("res_mf_flux_gfd"),' +
+          'res_jcrit: document.getElementById("res_mf_jcrit"),' +
+          'res_crit_status: document.getElementById("res_mf_crit_status"),' +
+          'res_cm: document.getElementById("res_mf_cm"),' +
+          'res_cp_mod: document.getElementById("res_mf_cp_mod"),' +
+          'res_reynolds: document.getElementById("res_mf_reynolds"),' +
+          'res_regime: document.getElementById("res_mf_regime"),' +
+          'res_rtotal: document.getElementById("res_mf_rtotal"),' +
+          'res_kcoeff: document.getElementById("res_mf_kcoeff"),' +
+          'res_op_regime: document.getElementById("res_mf_op_regime"),' +
+          'btn_copy: document.getElementById("btn_copy_mf"),' +
+          'canvas: document.getElementById("mf_channel_canvas")' +
+        '};' +
+
+        'function calc() {' +
+          'let tmp_bar = parseFloat(els.tmp.value) || 2.0;' +
+          'if (els.tmp_unit.value === "kpa") tmp_bar = tmp_bar / 100;' +
+          'else if (els.tmp_unit.value === "psi") tmp_bar = tmp_bar * 0.0689476;' +
+
+          'const tmp_pa = tmp_bar * 100000;' +
+          'const u_ms = parseFloat(els.vel.value) || 3.5;' +
+          'const cb = parseFloat(els.cb.value) || 15;' +
+          'const cgel = parseFloat(els.cgel.value) || 180;' +
+          'const visc_cp = parseFloat(els.visc.value) || 1.2;' +
+          'const visc_pas = visc_cp * 0.001;' +
+          'const dh_mm = parseFloat(els.dh.value) || 6.0;' +
+          'const dh_m = dh_mm * 0.001;' +
+          'const rm_val = parseFloat(els.rm.value) || 1.5;' +
+          'const rg_val = parseFloat(els.rg.value) || 2.0;' +
+          'const diff_val = parseFloat(els.diff.value) || 1.0;' +
+          'const diff_m2s = diff_val * 1e-10;' +
+
+          'const rho = 1000;' +
+          'const re = (rho * u_ms * dh_m) / visc_pas;' +
+          'const sc = visc_pas / (rho * diff_m2s);' +
+
+          'let sh = 0;' +
+          'const channelL = 1.0;' +
+          'if (re < 2100) {' +
+            'sh = 1.62 * Math.pow(re * sc * (dh_m / channelL), 0.333);' +
+          '} else {' +
+            'sh = 0.023 * Math.pow(re, 0.8) * Math.pow(sc, 0.333);' +
+          '}' +
+          'const k_ms = (sh * diff_m2s) / dh_m;' +
+          'const k_lmh = k_ms * 3.6e6;' +
+
+          'const jcrit_ms = k_ms * Math.log(Math.max(1.01, cgel / Math.max(0.1, cb)));' +
+          'const jcrit_lmh = jcrit_ms * 3.6e6;' +
+
+          'const rm_total = (rm_val + rg_val) * 1e12;' +
+          'let j_ms = (visc_pas > 0 && rm_total > 0) ? tmp_pa / (visc_pas * rm_total) : 0;' +
+          'let j_lmh = j_ms * 3.6e6;' +
+
+          'let isGelLimited = false;' +
+          'if (j_lmh > jcrit_lmh) {' +
+            'isGelLimited = true;' +
+            'j_lmh = jcrit_lmh;' +
+            'j_ms = jcrit_ms;' +
+          '}' +
+
+          'const cm = cb * Math.exp(Math.min(5.0, j_ms / k_ms));' +
+          'const cpMod = cm / cb;' +
+
+          'const rTotalEffective = (j_ms > 0) ? (tmp_pa / (visc_pas * j_ms)) / 1e12 : (rm_val + rg_val);' +
+
+          'els.res_flux_lmh.textContent = j_lmh.toFixed(1) + " LMH";' +
+          'els.res_flux_gfd.textContent = (j_lmh * 0.588578).toFixed(1) + " GFD (" + (j_ms * 1e6).toFixed(1) + " μm/s)";' +
+          'els.res_jcrit.textContent = jcrit_lmh.toFixed(1) + " LMH";' +
+
+          'if (isGelLimited) {' +
+            'els.res_crit_status.innerHTML = "<span style=\"color:#ef4444;font-weight:700;\">⚠️ In Gel-Limited Zone (J ≥ J_crit)</span>";' +
+            'els.res_op_regime.textContent = "Gel-Polarized / Pressure-Independent";' +
+          '} else {' +
+            'const margin = ((1 - (j_lmh / jcrit_lmh)) * 100).toFixed(0);' +
+            'els.res_crit_status.innerHTML = "<span style=\"color:#10b981;font-weight:600;\">✓ Sub-Critical (+" + margin + "% safety margin)</span>";' +
+            'els.res_op_regime.textContent = "Pressure-Dependent (Sub-Critical)";' +
+          '}' +
+
+          'els.res_cm.textContent = cm.toFixed(1) + " g/L";' +
+          'els.res_cp_mod.textContent = "Polarization Modulus: " + cpMod.toFixed(2) + "x bulk";' +
+
+          'els.res_reynolds.textContent = Math.round(re).toLocaleString();' +
+          'els.res_regime.textContent = re > 4000 ? "Turbulent Flow" : (re > 2100 ? "Transitional" : "Laminar Flow");' +
+
+          'els.res_rtotal.textContent = rTotalEffective.toFixed(2) + " × 10¹² m⁻¹";' +
+          'els.res_kcoeff.textContent = (k_ms * 1e5).toFixed(2) + " × 10⁻⁵ m/s (" + k_lmh.toFixed(1) + " LMH)";' +
+
+          'drawChannel(u_ms, j_lmh, jcrit_lmh, cm, cb, isGelLimited);' +
+        '}' +
+
+        'function drawChannel(u, j, jcrit, cm, cb, isGel) {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+          'ctx.clearRect(0, 0, w, h);' +
+
+          'const cx = 100;' +
+          'const cy = 60;' +
+          'const cw = 580;' +
+          'const ch = 120;' +
+
+          'const my = cy + ch;' +
+          'const mh = 24;' +
+
+          'ctx.fillStyle = "#334155";' +
+          'ctx.fillRect(cx, my, cw, mh);' +
+          'ctx.strokeStyle = "#64748b";' +
+          'ctx.lineWidth = 2;' +
+          'ctx.strokeRect(cx, my, cw, mh);' +
+
+          'ctx.strokeStyle = "#94a3b8";' +
+          'ctx.lineWidth = 1;' +
+          'for (let px = cx + 10; px < cx + cw; px += 16) {' +
+            'ctx.beginPath();' +
+            'ctx.moveTo(px, my);' +
+            'ctx.lineTo(px, my + mh);' +
+            'ctx.stroke();' +
+          '}' +
+
+          'const grad = ctx.createLinearGradient(0, cy, 0, my);' +
+          'grad.addColorStop(0, "rgba(56, 189, 248, 0.1)");' +
+          'grad.addColorStop(0.7, "rgba(245, 158, 11, 0.3)");' +
+          'grad.addColorStop(1, isGel ? "rgba(239, 68, 68, 0.8)" : "rgba(245, 158, 11, 0.7)");' +
+          'ctx.fillStyle = grad;' +
+          'ctx.fillRect(cx, cy, cw, ch);' +
+
+          'ctx.strokeStyle = "#475569";' +
+          'ctx.lineWidth = 2;' +
+          'ctx.beginPath();' +
+          'ctx.moveTo(cx, cy);' +
+          'ctx.lineTo(cx + cw, cy);' +
+          'ctx.stroke();' +
+
+          'ctx.strokeStyle = "#38bdf8";' +
+          'ctx.lineWidth = 3;' +
+          'for (let y = cy + 25; y < my; y += 35) {' +
+            'ctx.beginPath();' +
+            'ctx.moveTo(cx + 20, y);' +
+            'ctx.lineTo(cx + 120, y);' +
+            'ctx.stroke();' +
+            'ctx.beginPath();' +
+            'ctx.moveTo(cx + 115, y - 5);' +
+            'ctx.lineTo(cx + 125, y);' +
+            'ctx.lineTo(cx + 115, y + 5);' +
+            'ctx.fillStyle = "#38bdf8";' +
+            'ctx.fill();' +
+          '}' +
+
+          'ctx.strokeStyle = "#10b981";' +
+          'ctx.lineWidth = 2;' +
+          'for (let x = cx + 50; x < cx + cw - 30; x += 60) {' +
+            'ctx.beginPath();' +
+            'ctx.moveTo(x, my + mh + 5);' +
+            'ctx.lineTo(x, my + mh + 40);' +
+            'ctx.stroke();' +
+            'ctx.beginPath();' +
+            'ctx.moveTo(x - 4, my + mh + 35);' +
+            'ctx.lineTo(x, my + mh + 45);' +
+            'ctx.lineTo(x + 4, my + mh + 35);' +
+            'ctx.fillStyle = "#10b981";' +
+            'ctx.fill();' +
+          '}' +
+
+          'ctx.fillStyle = "#f8fafc";' +
+          'ctx.font = "bold 12px sans-serif";' +
+          'ctx.textAlign = "left";' +
+          'ctx.fillText("FEED FLOW (Cross-Flow Velocity u = " + u.toFixed(1) + " m/s)", cx + 20, cy - 12);' +
+
+          'ctx.textAlign = "center";' +
+          'ctx.fillStyle = "#f59e0b";' +
+          'ctx.fillText("Concentration Polarization Boundary Layer C_m = " + cm.toFixed(1) + " g/L", cx + cw / 2, my - 12);' +
+
+          'ctx.fillStyle = "#cbd5e1";' +
+          'ctx.fillText("POROUS MEMBRANE (R_m = " + (els.rm.value) + " × 10¹² m⁻¹)", cx + cw / 2, my + 16);' +
+
+          'ctx.fillStyle = "#10b981";' +
+          'ctx.fillText("PERMEATE FLUX J = " + j.toFixed(1) + " LMH", cx + cw / 2, my + mh + 60);' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== CROSS-FLOW MEMBRANE FLUX DIAGNOSTIC SUMMARY ===\n" +' +
+            '"Permeate Flux (J): " + els.res_flux_lmh.textContent + " (" + els.res_flux_gfd.textContent + ")\n" +' +
+            '"Critical Flux (J_crit): " + els.res_jcrit.textContent + "\n" +' +
+            '"Operating Regime: " + els.res_op_regime.textContent + "\n" +' +
+            '"Wall Solute Conc (C_m): " + els.res_cm.textContent + " (" + els.res_cp_mod.textContent + ")\n" +' +
+            '"Reynolds Number: " + els.res_reynolds.textContent + " (" + els.res_regime.textContent + ")\n" +' +
+            '"Effective Hydraulic Resistance: " + els.res_rtotal.textContent + "\n" +' +
+            '"Mass Transfer Coefficient (k): " + els.res_kcoeff.textContent + "\n" +' +
+            '"Inputs: TMP=" + els.tmp.value + " " + els.tmp_unit.value + ", u=" + els.vel.value + " m/s\n" +' +
+            '"Feed Conc: " + els.cb.value + " g/L | Gel Limit: " + els.cgel.value + " g/L\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.tmp, els.tmp_unit, els.vel, els.cb, els.cgel, els.visc, els.dh, els.rm, els.rg, els.diff];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+  // --- TOOL BZ3: ROTARY VACUUM DRUM FILTER (RVDF) SIZING CALCULATOR ---
+  (() => {
+    const slug = 'rotary-vacuum-drum-filter-rvdf-sizing-calculator';
+    const title = 'Rotary Vacuum Drum Filter Sizing Calculator | RVDF Cake Filtration Kinetics';
+    const desc = 'Size industrial continuous Rotary Vacuum Drum Filters (RVDF) using Ruth and Carman-Kozeny cake filtration kinetics. Calculate dry cake production yield, total drum surface area, cake thickness, cycle time division, and vacuum pump airflow.';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'RVDF Filter Sizing', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'How does a Rotary Vacuum Drum Filter (RVDF) operate on a continuous cycle?',
+        a: 'A continuous Rotary Vacuum Drum Filter consists of a cylindrical drum covered with a filter cloth rotating through an agitated slurry vat. Internal vacuum pipes connect individual perimeter drum sectors to an automatic rotary timing valve at the trunnion. The cycle proceeds through four continuous zones: (1) Cake Formation: The lower drum sector is submerged in slurry where vacuum sucks filtrate inward and deposits a solid cake on the cloth; (2) Cake Washing: Spray nozzles wash soluble mother liquor from cake pores; (3) Vacuum Dewatering: Ambient air is drawn through the cake to suck out interstitial moisture; and (4) Cake Discharge: A scraper knife, roll, or string discharge peels the dry cake off the cloth.'
+      },
+      {
+        q: 'What is the parabolic cake filtration equation for continuous drum filters?',
+        a: 'Based on Darcy law and Ruth parabolic cake growth theory, when medium resistance is negligible compared to cake resistance, dry solids yield per unit area is given by:\n$$Y = \sqrt{\frac{2 \cdot f_{sub} \cdot \Delta P \cdot c \cdot N}{\mu \cdot \alpha}}$$\nWhere \(f_{sub}\) is drum submergence fraction (typically 0.30 to 0.375), \(\Delta P\) is vacuum differential pressure, \(c\) is dry cake mass deposited per volume of filtrate, \(N\) is drum rotational speed (rpm), \(\mu\) is filtrate viscosity, and \(\alpha\) is specific cake resistance (m/kg).'
+      },
+      {
+        q: 'Why is minimum cake thickness critical for mechanical scraper discharge?',
+        a: 'Mechanical scraper (knife) discharge requires a cake thickness of at least 3.0 to 6.0 mm (1/8 to 1/4 inch) to clean properly without scraping against the delicate filter cloth. If cake formation is too thin (<2.5 mm), the knife edge cannot cleanly lift the cake, causing cloth glazing, smear clogging, and poor discharge efficiency. To increase cake thickness, engineers reduce drum rotational speed or increase slurry feed solids concentration.'
+      },
+      {
+        q: 'What causes cake cracking during the vacuum dewatering phase?',
+        a: 'During dewatering, capillary tension pulls water menisci into the pores of the particulate cake. If particle size distribution contains high compressible clay or gelatinous hydroxide fines, shrinkage stresses exceed cake tensile strength, causing deep fissures and cracks to rupture across the drum face. Air preferentially short-circuits through open cracks, destroying vacuum across the entire drum and leaving uncracked cake saturated with moisture.'
+      },
+      {
+        q: 'How is vacuum pump capacity sized for an RVDF system?',
+        a: 'Vacuum pump capacity is governed by the volume of air sucked through the porous cake during dewatering and drying, typically 0.6 to 1.8 m³/min of air per square meter of active dewatering area (2 to 6 ACFM/ft²) depending on cake porosity and permeability. Undersizing the liquid-ring vacuum pump drops available vacuum in the cake formation zone, collapsing production rate.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Size industrial Rotary Vacuum Drum Filters (RVDF) with Ruth & Carman-Kozeny filtration kinetics. Calculate dry cake solids yield, required drum diameter and face width, formed cake thickness, cycle zone residence times, and vacuum pump displacement.' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Production Duty & Slurry Parameters</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Dry Cake Solids Production Rate</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="rvdf_prod" value="6.0" min="0.1" max="150" step="0.5" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="rvdf_prod_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="t_h" selected>ton/h</option>' +
+                '<option value="kg_h">kg/h</option>' +
+                '<option value="lb_h">lb/h</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Drum Speed (N, rpm)</label>' +
+              '<input type="number" id="rvdf_rpm" value="0.75" min="0.1" max="4.0" step="0.05" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Submergence Fraction (%)</label>' +
+              '<input type="number" id="rvdf_sub" value="33" min="15" max="45" step="1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Filtration Vacuum (ΔP)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="rvdf_dp" value="60" min="10" max="95" step="1" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="rvdf_dp_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="kpa" selected>kPa</option>' +
+                '<option value="bar">bar</option>' +
+                '<option value="inhg">in. Hg</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Slurry Solids Conc. (c, kg/m³)</label>' +
+              '<input type="number" id="rvdf_c" value="120" min="10" max="600" step="5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Spec. Cake Resist. (α, ×10¹⁰ m/kg)</label>' +
+              '<input type="number" id="rvdf_alpha" value="3.5" min="0.1" max="100.0" step="0.2" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Filtrate Viscosity (mPa·s)</label>' +
+              '<input type="number" id="rvdf_visc" value="1.1" min="0.4" max="15.0" step="0.1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Cake Bulk Density (kg/m³)</label>' +
+              '<input type="number" id="rvdf_rhocake" value="1450" min="800" max="3000" step="50" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Calculated Drum Sizing & Cycle Timing</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Required Drum Area</span>' +
+                '<span id="res_rvdf_area" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_rvdf_area_ft" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Drum Sizing (D × L)</span>' +
+                '<span id="res_rvdf_dims" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_rvdf_aspect" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Cake Thickness (δ)</span>' +
+                '<span id="res_rvdf_thick" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_rvdf_thick_status" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Specific Yield (Y)</span>' +
+                '<span id="res_rvdf_yield" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_rvdf_yield_imp" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Cycle Time (Form / Dry):</span>' +
+                '<span id="res_rvdf_times" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Filtrate Volumetric Flow:</span>' +
+                '<span id="res_rvdf_filtrate" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Vacuum Pump Airflow:</span>' +
+                '<span id="res_rvdf_vacuum_air" style="font-weight:600;color:#38bdf8;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_rvdf" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Interactive Rotary Drum Cycle Simulator</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Cross-section illustrating continuous cycle sectors: submerged form zone, spray washing zone, vacuum drying, and scraper blade cake peeling.</p>' +
+        '<div style="width:100%;height:320px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="rvdf_drum_canvas" width="800" height="320" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in RVDF Filtration</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. Operating Below 3.0 mm Cake Thickness on Scraper Discharge</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Attempting to operate a scraper discharge RVDF with cake thickness under 3 mm (1/8 inch) causes the blade to smear sticky particulate into the weave of the cloth instead of peeling it. The cloth blinds rapidly, vacuum collapses, and cake discharge ceases. Scrapers require a rigid 4–15 mm cake heel to maintain clean release.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. Cake Cracking & Catastrophic Vacuum Loss in Dewatering Zone</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Compressible cakes undergo shrinkage drying stresses as capillary pore water empties. Fissures develop through to the cloth, allowing massive volumes of air to short-circuit into the vacuum manifold. Manifold vacuum drops from 60 kPa to < 20 kPa, halting dewatering on the rest of the drum and leaving cake discharged soaking wet.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. Slurry Vat Particle Segregation from Low Agitator Speed</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">If pendulum vat agitator speed is too slow, coarse fast-settling particles sink to the vat floor while light fines remain in suspension. The drum emerges coated solely in slow-draining fines, drastically elevating cake resistance (α). Meanwhile, un-agitated sand builds up in the vat trough until it wedges against the drum shell, tripping the drive motor.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. The High-Speed Paradox: Increasing RPM Increases Cake Moisture</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Operators seeking to boost throughput often double drum rpm. While cake yield scales as √N, dewatering residence time decreases proportionally as 1/N. Viscous capillary water has insufficient time to drain, resulting in excessive cake moisture that turns the discharge chute into a sloppy paste and overloads downstream dryers.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Rotary Valve Bridge Wear Causing Vacuum Short-Circuiting</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">The automatic trunnion timing valve utilizes precision bronze/stellite bridge blocks to isolate vacuum sectors from atmospheric cake discharge blowback. Abrasive slurry leaks into the valve face score the bridge seals, allowing blowback compressed air to leak directly into the cake-forming vacuum chambers, destroying cake pickup.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Kinetic Derivations & Sizing Equations</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'Continuous rotary vacuum drum filtration applies the parabolic Ruth-Carman cake formation integral across steady periodic rotational cycles.' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Formation Time per Drum Revolution:<br>' +
+          '&nbsp;&nbsp;t_form = (f_sub / N) · 60&nbsp;&nbsp;[seconds]<br><br>' +
+          '2. Parabolic Ruth Cake Solids Yield:<br>' +
+          '&nbsp;&nbsp;Y = √[ (2 · f_sub · ΔP · c · N) / (μ · α) ]&nbsp;&nbsp;[kg/(m²·min)]<br>' +
+          '&nbsp;&nbsp;Y_hourly = Y · 60&nbsp;&nbsp;[kg/(m²·h)]<br><br>' +
+          '3. Total Required Drum Surface Area:<br>' +
+          '&nbsp;&nbsp;A_drum = M_solids_hourly / Y_hourly&nbsp;&nbsp;[m²]<br><br>' +
+          '4. Drum Geometry (assuming aspect ratio L / D = 1.5):<br>' +
+          '&nbsp;&nbsp;A_drum = π · D · L = 1.5 · π · D²&nbsp;&nbsp;→&nbsp;&nbsp;D = √[ A_drum / (1.5 · π) ]<br>' +
+          '&nbsp;&nbsp;L = 1.5 · D<br><br>' +
+          '5. Formed Cake Thickness (δ):<br>' +
+          '&nbsp;&nbsp;δ = Y_hourly / (ρ_cake · N · 60)&nbsp;&nbsp;[meters]' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'prod: document.getElementById("rvdf_prod"),' +
+          'prod_unit: document.getElementById("rvdf_prod_unit"),' +
+          'rpm: document.getElementById("rvdf_rpm"),' +
+          'sub: document.getElementById("rvdf_sub"),' +
+          'dp: document.getElementById("rvdf_dp"),' +
+          'dp_unit: document.getElementById("rvdf_dp_unit"),' +
+          'c: document.getElementById("rvdf_c"),' +
+          'alpha: document.getElementById("rvdf_alpha"),' +
+          'visc: document.getElementById("rvdf_visc"),' +
+          'rhocake: document.getElementById("rvdf_rhocake"),' +
+          'res_area: document.getElementById("res_rvdf_area"),' +
+          'res_area_ft: document.getElementById("res_rvdf_area_ft"),' +
+          'res_dims: document.getElementById("res_rvdf_dims"),' +
+          'res_aspect: document.getElementById("res_rvdf_aspect"),' +
+          'res_thick: document.getElementById("res_rvdf_thick"),' +
+          'res_thick_status: document.getElementById("res_rvdf_thick_status"),' +
+          'res_yield: document.getElementById("res_rvdf_yield"),' +
+          'res_yield_imp: document.getElementById("res_rvdf_yield_imp"),' +
+          'res_times: document.getElementById("res_rvdf_times"),' +
+          'res_filtrate: document.getElementById("res_rvdf_filtrate"),' +
+          'res_vacuum_air: document.getElementById("res_rvdf_vacuum_air"),' +
+          'btn_copy: document.getElementById("btn_copy_rvdf"),' +
+          'canvas: document.getElementById("rvdf_drum_canvas")' +
+        '};' +
+
+        'let animAngle = 0;' +
+        'let animFrameId = null;' +
+
+        'function calc() {' +
+          'let prod_kgh = parseFloat(els.prod.value) || 6.0;' +
+          'if (els.prod_unit.value === "t_h") prod_kgh = prod_kgh * 1000;' +
+          'else if (els.prod_unit.value === "lb_h") prod_kgh = prod_kgh * 0.453592;' +
+
+          'const rpm = parseFloat(els.rpm.value) || 0.75;' +
+          'const f_sub = (parseFloat(els.sub.value) || 33) / 100;' +
+
+          'let dp_pa = parseFloat(els.dp.value) || 60;' +
+          'if (els.dp_unit.value === "kpa") dp_pa = dp_pa * 1000;' +
+          'else if (els.dp_unit.value === "bar") dp_pa = dp_pa * 100000;' +
+          'else if (els.dp_unit.value === "inhg") dp_pa = dp_pa * 3386.39;' +
+
+          'const c_solids = parseFloat(els.c.value) || 120;' +
+          'const alpha_val = (parseFloat(els.alpha.value) || 3.5) * 1e10;' +
+          'const visc_pas = (parseFloat(els.visc.value) || 1.1) * 0.001;' +
+          'const rho_cake = parseFloat(els.rhocake.value) || 1450;' +
+
+          'const totalCycleSec = (rpm > 0) ? 60 / rpm : 0;' +
+          'const tFormSec = totalCycleSec * f_sub;' +
+          'const tDrySec = totalCycleSec * (1 - f_sub - 0.15);' +
+
+          'const y_kg_m2_s = Math.sqrt((2 * f_sub * dp_pa * c_solids * (rpm / 60)) / (visc_pas * alpha_val));' +
+          'const y_hourly = y_kg_m2_s * 3600;' +
+
+          'const aDrum = (y_hourly > 0) ? prod_kgh / y_hourly : 0;' +
+          'const dDrum = Math.sqrt(aDrum / (1.5 * Math.PI));' +
+          'const lDrum = 1.5 * dDrum;' +
+
+          'const thickM = (rho_cake > 0 && rpm > 0) ? y_hourly / (rho_cake * rpm * 60) : 0;' +
+          'const thickMm = thickM * 1000;' +
+
+          'const filtrateFlowM3h = (c_solids > 0) ? prod_kgh / c_solids : 0;' +
+          'const vacAirM3min = aDrum * (1 - f_sub) * 1.0;' +
+
+          'els.res_area.textContent = aDrum.toFixed(1) + " m²";' +
+          'els.res_area_ft.textContent = (aDrum * 10.7639).toFixed(0) + " sq ft total drum area";' +
+
+          'els.res_dims.textContent = dDrum.toFixed(2) + "m ⌀ × " + lDrum.toFixed(2) + "m length";' +
+          'els.res_aspect.textContent = "Aspect Ratio L/D = 1.5 (" + (dDrum * 3.28084).toFixed(1) + "ft × " + (lDrum * 3.28084).toFixed(1) + "ft)";' +
+
+          'els.res_thick.textContent = thickMm.toFixed(1) + " mm";' +
+          'if (thickMm < 3.0) {' +
+            'els.res_thick_status.innerHTML = "<span style=\"color:#ef4444;font-weight:700;\">⚠️ Too thin for scraper (<3mm)</span>";' +
+          '} else if (thickMm > 25.0) {' +
+            'els.res_thick_status.innerHTML = "<span style=\"color:#f59e0b;font-weight:600;\">Very heavy cake; high torque</span>";' +
+          '} else {' +
+            'els.res_thick_status.innerHTML = "<span style=\"color:#10b981;font-weight:600;\">✓ Ideal scraper discharge range</span>";' +
+          '}' +
+
+          'els.res_yield.textContent = y_hourly.toFixed(1) + " kg/(m²·h)";' +
+          'els.res_yield_imp.textContent = (y_hourly * 0.204816).toFixed(1) + " lb/(ft²·h)";' +
+
+          'els.res_times.textContent = tFormSec.toFixed(1) + "s form / " + tDrySec.toFixed(1) + "s dry (Total: " + totalCycleSec.toFixed(1) + "s)";' +
+          'els.res_filtrate.textContent = filtrateFlowM3h.toFixed(1) + " m³/h (" + (filtrateFlowM3h * 4.40287).toFixed(1) + " gpm)";' +
+          'els.res_vacuum_air.textContent = vacAirM3min.toFixed(0) + " m³/min (" + (vacAirM3min * 35.3147).toFixed(0) + " ACFM @ " + (dp_pa / 1000).toFixed(0) + " kPa vac)";' +
+        '}' +
+
+        'function startDrumAnim() {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+
+          'function render() {' +
+            'ctx.clearRect(0, 0, w, h);' +
+
+            'const cx = w / 2 - 30;' +
+            'const cy = h / 2 + 10;' +
+            'const r = 90;' +
+
+            'animAngle += 0.008;' +
+            'if (animAngle > Math.PI * 2) animAngle -= Math.PI * 2;' +
+
+            'ctx.fillStyle = "#1e293b";' +
+            'ctx.strokeStyle = "#475569";' +
+            'ctx.lineWidth = 3;' +
+            'ctx.beginPath();' +
+            'ctx.arc(cx, cy + 20, r + 25, 0.2 * Math.PI, 0.8 * Math.PI, false);' +
+            'ctx.lineTo(cx - r - 25, cy + 120);' +
+            'ctx.lineTo(cx + r + 25, cy + 120);' +
+            'ctx.closePath();' +
+            'ctx.fill();' +
+            'ctx.stroke();' +
+
+            'ctx.fillStyle = "rgba(56, 189, 248, 0.25)";' +
+            'ctx.beginPath();' +
+            'ctx.arc(cx, cy + 20, r + 20, 0.25 * Math.PI, 0.75 * Math.PI, false);' +
+            'ctx.fill();' +
+
+            'ctx.save();' +
+            'ctx.translate(cx, cy);' +
+            'ctx.rotate(animAngle);' +
+
+            'ctx.fillStyle = "#334155";' +
+            'ctx.beginPath();' +
+            'ctx.arc(0, 0, r, 0, Math.PI * 2);' +
+            'ctx.fill();' +
+            'ctx.strokeStyle = "#64748b";' +
+            'ctx.lineWidth = 4;' +
+            'ctx.stroke();' +
+
+            'ctx.strokeStyle = "#475569";' +
+            'ctx.lineWidth = 1;' +
+            'for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) {' +
+              'ctx.beginPath();' +
+              'ctx.moveTo(0, 0);' +
+              'ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);' +
+              'ctx.stroke();' +
+            '}' +
+
+            'ctx.fillStyle = "#0f172a";' +
+            'ctx.beginPath();' +
+            'ctx.arc(0, 0, 22, 0, Math.PI * 2);' +
+            'ctx.fill();' +
+            'ctx.stroke();' +
+            'ctx.restore();' +
+
+            'ctx.strokeStyle = "#f59e0b";' +
+            'ctx.lineWidth = 8;' +
+            'ctx.beginPath();' +
+            'ctx.arc(cx, cy, r + 4, 0.3 * Math.PI, 1.8 * Math.PI, false);' +
+            'ctx.stroke();' +
+
+            'const sx = cx + r + 5;' +
+            'const sy = cy - 20;' +
+            'ctx.fillStyle = "#ef4444";' +
+            'ctx.beginPath();' +
+            'ctx.moveTo(sx, sy);' +
+            'ctx.lineTo(sx + 35, sy + 30);' +
+            'ctx.lineTo(sx + 35, sy + 40);' +
+            'ctx.lineTo(sx - 5, sy + 5);' +
+            'ctx.closePath();' +
+            'ctx.fill();' +
+
+            'ctx.fillStyle = "#f59e0b";' +
+            'for (let i = 0; i < 5; i++) {' +
+              'ctx.fillRect(sx + 30 + (i % 2) * 5, sy + 45 + i * 14, 8, 8);' +
+            '}' +
+
+            'ctx.fillStyle = "#f8fafc";' +
+            'ctx.font = "bold 11px sans-serif";' +
+            'ctx.textAlign = "center";' +
+            'ctx.fillText("VACUUM DEWATERING ZONE", cx, cy - r - 15);' +
+
+            'ctx.fillStyle = "#38bdf8";' +
+            'ctx.fillText("SUBMERGED FORM ZONE", cx, cy + r + 15);' +
+
+            'ctx.fillStyle = "#ef4444";' +
+            'ctx.textAlign = "left";' +
+            'ctx.fillText("Doctor Scraper Blade", sx + 42, sy + 25);' +
+            'ctx.fillText("Dry Cake Discharge", sx + 42, sy + 65);' +
+
+            'ctx.fillStyle = "#94a3b8";' +
+            'ctx.font = "10px sans-serif";' +
+            'ctx.fillText("Slurry Vat Feed", cx - r - 45, cy + 90);' +
+
+            'animFrameId = requestAnimationFrame(render);' +
+          '}' +
+
+          'render();' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== RVDF DRUM FILTER SIZING DIAGNOSTIC SUMMARY ===\n" +' +
+            '"Required Drum Area: " + els.res_area.textContent + " (" + els.res_area_ft.textContent + ")\n" +' +
+            '"Drum Dimensions: " + els.res_dims.textContent + "\n" +' +
+            '"Specific Cake Yield: " + els.res_yield.textContent + "\n" +' +
+            '"Cake Thickness: " + els.res_thick.textContent + "\n" +' +
+            '"Cycle Times: " + els.res_times.textContent + "\n" +' +
+            '"Filtrate Flow Rate: " + els.res_filtrate.textContent + "\n" +' +
+            '"Vacuum Air Requirement: " + els.res_vacuum_air.textContent + "\n" +' +
+            '"Operating Parameters: Production=" + els.prod.value + " " + els.prod_unit.value + ", RPM=" + els.rpm.value + ", Sub=" + els.sub.value + "%\n" +' +
+            '"Vacuum: " + els.dp.value + " " + els.dp_unit.value + " | Slurry Conc: " + els.c.value + " kg/m³\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.prod, els.prod_unit, els.rpm, els.sub, els.dp, els.dp_unit, els.c, els.alpha, els.visc, els.rhocake];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+        'startDrumAnim();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+  // --- TOOL BZ4: HYDRODESULFURIZATION (HDS) TRICKLE-BED REACTOR SIZING CALCULATOR ---
+  (() => {
+    const slug = 'hydrodesulfurization-hds-trickle-bed-reactor-calculator';
+    const title = 'Hydrodesulfurization (HDS) Reactor Sizing Calculator | Refinery Trickle-Bed Hydrotreating';
+    const desc = 'Size refinery hydrodesulfurization (HDS) trickle-bed reactors for Ultra-Low Sulfur Diesel (ULSD). Calculate catalyst volume via LHSV, chemical hydrogen consumption, adiabatic bed exotherm, quench gas rate, and sulfur conversion.';
+
+    const breadcrumbs = [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' },
+      { name: 'HDS Reactor Sizing', url: '/calc/' + slug + '.html' }
+    ];
+
+    const faqs = [
+      {
+        q: 'What is Liquid Hourly Space Velocity (LHSV) in an HDS reactor?',
+        a: 'Liquid Hourly Space Velocity (LHSV) is the volumetric feed flow rate of oil per hour divided by the total volume of catalyst inside the reactor (LHSV = V_oil_hour / V_catalyst, in units of hr⁻¹). In ultra-low sulfur diesel (ULSD, <10 ppmw S) hydrotreaters, LHSV typically ranges between 1.0 and 2.5 hr⁻¹. Lower space velocities provide greater residence time required to hydrodesulfurize sterically hindered refractory sulfur molecules like 4,6-dimethyldibenzothiophene.'
+      },
+      {
+        q: 'Why are 4,6-dimethyldibenzothiophenes (4,6-DMDBT) so difficult to desulfurize?',
+        a: 'Simple mercaptans, sulfides, and thiophenes desulfurize rapidly via direct C-S bond hydrogenolysis at modest temperatures. In contrast, 4,6-dimethyldibenzothiophene features two bulky methyl groups positioned directly adjacent to the sulfur atom. These methyl groups physically shield the sulfur from contacting active CoMo/NiMo catalyst metal sites. Desulfurization requires first hydrogenating one of the aromatic rings to distort the planar geometry before C-S cleavage can occur, demanding high hydrogen partial pressure (>60 bar) and higher catalyst volume.'
+      },
+      {
+        q: 'How is chemical hydrogen consumption calculated across an HDS reactor?',
+        a: 'Hydrogen consumption is the sum of stoichiometric demands across multiple simultaneous reactions: (1) Hydrodesulfurization (~3 to 4 moles H2 per mole S); (2) Hydrodenitrogenation (HDN, ~4 to 5 moles H2 per mole N); (3) Olefin saturation (1 mole H2 per mole double bond, highly exothermic); and (4) Polyaromatic hydrocarbon saturation. Diesel fuels typically consume 40 to 120 Nm³ of H2 per m³ of feed (250 to 750 SCFB), whereas cracked stocks like Light Cycle Oil (LCO) consume over 180 to 250 Nm³/m³.'
+      },
+      {
+        q: 'Why are inter-bed quench zones mandatory in hydroprocessing reactors?',
+        a: 'Hydrotreating reactions are intensely exothermic, releasing approximately 38,000 kJ per kg of sulfur removed and over 125,000 kJ per kmol of double bonds hydrogenated. In an adiabatic catalyst bed, this heat causes temperature rises of 20°C to 60°C. If bed temperature exceeds 390°C–410°C, thermal cracking reactions initiate, precipitating rapid coke deposition that deactivates the catalyst and risks runaway thermal excursions. Cold recycle hydrogen gas is injected through specialized inter-bed quench distributors to reset the process temperature.'
+      },
+      {
+        q: 'What causes ammonium bisulfide (NH4HS) salt fouling in reactor effluent coolers?',
+        a: 'Hydrotreating feedstocks containing both sulfur and nitrogen produce hydrogen sulfide (H2S) and ammonia (NH3) gas in the reactor effluent. When effluent cools downstream in the Reactor Effluent Air Cooler (REAC) below ~110°C to 135°C, H2S and NH3 crystallize into solid ammonium bisulfide (NH4HS) salts. Solid NH4HS deposits cause severe under-deposit corrosion and tube plugging unless continuous wash water is injected upstream of the air cooler.'
+      }
+    ];
+
+    const content = '<div class="calc-card">' +
+      '<p class="calc-lead" style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:24px;">' +
+        'Size refinery hydrodesulfurization (HDS) trickle-bed reactors for Ultra-Low Sulfur Diesel (ULSD) and naphtha hydrotreating. Calculate required catalyst volume, chemical H2 consumption, multi-bed adiabatic exotherm, quench gas demand, and 4,6-DMDBT kinetic limits.' +
+      '</p>' +
+
+      '<div class="calculator-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:32px;">' +
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);">' +
+          '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">Hydrocracker/Hydrotreater Feed Inputs</h3>' +
+          
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Feed Oil Flow Rate (Q_feed)</label>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<input type="number" id="hds_flow" value="25000" min="500" max="150000" step="500" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+              '<select id="hds_flow_unit" style="width:90px;padding:8px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+                '<option value="bpd" selected>BPD</option>' +
+                '<option value="m3_h">m³/h</option>' +
+                '<option value="m3_d">m³/day</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Feed Inlet Sulfur (S_in, ppmw)</label>' +
+              '<input type="number" id="hds_sin" value="12000" min="50" max="45000" step="100" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Target Outlet Sulfur (S_out, ppmw)</label>' +
+              '<input type="number" id="hds_sout" value="10" min="1" max="1000" step="1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Design LHSV (hr⁻¹)</label>' +
+              '<input type="number" id="hds_lhsv" value="1.5" min="0.3" max="6.0" step="0.1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">H₂ Partial Pressure (bar)</label>' +
+              '<input type="number" id="hds_ph2" value="65" min="20" max="180" step="1" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Feed Density (kg/m³)</label>' +
+              '<input type="number" id="hds_rhofeed" value="845" min="700" max="980" step="5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+            '<div>' +
+              '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Catalyst Density (kg/m³)</label>' +
+              '<input type="number" id="hds_rhocat" value="750" min="500" max="1100" step="25" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+            '</div>' +
+          '</div>' +
+
+          '<div style="margin-bottom:14px;">' +
+            '<label style="display:block;font-size:0.85rem;color:var(--text-muted, #94a3b8);margin-bottom:4px;">Feed Olefin / Bromine Number (g Br/100g)</label>' +
+            '<input type="number" id="hds_bromine" value="2.5" min="0" max="35.0" step="0.5" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-color, #475569);background:var(--input-bg, #0f172a);color:var(--text-bright, #fff);">' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="calc-panel" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.15rem;margin-top:0;margin-bottom:16px;border-bottom:1px solid var(--border-color, #334155);padding-bottom:8px;">HDS Sizing & Reaction Performance</h3>' +
+            
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #38bdf8;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Required Catalyst Volume</span>' +
+                '<span id="res_hds_vcat" style="font-size:1.35rem;font-weight:700;color:#38bdf8;">--</span>' +
+                '<span id="res_hds_mcat" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #34d399;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Sulfur Conversion (X_S)</span>' +
+                '<span id="res_hds_conv" style="font-size:1.35rem;font-weight:700;color:#34d399;">--</span>' +
+                '<span id="res_hds_ulsd_status" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #f59e0b;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Chemical H₂ Consumption</span>' +
+                '<span id="res_hds_h2cons" style="font-size:1.35rem;font-weight:700;color:#f59e0b;">--</span>' +
+                '<span id="res_hds_mmscfd" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+              '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;border-left:3px solid #a855f7;">' +
+                '<span style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);text-transform:uppercase;">Total Adiabatic Exotherm (ΔT)</span>' +
+                '<span id="res_hds_exotherm" style="font-size:1.35rem;font-weight:700;color:#a855f7;">--</span>' +
+                '<span id="res_hds_exotherm_f" style="display:block;font-size:0.75rem;color:var(--text-muted, #94a3b8);">--</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:8px;margin-bottom:16px;border-left:3px solid #ec4899;">' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Estimated Reactor Dims:</span>' +
+                '<span id="res_hds_dims" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Recommended Catalyst Beds:</span>' +
+                '<span id="res_hds_beds" style="font-weight:600;color:#f8fafc;">--</span>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;">' +
+                '<span style="font-size:0.8rem;color:var(--text-muted, #94a3b8);">Inter-Bed Quench Gas Flow:</span>' +
+                '<span id="res_hds_quench" style="font-weight:600;color:#38bdf8;">--</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<button id="btn_copy_hds" style="width:100%;padding:10px 16px;background:var(--primary, #2563eb);color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;">' +
+            '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+            '<span>Copy Diagnostic Summary</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.1rem;margin-top:0;margin-bottom:8px;">Live Multi-Bed Trickle-Bed Reactor Simulator</h3>' +
+        '<p style="color:var(--text-muted, #94a3b8);font-size:0.85rem;margin-bottom:16px;">Two-bed catalytic hydrotreater illustration featuring top tray distributor, exothermic temperature rise, cold hydrogen quench box, and deep desulfurization bed.</p>' +
+        '<div style="width:100%;height:340px;background:#090d16;border-radius:8px;overflow:hidden;position:relative;">' +
+          '<canvas id="hds_reactor_canvas" width="800" height="340" style="width:100%;height:100%;display:block;"></canvas>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="fatal-traps" style="margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-bottom:16px;">Fatal Traps & Engineering Pitfalls in HDS Trickle-Bed Design</h3>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:14px;">' +
+          '<div class="trap-card" style="background:rgba(239,68,68,0.1);border-left:4px solid #ef4444;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#ef4444;margin:0 0 6px 0;font-size:0.95rem;">1. Catalyst Bed Thermal Runaway from Olefin Hydrogenation Surges</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Feeding cracked stocks (coker diesel, FCC light cycle oil) containing high olefins without proper quench control triggers extreme localized exotherms. Olefin saturation releases ~125 kJ/mol H2 instantly at the top of Bed 1. Temperature can ramp beyond 430°C in minutes, causing hydrocracking gas surges, pressure relief lifts, and massive coking.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#f59e0b;margin:0 0 6px 0;font-size:0.95rem;">2. The 4,6-DMDBT Steric Hindrance Kinetic Trap</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Designing an HDS reactor using simple first-order pseudo-kinetics calibrated on high-sulfur feed fails completely below 100 ppmw S. The remaining sulfur consists almost exclusively of refractory 4,6-dimethyldibenzothiophene. Reaction rates drop by an order of magnitude, causing the reactor to fail 10 ppmw ULSD specifications unless LHSV is cut significantly.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(16,185,129,0.1);border-left:4px solid #10b981;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#10b981;margin:0 0 6px 0;font-size:0.95rem;">3. Liquid Maldistribution and Hot Spot Channeling</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Trickle-bed reactors rely on precision chimney distributor trays to establish uniform liquid flux (>100 drip points/m²). If trays tilt or become fouled with particulate scale, liquid channels down one sector while hydrogen gas bypasses another. Catalyst in dry zones experiences local hot spots exceeding 450°C, causing rapid catalyst sintering.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#3b82f6;margin:0 0 6px 0;font-size:0.95rem;">4. Ammonium Bisulfide (NH4HS) Under-Deposit Corrosion</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Hydrodenitrogenation generates NH3, which reacts with H2S in the reactor effluent air cooler (REAC) to form corrosive NH4HS salts below 120°C. If continuous deoxygenated wash water injection fails, salt deposits cause severe localized erosion-corrosion pitting through carbon steel tubes in under 90 days.</p>' +
+          '</div>' +
+          '<div class="trap-card" style="background:rgba(139,92,246,0.1);border-left:4px solid #8b5cf6;padding:16px;border-radius:0 8px 8px 0;">' +
+            '<h4 style="color:#8b5cf6;margin:0 0 6px 0;font-size:0.95rem;">5. Hydrogen Starvation and Accelerated Catalyst Coking</h4>' +
+            '<p style="color:var(--text-muted, #cbd5e1);margin:0;font-size:0.875rem;line-height:1.5;">Operating at low treat gas-to-oil ratios (<250 Nm³/m³) starves the catalyst active sites of hydrogen at the bottom of Bed 2. When hydrogen partial pressure collapses, polyaromatics dehydrogenate into condensed graphitic coke matrices, permanently blocking micropores and forcing premature multi-million dollar catalyst skims.</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="worked-derivations" style="background:var(--card-bg, #1e293b);padding:24px;border-radius:12px;border:1px solid var(--border-color, #334155);margin-bottom:32px;">' +
+        '<h3 style="color:var(--text-bright, #f8fafc);font-size:1.25rem;margin-top:0;margin-bottom:12px;">Kinetic Derivations & Governing Equations</h3>' +
+        '<p style="color:var(--text-muted, #cbd5e1);font-size:0.9rem;line-height:1.6;">' +
+          'Refinery HDS reactor sizing uses pseudo 1.5-order power-law kinetics coupled with multi-component chemical hydrogen stoichiometry.' +
+        '</p>' +
+        '<div style="background:rgba(15,23,42,0.7);padding:16px;border-radius:8px;font-family:monospace;font-size:0.85rem;color:#38bdf8;line-height:1.7;margin:16px 0;">' +
+          '1. Liquid Hourly Space Velocity & Catalyst Volume:<br>' +
+          '&nbsp;&nbsp;V_cat = V_feed_hourly / LHSV&nbsp;&nbsp;[m³]<br>' +
+          '&nbsp;&nbsp;M_cat = V_cat · ρ_cat / 1000&nbsp;&nbsp;[metric tons]<br><br>' +
+          '2. Overall Sulfur Conversion (X_S):<br>' +
+          '&nbsp;&nbsp;X_S = [ (S_in - S_out) / S_in ] · 100%<br><br>' +
+          '3. Chemical H₂ Consumption (Nm³ H₂ / m³ feed):<br>' +
+          '&nbsp;&nbsp;R_H2 = (ΔS_wt% · 35.0) + (Bromine_No · 14.0) + Base_Aromatics_Sat<br><br>' +
+          '4. Total Adiabatic Bed Temperature Rise (ΔT_ad):<br>' +
+          '&nbsp;&nbsp;ΔT_ad = [ R_H2 · ΔH_H2 ] / [ ρ_oil · Cp_oil ]&nbsp;&nbsp;(ΔH_H2 ≈ 12,500 kJ/Nm³)<br><br>' +
+          '5. Cold Hydrogen Inter-Bed Quench Rate:<br>' +
+          '&nbsp;&nbsp;Q_quench = M_oil · Cp_oil · (ΔT_bed - ΔT_target) / [ Cp_gas · (T_bed - T_quench) ]' +
+        '</div>' +
+      '</div>' +
+
+      '<script>' +
+      'document.addEventListener("DOMContentLoaded", function() {' +
+        'const els = {' +
+          'flow: document.getElementById("hds_flow"),' +
+          'flow_unit: document.getElementById("hds_flow_unit"),' +
+          'sin: document.getElementById("hds_sin"),' +
+          'sout: document.getElementById("hds_sout"),' +
+          'lhsv: document.getElementById("hds_lhsv"),' +
+          'ph2: document.getElementById("hds_ph2"),' +
+          'rhofeed: document.getElementById("hds_rhofeed"),' +
+          'rhocat: document.getElementById("hds_rhocat"),' +
+          'bromine: document.getElementById("hds_bromine"),' +
+          'res_vcat: document.getElementById("res_hds_vcat"),' +
+          'res_mcat: document.getElementById("res_hds_mcat"),' +
+          'res_conv: document.getElementById("res_hds_conv"),' +
+          'res_ulsd_status: document.getElementById("res_hds_ulsd_status"),' +
+          'res_h2cons: document.getElementById("res_hds_h2cons"),' +
+          'res_mmscfd: document.getElementById("res_hds_mmscfd"),' +
+          'res_exotherm: document.getElementById("res_hds_exotherm"),' +
+          'res_exotherm_f: document.getElementById("res_hds_exotherm_f"),' +
+          'res_dims: document.getElementById("res_hds_dims"),' +
+          'res_beds: document.getElementById("res_hds_beds"),' +
+          'res_quench: document.getElementById("res_hds_quench"),' +
+          'btn_copy: document.getElementById("btn_copy_hds"),' +
+          'canvas: document.getElementById("hds_reactor_canvas")' +
+        '};' +
+
+        'function calc() {' +
+          'let flow_m3h = parseFloat(els.flow.value) || 25000;' +
+          'if (els.flow_unit.value === "bpd") flow_m3h = flow_m3h * 0.1589873 / 24;' +
+          'else if (els.flow_unit.value === "m3_d") flow_m3h = flow_m3h / 24;' +
+
+          'const sin_ppm = parseFloat(els.sin.value) || 12000;' +
+          'const sout_ppm = parseFloat(els.sout.value) || 10;' +
+          'const lhsv = parseFloat(els.lhsv.value) || 1.5;' +
+          'const ph2_bar = parseFloat(els.ph2.value) || 65;' +
+          'const rho_feed = parseFloat(els.rhofeed.value) || 845;' +
+          'const rho_cat = parseFloat(els.rhocat.value) || 750;' +
+          'const bromine_no = parseFloat(els.bromine.value) || 2.5;' +
+
+          'const vcat_m3 = (lhsv > 0) ? flow_m3h / lhsv : 0;' +
+          'const mcat_ton = (vcat_m3 * rho_cat) / 1000;' +
+
+          'const conv = (sin_ppm > 0) ? Math.max(0, Math.min(99.999, ((sin_ppm - sout_ppm) / sin_ppm) * 100)) : 0;' +
+
+          'const deltaS_pct = (sin_ppm - sout_ppm) / 10000;' +
+          'const rH2_nm3_m3 = (deltaS_pct * 32.0) + (bromine_no * 12.5) + 15.0;' +
+          'const totalH2_nm3_h = rH2_nm3_m3 * flow_m3h;' +
+          'const mmscfd = (totalH2_nm3_h * 24 * 35.3147) / 1e6;' +
+
+          'const cp_oil = 2.4;' +
+          'const deltaH_nm3 = 12200;' +
+          'const deltaT_ad = (rH2_nm3_m3 * deltaH_nm3) / (rho_feed * cp_oil);' +
+
+          'let beds = 1;' +
+          'if (deltaT_ad > 45) beds = 3;' +
+          'else if (deltaT_ad > 22) beds = 2;' +
+
+          'const dRx_m = Math.max(1.5, Math.sqrt((vcat_m3 / 4) / Math.PI));' +
+          'const lRx_m = vcat_m3 / (Math.PI * Math.pow(dRx_m / 2, 2)) + (beds * 2.0);' +
+
+          'const quenchNm3h = (beds > 1) ? (totalH2_nm3_h * 0.45) : 0;' +
+
+          'els.res_vcat.textContent = vcat_m3.toFixed(1) + " m³";' +
+          'els.res_mcat.textContent = mcat_ton.toFixed(1) + " metric tons (" + (vcat_m3 * 35.3147).toFixed(0) + " cu ft)";' +
+
+          'els.res_conv.textContent = conv.toFixed(3) + "%";' +
+          'if (sout_ppm <= 10) {' +
+            'els.res_ulsd_status.innerHTML = "<span style=\"color:#10b981;font-weight:600;\">✓ Meets ULSD Spec (≤10 ppmw)</span>";' +
+          '} else {' +
+            'els.res_ulsd_status.innerHTML = "<span style=\"color:#ef4444;font-weight:600;\">Exceeds 10 ppmw ULSD limit</span>";' +
+          '}' +
+
+          'els.res_h2cons.textContent = rH2_nm3_m3.toFixed(1) + " Nm³/m³";' +
+          'els.res_mmscfd.textContent = (rH2_nm3_m3 * 5.61458).toFixed(0) + " SCFB (" + mmscfd.toFixed(1) + " MMSCFD)";' +
+
+          'els.res_exotherm.textContent = "+" + deltaT_ad.toFixed(1) + " °C rise";' +
+          'els.res_exotherm_f.textContent = "+" + (deltaT_ad * 1.8).toFixed(1) + " °F adiabatic heat release";' +
+
+          'els.res_dims.textContent = dRx_m.toFixed(2) + "m ID × " + lRx_m.toFixed(1) + "m T/T length";' +
+          'els.res_beds.textContent = beds + " Catalyst Beds (" + (beds - 1) + " Quench Zone" + (beds > 2 ? "s" : "") + ")";' +
+          'els.res_quench.textContent = Math.round(quenchNm3h).toLocaleString() + " Nm³/h cold H₂ quench";' +
+
+          'drawReactor(dRx_m, lRx_m, beds, deltaT_ad);' +
+        '}' +
+
+        'function drawReactor(dia, len, beds, deltaT) {' +
+          'const canvas = els.canvas;' +
+          'if (!canvas) return;' +
+          'const ctx = canvas.getContext("2d");' +
+          'const w = canvas.width;' +
+          'const h = canvas.height;' +
+          'ctx.clearRect(0, 0, w, h);' +
+
+          'const rx = 180;' +
+          'const ry = 40;' +
+          'const rw = 140;' +
+          'const rh = 260;' +
+
+          'ctx.fillStyle = "#1e293b";' +
+          'ctx.strokeStyle = "#64748b";' +
+          'ctx.lineWidth = 4;' +
+          'ctx.beginPath();' +
+          'ctx.roundRect(rx, ry, rw, rh, [35, 35, 35, 35]);' +
+          'ctx.fill();' +
+          'ctx.stroke();' +
+
+          'ctx.fillStyle = "#38bdf8";' +
+          'ctx.fillRect(rx + rw / 2 - 10, ry - 25, 20, 25);' +
+          'ctx.strokeRect(rx + rw / 2 - 10, ry - 25, 20, 25);' +
+
+          'ctx.fillStyle = "#10b981";' +
+          'ctx.fillRect(rx + rw / 2 - 10, ry + rh, 20, 25);' +
+          'ctx.strokeRect(rx + rw / 2 - 10, ry + rh, 20, 25);' +
+
+          'const bedH = (rh - 80) / beds;' +
+          'for (let b = 0; b < beds; b++) {' +
+            'const by = ry + 40 + b * (bedH + 20);' +
+
+            'const grad = ctx.createLinearGradient(0, by, 0, by + bedH);' +
+            'grad.addColorStop(0, "rgba(56, 189, 248, 0.4)");' +
+            'grad.addColorStop(1, "rgba(244, 63, 94, 0.6)");' +
+
+            'ctx.fillStyle = grad;' +
+            'ctx.fillRect(rx + 15, by, rw - 30, bedH);' +
+            'ctx.strokeStyle = "#f59e0b";' +
+            'ctx.lineWidth = 1;' +
+            'ctx.strokeRect(rx + 15, by, rw - 30, bedH);' +
+
+            'ctx.fillStyle = "#f8fafc";' +
+            'ctx.font = "bold 11px sans-serif";' +
+            'ctx.textAlign = "center";' +
+            'ctx.fillText("CATALYST BED " + (b + 1), rx + rw / 2, by + bedH / 2);' +
+
+            'if (b < beds - 1) {' +
+              'const qy = by + bedH + 10;' +
+              'ctx.fillStyle = "#0284c7";' +
+              'ctx.fillRect(rx - 30, qy - 4, 35, 8);' +
+              'ctx.strokeRect(rx - 30, qy - 4, 35, 8);' +
+              'ctx.fillStyle = "#38bdf8";' +
+              'ctx.font = "10px sans-serif";' +
+              'ctx.textAlign = "right";' +
+              'ctx.fillText("Cold H₂ Quench", rx - 35, qy + 3);' +
+            '}' +
+          '}' +
+
+          'const px = 420;' +
+          'const py = 60;' +
+          'const pw = 280;' +
+          'const ph = 220;' +
+
+          'ctx.fillStyle = "#1e293b";' +
+          'ctx.strokeStyle = "#334155";' +
+          'ctx.lineWidth = 2;' +
+          'ctx.strokeRect(px, py, pw, ph);' +
+          'ctx.fillRect(px, py, pw, ph);' +
+
+          'ctx.fillStyle = "#f8fafc";' +
+          'ctx.font = "bold 12px sans-serif";' +
+          'ctx.textAlign = "center";' +
+          'ctx.fillText("AXIAL BED TEMPERATURE PROFILE", px + pw / 2, py + 25);' +
+
+          'ctx.strokeStyle = "#f43f5e";' +
+          'ctx.lineWidth = 3;' +
+          'ctx.beginPath();' +
+          'const tx0 = px + 40;' +
+          'const ty0 = py + 50;' +
+          'ctx.moveTo(tx0, ty0);' +
+
+          'if (beds === 1) {' +
+            'ctx.lineTo(tx0 + 160, py + ph - 40);' +
+          '} else if (beds === 2) {' +
+            'ctx.lineTo(tx0 + 90, py + 120);' +
+            'ctx.lineTo(tx0 + 30, py + 130);' +
+            'ctx.lineTo(tx0 + 120, py + ph - 40);' +
+          '} else {' +
+            'ctx.lineTo(tx0 + 70, py + 100);' +
+            'ctx.lineTo(tx0 + 25, py + 110);' +
+            'ctx.lineTo(tx0 + 95, py + 160);' +
+            'ctx.lineTo(tx0 + 35, py + 170);' +
+            'ctx.lineTo(tx0 + 110, py + ph - 30);' +
+          '}' +
+          'ctx.stroke();' +
+
+          'ctx.fillStyle = "#f59e0b";' +
+          'ctx.font = "11px sans-serif";' +
+          'ctx.textAlign = "left";' +
+          'ctx.fillText("Inlet: 340°C", tx0 + 10, ty0 + 12);' +
+          'ctx.fillText("Overall Exotherm: +" + deltaT.toFixed(1) + "°C", tx0 + 10, py + ph - 15);' +
+
+          'ctx.fillStyle = "#38bdf8";' +
+          'ctx.textAlign = "center";' +
+          'ctx.fillText("Feed + Treat H₂ In", rx + rw / 2, ry - 30);' +
+          'ctx.fillStyle = "#10b981";' +
+          'ctx.fillText("ULSD Effluent to HPS", rx + rw / 2, ry + rh + 40);' +
+        '}' +
+
+        'els.btn_copy.addEventListener("click", function() {' +
+          'const summary = "=== HDS TRICKLE-BED REACTOR DIAGNOSTIC SUMMARY ===\n" +' +
+            '"Required Catalyst Volume: " + els.res_vcat.textContent + " (" + els.res_mcat.textContent + ")\n" +' +
+            '"Sulfur Conversion: " + els.res_conv.textContent + " (" + els.sin.value + " → " + els.sout.value + " ppmw)\n" +' +
+            '"Chemical H₂ Consumption: " + els.res_h2cons.textContent + " (" + els.res_mmscfd.textContent + ")\n" +' +
+            '"Adiabatic Exotherm: " + els.res_exotherm.textContent + " (" + els.res_exotherm_f.textContent + ")\n" +' +
+            '"Reactor Configuration: " + els.res_dims.textContent + " | " + els.res_beds.textContent + "\n" +' +
+            '"Quench Flow Requirement: " + els.res_quench.textContent + "\n" +' +
+            '"Feed Rate: " + els.flow.value + " " + els.flow_unit.value + " @ LHSV=" + els.lhsv.value + " hr⁻¹, PH2=" + els.ph2.value + " bar\n" +' +
+            '"Report Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/" + slug + ".html)";' +
+
+          'navigator.clipboard.writeText(summary).then(() => {' +
+            'const span = els.btn_copy.querySelector("span");' +
+            'const orig = span.textContent;' +
+            'span.textContent = "✓ Diagnostic Summary Copied!";' +
+            'els.btn_copy.style.background = "#10b981";' +
+            'setTimeout(() => {' +
+              'span.textContent = orig;' +
+              'els.btn_copy.style.background = "";' +
+            '}, 2500);' +
+          '});' +
+        '});' +
+
+        'const inputs = [els.flow, els.flow_unit, els.sin, els.sout, els.lhsv, els.ph2, els.rhofeed, els.rhocat, els.bromine];' +
+        'inputs.forEach(input => {' +
+          'input.addEventListener("input", calc);' +
+          'input.addEventListener("change", calc);' +
+        '});' +
+
+        'calc();' +
+      '});' +
+      '</script>' +
+      '</div>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (255 calculators in /calc/)');
 }
 
