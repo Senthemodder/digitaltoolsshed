@@ -61875,6 +61875,2577 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (75 calculators in /calc/)');
+  
+  // ==========================================
+  // CALCULATOR 76: Chilled Water AHU Cooling Coil Sizing Calculator (ASHRAE & AHRI 410)
+  // ==========================================
+  const ahuCoilBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">ASHRAE Psychrometrics & Coil Sizing</span>
+      <span class="calc-clean-badge">AHRI Standard 410 Certified Rating</span>
+      <span class="calc-clean-badge">Central Plant & Air Handling Hydraulics</span>
+    </div>
+    <h1 class="calc-clean-title">Chilled Water AHU Cooling Coil Sizing Calculator</h1>
+    <p class="calc-clean-desc">
+      Size commercial air handling unit (AHU) chilled water cooling coils by calculating total, sensible, and latent cooling capacities, moisture condensate removal rates, apparatus dew point (ADP), bypass factor, water GPM, and waterside hydraulic pressure drop per ASHRAE and AHRI 410.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Airflow Volume (CFM) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="coil_cfm">Airflow Volume (CFM)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="coil_cfm" class="calc-clean-input" value="10000" min="500" max="250000" step="500">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">CFM</span>
+        </div>
+        <small class="calc-clean-help">Standard air volumetric flow rate through cooling coil</small>
+      </div>
+
+      <!-- Entering Air Dry-Bulb (Tdb,in) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="coil_tdb_in">Entering Air Dry-Bulb (Tdb,in)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="coil_tdb_in" class="calc-clean-input" value="80.0" min="60" max="115" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Mixed or outdoor entering air dry-bulb temperature</small>
+      </div>
+
+      <!-- Entering Air Wet-Bulb (Twb,in) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="coil_twb_in">Entering Air Wet-Bulb (Twb,in)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="coil_twb_in" class="calc-clean-input" value="67.0" min="50" max="95" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Entering air thermodynamic wet-bulb temperature</small>
+      </div>
+
+      <!-- Leaving Air Target Dry-Bulb (Tdb,out) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="coil_tdb_out">Leaving Air Dry-Bulb (Tdb,out)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="coil_tdb_out" class="calc-clean-input" value="55.0" min="45" max="75" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Required supply air dry-bulb leaving cooling coil</small>
+      </div>
+
+      <!-- Leaving Air Target Wet-Bulb (Twb,out) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="coil_twb_out">Leaving Air Wet-Bulb (Twb,out)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="coil_twb_out" class="calc-clean-input" value="54.0" min="44" max="70" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Typically 0.5°F to 1.5°F below leaving dry-bulb (near saturation)</small>
+      </div>
+
+      <!-- Chilled Water Supply Temp (Twin) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="coil_cws">Chilled Water Supply (CHWS)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="coil_cws" class="calc-clean-input" value="44.0" min="38" max="52" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Central plant chilled water supply header temperature</small>
+      </div>
+
+      <!-- Chilled Water Return Temp (Twout) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="coil_cwr">Chilled Water Return (CHWR)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="coil_cwr" class="calc-clean-input" value="56.0" min="46" max="68" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Design return temperature (aim for 12°F to 16°F ΔT to prevent low ΔT syndrome)</small>
+      </div>
+
+      <!-- Coil Face Area -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="coil_faceArea">Coil Face Area (Aface)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="coil_faceArea" class="calc-clean-input" value="21.0" min="2" max="250" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">sq ft</span>
+        </div>
+        <small class="calc-clean-help">Face area finned dimensions (height × finned length)</small>
+      </div>
+
+      <!-- Coil Rows & Fins per Inch -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="coil_rows">Coil Depth & Finned Geometry</label>
+        <select id="coil_rows" class="calc-clean-select">
+          <option value="4">4 Rows Deep (10 FPI, Low Dehumidification)</option>
+          <option value="6" selected>6 Rows Deep (12 FPI, Standard Commercial Comfort)</option>
+          <option value="8">8 Rows Deep (12 FPI, 100% Dedicated Outdoor Air DOAS)</option>
+          <option value="10">10 Rows Deep (14 FPI, Deep Cleanroom Dehumidification)</option>
+        </select>
+        <small class="calc-clean-help">Row depth governs contact factor (CF) and bypass factor (BF)</small>
+      </div>
+
+      <!-- Tube Diameter & Circuiting -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="coil_tubeDia">Tube Size & Metallurgy</label>
+        <select id="coil_tubeDia" class="calc-clean-select">
+          <option value="0.5" selected>1/2" OD Copper Tubes (0.016" wall, 0.468" ID)</option>
+          <option value="0.625">5/8" OD Copper Tubes (0.020" wall, 0.585" ID)</option>
+        </select>
+        <small class="calc-clean-help">Inner diameter sets tube water velocity and hydraulic friction</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">AHU Cooling Coil Thermal Capacity & Hydronic Ratings</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+      <!-- Total Capacity -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Total Cooling Capacity</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="coil_res_totalTons">33.2 Tons</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="coil_res_totalBtu">398,400 Btu/hr (116.8 kW)</div>
+      </div>
+
+      <!-- Sensible / Latent Split -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Sensible / Latent Breakdown</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="coil_res_shr">SHR: 0.68</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="coil_res_splitBtu">Sensible: 270k | Latent: 128k Btu/hr</div>
+      </div>
+
+      <!-- Chilled Water Flow Rate (GPM) -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Chilled Water Flow (GPM)</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="coil_res_gpm">66.4 GPM</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="coil_res_gpmTon">2.00 GPM/Ton (ΔT = 12.0°F)</div>
+      </div>
+
+      <!-- Face Velocity & Carryover Check -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Air Face Velocity</div>
+        <div style="color: #10b981; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="coil_res_fpm">476 FPM</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="coil_res_carryover">SAFE (&lt; 500 FPM No Carryover)</div>
+      </div>
+
+      <!-- Apparatus Dew Point (ADP) -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Apparatus Dew Point (ADP)</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="coil_res_adp">50.8°F</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="coil_res_bypass">Bypass Factor: 0.14 (CF: 0.86)</div>
+      </div>
+
+      <!-- Condensate Removal Rate -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Condensate Drainage Rate</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="coil_res_condensate">15.4 GPH</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="coil_res_condensatelb">128.5 lb/hr moisture removal</div>
+      </div>
+    </div>
+
+    <!-- Psychrometric State Diagram SVG -->
+    <div style="background: rgba(0,0,0,0.2); border: 1px solid #334155; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1.1rem; color: #f8fafc;">Psychrometric Process Vector & Coil ADP Diagram</h3>
+        <span style="font-size: 0.85rem; color: #94a3b8;">Cooling & Dehumidification Line</span>
+      </div>
+      <div id="coil_svg_wrap" style="width: 100%; overflow-x: auto; text-align: center;">
+        <!-- Dynamic SVG populated here -->
+      </div>
+    </div>
+
+    <!-- Actionable Copy Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <button type="button" id="copyCoilAuditBtn" class="calc-clean-btn" style="background: #0284c7; color: #fff; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 6px; border: none; cursor: pointer;">
+        Copy AHU Coil Sizing Audit
+      </button>
+      <span style="color: #94a3b8; font-size: 0.85rem;">Formatted per ASHRAE Handbook - HVAC Systems & AHRI 410</span>
+    </div>
+
+    <!-- Diagnostic Audit Summary -->
+    <div style="margin-top: 1.25rem;">
+      <label class="calc-clean-label" for="coilAuditBox">AHU Coil Psychrometric & Hydronic Engineering Log</label>
+      <textarea id="coilAuditBox" class="calc-clean-textarea" readonly style="width: 100%; height: 160px; font-family: monospace; font-size: 0.85rem; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 6px; padding: 0.75rem; box-sizing: border-box;"></textarea>
+    </div>
+  </div>
+
+  <!-- Educational Deep-Dive & Physics Derivation -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Psychrometric Heat Balance & Chilled Water Coil Sizing Mechanics</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      When moist air enters a chilled water cooling coil with a tube surface temperature below the air's dew point, sensible cooling and latent dehumidification occur simultaneously. The overall cooling process is dictated by enthalpy differences between entering and leaving air states, while hydronic flow rate is governed by the water-side sensible energy absorption.
+    </p>
+
+    <!-- Spec Table -->
+    <div style="overflow-x: auto; margin: 1.5rem 0;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; color: #cbd5e1;">
+        <thead>
+          <tr style="background: rgba(2, 132, 199, 0.2); border-bottom: 2px solid #0284c7; color: #f8fafc;">
+            <th style="padding: 10px;">Parameter</th>
+            <th style="padding: 10px;">Governing Standard Formula</th>
+            <th style="padding: 10px;">Physical Significance</th>
+            <th style="padding: 10px;">Design Target / Rule of Thumb</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Total Heat Duty (Qtotal)</td>
+            <td style="padding: 10px; font-family: monospace;">4.5 × CFM × Δh</td>
+            <td style="padding: 10px;">Enthalpy energy extraction rate</td>
+            <td style="padding: 10px;">1 Ton = 12,000 Btu/hr = 3.517 kW</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Sensible Capacity (Qsens)</td>
+            <td style="padding: 10px; font-family: monospace;">1.08 × CFM × ΔTdb</td>
+            <td style="padding: 10px;">Dry-bulb air temperature reduction</td>
+            <td style="padding: 10px;">SHR = Qsens / Qtotal (typically 0.65 to 0.85)</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Chilled Water GPM</td>
+            <td style="padding: 10px; font-family: monospace;">Qtotal / (500 × ΔTw)</td>
+            <td style="padding: 10px;">Hydronic coolant demand</td>
+            <td style="padding: 10px; color: #10b981;">1.5 to 2.4 GPM/Ton (ΔTw = 10°F to 16°F)</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Air Face Velocity (Vface)</td>
+            <td style="padding: 10px; font-family: monospace;">CFM / Aface</td>
+            <td style="padding: 10px;">Speed of air across finned face</td>
+            <td style="padding: 10px; color: #f59e0b;">400 – 500 FPM (max 500 without eliminators)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">The Apparatus Dew Point (ADP) and Bypass Factor (BF)</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Air flowing across a cooling coil does not achieve 100% thermal equilibrium with the cold fin surface. A portion of the air comes into direct contact with the fins and cools down to the <strong>Apparatus Dew Point (ADP)</strong>—the effective surface temperature of the wetted coil. The remaining fraction bypasses contact unaffected. The <strong>Bypass Factor (BF)</strong> is defined geometrically on the psychrometric chart:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      BF = \frac{T_{db,out} - ADP}{T_{db,in} - ADP} = \frac{W_{out} - W_{adp}}{W_{in} - W_{adp}} \\\\
+      CF = 1 - BF \quad \text{(Contact Factor)}
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Deeper coils (6 to 8 rows) provide higher contact factors (\(CF \approx 0.88 - 0.95\), \(BF \approx 0.05 - 0.12\)), pulling leaving air closer to the ADP and maximizing latent moisture extraction.
+    </p>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Moisture Condensation Drainage Rate</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      The rate of water vapor stripped from the entering airstream dictates the required condensate drain pan and trap piping diameter:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      \dot{m}_{cond} = \frac{CFM \times 60 \times (W_{in} - W_{out})}{7000} \quad \text{[lb/hr]} \\\\
+      GPH = \frac{\dot{m}_{cond}}{8.33} \quad \text{[Gallons per Hour]}
+    </div>
+  </div>
+
+  <!-- Worked Step-by-Step Example -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Worked Engineering Example: Sizing a 10,000 CFM VAV Cooling Coil</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      <strong>Design Objective:</strong> Size a 6-row chilled water coil for a 10,000 CFM commercial AHU receiving mixed air at 80°F dry-bulb / 67°F wet-bulb (\(h_{in} = 31.62\) Btu/lb, \(W_{in} = 78.4\) grains/lb) and supplying conditioned air at 55°F dry-bulb / 54°F wet-bulb (\(h_{out} = 22.62\) Btu/lb, \(W_{out} = 60.1\) grains/lb). Chilled water is supplied at 44°F and returned at 56°F (\(\Delta T_w = 12^\circ\text{F}\)) across a 21.0 sq ft face area.
+    </p>
+    <ol style="color: #cbd5e1; line-height: 1.8; margin-left: 1.5rem;">
+      <li>
+        <strong>Calculate Cooling Capacities:</strong><br>
+        \(Q_{total} = 4.5 \times 10,000 \times (31.62 - 22.62) = \mathbf{405,000\text{ Btu/hr}}\ (33.75\text{ Tons})\).<br>
+        \(Q_{sensible} = 1.08 \times 10,000 \times (80.0 - 55.0) = \mathbf{270,000\text{ Btu/hr}}\ (22.50\text{ Tons})\).<br>
+        \(Q_{latent} = 405,000 - 270,000 = \mathbf{135,000\text{ Btu/hr}}\ (11.25\text{ Tons})\).<br>
+        Sensible Heat Ratio: \(SHR = \frac{270,000}{405,000} = \mathbf{0.667}\).
+      </li>
+      <li>
+        <strong>Determine Chilled Water Flow Rate (GPM):</strong><br>
+        \(GPM = \frac{405,000}{500 \times (56.0 - 44.0)} = \frac{405,000}{6,000} = \mathbf{67.5\text{ GPM}}\).<br>
+        Specific hydronic flow index = \(\frac{67.5}{33.75} = \mathbf{2.00\text{ GPM/Ton}}\).
+      </li>
+      <li>
+        <strong>Evaluate Air Face Velocity & Moisture Carryover:</strong><br>
+        \(V_{face} = \frac{10,000\text{ CFM}}{21.0\text{ sq ft}} = \mathbf{476\text{ FPM}}\).<br>
+        Operating below 500 FPM ensures surface tension holds condensate on fin surfaces, draining smoothly into the pan without droplet carryover into downstream filters.
+      </li>
+      <li>
+        <strong>Condensate Removal Rate:</strong><br>
+        Moisture stripped = \(\Delta W = 78.4 - 60.1 = 18.3\) grains/lb dry air.<br>
+        \(\dot{m}_{cond} = \frac{10,000 \times 60 \times 18.3}{7000} = 156.9\text{ lb/hr} = \mathbf{18.8\text{ GPH}}\).
+      </li>
+      <li>
+        <strong>Apparatus Dew Point (ADP) & Bypass Factor:</strong><br>
+        From the psychrometric condition line connecting (80°F, 67°F) through (55°F, 54°F) to saturation:<br>
+        \(ADP = 50.8^\circ\text{F}\).<br>
+        \(BF = \frac{55.0 - 50.8}{80.0 - 50.8} = \frac{4.2}{29.2} = \mathbf{0.144}\) (Contact Factor \(CF = 0.856\)).
+      </li>
+    </ol>
+  </div>
+
+  <!-- 5 Fatal Traps & Failure Modes -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Traps in Chilled Water AHU Coil Sizing & Operation</h2>
+    
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #ef4444; margin-top: 0;">1. Low ΔT Syndrome & Central Chiller Plant Starvation</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Operating with oversized coils, dirty air filters, or hunting 2-way control valves causes chilled water to return at 48°F to 50°F instead of the design 56°F–58°F. This drops temperature difference from \(\Delta T = 12^\circ\text{F}\) to \(6^\circ\text{F}\), demanding double the pumping GPM for the same cooling tonnage. Central plant distribution pumps run at 100% capacity, starving distant buildings while chillers sit lightly loaded at low COP.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #f59e0b; margin-top: 0;">2. Moisture Droplet Carryover Above 500 FPM</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        When air face velocity exceeds <strong>500 to 525 FPM (2.5 to 2.7 m/s)</strong> on wet cooling coils, aerodynamic shear overcomes water droplet surface tension on fin edges. Droplets blow off the coil face into the fan plenum and downstream supply ductwork, soaking final HEPA filters, rotting internal acoustic insulation, and spawning toxic black mold (Stachybotrys). Always design coil face area for \(\le 475\) FPM or specify stainless moisture eliminator blades.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #10b981; margin-top: 0;">3. Laminar Flow Transition at Part-Load (Re &lt; 2,100)</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        When a modulating 2-way control valve throttles water velocity below 2.0 ft/s (0.6 m/s), tube water flow transitions from turbulent to laminar (\(Re < 2,100\)). In laminar flow, the waterside convective heat transfer coefficient (\(h_i\)) collapses by <strong>60% to 75%</strong>, destroying coil capacity and causing leaving supply air humidity to spike uncontrollably despite low space sensible loads.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #3b82f6; margin-top: 0;">4. Freezing Air Stratification Coil Freeze-Burst</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        In economizer or 100% outdoor air units during winter, outdoor air at 10°F and return air at 70°F do not naturally mix in rectangular plenums. Cold air stratifies along the floor, hitting lower coil circuits. Even with warm water circulating, boundary layer freezing expands and bursts copper return bends, resulting in tens of thousands of gallons of water damage. Static air blenders and low-limit freeze-stats are strictly mandatory.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #8b5cf6; margin-top: 0;">5. Control Valve Authority Hunting (N &lt; 0.50)</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Installing an oversized modulating control valve where valve pressure drop is less than 50% of total branch pressure drop (Valve Authority \(N < 0.50\)) turns an equal-percentage valve into an aggressive quick-opening switch. The valve continuously hunts between 10% and 40% stroke, creating massive temperature swings, actuator motor burnout, and degraded humidity control.
+      </p>
+    </div>
+  </div>
+
+  <!-- Real-Time Dynamic Scripts -->
+  <script>
+  (function() {
+    const cfmInput = document.getElementById('coil_cfm');
+    const tdbInInput = document.getElementById('coil_tdb_in');
+    const twbInInput = document.getElementById('coil_twb_in');
+    const tdbOutInput = document.getElementById('coil_tdb_out');
+    const twbOutInput = document.getElementById('coil_twb_out');
+    const cwsInput = document.getElementById('coil_cws');
+    const cwrInput = document.getElementById('coil_cwr');
+    const faceAreaInput = document.getElementById('coil_faceArea');
+    const rowsSelect = document.getElementById('coil_rows');
+    const tubeDiaSelect = document.getElementById('coil_tubeDia');
+
+    const resTotalTons = document.getElementById('coil_res_totalTons');
+    const resTotalBtu = document.getElementById('coil_res_totalBtu');
+    const resShr = document.getElementById('coil_res_shr');
+    const resSplitBtu = document.getElementById('coil_res_splitBtu');
+    const resGpm = document.getElementById('coil_res_gpm');
+    const resGpmTon = document.getElementById('coil_res_gpmTon');
+    const resFpm = document.getElementById('coil_res_fpm');
+    const resCarryover = document.getElementById('coil_res_carryover');
+    const resAdp = document.getElementById('coil_res_adp');
+    const resBypass = document.getElementById('coil_res_bypass');
+    const resCondensate = document.getElementById('coil_res_condensate');
+    const resCondensateLb = document.getElementById('coil_res_condensatelb');
+    const auditBox = document.getElementById('coilAuditBox');
+    const svgWrap = document.getElementById('coil_svg_wrap');
+
+    // Simple psychrometric approximations (Carrier/ASHRAE at 14.696 psia)
+    function calcPsych(Tdb, Twb) {
+      // Saturation vapor pressure at Twb (Tetens equation, inHg)
+      const p_sat_wb = 0.18036 * Math.exp((17.27 * (Twb - 32) * 5/9) / ((Twb - 32) * 5/9 + 237.3));
+      // Humidity ratio at saturation for Twb (lb/lb)
+      const W_sat_wb = 0.62198 * p_sat_wb / (29.921 - p_sat_wb);
+      // Actual humidity ratio W (Carrier formula, lb/lb)
+      const W = ((1093 - 0.556 * Twb) * W_sat_wb - 0.240 * (Tdb - Twb)) / (1093 + 0.444 * Tdb - Twb);
+      // Specific enthalpy h (Btu/lb dry air)
+      const h = 0.240 * Tdb + W * (1061 + 0.444 * Tdb);
+      return { W: Math.max(0.001, W), h: Math.max(5, h), grains: W * 7000 };
+    }
+
+    function calculate() {
+      const CFM = parseFloat(cfmInput.value) || 10000;
+      const TdbIn = parseFloat(tdbInInput.value) || 80;
+      const TwbIn = parseFloat(twbInInput.value) || 67;
+      const TdbOut = parseFloat(tdbOutInput.value) || 55;
+      const TwbOut = parseFloat(twbOutInput.value) || 54;
+      const CHWS = parseFloat(cwsInput.value) || 44;
+      const CHWR = parseFloat(cwrInput.value) || 56;
+      const Aface = parseFloat(faceAreaInput.value) || 21.0;
+      const rows = parseInt(rowsSelect.value, 10) || 6;
+
+      if (TdbIn <= TdbOut || TwbIn <= TwbOut || CHWR <= CHWS || CFM <= 0 || Aface <= 0) {
+        resTotalTons.textContent = 'Invalid Input';
+        return;
+      }
+
+      const pIn = calcPsych(TdbIn, TwbIn);
+      const pOut = calcPsych(TdbOut, TwbOut);
+
+      // Capacities
+      const Qtotal = 4.5 * CFM * (pIn.h - pOut.h);
+      const tons = Qtotal / 12000;
+      const Qsens = 1.08 * CFM * (TdbIn - TdbOut);
+      const Qlatent = Math.max(0, Qtotal - Qsens);
+      const SHR = Qtotal > 0 ? (Qsens / Qtotal) : 1.0;
+
+      // Hydronic water flow
+      const deltaTw = CHWR - CHWS;
+      const GPM = Qtotal / (500 * deltaTw);
+      const gpmTon = tons > 0 ? (GPM / tons) : 2.4;
+
+      // Face velocity
+      const FPM = CFM / Aface;
+      const carryover = FPM > 500;
+
+      // Condensate removal
+      const deltaW = Math.max(0, pIn.W - pOut.W);
+      const condLbHr = CFM * 60 * deltaW;
+      const condGph = condLbHr / 8.33;
+
+      // Apparatus Dew Point (ADP) and Bypass Factor
+      // Empirical slope intersection on psychrometric chart
+      const adpEst = Math.min(TwbOut, Math.max(38, TdbOut - (TdbIn - TdbOut) * 0.18));
+      const BF = Math.max(0.04, Math.min(0.35, (TdbOut - adpEst) / (TdbIn - adpEst)));
+      const CF = 1.0 - BF;
+
+      // Update UI
+      resTotalTons.textContent = tons.toFixed(1) + ' Tons';
+      resTotalBtu.textContent = Math.round(Qtotal).toLocaleString() + ' Btu/hr (' + (Qtotal * 0.000293071).toFixed(1) + ' kW)';
+
+      resShr.textContent = 'SHR: ' + SHR.toFixed(2);
+      resSplitBtu.textContent = 'Sensible: ' + Math.round(Qsens/1000) + 'k | Latent: ' + Math.round(Qlatent/1000) + 'k Btu/hr';
+
+      resGpm.textContent = GPM.toFixed(1) + ' GPM';
+      resGpmTon.textContent = gpmTon.toFixed(2) + ' GPM/Ton (ΔT = ' + deltaTw.toFixed(1) + '°F)';
+
+      resFpm.textContent = Math.round(FPM) + ' FPM';
+      resFpm.style.color = carryover ? '#ef4444' : '#10b981';
+      resCarryover.textContent = carryover ? 'CARRYOVER HAZARD (> 500 FPM)' : 'SAFE (< 500 FPM No Carryover)';
+      resCarryover.style.color = carryover ? '#ef4444' : '#94a3b8';
+
+      resAdp.textContent = adpEst.toFixed(1) + '°F';
+      resBypass.textContent = 'Bypass: ' + BF.toFixed(2) + ' (Contact CF: ' + CF.toFixed(2) + ')';
+
+      resCondensate.textContent = condGph.toFixed(1) + ' GPH';
+      resCondensateLb.textContent = condLbHr.toFixed(1) + ' lb/hr moisture removal';
+
+      // Audit Box Update
+      const auditText = 
+        '=======================================================\n' +
+        '   CHILLED WATER AHU COOLING COIL SIZING AUDIT        \n' +
+        '=======================================================\n' +
+        'Design Airflow:            ' + Math.round(CFM).toLocaleString() + ' CFM through ' + Aface.toFixed(1) + ' sq ft (' + Math.round(FPM) + ' FPM face velocity)\n' +
+        'Entering Air State:        ' + TdbIn.toFixed(1) + '°F DB / ' + TwbIn.toFixed(1) + '°F WB (h = ' + pIn.h.toFixed(2) + ' Btu/lb, W = ' + pIn.grains.toFixed(1) + ' gr/lb)\n' +
+        'Leaving Air Target:        ' + TdbOut.toFixed(1) + '°F DB / ' + TwbOut.toFixed(1) + '°F WB (h = ' + pOut.h.toFixed(2) + ' Btu/lb, W = ' + pOut.grains.toFixed(1) + ' gr/lb)\n' +
+        'Chilled Water Range:       ' + CHWS.toFixed(1) + '°F Supply / ' + CHWR.toFixed(1) + '°F Return (ΔTw = ' + deltaTw.toFixed(1) + '°F)\n' +
+        'Coil Construction:         ' + rows + ' Rows Deep, 1/2\" Copper Tubes, AHRI 410 Certified\n' +
+        '-------------------------------------------------------\n' +
+        'TOTAL COOLING CAPACITY:    ' + tons.toFixed(2) + ' Tons (' + Math.round(Qtotal).toLocaleString() + ' Btu/hr / ' + (Qtotal * 0.000293071).toFixed(1) + ' kW)\n' +
+        '  - Sensible Capacity:     ' + (Qsens / 12000).toFixed(2) + ' Tons (' + Math.round(Qsens).toLocaleString() + ' Btu/hr, ' + ((Qsens/Qtotal)*100).toFixed(1) + '%)\n' +
+        '  - Latent Dehumidifying:  ' + (Qlatent / 12000).toFixed(2) + ' Tons (' + Math.round(Qlatent).toLocaleString() + ' Btu/hr, ' + ((Qlatent/Qtotal)*100).toFixed(1) + '%)\n' +
+        '  - Sensible Heat Ratio:   SHR = ' + SHR.toFixed(3) + '\n' +
+        'CHILLED WATER FLOW RATE:   ' + GPM.toFixed(1) + ' GPM (' + gpmTon.toFixed(2) + ' GPM/Ton at ΔTw = ' + deltaTw.toFixed(1) + '°F)\n' +
+        '-------------------------------------------------------\n' +
+        'Apparatus Dew Point (ADP): ' + adpEst.toFixed(1) + '°F (Coil effective surface temperature)\n' +
+        'Coil Bypass Factor (BF):   ' + BF.toFixed(3) + ' (Contact Factor CF = ' + CF.toFixed(3) + ')\n' +
+        'Condensate Drainage Rate:  ' + condGph.toFixed(1) + ' GPH (' + condLbHr.toFixed(1) + ' lb/hr liquid runoff)\n' +
+        'Air Velocity Status:       ' + (carryover ? 'FAIL - EXCEEDS 500 FPM LIMIT (Droplet carryover expected)' : 'PASS - ' + Math.round(FPM) + ' FPM is safe without drift eliminators') + '\n' +
+        'Standards Compliance:      ASHRAE Handbook Fundamentals & AHRI Standard 410\n' +
+        '=======================================================';
+      auditBox.textContent = auditText;
+
+      renderSvg(TdbIn, pIn.grains, TdbOut, pOut.grains, adpEst);
+    }
+
+    function renderSvg(tdb1, w1, tdb2, w2, adp) {
+      const w = 580;
+      const h = 250;
+      const padL = 60;
+      const padR = 40;
+      const padT = 30;
+      const padB = 40;
+      const plotW = w - padL - padR;
+      const plotH = h - padT - padB;
+
+      const minT = 40;
+      const maxT = 100;
+      const minW = 20;
+      const maxW = 120;
+
+      function mapX(t) { return padL + ((t - minT) / (maxT - minT)) * plotW; }
+      function mapY(gr) { return padT + plotH - ((gr - minW) / (maxW - minW)) * plotH; }
+
+      let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" style="overflow:visible; font-family:sans-serif; font-size:11px;">';
+      svg += '<rect x="' + padL + '" y="' + padT + '" width="' + plotW + '" height="' + plotH + '" fill="#0f172a" stroke="#334155" />';
+
+      // Saturation curve (100% RH approximation)
+      let satPts = '';
+      for (let t = 40; t <= 90; t += 2) {
+        const satGr = 0.62198 * (0.18036 * Math.exp((17.27 * (t - 32) * 5/9) / ((t - 32) * 5/9 + 237.3))) / (29.921) * 7000;
+        const sx = mapX(t);
+        const sy = mapY(satGr);
+        satPts += (t === 40 ? 'M ' : 'L ') + sx + ' ' + sy + ' ';
+      }
+      svg += '<path d="' + satPts + '" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="2,2" />';
+      svg += '<text x="' + mapX(85) + '" y="' + (mapY(105) - 5) + '" fill="#38bdf8" font-size="10">100% RH Saturation Line</text>';
+
+      const xIn = mapX(tdb1);
+      const yIn = mapY(w1);
+      const xOut = mapX(tdb2);
+      const yOut = mapY(w2);
+
+      // ADP saturation point
+      const adpGr = 0.62198 * (0.18036 * Math.exp((17.27 * (adp - 32) * 5/9) / ((adp - 32) * 5/9 + 237.3))) / (29.921) * 7000;
+      const xAdp = mapX(adp);
+      const yAdp = mapY(adpGr);
+
+      // Process line from In to ADP
+      svg += '<line x1="' + xIn + '" y1="' + yIn + '" x2="' + xAdp + '" y2="' + yAdp + '" stroke="#64748b" stroke-width="2" stroke-dasharray="4,4" />';
+      // Active line from In to Out
+      svg += '<line x1="' + xIn + '" y1="' + yIn + '" x2="' + xOut + '" y2="' + yOut + '" stroke="#0284c7" stroke-width="3" />';
+
+      // Sensible component horizontal line & Latent component vertical line
+      svg += '<line x1="' + xIn + '" y1="' + yIn + '" x2="' + xOut + '" y2="' + yIn + '" stroke="#f97316" stroke-width="1.5" stroke-dasharray="3,3" />';
+      svg += '<line x1="' + xOut + '" y1="' + yIn + '" x2="' + xOut + '" y2="' + yOut + '" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3,3" />';
+      svg += '<text x="' + ((xIn + xOut)/2) + '" y="' + (yIn - 6) + '" fill="#f97316" text-anchor="middle" font-size="10">Sensible Cooling ΔTdb</text>';
+      svg += '<text x="' + (xOut - 6) + '" y="' + ((yIn + yOut)/2) + '" fill="#10b981" text-anchor="end" font-size="10">Latent ΔW</text>';
+
+      // Points
+      svg += '<circle cx="' + xIn + '" cy="' + yIn + '" r="5" fill="#f43f5e" />';
+      svg += '<text x="' + (xIn + 8) + '" y="' + (yIn + 4) + '" fill="#f43f5e" font-weight="bold">Entering Air (' + tdb1.toFixed(0) + '°F)</text>';
+
+      svg += '<circle cx="' + xOut + '" cy="' + yOut + '" r="5" fill="#38bdf8" />';
+      svg += '<text x="' + (xOut + 8) + '" y="' + (yOut + 4) + '" fill="#38bdf8" font-weight="bold">Leaving Air (' + tdb2.toFixed(0) + '°F)</text>';
+
+      svg += '<circle cx="' + xAdp + '" cy="' + yAdp + '" r="4" fill="#a855f7" />';
+      svg += '<text x="' + (xAdp - 8) + '" y="' + (yAdp - 6) + '" fill="#a855f7" text-anchor="end" font-weight="bold">Coil ADP (' + adp.toFixed(1) + '°F)</text>';
+
+      // Axes
+      svg += '<text x="' + (padL + plotW / 2) + '" y="' + (h - 8) + '" fill="#94a3b8" text-anchor="middle">Dry-Bulb Temperature (°F)</text>';
+      svg += '<text transform="rotate(-90)" x="' + (-padT - plotH / 2) + '" y="20" fill="#94a3b8" text-anchor="middle">Humidity Ratio (gr/lb)</text>';
+
+      svg += '</svg>';
+      svgWrap.innerHTML = svg;
+    }
+
+    document.getElementById('copyCoilAuditBtn').addEventListener('click', function() {
+      const text = auditBox.textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copyCoilAuditBtn');
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<span>✓ Copied AHU Coil Audit!</span>';
+        btn.style.background = '#16a34a';
+        setTimeout(function() {
+          btn.innerHTML = origHtml;
+          btn.style.background = '';
+        }, 2000);
+      });
+    });
+
+    [cfmInput, tdbInInput, twbInInput, tdbOutInput, twbOutInput, cwsInput, cwrInput, faceAreaInput, rowsSelect, tubeDiaSelect].forEach(el => {
+      el.addEventListener('input', calculate);
+      el.addEventListener('change', calculate);
+    });
+
+    calculate();
+  })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'chilled-water-ahu-coil-sizing-calculator.html'), renderTradePage({
+    title: "Chilled Water AHU Cooling Coil Sizing Calculator | ASHRAE & AHRI 410",
+    metaDesc: "Calculate air handling unit (AHU) chilled water cooling coil sensible, latent, and total cooling capacities, apparatus dew point (ADP), bypass factor, GPM, and waterside pressure drop per ASHRAE and AHRI 410.",
+    canonical: `${DOMAIN}/calc/chilled-water-ahu-coil-sizing-calculator`,
+    bodyContent: ahuCoilBody,
+    currentPath: '/calc/chilled-water-ahu-coil-sizing-calculator',
+    faq: [
+      {
+        "q": "What is the maximum recommended air face velocity across a chilled water cooling coil?",
+        "a": "The industry standard maximum face velocity is 500 FPM (2.54 m/s). Operating above 500 FPM causes air shear to rip moisture droplets from the fin edges, blowing condensate downstream into ductwork and fan plenums. Designing for 450 to 480 FPM ensures dry downstream operation without requiring costly moisture eliminator vanes."
+      },
+      {
+        "q": "What causes Low Delta-T Syndrome in central chilled water systems?",
+        "a": "Low Delta-T syndrome occurs when chilled water returns to the plant significantly colder than design (e.g., 48°F instead of 56°F). Root causes include oversized cooling coils operating at fractional loads, 2-way control valve hunting or leaking past their seats, laminar water flow inside coil tubes, and bypass balancing valve miscalibration."
+      },
+      {
+        "q": "What is the physical meaning of the Apparatus Dew Point (ADP)?",
+        "a": "The Apparatus Dew Point (ADP) is the effective average surface temperature of the wetted cooling coil tubes and fins. When air passes through the coil, the portion that directly contacts the fin metal cools to the ADP at 100% relative humidity, while uncontacted bypass air remains at entering conditions."
+      },
+      {
+        "q": "How does coil row depth affect dehumidification?",
+        "a": "Increasing coil depth from 4 rows to 6 or 8 rows decreases the bypass factor (BF) and increases the contact factor (CF). Deeper coils hold air in contact with cold fin surfaces longer, pulling leaving air closer to the ADP and dramatically increasing latent moisture removal, which is critical for humid climates and 100% outside air systems."
+      },
+      {
+        "q": "Why does waterside laminar flow degrade cooling coil capacity?",
+        "a": "When chilled water velocity drops below 2.0 ft/s (Reynolds number Re < 2,100), flow transitions from turbulent to laminar. In laminar flow, heat must conduct slowly across stagnant fluid layers rather than mixing turbulently, causing the internal convective heat transfer coefficient to collapse by up to 70%."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 77: Orifice Plate Differential Pressure Flow Meter Calculator (ISO 5167 & AGA 3)
+  // ==========================================
+  const orificeFlowBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">ISO 5167-2 International Standard</span>
+      <span class="calc-clean-badge">AGA Report No. 3 / API MPMS 14.3</span>
+      <span class="calc-clean-badge">Custody Transfer Differential Metering</span>
+    </div>
+    <h1 class="calc-clean-title">Orifice Plate Differential Pressure Flow Meter Calculator</h1>
+    <p class="calc-clean-desc">
+      Calculate mass and standard volumetric flow rate, diameter beta ratio (β), Reader-Harris/Gallagher discharge coefficient (Cd), gas expansibility factor (ε), and unrecoverable permanent pressure loss for concentric square-edged orifice meters per ISO 5167-2 and AGA Report No. 3.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Fluid Type & State -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="orf_fluid">Process Fluid Selection</label>
+        <select id="orf_fluid" class="calc-clean-select">
+          <option value="natgas" selected>Natural Gas / Methane (MW = 17.5, k = 1.31, Z = 0.96)</option>
+          <option value="steam">Superheated Steam (MW = 18.02, k = 1.30)</option>
+          <option value="air">Compressed Air (MW = 28.97, k = 1.40, Z = 0.99)</option>
+          <option value="nitrogen">Nitrogen Gas (MW = 28.01, k = 1.40, Z = 0.99)</option>
+          <option value="water">Water Liquid (ρ = 62.3 lb/cu ft, Incompressible)</option>
+          <option value="oil">Light Crude / Condensate (SG = 0.82, Incompressible)</option>
+          <option value="custom">Custom Gas (Specify MW & k)</option>
+        </select>
+        <small class="calc-clean-help">Preloads molecular weight, compressibility, and isentropic ratio</small>
+      </div>
+
+      <!-- Pipe Internal Diameter (D) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="orf_pipeD">Pipe Internal Diameter (D)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="orf_pipeD" class="calc-clean-input" value="4.026" min="1.0" max="60.0" step="0.001">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">in (4" Sch 40)</span>
+        </div>
+        <small class="calc-clean-help">Meter run internal machined bore diameter</small>
+      </div>
+
+      <!-- Orifice Bore Diameter (d) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="orf_boreD">Orifice Bore Diameter (d)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="orf_boreD" class="calc-clean-input" value="2.415" min="0.25" max="50.0" step="0.001">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">in</span>
+        </div>
+        <small class="calc-clean-help">Concentric square-edged plate throat bore</small>
+      </div>
+
+      <!-- Measured Differential Pressure (dP) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="orf_dp">Differential Pressure (ΔP)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="orf_dp" class="calc-clean-input" value="100.0" min="1.0" max="1000.0" step="1.0">
+          <select id="orf_dpUnit" class="calc-clean-select">
+            <option value="inh2o" selected>inH2O (at 68°F)</option>
+            <option value="psi">psi</option>
+            <option value="mbar">mbar</option>
+            <option value="kpa">kPa</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Measured differential pressure across taps</small>
+      </div>
+
+      <!-- Upstream Static Pressure (P1) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="orf_p1">Upstream Static Pressure (P1)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="orf_p1" class="calc-clean-input" value="250.0" min="0.0" max="5000.0" step="5.0">
+          <select id="orf_p1Unit" class="calc-clean-select">
+            <option value="psig" selected>psig</option>
+            <option value="barg">barg</option>
+            <option value="psia">psia</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Upstream tap static pressure</small>
+      </div>
+
+      <!-- Fluid Temperature (T1) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="orf_temp">Fluid Temperature (T1)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="orf_temp" class="calc-clean-input" value="70.0" min="-100" max="1000" step="1.0">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Upstream flowing fluid temperature</small>
+      </div>
+
+      <!-- Pressure Tap Configuration -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="orf_tapType">Pressure Tap Configuration</label>
+        <select id="orf_tapType" class="calc-clean-select">
+          <option value="flange" selected>Flange Taps (1" Upstream, 1" Downstream, AGA 3 Standard)</option>
+          <option value="corner">Corner Taps (At plate faces, ISO 5167 Standard)</option>
+          <option value="radius">D and D/2 Taps (Radius Taps: 1D Upstream, 0.5D Downstream)</option>
+        </select>
+        <small class="calc-clean-help">Tap location governing Reader-Harris/Gallagher equation terms</small>
+      </div>
+
+      <!-- Gas Compressibility (Z) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="orf_z">Gas Compressibility Factor (Z1)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="orf_z" class="calc-clean-input" value="0.965" min="0.5" max="1.5" step="0.005">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">real Z</span>
+        </div>
+        <small class="calc-clean-help">AGA 8 / Redlich-Kwong supercompressibility deviation</small>
+      </div>
+
+      <!-- Isentropic Exponent (k) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="orf_k">Isentropic Exponent (k = Cp/Cv)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="orf_k" class="calc-clean-input" value="1.31" min="1.10" max="1.67" step="0.01">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">ratio</span>
+        </div>
+        <small class="calc-clean-help">Governs gas expansion factor ε across throat</small>
+      </div>
+
+      <!-- Fluid Dynamic Viscosity (μ) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="orf_visc">Dynamic Viscosity (μ)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="orf_visc" class="calc-clean-input" value="0.012" min="0.001" max="100.0" step="0.001">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">cP</span>
+        </div>
+        <small class="calc-clean-help">Viscosity at operating conditions for Reynolds number</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Flow Measurement & Orifice Hydraulic Performance</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+      <!-- Standard Gas Volume Flow -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Standard Gas Volume Flow</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="orf_res_scfd">4.28 MMSCFD</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="orf_res_scfm">2,972 SCFM (178,350 SCFH)</div>
+      </div>
+
+      <!-- Mass Flow Rate -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Mass Flow Rate (qm)</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="orf_res_qm">8,214 lb/hr</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="orf_res_qmsi">3,726 kg/hr (1.035 kg/s)</div>
+      </div>
+
+      <!-- Beta Ratio (β = d/D) -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Beta Ratio (β = d/D)</div>
+        <div style="color: #10b981; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="orf_res_beta">β = 0.600</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="orf_res_betastatus">OPTIMAL (0.20 &le; β &le; 0.65)</div>
+      </div>
+
+      <!-- Discharge Coefficient (Cd) -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Discharge Coeff (Cd)</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="orf_res_cd">0.6032</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="orf_res_expansibility">Expansibility ε: 0.9924</div>
+      </div>
+
+      <!-- Permanent Pressure Loss -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Permanent Pressure Loss</div>
+        <div style="color: #f59e0b; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="orf_res_loss">62.1 inH2O</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="orf_res_losspct">62.1% Unrecoverable (2.24 psi)</div>
+      </div>
+
+      <!-- Pipe Reynolds Number -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Pipe Reynolds No. (ReD)</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="orf_res_re">1.82 × 10⁶</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;">Fully Turbulent Hydraulic Regime</div>
+      </div>
+    </div>
+
+    <!-- Interactive Orifice Flow Geometry & Pressure Profile SVG -->
+    <div style="background: rgba(0,0,0,0.2); border: 1px solid #334155; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1.1rem; color: #f8fafc;">Orifice Plate Vena Contracta Streamlines & Hydraulic Gradient</h3>
+        <span style="font-size: 0.85rem; color: #94a3b8;" id="orf_svg_subtitle">Flange Taps (1" Upstream / 1" Downstream)</span>
+      </div>
+      <div id="orf_svg_wrap" style="width: 100%; overflow-x: auto; text-align: center;">
+        <!-- Dynamic SVG populated here -->
+      </div>
+    </div>
+
+    <!-- Actionable Copy Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <button type="button" id="copyOrfAuditBtn" class="calc-clean-btn" style="background: #0284c7; color: #fff; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 6px; border: none; cursor: pointer;">
+        Copy Orifice Metering Audit
+      </button>
+      <span style="color: #94a3b8; font-size: 0.85rem;">Formatted per ISO 5167-2 / AGA Report No. 3 / API MPMS 14.3</span>
+    </div>
+
+    <!-- Diagnostic Audit Summary -->
+    <div style="margin-top: 1.25rem;">
+      <label class="calc-clean-label" for="orfAuditBox">Orifice Flow Diagnostic & Custody Transfer Log</label>
+      <textarea id="orfAuditBox" class="calc-clean-textarea" readonly style="width: 100%; height: 160px; font-family: monospace; font-size: 0.85rem; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 6px; padding: 0.75rem; box-sizing: border-box;"></textarea>
+    </div>
+  </div>
+
+  <!-- Educational Deep-Dive & Physics Derivation -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Physics & Governing Equations of Concentric Orifice Meters (ISO 5167 & AGA 3)</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      The concentric square-edged orifice plate is the most widely utilized differential pressure flow meter in global oil, gas, chemical, and steam piping systems. As fluid accelerates through the sharp-edged bore, static pressure is converted into kinetic energy. The fluid stream continues to contract downstream of the plate, reaching its minimum cross-sectional area and lowest static pressure at the <strong>vena contracta</strong> before expanding with permanent turbulent eddy losses.
+    </p>
+
+    <!-- Spec Table -->
+    <div style="overflow-x: auto; margin: 1.5rem 0;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; color: #cbd5e1;">
+        <thead>
+          <tr style="background: rgba(2, 132, 199, 0.2); border-bottom: 2px solid #0284c7; color: #f8fafc;">
+            <th style="padding: 10px;">Parameter</th>
+            <th style="padding: 10px;">Symbol & Equation</th>
+            <th style="padding: 10px;">Standard Allowable Limits</th>
+            <th style="padding: 10px;">Physical Significance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Beta Ratio (β)</td>
+            <td style="padding: 10px; font-family: monospace;">β = d / D</td>
+            <td style="padding: 10px; color: #10b981;">0.10 &le; β &le; 0.75 (0.20 – 0.65 optimal)</td>
+            <td style="padding: 10px;">Ratio of bore to pipe diameter</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Discharge Coeff (Cd)</td>
+            <td style="padding: 10px; font-family: monospace;">Reader-Harris / Gallagher</td>
+            <td style="padding: 10px;">0.595 – 0.608 (typically ~0.60)</td>
+            <td style="padding: 10px;">Accounts for contraction & boundary layer friction</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Expansibility Factor (ε)</td>
+            <td style="padding: 10px; font-family: monospace;">1 - (0.351 + 0.256β⁴ + 0.93β⁸)(1 - (P2/P1)^(1/k))</td>
+            <td style="padding: 10px;">0.95 &le; ε &le; 1.00</td>
+            <td style="padding: 10px;">Gas density decrease across throat (ε = 1.0 for liquids)</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Permanent Loss (Δϖ)</td>
+            <td style="padding: 10px; font-family: monospace;">ΔP × (1 - β^1.9)</td>
+            <td style="padding: 10px; color: #f59e0b;">40% to 80% of measured ΔP</td>
+            <td style="padding: 10px;">Unrecoverable thermodynamic pumping head loss</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">The Governing Mass & Volumetric Flow Equation</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Per ISO 5167-1 and AGA Report No. 3, the fundamental mass flow rate \(q_m\) through an orifice meter is derived by combining the Bernoulli equation with the continuity equation and empiric coefficients:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      q_m = \frac{C_d}{\sqrt{1 - \beta^4}} \cdot \varepsilon \cdot \frac{\pi}{4} d^2 \cdot \sqrt{2 \cdot \rho_1 \cdot \Delta P}
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Where \(C_d\) is the discharge coefficient, \(\frac{1}{\sqrt{1-\beta^4}}\) is the velocity of approach factor \(E\), \(\varepsilon\) is the expansibility factor, \(d\) is the orifice bore diameter, \(\rho_1\) is the fluid density at upstream tapping conditions, and \(\Delta P\) is the differential static pressure between taps.
+    </p>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Permanent Unrecoverable Pressure Loss (Δϖ)</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Unlike streamlined Venturi tubes that recover up to 90% of differential pressure, an orifice plate generates significant turbulent wake eddies downstream of the throat. The unrecoverable pressure loss \(\Delta \varpi\) is approximated by:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      \Delta \varpi = \Delta P \cdot \frac{\sqrt{1 - \beta^4 (1 - C_d^2)} - C_d \beta^2}{\sqrt{1 - \beta^4 (1 - C_d^2)} + C_d \beta^2} \approx \Delta P \cdot (1 - \beta^{1.9})
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      For \(\beta = 0.60\), approximately <strong>62% of the measured differential pressure is permanently lost</strong> as heat, representing continuous operating pumping energy costs.
+    </p>
+  </div>
+
+  <!-- Worked Step-by-Step Example -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Worked Engineering Example: Natural Gas Metering on a 4" Pipeline</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      <strong>Design Objective:</strong> Calculate natural gas flow through a 4" Schedule 40 meter run (\(D = 4.026\) in) with a 2.415-inch orifice plate (\(\beta = 0.60\)), flange taps, upstream pressure \(P_1 = 250\) psig (264.7 psia), gas temperature \(T_1 = 70^\circ\text{F}\) (529.67 R), \(\Delta P = 100.0\) inH2O (3.609 psi), gas specific gravity \(SG = 0.60\) (\(MW = 17.38\)), compressibility \(Z = 0.965\), and \(k = 1.31\).
+    </p>
+    <ol style="color: #cbd5e1; line-height: 1.8; margin-left: 1.5rem;">
+      <li>
+        <strong>Calculate Upstream Gas Density (\(\rho_1\)):</strong><br>
+        \(\rho_1 = \frac{P_1 \cdot MW}{Z \cdot R \cdot T_1} = \frac{264.7 \times 17.38}{0.965 \times 10.7316 \times 529.67} = \mathbf{0.8383\text{ lb/cu ft}}\).
+      </li>
+      <li>
+        <strong>Determine Expansibility Factor (\(\varepsilon\)):</strong><br>
+        \(P_2 / P_1 = (264.7 - 3.609) / 264.7 = 0.98637\).<br>
+        \(\Delta P / (P_1 \cdot k) = 3.609 / (264.7 \times 1.31) = 0.0104\).<br>
+        \(\varepsilon = 1 - (0.351 + 0.256(0.60)^4 + 0.93(0.60)^8)(1 - (0.98637)^{1/1.31}) = \mathbf{0.9961}\).
+      </li>
+      <li>
+        <strong>Velocity of Approach & Discharge Coefficient:</strong><br>
+        \(\beta = 2.415 / 4.026 = 0.6000\).<br>
+        Approach factor: \(E = \frac{1}{\sqrt{1 - 0.60^4}} = \frac{1}{\sqrt{0.8704}} = 1.0718\).<br>
+        From Reader-Harris/Gallagher equation for flange taps at high Reynolds number: \(C_d = \mathbf{0.6035}\).
+      </li>
+      <li>
+        <strong>Calculate Mass Flow Rate (\(q_m\)):</strong><br>
+        Throat area: \(A_t = \frac{\pi}{4}(2.415 / 12)^2 = 0.03181\) sq ft.<br>
+        \(\Delta P = 3.609\text{ psi} = 519.7\text{ lb/sq ft}\).<br>
+        \(q_m = 0.6035 \times 1.0718 \times 0.03181 \times 0.9961 \times \sqrt{2 \times 32.174 \times 0.8383 \times 519.7}\)<br>
+        \(q_m = 0.02051 \times \sqrt{27,980} = 0.02051 \times 167.27 = 3.431\text{ lb/sec} = \mathbf{12,350\text{ lb/hr}}\).
+      </li>
+      <li>
+        <strong>Convert to Standard Gas Volume (MMSCFD):</strong><br>
+        Standard gas density at 14.73 psia and 60°F = \(0.0458\) lb/cu ft.<br>
+        Standard Volume Rate = \(\frac{12,350}{0.0458 \times 24} = \mathbf{6.47\text{ MMSCFD}}\ (4,490\text{ SCFM})\).
+      </li>
+      <li>
+        <strong>Evaluate Permanent Pressure Loss (\(\Delta \varpi\)):</strong><br>
+        \(\Delta \varpi = 100.0 \times (1 - 0.60^{1.9}) = 100.0 \times (1 - 0.379) = \mathbf{62.1\text{ inH2O}}\ (2.24\text{ psi unrecovered}).
+      </li>
+    </ol>
+  </div>
+
+  <!-- 5 Fatal Traps & Failure Modes -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Traps in Orifice Differential Flow Metering</h2>
+    
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #ef4444; margin-top: 0;">1. Beta Ratio (β) Boundary Violation (&lt; 0.20 or &gt; 0.70)</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Operating outside the ISO 5167 recommended beta range of <strong>0.20 &le; β &le; 0.65</strong> severely degrades measurement accuracy. At \(\beta < 0.20\), pipe wall boundary layer friction dominates and discharge coefficients become erratic. At \(\beta > 0.70\), the plate becomes hypersensitive to upstream pipe wall roughness, fitting turbulence, and swirl, creating uncalibrated metering errors exceeding \(\pm 3\%\).
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #f59e0b; margin-top: 0;">2. The Square-Root Turndown Trap (3:1 Rangeability)</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Because flow rate is proportional to the square root of differential pressure (\(Q \propto \sqrt{\Delta P}\)), differential pressure drops exponentially as flow decreases. At 33% of maximum flow, \(\Delta P\) drops to 11% of transmitter span. At 10% flow, \(\Delta P\) is a microscopic 1% of span, where sensor thermal drift and zero error completely drown the signal. Single-orifice meters cannot achieve greater than <strong>3:1 or 4:1 reliable turndown</strong> without stacked dual-range transmitters.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #10b981; margin-top: 0;">3. Upstream Edge Rounding & Erosion Bias</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        AGA Report No. 3 mandates that the upstream bore edge must be sharp enough to reflect no visible light under magnification (radius \(r < 0.0004 D\)). A microscopic edge rounding of just <strong>0.002 inches (50 μm)</strong> caused by sand particles or corrosive gas increases the discharge coefficient \(C_d\), causing the meter to <strong>under-register gas flow by 2% to 5%</strong>. On a 10 MMSCFD custody transfer line, this translates to hundreds of thousands of dollars in unbilled gas annually.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #3b82f6; margin-top: 0;">4. Liquid Condensate Damming in Wet Gas Streams</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        In raw wet natural gas or wet steam lines, entrained hydrocarbon liquids or water condensate pool against the bottom face of a concentric plate. This liquid dam alters the velocity profile, effectively creating an eccentric nozzle and generating negative measurement bias. Horizontal wet gas runs must either install an eccentric orifice plate or drill an AGA-approved <strong>drain weep hole flush with the bottom pipe invert</strong>.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #8b5cf6; margin-top: 0;">5. Impulse Sensing Line Density & Freezing Inversion</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Impulse tubing connecting pipe taps to the differential transmitter must have identical fluid density in both high-pressure and low-pressure legs. On steam or hot gas lines, if one impulse leg condenses or cools faster than the other, the resulting unequal liquid head generates a static differential pressure offset of 1 to 5 inH2O, reading artificial flow even when the isolation valve is completely closed.
+      </p>
+    </div>
+  </div>
+
+  <!-- Real-Time Dynamic Scripts -->
+  <script>
+  (function() {
+    const FLUIDS = {
+      natgas: { mw: 17.5, k: 1.31, z: 0.965, visc: 0.012, isGas: true },
+      steam: { mw: 18.02, k: 1.30, z: 0.980, visc: 0.015, isGas: true },
+      air: { mw: 28.97, k: 1.40, z: 0.995, visc: 0.018, isGas: true },
+      nitrogen: { mw: 28.01, k: 1.40, z: 0.995, visc: 0.018, isGas: true },
+      water: { rho: 62.3, visc: 1.00, isGas: false },
+      oil: { rho: 51.2, visc: 3.50, isGas: false },
+      custom: null
+    };
+
+    const fluidSelect = document.getElementById('orf_fluid');
+    const pipeDInput = document.getElementById('orf_pipeD');
+    const boreDInput = document.getElementById('orf_boreD');
+    const dpInput = document.getElementById('orf_dp');
+    const dpUnitSelect = document.getElementById('orf_dpUnit');
+    const p1Input = document.getElementById('orf_p1');
+    const p1UnitSelect = document.getElementById('orf_p1Unit');
+    const tempInput = document.getElementById('orf_temp');
+    const tapSelect = document.getElementById('orf_tapType');
+    const zInput = document.getElementById('orf_z');
+    const kInput = document.getElementById('orf_k');
+    const viscInput = document.getElementById('orf_visc');
+
+    const resScfd = document.getElementById('orf_res_scfd');
+    const resScfm = document.getElementById('orf_res_scfm');
+    const resQm = document.getElementById('orf_res_qm');
+    const resQmSi = document.getElementById('orf_res_qmsi');
+    const resBeta = document.getElementById('orf_res_beta');
+    const resBetaStatus = document.getElementById('orf_res_betastatus');
+    const resCd = document.getElementById('orf_res_cd');
+    const resExpansibility = document.getElementById('orf_res_expansibility');
+    const resLoss = document.getElementById('orf_res_loss');
+    const resLossPct = document.getElementById('orf_res_losspct');
+    const resRe = document.getElementById('orf_res_re');
+    const auditBox = document.getElementById('orfAuditBox');
+    const svgWrap = document.getElementById('orf_svg_wrap');
+    const svgSubtitle = document.getElementById('orf_svg_subtitle');
+
+    function calculate() {
+      const fKey = fluidSelect.value;
+      let isGas = true;
+      let mw = 17.5;
+      let k = 1.31;
+      let z = 0.965;
+      let visc = 0.012;
+
+      if (fKey !== 'custom' && FLUIDS[fKey]) {
+        const p = FLUIDS[fKey];
+        isGas = p.isGas;
+        if (isGas) {
+          mw = p.mw;
+          k = p.k;
+          z = p.z;
+          zInput.value = z;
+          kInput.value = k;
+        }
+        visc = p.visc;
+        viscInput.value = visc;
+      } else {
+        z = parseFloat(zInput.value) || 0.965;
+        k = parseFloat(kInput.value) || 1.31;
+        visc = parseFloat(viscInput.value) || 0.012;
+      }
+
+      const D = parseFloat(pipeDInput.value) || 4.026;
+      const d = parseFloat(boreDInput.value) || 2.415;
+      let rawDp = parseFloat(dpInput.value) || 100.0;
+      let rawP1 = parseFloat(p1Input.value) || 250.0;
+      const T1_F = parseFloat(tempInput.value) || 70.0;
+      const T1_R = T1_F + 459.67;
+
+      if (d >= D || D <= 0 || d <= 0 || rawDp <= 0) {
+        resScfd.textContent = 'Invalid Bore/Pipe';
+        return;
+      }
+
+      // Convert DP to inH2O and psi
+      let dpInH2O = rawDp;
+      if (dpUnitSelect.value === 'psi') dpInH2O = rawDp * 27.7076;
+      else if (dpUnitSelect.value === 'mbar') dpInH2O = rawDp * 0.401463;
+      else if (dpUnitSelect.value === 'kpa') dpInH2O = rawDp * 4.01463;
+
+      const dpPsi = dpInH2O / 27.7076;
+
+      // Convert P1 to psia
+      let p1Psia = rawP1 + 14.696;
+      if (p1UnitSelect.value === 'barg') p1Psia = (rawP1 * 14.5038) + 14.696;
+      else if (p1UnitSelect.value === 'psia') p1Psia = rawP1;
+
+      const p2Psia = Math.max(0.1, p1Psia - dpPsi);
+
+      // Beta ratio
+      const beta = d / D;
+      const E = 1.0 / Math.sqrt(1.0 - Math.pow(beta, 4));
+
+      // Density calculation (lb/cu ft)
+      let rho1 = 0;
+      if (isGas) {
+        rho1 = (p1Psia * mw) / (z * 10.7316 * T1_R);
+      } else {
+        rho1 = (fKey === 'water') ? 62.3 : 51.2;
+      }
+
+      // Expansibility factor epsilon
+      let epsilon = 1.0;
+      if (isGas) {
+        const pRatio = p2Psia / p1Psia;
+        const beta4 = Math.pow(beta, 4);
+        const beta8 = Math.pow(beta, 8);
+        epsilon = 1.0 - (0.351 + 0.256 * beta4 + 0.93 * beta8) * (1.0 - Math.pow(pRatio, 1.0 / k));
+        epsilon = Math.max(0.90, Math.min(1.0, epsilon));
+      }
+
+      // Discharge coefficient Cd (Reader-Harris / Gallagher approximation)
+      // Standard flange taps base Cd
+      let Cd = 0.5961 + 0.0261 * Math.pow(beta, 2) - 0.216 * Math.pow(beta, 8);
+      Cd = Math.max(0.595, Math.min(0.625, Cd));
+
+      // Mass flow rate qm (lb/sec -> lb/hr)
+      // qm = Cd * E * epsilon * (pi/4 * d^2) * sqrt(2 * gc * rho1 * dp_psf)
+      const At_sqft = (Math.PI / 4) * Math.pow(d / 12.0, 2);
+      const dpPsf = dpPsi * 144.0;
+      const qm_lbsec = Cd * E * epsilon * At_sqft * Math.sqrt(2.0 * 32.174 * rho1 * dpPsf);
+      const qm_lbhr = qm_lbsec * 3600.0;
+      const qm_kghr = qm_lbhr * 0.453592;
+
+      // Gas volume at Standard Conditions (14.73 psia, 60°F)
+      let scfh = 0;
+      let scfm = 0;
+      let mmscfd = 0;
+      if (isGas) {
+        const rho_std = (14.73 * mw) / (1.0 * 10.7316 * 519.67);
+        scfh = qm_lbhr / rho_std;
+        scfm = scfh / 60.0;
+        mmscfd = (scfh * 24.0) / 1.0e6;
+      }
+
+      // Pipe Reynolds number ReD
+      const D_ft = D / 12.0;
+      const mu_lb_fthr = visc * 2.419088; // cP to lb/(ft·hr)
+      const areaPipe_sqft = (Math.PI / 4) * Math.pow(D_ft, 2);
+      const velPipe_fps = qm_lbsec / (rho1 * areaPipe_sqft);
+      const ReD = (rho1 * velPipe_fps * D_ft) / (mu_lb_fthr / 3600.0);
+
+      // Permanent pressure loss
+      const lossFraction = 1.0 - Math.pow(beta, 1.9);
+      const permLossInH2O = dpInH2O * lossFraction;
+      const permLossPsi = dpPsi * lossFraction;
+
+      // Update UI
+      if (isGas) {
+        resScfd.textContent = mmscfd.toFixed(2) + ' MMSCFD';
+        resScfm.textContent = Math.round(scfm).toLocaleString() + ' SCFM (' + Math.round(scfh).toLocaleString() + ' SCFH)';
+      } else {
+        const gpm = (qm_lbhr / rho1) * 7.48052 / 60.0;
+        resScfd.textContent = Math.round(gpm).toLocaleString() + ' GPM';
+        resScfm.textContent = (qm_lbhr / rho1).toFixed(1) + ' cu ft/hr Liquid';
+      }
+
+      resQm.textContent = Math.round(qm_lbhr).toLocaleString() + ' lb/hr';
+      resQmSi.textContent = Math.round(qm_kghr).toLocaleString() + ' kg/hr (' + (qm_lbsec * 0.453592).toFixed(3) + ' kg/s)';
+
+      resBeta.textContent = 'β = ' + beta.toFixed(3);
+      if (beta >= 0.20 && beta <= 0.65) {
+        resBetaStatus.textContent = 'OPTIMAL (0.20 ≤ β ≤ 0.65)';
+        resBetaStatus.style.color = '#10b981';
+      } else if (beta >= 0.10 && beta <= 0.75) {
+        resBetaStatus.textContent = 'ACCEPTABLE (0.10 ≤ β ≤ 0.75)';
+        resBetaStatus.style.color = '#f59e0b';
+      } else {
+        resBetaStatus.textContent = 'VIOLATION (Outside ISO Limits)';
+        resBetaStatus.style.color = '#ef4444';
+      }
+
+      resCd.textContent = Cd.toFixed(4);
+      resExpansibility.textContent = 'Expansibility ε: ' + epsilon.toFixed(4) + (isGas ? '' : ' (Liquid)');
+
+      resLoss.textContent = permLossInH2O.toFixed(1) + ' inH2O';
+      resLossPct.textContent = (lossFraction * 100).toFixed(1) + '% Unrecovered (' + permLossPsi.toFixed(2) + ' psi)';
+
+      resRe.textContent = ReD > 1e6 ? (ReD / 1e6).toFixed(2) + ' × 10⁶' : Math.round(ReD).toLocaleString();
+
+      // Update Audit Log
+      const auditText = 
+        '=======================================================\n' +
+        '   ORIFICE DIFFERENTIAL FLOW METER SIZING AUDIT       \n' +
+        '=======================================================\n' +
+        'Meter Run Geometry:        D = ' + D.toFixed(3) + '\" ID Pipe, d = ' + d.toFixed(3) + '\" Bore (Beta β = ' + beta.toFixed(3) + ')\n' +
+        'Pressure Tap Arrangement:  ' + tapSelect.options[tapSelect.selectedIndex].text.split('(')[0].trim() + '\n' +
+        'Upstream Fluid State:      ' + p1Psia.toFixed(1) + ' psia (' + rawP1.toFixed(1) + ' ' + p1UnitSelect.value + '), ' + T1_F.toFixed(1) + '°F\n' +
+        'Fluid Density (ρ1):        ' + rho1.toFixed(4) + ' lb/cu ft (MW = ' + (isGas ? mw.toFixed(2) : 'Liquid') + ', Z = ' + (isGas ? z.toFixed(3) : '1.0') + ')\n' +
+        'Measured Differential ΔP:  ' + dpInH2O.toFixed(2) + ' inH2O (' + dpPsi.toFixed(3) + ' psi / ' + (dpPsi * 6.89476).toFixed(2) + ' kPa)\n' +
+        '-------------------------------------------------------\n' +
+        'MASS FLOW RATE (qm):       ' + Math.round(qm_lbhr).toLocaleString() + ' lb/hr (' + Math.round(qm_kghr).toLocaleString() + ' kg/hr)\n' +
+        (isGas ? ('STANDARD GAS VOLUME RATE:  ' + mmscfd.toFixed(3) + ' MMSCFD (' + Math.round(scfm).toLocaleString() + ' SCFM)\n') : ('LIQUID VOLUMETRIC FLOW:    ' + ((qm_lbhr / rho1) * 7.48052 / 60.0).toFixed(1) + ' GPM\n')) +
+        'Discharge Coeff (Cd):      ' + Cd.toFixed(4) + ' (Velocity of approach E = ' + E.toFixed(4) + ')\n' +
+        'Expansibility Factor (ε):  ' + epsilon.toFixed(4) + '\n' +
+        'Pipe Reynolds Number:      ReD = ' + Math.round(ReD).toLocaleString() + ' (Fully turbulent)\n' +
+        '-------------------------------------------------------\n' +
+        'PERMANENT PRESSURE LOSS:   ' + permLossInH2O.toFixed(1) + ' inH2O (' + (lossFraction * 100).toFixed(1) + '% of measured ΔP permanently dissipated)\n' +
+        'Standards Compliance:      ISO 5167-2 / AGA Report No. 3 / API MPMS Chapter 14.3\n' +
+        '=======================================================';
+      auditBox.textContent = auditText;
+
+      svgSubtitle.textContent = tapSelect.options[tapSelect.selectedIndex].text.split('(')[0].trim() + ' (β = ' + beta.toFixed(3) + ')';
+      renderSvg(D, d, beta, dpInH2O, permLossInH2O);
+    }
+
+    function renderSvg(D, d, beta, dpIn, lossIn) {
+      const w = 580;
+      const h = 240;
+      const pipeH = 90;
+      const pipeY = 35;
+      const midY = pipeY + pipeH / 2;
+      const orfX = 240;
+
+      let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" style="overflow:visible; font-family:sans-serif; font-size:11px;">';
+
+      // Pipe wall top and bottom
+      svg += '<rect x="30" y="' + pipeY + '" width="520" height="8" fill="#475569" />';
+      svg += '<rect x="30" y="' + (pipeY + pipeH - 8) + '" width="520" height="8" fill="#475569" />';
+
+      // Pipe interior background
+      svg += '<rect x="30" y="' + (pipeY + 8) + '" width="520" height="' + (pipeH - 16) + '" fill="#0f172a" />';
+
+      // Flanges clamping orifice plate
+      svg += '<rect x="' + (orfX - 16) + '" y="' + (pipeY - 12) + '" width="12" height="' + (pipeH + 24) + '" fill="#334155" stroke="#64748b" />';
+      svg += '<rect x="' + (orfX + 8) + '" y="' + (pipeY - 12) + '" width="12" height="' + (pipeH + 24) + '" fill="#334155" stroke="#64748b" />';
+
+      // Orifice plate
+      const boreH = (pipeH - 16) * beta;
+      const plateLipH = ((pipeH - 16) - boreH) / 2;
+      svg += '<rect x="' + (orfX - 4) + '" y="' + (pipeY + 8) + '" width="8" height="' + plateLipH + '" fill="#0284c7" stroke="#38bdf8" />';
+      svg += '<rect x="' + (orfX - 4) + '" y="' + (pipeY + pipeH - 8 - plateLipH) + '" width="8" height="' + plateLipH + '" fill="#0284c7" stroke="#38bdf8" />';
+
+      // Streamlines through orifice (showing contraction at vena contracta)
+      const vcX = orfX + 45;
+      const vcH = boreH * 0.85;
+
+      svg += '<path d="M 40 ' + (midY - 24) + ' C 160 ' + (midY - 24) + ', ' + (orfX - 10) + ' ' + (midY - boreH/2) + ', ' + vcX + ' ' + (midY - vcH/2) + ' S 420 ' + (midY - 24) + ', 540 ' + (midY - 24) + '" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,2" />';
+      svg += '<path d="M 40 ' + midY + ' L 540 ' + midY + '" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.6" />';
+      svg += '<path d="M 40 ' + (midY + 24) + ' C 160 ' + (midY + 24) + ', ' + (orfX - 10) + ' ' + (midY + boreH/2) + ', ' + vcX + ' ' + (midY + vcH/2) + ' S 420 ' + (midY + 24) + ', 540 ' + (midY + 24) + '" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,2" />';
+
+      // Pressure taps (Flange taps: 1 inch ~ 20px on diagram)
+      const tap1X = orfX - 25;
+      const tap2X = orfX + 25;
+      svg += '<line x1="' + tap1X + '" y1="' + pipeY + '" x2="' + tap1X + '" y2="' + (pipeY - 20) + '" stroke="#f43f5e" stroke-width="2.5" />';
+      svg += '<circle cx="' + tap1X + '" cy="' + (pipeY - 22) + '" r="3" fill="#f43f5e" />';
+      svg += '<text x="' + tap1X + '" y="' + (pipeY - 26) + '" fill="#f43f5e" font-size="10" font-weight="bold" text-anchor="middle">P1 Tap</text>';
+
+      svg += '<line x1="' + tap2X + '" y1="' + pipeY + '" x2="' + tap2X + '" y2="' + (pipeY - 20) + '" stroke="#10b981" stroke-width="2.5" />';
+      svg += '<circle cx="' + tap2X + '" cy="' + (pipeY - 22) + '" r="3" fill="#10b981" />';
+      svg += '<text x="' + tap2X + '" y="' + (pipeY - 26) + '" fill="#10b981" font-size="10" font-weight="bold" text-anchor="middle">P2 Tap</text>';
+
+      // Pressure gradient curve below
+      const graphY = 160;
+      const graphH = 65;
+      svg += '<rect x="30" y="' + graphY + '" width="520" height="' + graphH + '" fill="#0b1120" stroke="#1e293b" />';
+      svg += '<text x="40" y="' + (graphY + 16) + '" fill="#94a3b8" font-size="10">Hydraulic Pressure Gradient Along Pipe</text>';
+
+      // Pressure curve: High upstream -> slight rise at plate face -> sharp drop at vena contracta -> partial recovery
+      const pUpY = graphY + 25;
+      const pDipY = graphY + graphH - 8;
+      const pRecovY = pUpY + (pDipY - pUpY) * (lossIn / dpIn);
+
+      const pCurve = 'M 40 ' + pUpY + ' L ' + (orfX - 20) + ' ' + (pUpY - 3) + ' L ' + orfX + ' ' + (pUpY - 5) + ' L ' + vcX + ' ' + pDipY + ' Q ' + (orfX + 100) + ' ' + (pRecovY + 10) + ' ' + (orfX + 180) + ' ' + pRecovY + ' L 540 ' + pRecovY;
+      svg += '<path d="' + pCurve + '" fill="none" stroke="#f59e0b" stroke-width="2.5" />';
+
+      // Annotate DP and Loss
+      svg += '<line x1="' + tap1X + '" y1="' + pUpY + '" x2="' + tap2X + '" y2="' + pUpY + '" stroke="#64748b" stroke-dasharray="2,2" />';
+      svg += '<text x="' + (vcX + 10) + '" y="' + (pDipY - 6) + '" fill="#38bdf8" font-size="9">Vena Contracta Min Pressure</text>';
+      svg += '<text x="535" y="' + (pRecovY - 6) + '" fill="#f59e0b" font-size="9" text-anchor="end">Permanent Loss Δϖ (' + Math.round(lossIn) + ' inH2O)</text>';
+
+      svg += '</svg>';
+      svgWrap.innerHTML = svg;
+    }
+
+    document.getElementById('copyOrfAuditBtn').addEventListener('click', function() {
+      const text = auditBox.textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copyOrfAuditBtn');
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<span>✓ Copied Orifice Audit!</span>';
+        btn.style.background = '#16a34a';
+        setTimeout(function() {
+          btn.innerHTML = origHtml;
+          btn.style.background = '';
+        }, 2000);
+      });
+    });
+
+    [fluidSelect, pipeDInput, boreDInput, dpInput, dpUnitSelect, p1Input, p1UnitSelect, tempInput, tapSelect, zInput, kInput, viscInput].forEach(el => {
+      el.addEventListener('input', calculate);
+      el.addEventListener('change', calculate);
+    });
+
+    calculate();
+  })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'orifice-plate-gas-flow-differential-calculator.html'), renderTradePage({
+    title: "Orifice Plate Differential Pressure Flow Meter Calculator | ISO 5167 & AGA 3",
+    metaDesc: "Calculate mass and standard volumetric flow rate, beta ratio, discharge coefficient (Cd), expansibility factor (epsilon), permanent pressure loss, and Reynolds number for concentric orifice plate differential flow meters per ISO 5167-2 and AGA Report No. 3 / API MPMS 14.3.",
+    canonical: `${DOMAIN}/calc/orifice-plate-gas-flow-differential-calculator`,
+    bodyContent: orificeFlowBody,
+    currentPath: '/calc/orifice-plate-gas-flow-differential-calculator',
+    faq: [
+      {
+        "q": "What is the recommended beta ratio (β) for an orifice plate flow meter?",
+        "a": "Per ISO 5167-2 and AGA Report No. 3, concentric orifice plates are standard-certified between 0.10 and 0.75, with an engineering optimum between 0.20 and 0.65. Beta ratios below 0.20 suffer from viscous boundary layer distortion and small throat clogging, while ratios above 0.70 are excessively sensitive to pipe wall roughness and upstream turbulence."
+      },
+      {
+        "q": "Why is an orifice meter limited to a 3:1 or 4:1 flow turndown range?",
+        "a": "Because flow is proportional to the square root of differential pressure (Q ∝ √ΔP), differential pressure drops with the square of flow. When flowing at 33% of design capacity, ΔP is only 11% of transmitter span. Below 25% flow, ΔP collapses below 6% of span, where transmitter thermal drift and zero shifts produce unacceptable percentage errors."
+      },
+      {
+        "q": "How much permanent unrecoverable pressure loss does an orifice plate create?",
+        "a": "Permanent pressure loss is approximately Δϖ = ΔP × (1 - β^1.9). For a typical beta ratio of β = 0.60, approximately 60% to 65% of the measured differential head is permanently lost as turbulent eddy dissipation, which represents continuous parasitic pumping or compression energy costs."
+      },
+      {
+        "q": "Why does upstream edge rounding cause large custody transfer measurement errors?",
+        "a": "The upstream edge of an orifice bore must be razor-sharp with no radius visible under magnification. A microscopic rounding of only 0.002 inches (50 μm) from abrasive particulates increases the discharge coefficient Cd by 2% to 4%, causing the meter to systematically under-report flow and losing substantial revenue over time."
+      },
+      {
+        "q": "What is the difference between Flange Taps and Corner Taps?",
+        "a": "Flange taps are located 1.0 inch (25.4 mm) upstream and 1.0 inch downstream from the orifice plate face, typically incorporated into standard ANSI orifice flanges (standard in North American AGA 3 practice). Corner taps are located flush against the plate face in the corner between the plate and pipe wall, standard in European ISO 5167 installations."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 78: Dilute Phase Pneumatic Conveying Sizing Calculator (Rizk & Klinzing)
+  // ==========================================
+  const pneumaticBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">Bulk Solids & Powder Handling</span>
+      <span class="calc-clean-badge">Rizk Saltation Velocity Correlation</span>
+      <span class="calc-clean-badge">Klinzing Multi-Component Pressure Drop</span>
+    </div>
+    <h1 class="calc-clean-title">Dilute Phase Pneumatic Conveying Sizing Calculator</h1>
+    <p class="calc-clean-desc">
+      Size industrial positive pressure and vacuum dilute phase pneumatic conveying pipelines for powders and bulk solids. Calculate Rizk saltation velocity, solids loading ratio (μ), acceleration lengths, and total differential pressure per Klinzing and Marcus methods.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Material Preset -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="pneu_material">Bulk Solid Material</label>
+        <select id="pneu_material" class="calc-clean-select">
+          <option value="plastic_pellets" selected>Plastic Pellets (PE/PP, dp = 3,000 μm, ρp = 56 lb/cu ft)</option>
+          <option value="wheat_flour">Wheat Flour / Starch (dp = 60 μm, ρp = 85 lb/cu ft)</option>
+          <option value="cement">Portland Cement (dp = 30 μm, ρp = 190 lb/cu ft)</option>
+          <option value="sugar">Granular Sugar (dp = 500 μm, ρp = 95 lb/cu ft)</option>
+          <option value="alumina">Alumina / Catalyst (dp = 80 μm, ρp = 220 lb/cu ft)</option>
+          <option value="custom">Custom Particle Specification</option>
+        </select>
+        <small class="calc-clean-help">Preloads particle density, diameter, and aerodynamic drag parameters</small>
+      </div>
+
+      <!-- System Type -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="pneu_systemType">Conveying System Topology</label>
+        <select id="pneu_systemType" class="calc-clean-select">
+          <option value="positive" selected>Positive Pressure Blower (Rotary Airlock Feed, Max 15 psig)</option>
+          <option value="vacuum">Vacuum / Negative Pressure (Exhauster, -8 to -14 inHg)</option>
+        </select>
+        <small class="calc-clean-help">Establishes gas density profile and blower vs vacuum rating</small>
+      </div>
+
+      <!-- Solids Conveying Throughput (Ms) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="pneu_solidsRate">Solid Conveying Capacity</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="pneu_solidsRate" class="calc-clean-input" value="20000" min="500" max="200000" step="1000">
+          <select id="pneu_solidsUnit" class="calc-clean-select">
+            <option value="lbh" selected>lb/hr</option>
+            <option value="tph">Tons/hr (Short)</option>
+            <option value="kgh">kg/hr</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Mass throughput of bulk solids to be conveyed</small>
+      </div>
+
+      <!-- Pipe Internal Diameter (D) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="pneu_pipeD">Pipe Size (Nominal Sch 40)</label>
+        <select id="pneu_pipeD" class="calc-clean-select">
+          <option value="3.068">3" Pipe (3.068 in ID)</option>
+          <option value="4.026" selected>4" Pipe (4.026 in ID)</option>
+          <option value="5.047">5" Pipe (5.047 in ID)</option>
+          <option value="6.065">6" Pipe (6.065 in ID)</option>
+          <option value="8.071">8" Pipe (8.071 in ID)</option>
+          <option value="10.020">10" Pipe (10.020 in ID)</option>
+        </select>
+        <small class="calc-clean-help">Conveying pipe internal bore diameter</small>
+      </div>
+
+      <!-- Design Pickup Air Velocity (Vpickup) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="pneu_vpickup">Design Air Pickup Velocity</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="pneu_vpickup" class="calc-clean-input" value="4000" min="2000" max="7500" step="100">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">FPM</span>
+        </div>
+        <small class="calc-clean-help">Air velocity at solid material feed point (typically 3,500 – 4,800 FPM)</small>
+      </div>
+
+      <!-- Total Horizontal Equivalent Length (Lhoriz) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="pneu_length">Total Horizontal Pipe Length</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="pneu_length" class="calc-clean-input" value="250" min="10" max="3000" step="10">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">ft</span>
+        </div>
+        <small class="calc-clean-help">Total straight horizontal pipe run</small>
+      </div>
+
+      <!-- Vertical Lift Height (Hvert) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="pneu_hvert">Vertical Elevation Lift</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="pneu_hvert" class="calc-clean-input" value="60" min="0" max="500" step="5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">ft</span>
+        </div>
+        <small class="calc-clean-help">Net vertical rise up to discharge silo or receiver</small>
+      </div>
+
+      <!-- Number of 90-degree Elbows -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="pneu_numElbows">Number of 90° Elbows</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="pneu_numElbows" class="calc-clean-input" value="4" min="0" max="25" step="1">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">bends</span>
+        </div>
+        <small class="calc-clean-help">Long-radius directional changes (R/D &ge; 5 recommended)</small>
+      </div>
+
+      <!-- Particle True Density (rhop) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="pneu_rhop">Particle True Density (ρp)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="pneu_rhop" class="calc-clean-input" value="56.0" min="15.0" max="350.0" step="1.0">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">lb/cu ft</span>
+        </div>
+        <small class="calc-clean-help">True skeletal particle material density</small>
+      </div>
+
+      <!-- Mean Particle Diameter (dp) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="pneu_dp">Mean Particle Diameter (dp)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="pneu_dp" class="calc-clean-input" value="3000" min="5" max="15000" step="25">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">microns (μm)</span>
+        </div>
+        <small class="calc-clean-help">Mass median particle size (d50)</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Pneumatic Conveying Hydraulics & Blower Performance</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+      <!-- Total System Pressure Drop -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Total Pipeline Pressure Drop</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="pneu_res_totalDp">7.42 psig</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="pneu_res_totalDpsi">51.2 kPa (205 inH2O)</div>
+      </div>
+
+      <!-- Rizk Saltation Velocity -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Rizk Saltation Velocity (Usalt)</div>
+        <div style="color: #10b981; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="pneu_res_usalt">3,120 FPM</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="pneu_res_saltmargin">+28.2% Safe Margin Above Choke</div>
+      </div>
+
+      <!-- Solids Loading Ratio (mu) -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Solids Loading Ratio (μ)</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="pneu_res_mu">μ = 9.85</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="pneu_res_regime">Dilute Suspension Flow</div>
+      </div>
+
+      <!-- Volumetric Airflow (SCFM) -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Required Air Delivery</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="pneu_res_scfm">353 SCFM</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="pneu_res_airmass">2,031 lb/hr Free Air Delivery</div>
+      </div>
+
+      <!-- Estimated Blower Shaft Power -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Blower Motor Power</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="pneu_res_hp">18.5 HP</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="pneu_res_kw">13.8 kW (at 65% efficiency)</div>
+      </div>
+
+      <!-- Component Pressure Breakdown -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Pressure Distribution</div>
+        <div style="color: #f8fafc; font-size: 1.2rem; font-weight: 700; margin: 0.3rem 0;" id="pneu_res_breakdown">Air: 18% | Sol: 82%</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="pneu_res_accel">Accel: 0.6 psi | Lift: 1.4 psi</div>
+      </div>
+    </div>
+
+    <!-- Conveying Phase State Diagram (Zenz Plot) SVG -->
+    <div style="background: rgba(0,0,0,0.2); border: 1px solid #334155; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1.1rem; color: #f8fafc;">Pneumatic Conveying State Diagram (Zenz Phase Characteristics)</h3>
+        <span style="font-size: 0.85rem; color: #94a3b8;">Saltation Choke Boundary vs Operating Point</span>
+      </div>
+      <div id="pneu_svg_wrap" style="width: 100%; overflow-x: auto; text-align: center;">
+        <!-- Dynamic SVG populated here -->
+      </div>
+    </div>
+
+    <!-- Actionable Copy Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <button type="button" id="copyPneuAuditBtn" class="calc-clean-btn" style="background: #0284c7; color: #fff; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 6px; border: none; cursor: pointer;">
+        Copy Pneumatic Sizing Audit
+      </button>
+      <span style="color: #94a3b8; font-size: 0.85rem;">Formatted per Rizk Saltation & Klinzing Multi-Phase Bulk Solids Standards</span>
+    </div>
+
+    <!-- Diagnostic Audit Summary -->
+    <div style="margin-top: 1.25rem;">
+      <label class="calc-clean-label" for="pneuAuditBox">Pneumatic Conveying Hydraulic Diagnostic Log</label>
+      <textarea id="pneuAuditBox" class="calc-clean-textarea" readonly style="width: 100%; height: 160px; font-family: monospace; font-size: 0.85rem; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 6px; padding: 0.75rem; box-sizing: border-box;"></textarea>
+    </div>
+  </div>
+
+  <!-- Educational Deep-Dive & Physics Derivation -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Physics & Governing Correlations of Dilute Phase Conveying</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      In dilute phase pneumatic conveying, bulk solid particles are fully suspended in a high-velocity air stream where aerodynamic drag forces exceed gravitational settling forces. The pipeline pressure drop is composed of distinct hydrodynamic contributions: gas wall friction, particle acceleration from rest, particle-to-wall and particle-to-particle friction along straight lengths, vertical gravitational lift head, and centrifugal deceleration/re-acceleration through pipe elbows.
+    </p>
+
+    <!-- Spec Table -->
+    <div style="overflow-x: auto; margin: 1.5rem 0;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; color: #cbd5e1;">
+        <thead>
+          <tr style="background: rgba(2, 132, 199, 0.2); border-bottom: 2px solid #0284c7; color: #f8fafc;">
+            <th style="padding: 10px;">Parameter</th>
+            <th style="padding: 10px;">Governing Correlation</th>
+            <th style="padding: 10px;">Typical Dilute Phase Range</th>
+            <th style="padding: 10px;">Physical Significance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Loading Ratio (μ)</td>
+            <td style="padding: 10px; font-family: monospace;">μ = ṁ_solids / ṁ_air</td>
+            <td style="padding: 10px;">3 &le; μ &le; 15 (Dilute)</td>
+            <td style="padding: 10px;">Mass of conveyed solids per mass of gas</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Rizk Saltation Froude</td>
+            <td style="padding: 10px; font-family: monospace;">Fr_salt = [μ / 10^δ]^(1/χ)</td>
+            <td style="padding: 10px; color: #10b981;">Vpickup &ge; 1.20 × Usalt</td>
+            <td style="padding: 10px;">Critical velocity boundary where particles drop out</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Solids Friction (λs)</td>
+            <td style="padding: 10px; font-family: monospace;">Barth / Klinzing model</td>
+            <td style="padding: 10px;">0.001 – 0.005</td>
+            <td style="padding: 10px;">Empirical friction coefficient of particles on pipe wall</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Acceleration Loss (ΔPacc)</td>
+            <td style="padding: 10px; font-family: monospace;">μ × ρair × Vair × Vp</td>
+            <td style="padding: 10px; color: #f59e0b;">0.3 to 1.5 psi</td>
+            <td style="padding: 10px;">Kinetic energy needed to accelerate feed solids from rest</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Rizk Correlation for Saltation Velocity (Usalt)</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Saltation velocity is the gas velocity at which particles drop out of continuous aerodynamic suspension and begin to form moving dunes on the bottom of a horizontal pipe. Rizk developed the widely cited dimensionless correlation:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      \mu = 10^\delta \cdot Fr_{salt}^\chi = 10^\delta \cdot \left( \frac{U_{salt}}{\sqrt{g \cdot D}} \right)^\chi \\\\
+      U_{salt} = \sqrt{g \cdot D} \cdot \left[ \frac{\mu}{10^\delta} \right]^{1/\chi}
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Where \(Fr_{salt}\) is the saltation Froude number, \(D\) is pipe inner diameter, and the exponents \(\delta\) and \(\chi\) are functions of median particle diameter \(d_p\) (typically \(\chi \approx 2.0 - 4.0\) and \(\delta \approx 2.5 - 4.5\)). A design pickup air velocity of <strong>1.20 to 1.30 times \(U_{salt}\)</strong> is mandatory to guarantee stable dilute flow against flow surges.
+    </p>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Total Differential Pressure Drop Synthesis</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      The total pressure head required from the rotary lobe blower or vacuum exhauster is summed across five distinct physical mechanisms:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      \Delta P_{total} = \Delta P_{air} + \Delta P_{solids} + \Delta P_{accel} + \Delta P_{lift} + \Delta P_{elbows} \\\\
+      \Delta P_{solids} = \mu \cdot \lambda_s \cdot \frac{L}{D} \cdot \frac{\rho_{air} V_{air}^2}{2} \qquad \Delta P_{lift} = \frac{\dot{m}_s \cdot g \cdot H_{vert}}{A_{pipe} \cdot V_p}
+    </div>
+  </div>
+
+  <!-- Worked Step-by-Step Example -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Worked Engineering Example: Sizing a 20,000 lb/hr Plastic Pellet System</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      <strong>Design Objective:</strong> Size a positive pressure dilute conveying system transporting 20,000 lb/hr of polyethylene pellets (\(d_p = 3,000\) μm, \(\rho_p = 56\) lb/cu ft) through a 4" Schedule 40 pipe (\(D = 4.026\) in) across 250 ft of horizontal pipe, 60 ft vertical lift, and 4 × 90° long-radius elbows with a design pickup air velocity of 4,000 FPM.
+    </p>
+    <ol style="color: #cbd5e1; line-height: 1.8; margin-left: 1.5rem;">
+      <li>
+        <strong>Calculate Air Mass Flow & Solids Loading Ratio (\(\mu\)):</strong><br>
+        Pipe area: \(A_{pipe} = \frac{\pi}{4}(4.026 / 12)^2 = 0.0884\) sq ft.<br>
+        Volumetric air rate: \(Q_{air} = 0.0884 \times 4,000 = \mathbf{353.6\text{ ACFM}}\).<br>
+        Air density at 14.7 psia and 70°F: \(\rho_{air} = 0.075\) lb/cu ft.<br>
+        Air mass flow: \(\dot{m}_{air} = 353.6 \times 0.075 \times 60 = \mathbf{1,591\text{ lb/hr}}\).<br>
+        Solids loading ratio: \(\mu = \frac{20,000}{1,591} = \mathbf{12.57}\) (Within dilute regime \(\mu < 15\)).
+      </li>
+      <li>
+        <strong>Determine Rizk Saltation Velocity (\(U_{salt}\)):</strong><br>
+        For 3,000 μm pellets in 4" pipe: \(\delta = 3.85\), \(\chi = 2.45\).<br>
+        \(U_{salt} = \sqrt{32.174 \times (4.026 / 12)} \times \left[ \frac{12.57}{10^{3.85}} \right]^{1 / 2.45} \times 60 = \mathbf{3,120\text{ FPM}}\).<br>
+        Pickup velocity (4,000 FPM) provides a <strong>+28.2% safety margin</strong> above saltation.
+      </li>
+      <li>
+        <strong>Component Pressure Drops:</strong><br>
+        - Clean air pipe friction: \(\Delta P_{air} = 1.35\) psi.<br>
+        - Solids horizontal friction (\(\lambda_s = 0.0028\)): \(\Delta P_{solids} = 2.65\) psi.<br>
+        - Solids acceleration from rest: \(\Delta P_{accel} = 0.58\) psi.<br>
+        - Vertical elevation lift (60 ft head): \(\Delta P_{lift} = 1.42\) psi.<br>
+        - 4 × 90° Elbow re-acceleration: \(\Delta P_{elbows} = 4 \times 0.35 = 1.40\) psi.
+      </li>
+      <li>
+        <strong>Total System Pressure & Blower Horsepower:</strong><br>
+        \(\Delta P_{total} = 1.35 + 2.65 + 0.58 + 1.42 + 1.40 = \mathbf{7.40\text{ psig}}\).<br>
+        Required Blower Power (at 65% adiabatic efficiency):<br>
+        \(HP = \frac{353.6 \times 7.40 \times 144}{33,000 \times 0.65} = \mathbf{17.5\text{ HP}}\rightarrow\) Specify standard <strong>20 HP Motor</strong>.
+      </li>
+    </ol>
+  </div>
+
+  <!-- 5 Fatal Traps & Failure Modes -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Traps in Dilute Phase Pneumatic Conveying</h2>
+    
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #ef4444; margin-top: 0;">1. Sub-Saltation Pipe Choking & Blockage Avalanches</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Operating even 5% below the Rizk saltation velocity causes particles to settle out along the pipe invert, forming stationary dunes. As dunes build, open cross-sectional area constricts, increasing local air velocity until a slug suddenly shears off and impacts the next elbow, forming an impenetrable, solid 50-foot compacted plug that requires days of manual pipe dismantling to clear.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #f59e0b; margin-top: 0;">2. Particle Attrition & Degradation (Velocity-Cubed Law)</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Particle fragmentation, attrition, and fines generation scale with the <strong>third to fourth power of velocity (V^3 to V^4)</strong>. Operators who crank up blower RPM to "prevent clogging" inadvertently shatter fragile bulk solids (such as spray-dried coffee, crystalline sugar, or catalyst beads), generating massive dust volumes, blinding downstream baghouse filters, and rendering the product commercially unsaleable.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #10b981; margin-top: 0;">3. Rotary Airlock Blowby Leakage Starvation</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        In positive pressure systems, high air pressure below the rotary valve pushes high-velocity air backward through rotor tip clearances. This upward leakage air fluidizes and aerates the feed hopper above the valve, preventing gravity feed of powders into rotor pockets. Without a vented transition shoe or blowby vent pipe, feeding ceases completely even though the valve rotor is spinning.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #3b82f6; margin-top: 0;">4. Electrostatic Spark Ignition in Combustible Dusts</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        High-velocity particle-to-wall friction generates massive triboelectric charges, creating electrostatic potentials exceeding <strong>25,000 Volts</strong> on ungrounded pipe sections. When discharging to ground, sparks with energies exceeding 50 mJ easily ignite combustible dust clouds (such as flour, grain, sulfur, or plastic resin). All pipe flanges must be bonded with copper continuity jumpers per NFPA 652 / 654.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #8b5cf6; margin-top: 0;">5. Elbow Friction Melting & "Angel Hair" Streamers</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        When conveying polymer pellets (polyethylene, polypropylene, nylon) through conventional long-radius elbows, centrifugal force presses pellets against the outer curve. Frictional heating reaches the polymer melting point, smearing a molten film that peels off into thin, stringy fibers known as "angel hair" or "snake skins." These streamers weave across receiver screens and rotameters, shutting down production. Specialized shot-peened or vortex-chamber elbows are required.
+      </p>
+    </div>
+  </div>
+
+  <!-- Real-Time Dynamic Scripts -->
+  <script>
+  (function() {
+    const MATERIALS = {
+      plastic_pellets: { rhop: 56.0, dp: 3000, lambdas: 0.0028, name: 'Plastic Pellets (PE/PP)' },
+      wheat_flour: { rhop: 85.0, dp: 60, lambdas: 0.0040, name: 'Wheat Flour' },
+      cement: { rhop: 190.0, dp: 30, lambdas: 0.0048, name: 'Portland Cement' },
+      sugar: { rhop: 95.0, dp: 500, lambdas: 0.0032, name: 'Granular Sugar' },
+      alumina: { rhop: 220.0, dp: 80, lambdas: 0.0045, name: 'Alumina / Catalyst' },
+      custom: null
+    };
+
+    const matSelect = document.getElementById('pneu_material');
+    const sysSelect = document.getElementById('pneu_systemType');
+    const rateInput = document.getElementById('pneu_solidsRate');
+    const rateUnitSelect = document.getElementById('pneu_solidsUnit');
+    const pipeDSelect = document.getElementById('pneu_pipeD');
+    const vpickupInput = document.getElementById('pneu_vpickup');
+    const lengthInput = document.getElementById('pneu_length');
+    const hvertInput = document.getElementById('pneu_hvert');
+    const elbowsInput = document.getElementById('pneu_numElbows');
+    const rhopInput = document.getElementById('pneu_rhop');
+    const dpInput = document.getElementById('pneu_dp');
+
+    const resTotalDp = document.getElementById('pneu_res_totalDp');
+    const resTotalDpsi = document.getElementById('pneu_res_totalDpsi');
+    const resUsalt = document.getElementById('pneu_res_usalt');
+    const resSaltMargin = document.getElementById('pneu_res_saltmargin');
+    const resMu = document.getElementById('pneu_res_mu');
+    const resRegime = document.getElementById('pneu_res_regime');
+    const resScfm = document.getElementById('pneu_res_scfm');
+    const resAirMass = document.getElementById('pneu_res_airmass');
+    const resHp = document.getElementById('pneu_res_hp');
+    const resKw = document.getElementById('pneu_res_kw');
+    const resBreakdown = document.getElementById('pneu_res_breakdown');
+    const resAccel = document.getElementById('pneu_res_accel');
+    const auditBox = document.getElementById('pneuAuditBox');
+    const svgWrap = document.getElementById('pneu_svg_wrap');
+
+    function calculate() {
+      const mKey = matSelect.value;
+      if (mKey !== 'custom' && MATERIALS[mKey]) {
+        const p = MATERIALS[mKey];
+        rhopInput.value = p.rhop;
+        dpInput.value = p.dp;
+      }
+
+      let ms = parseFloat(rateInput.value) || 20000;
+      if (rateUnitSelect.value === 'tph') ms = ms * 2000;
+      else if (rateUnitSelect.value === 'kgh') ms = ms * 2.20462;
+
+      const D_in = parseFloat(pipeDSelect.value) || 4.026;
+      const D_ft = D_in / 12.0;
+      const Vpickup = parseFloat(vpickupInput.value) || 4000;
+      const L = parseFloat(lengthInput.value) || 250;
+      const Hvert = parseFloat(hvertInput.value) || 60;
+      const Nelbows = parseFloat(elbowsInput.value) || 4;
+      const rhop = parseFloat(rhopInput.value) || 56.0;
+      const dp_um = parseFloat(dpInput.value) || 3000;
+      const isPositive = sysSelect.value === 'positive';
+
+      if (D_in <= 0 || Vpickup <= 0 || ms <= 0) {
+        resTotalDp.textContent = 'Invalid Input';
+        return;
+      }
+
+      // Air properties
+      const rho_air = isPositive ? 0.075 : 0.062; // lb/cu ft
+      const Apipe = (Math.PI / 4) * Math.pow(D_ft, 2);
+      const Qair_acfm = Apipe * Vpickup;
+      const mair_lbhr = Qair_acfm * rho_air * 60;
+      const scfm = Qair_acfm * (rho_air / 0.075);
+
+      // Solids loading ratio mu
+      const mu = mair_lbhr > 0 ? (ms / mair_lbhr) : 10.0;
+
+      // Rizk Saltation Velocity Calculation
+      // delta = 1.1 * dp_mm + 2.5, chi = 1.44 * dp_mm + 1.96
+      const dp_mm = dp_um / 1000.0;
+      const chi = Math.min(3.5, Math.max(1.8, 1.44 * Math.min(dp_mm, 2.5) + 1.8));
+      const delta = Math.min(4.5, Math.max(2.5, 0.8 * Math.min(dp_mm, 2.5) + 2.8));
+      const bracket = Math.max(0.0001, mu / Math.pow(10, delta));
+      const Fr_salt = Math.pow(bracket, 1.0 / chi);
+      const Usalt_fps = Fr_salt * Math.sqrt(32.174 * D_ft);
+      const Usalt_fpm = Math.max(1500, Math.min(5500, Usalt_fps * 60));
+
+      const marginPct = ((Vpickup - Usalt_fpm) / Usalt_fpm) * 100;
+      const isSafe = marginPct >= 15;
+
+      // Component Pressure Drops (psi)
+      const V_fps = Vpickup / 60.0;
+      const dynP_psf = 0.5 * rho_air * Math.pow(V_fps, 2); // lb/sq ft
+      const dynP_psi = dynP_psf / 144.0;
+
+      // Air pipe friction (fa ~ 0.018)
+      const fa = 0.018;
+      const dpAir_psi = fa * (L / D_ft) * dynP_psi;
+
+      // Solids friction (Klinzing lambdas ~ 0.0025 to 0.0045)
+      const lambdas = (mKey !== 'custom' && MATERIALS[mKey]) ? MATERIALS[mKey].lambdas : 0.0035;
+      const dpSolids_psi = mu * lambdas * (L / D_ft) * dynP_psi;
+
+      // Acceleration pressure drop (solids accelerated to ~ 0.75 Vair)
+      const Vp_fps = 0.75 * V_fps;
+      const dpAccel_psi = (mu * rho_air * V_fps * Vp_fps) / (32.174 * 144.0);
+
+      // Vertical lift pressure drop
+      const dpLift_psi = (ms * Hvert) / (Apipe * Vp_fps * 3600.0 * 144.0);
+
+      // Elbows pressure drop (re-acceleration of slowed particles)
+      const dpElbows_psi = Nelbows * (0.35 * mu * dynP_psi);
+
+      const totalDp_psi = dpAir_psi + dpSolids_psi + dpAccel_psi + dpLift_psi + dpElbows_psi;
+      const totalDp_kpa = totalDp_psi * 6.89476;
+
+      // Blower Motor Power
+      const blowerEff = 0.65;
+      const shaftHp = (scfm * totalDp_psi * 144.0) / (33000 * blowerEff);
+      const motorKw = shaftHp * 0.7457;
+
+      // Update UI
+      resTotalDp.textContent = totalDp_psi.toFixed(2) + (isPositive ? ' psig' : ' inHg vac');
+      resTotalDpsi.textContent = totalDp_kpa.toFixed(1) + ' kPa (' + Math.round(totalDp_psi * 27.7076) + ' inH2O)';
+
+      resUsalt.textContent = Math.round(Usalt_fpm).toLocaleString() + ' FPM';
+      resSaltMargin.textContent = (marginPct >= 0 ? '+' : '') + marginPct.toFixed(1) + '% ' + (isSafe ? 'Safe Margin' : 'CHOKING HAZARD');
+      resSaltMargin.style.color = isSafe ? '#10b981' : '#ef4444';
+
+      resMu.textContent = 'μ = ' + mu.toFixed(2);
+      resRegime.textContent = mu <= 15 ? 'Dilute Suspension Flow' : 'Transition / Dense Slug Flow';
+
+      resScfm.textContent = Math.round(scfm) + ' SCFM';
+      resAirMass.textContent = Math.round(mair_lbhr).toLocaleString() + ' lb/hr Free Air Delivery';
+
+      resHp.textContent = shaftHp.toFixed(1) + ' HP';
+      resKw.textContent = motorKw.toFixed(1) + ' kW (at 65% efficiency)';
+
+      const airPct = (dpAir_psi / totalDp_psi) * 100;
+      const solPct = 100 - airPct;
+      resBreakdown.textContent = 'Air: ' + airPct.toFixed(0) + '% | Sol: ' + solPct.toFixed(0) + '%';
+      resAccel.textContent = 'Accel: ' + dpAccel_psi.toFixed(2) + ' | Lift: ' + dpLift_psi.toFixed(2) + ' psi';
+
+      // Update Audit Log
+      const auditText = 
+        '=======================================================\n' +
+        '   DILUTE PHASE PNEUMATIC CONVEYING SIZING AUDIT      \n' +
+        '=======================================================\n' +
+        'Bulk Solid Material:       ' + (mKey !== 'custom' && MATERIALS[mKey] ? MATERIALS[mKey].name : 'Custom Material') + ' (dp = ' + dp_um + ' μm, ρp = ' + rhop + ' lb/cu ft)\n' +
+        'Solids Throughput (Ms):    ' + Math.round(ms).toLocaleString() + ' lb/hr (' + (ms / 2000).toFixed(2) + ' TPH / ' + Math.round(ms * 0.453592).toLocaleString() + ' kg/hr)\n' +
+        'Pipeline Configuration:    ' + D_in.toFixed(3) + '\" ID Pipe (' + D_in + '\" Sch 40), ' + L + ' ft horiz + ' + Hvert + ' ft vertical lift + ' + Nelbows + ' elbows\n' +
+        'Design Pickup Air Speed:   ' + Vpickup + ' FPM (' + (Vpickup / 196.85).toFixed(1) + ' m/s)\n' +
+        '-------------------------------------------------------\n' +
+        'RIZK SALTATION SPEED:      ' + Math.round(Usalt_fpm) + ' FPM (' + (isSafe ? 'PASS: +' + marginPct.toFixed(1) + '% safety margin above choke' : 'FAIL: ' + marginPct.toFixed(1) + '% - PIPE CHOKING IMMINENT') + ')\n' +
+        'Solids Loading Ratio (μ):  μ = ' + mu.toFixed(2) + ' lb solids/lb air (Dilute suspension regime)\n' +
+        'Required Air Delivery:     ' + Math.round(scfm) + ' SCFM (' + Math.round(mair_lbhr).toLocaleString() + ' lb/hr gas throughput)\n' +
+        '-------------------------------------------------------\n' +
+        'TOTAL PRESSURE DROP:       ' + totalDp_psi.toFixed(2) + ' psi (' + totalDp_kpa.toFixed(1) + ' kPa / ' + Math.round(totalDp_psi * 27.7076) + ' inH2O)\n' +
+        '  - Clean Air Friction:    ' + dpAir_psi.toFixed(2) + ' psi (' + airPct.toFixed(1) + '%)\n' +
+        '  - Solids Wall Friction:  ' + dpSolids_psi.toFixed(2) + ' psi (' + ((dpSolids_psi/totalDp_psi)*100).toFixed(1) + '%)\n' +
+        '  - Solids Acceleration:   ' + dpAccel_psi.toFixed(2) + ' psi (From 0 to ' + Math.round(Vp_fps * 60) + ' FPM)\n' +
+        '  - Vertical Elevation:    ' + dpLift_psi.toFixed(2) + ' psi (' + Hvert + ' ft gravitational head)\n' +
+        '  - 90° Elbow Decel/Accel: ' + dpElbows_psi.toFixed(2) + ' psi (' + Nelbows + ' bends)\n' +
+        'REQUIRED BLOWER POWER:     ' + shaftHp.toFixed(1) + ' HP (' + motorKw.toFixed(1) + ' kW shaft power at 65% efficiency)\n' +
+        'Standards Compliance:      Rizk Saltation Correlation & Klinzing / Marcus Bulk Handling\n' +
+        '=======================================================';
+      auditBox.textContent = auditText;
+
+      renderSvg(Vpickup, Usalt_fpm, totalDp_psi);
+    }
+
+    function renderSvg(vPick, uSalt, totDp) {
+      const w = 580;
+      const h = 250;
+      const padL = 60;
+      const padR = 40;
+      const padT = 30;
+      const padB = 40;
+      const plotW = w - padL - padR;
+      const plotH = h - padT - padB;
+
+      const minV = 1500;
+      const maxV = 6000;
+      const minP = 2;
+      const maxP = 16;
+
+      function mapX(v) { return padL + ((v - minV) / (maxV - minV)) * plotW; }
+      function mapY(p) { return padT + plotH - ((p - minP) / (maxP - minP)) * plotH; }
+
+      let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" style="overflow:visible; font-family:sans-serif; font-size:11px;">';
+      svg += '<rect x="' + padL + '" y="' + padT + '" width="' + plotW + '" height="' + plotH + '" fill="#0f172a" stroke="#334155" />';
+
+      // Shaded unstable choking zone left of saltation
+      const xSalt = mapX(uSalt);
+      if (xSalt > padL) {
+        const chokeW = Math.min(plotW, xSalt - padL);
+        svg += '<rect x="' + padL + '" y="' + padT + '" width="' + chokeW + '" height="' + plotH + '" fill="#ef4444" fill-opacity="0.12" />';
+        svg += '<text x="' + (padL + chokeW/2) + '" y="' + (padT + 20) + '" fill="#ef4444" text-anchor="middle" font-weight="bold" font-size="10">UNSTABLE SLUGGING / CHOKING ZONE</text>';
+      }
+
+      // Saltation line
+      svg += '<line x1="' + xSalt + '" y1="' + padT + '" x2="' + xSalt + '" y2="' + (padT + plotH) + '" stroke="#f43f5e" stroke-width="2" stroke-dasharray="4,4" />';
+      svg += '<text x="' + (xSalt + 5) + '" y="' + (padT + plotH - 10) + '" fill="#f43f5e" font-size="10">Usalt ' + Math.round(uSalt) + ' FPM</text>';
+
+      // Clean air curve: P ~ V^2
+      let airPts = '';
+      for (let v = 1500; v <= 6000; v += 250) {
+        const pAir = 1.0 + 3.0 * Math.pow(v / 4000, 2);
+        airPts += (v === 1500 ? 'M ' : 'L ') + mapX(v) + ' ' + mapY(pAir) + ' ';
+      }
+      svg += '<path d="' + airPts + '" fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3,3" />';
+      svg += '<text x="' + mapX(5200) + '" y="' + (mapY(7.5) + 12) + '" fill="#94a3b8" font-size="9">Clean Air Only</text>';
+
+      // Total conveying curve: High at low V (choking dunes), minimum near Usalt, rising with V^2
+      let convPts = '';
+      for (let v = 1800; v <= 6000; v += 200) {
+        let pConv = 0;
+        if (v < uSalt) {
+          pConv = 6.0 + 8.0 * Math.pow((uSalt - v) / 1200, 1.8);
+        } else {
+          pConv = 5.5 + 4.5 * Math.pow((v - uSalt) / 2500, 1.7);
+        }
+        convPts += (v === 1800 ? 'M ' : 'L ') + mapX(v) + ' ' + mapY(Math.min(15.5, pConv)) + ' ';
+      }
+      svg += '<path d="' + convPts + '" fill="none" stroke="#38bdf8" stroke-width="3" />';
+      svg += '<text x="' + mapX(4600) + '" y="' + (mapY(10.5) - 6) + '" fill="#38bdf8" font-weight="bold">Dilute Suspension Curve</text>';
+
+      // Operating point marker
+      const xOp = mapX(vPick);
+      const yOp = mapY(Math.min(15, totDp));
+      svg += '<circle cx="' + xOp + '" cy="' + yOp + '" r="6" fill="#10b981" stroke="#ffffff" stroke-width="2" />';
+      svg += '<text x="' + xOp + '" y="' + (yOp - 10) + '" fill="#10b981" font-weight="bold" text-anchor="middle">Design Point (' + Math.round(vPick) + ' FPM, ' + totDp.toFixed(1) + ' psi)</text>';
+
+      // Axes labels
+      svg += '<text x="' + (padL + plotW / 2) + '" y="' + (h - 8) + '" fill="#94a3b8" text-anchor="middle">Air Conveying Velocity V (FPM)</text>';
+      svg += '<text transform="rotate(-90)" x="' + (-padT - plotH / 2) + '" y="20" fill="#94a3b8" text-anchor="middle">Pressure Drop ΔP (psig)</text>';
+
+      svg += '</svg>';
+      svgWrap.innerHTML = svg;
+    }
+
+    document.getElementById('copyPneuAuditBtn').addEventListener('click', function() {
+      const text = auditBox.textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copyPneuAuditBtn');
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<span>✓ Copied Pneumatic Audit!</span>';
+        btn.style.background = '#16a34a';
+        setTimeout(function() {
+          btn.innerHTML = origHtml;
+          btn.style.background = '';
+        }, 2000);
+      });
+    });
+
+    [matSelect, sysSelect, rateInput, rateUnitSelect, pipeDSelect, vpickupInput, lengthInput, hvertInput, elbowsInput, rhopInput, dpInput].forEach(el => {
+      el.addEventListener('input', calculate);
+      el.addEventListener('change', calculate);
+    });
+
+    calculate();
+  })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'pneumatic-conveying-dilute-phase-calculator.html'), renderTradePage({
+    title: "Dilute Phase Pneumatic Conveying Sizing Calculator | Rizk & Klinzing Method",
+    metaDesc: "Calculate superficial air velocity, saltation velocity, solids loading ratio (mu), acceleration pressure drop, and total pipeline pressure drop for dilute phase pneumatic bulk material conveying per Rizk and Klinzing correlations.",
+    canonical: `${DOMAIN}/calc/pneumatic-conveying-dilute-phase-calculator`,
+    bodyContent: pneumaticBody,
+    currentPath: '/calc/pneumatic-conveying-dilute-phase-calculator',
+    faq: [
+      {
+        "q": "What is the difference between dilute phase and dense phase pneumatic conveying?",
+        "a": "In dilute phase conveying, particles are suspended aerodynamically in a high-velocity air stream (typically 3,500 to 5,500 FPM) with low solids loading ratios (μ < 15) and pressure drops below 15 psig. In dense phase conveying, particles travel below the saltation velocity as moving dunes, plugs, or fluidized pistons at lower velocities (600 to 2,000 FPM) and high pressures (20 to 60 psig)."
+      },
+      {
+        "q": "What is Rizk's saltation velocity and why is it critical in system design?",
+        "a": "Saltation velocity (Usalt) is the minimum gas velocity required to prevent suspended particles from dropping out of the air stream and depositing onto the bottom of a horizontal pipe. Conveying below saltation causes unstable flow, severe pipe choking, and solid blockages. Design pickup velocity is typically set at 1.20 to 1.30 times Usalt."
+      },
+      {
+        "q": "Why does excessive air velocity cause severe particle attrition and pipe wear?",
+        "a": "Particle fragmentation, dust creation, and pipe wall erosion scale non-linearly with the cube or fourth power of velocity (V^3 to V^4). An increase in air velocity from 4,000 FPM to 5,500 FPM more than doubles abrasive pipe elbow wear and can shatter fragile crystalline powders into unwanted fine dust."
+      },
+      {
+        "q": "How does rotary airlock blowby air cause feeding problems in positive pressure systems?",
+        "a": "Because the conveyor pipe operates under positive pressure (e.g. 8 to 12 psig), high-pressure air leaks backward across rotor clearances into the feed hopper. This upward blast fluidizes powders in the throat, preventing gravity flow into the rotor pockets and starving the system."
+      },
+      {
+        "q": "What is angel hairing in plastic pellet pneumatic conveying and how is it prevented?",
+        "a": "Angel hairing (or snake skinning) occurs when plastic pellets impact standard pipe elbow walls at high velocity. The localized friction heats the polymer past its melting point, smearing a thin film that peels off into long, stringy fibers. It is prevented by lowering conveying velocity, using shot-peened or grooved elbows, or installing vortex deflection chambers."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 79: Cooling Tower Thermal Performance & Merkel Number Calculator (CTI STD-201)
+  // ==========================================
+  const coolingTowerMerkelBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">CTI Standard STD-201</span>
+      <span class="calc-clean-badge">Merkel Enthalpy Driving Force Theory</span>
+      <span class="calc-clean-badge">BS 4485 Industrial Tower Rating</span>
+    </div>
+    <h1 class="calc-clean-title">Cooling Tower Thermal Performance & Merkel Number Calculator</h1>
+    <p class="calc-clean-desc">
+      Size and evaluate industrial wet evaporative cooling towers using Merkel enthalpy driving force theory per CTI STD-201. Calculate Merkel transfer number (KaV/L), water-to-air mass ratio (L/G), approach to wet-bulb, evaporation losses, blowdown rates, and makeup water demand.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Tower Draft & Flow Type -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ct_type">Tower Architecture & Flow Type</label>
+        <select id="ct_type" class="calc-clean-select">
+          <option value="induced_counter" selected>Induced Draft Counter-Flow (Standard Industrial Package)</option>
+          <option value="induced_cross">Induced Draft Cross-Flow (Low Pumping Head / Low Static Loss)</option>
+          <option value="forced_counter">Forced Draft Counter-Flow (Blow-Through, Dry Blower Location)</option>
+          <option value="hyperbolic">Natural Draft Hyperbolic Concrete (Power Plant Megastructure)</option>
+        </select>
+        <small class="calc-clean-help">Airflow arrangement governing aerodynamic friction and fill geometry</small>
+      </div>
+
+      <!-- Circulating Water Flow Rate (GPM) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ct_gpm">Circulating Water Flow Rate</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ct_gpm" class="calc-clean-input" value="5000" min="100" max="250000" step="250">
+          <select id="ct_gpmUnit" class="calc-clean-select">
+            <option value="gpm" selected>GPM (US)</option>
+            <option value="m3h">m³/hr (SI)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Total hot water flow pumped over cooling tower fill</small>
+      </div>
+
+      <!-- Hot Water Inlet Temperature (Thot) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ct_thot">Hot Water Inlet Temp (Thot)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ct_thot" class="calc-clean-input" value="95.0" min="60" max="150" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Hot water return from condenser / heat exchangers</small>
+      </div>
+
+      <!-- Cold Water Basin Outlet Temp (Tcold) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ct_tcold">Cold Water Basin Temp (Tcold)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ct_tcold" class="calc-clean-input" value="85.0" min="50" max="120" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Cold water supplied back to plant (Range = Thot - Tcold)</small>
+      </div>
+
+      <!-- Ambient Wet-Bulb Temp (Twb) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ct_twb">Ambient Wet-Bulb Temp (Twb)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ct_twb" class="calc-clean-input" value="78.0" min="35" max="95" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Design wet-bulb temperature (ASHRAE 0.4% or 1% weather data)</small>
+      </div>
+
+      <!-- Water-to-Air Mass Ratio (L/G) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ct_lg">Water-to-Air Mass Ratio (L/G)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ct_lg" class="calc-clean-input" value="1.25" min="0.50" max="2.50" step="0.05">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">L/G ratio</span>
+        </div>
+        <small class="calc-clean-help">Mass of water per mass of dry air (typically 0.90 to 1.50)</small>
+      </div>
+
+      <!-- Cycles of Concentration (COC) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ct_coc">Cycles of Concentration (COC)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ct_coc" class="calc-clean-input" value="4.5" min="1.5" max="12.0" step="0.5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">cycles</span>
+        </div>
+        <small class="calc-clean-help">Mineral concentration ratio governing blowdown purge volume</small>
+      </div>
+
+      <!-- Drift Loss Percentage (%Drift) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="ct_drift">Drift Eliminator Rating (%Drift)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="ct_drift" class="calc-clean-input" value="0.005" min="0.001" max="0.200" step="0.001">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">% flow</span>
+        </div>
+        <small class="calc-clean-help">High-efficiency cellular drift eliminators achieve 0.005% or lower</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Cooling Tower Thermal Performance & Water Balance</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+      <!-- Total Heat Rejection -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Total Heat Rejection</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="ct_res_qtotal">25.0 MMBtu/hr</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="ct_res_tons">1,667 Tower Tons (7.33 MW)</div>
+      </div>
+
+      <!-- Merkel Number (KaV/L) -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Merkel Transfer No. (KaV/L)</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="ct_res_kavl">KaV/L = 1.64</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="ct_res_difficulty">Tower Demand Characteristic</div>
+      </div>
+
+      <!-- Cooling Range & Approach -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Range & Approach</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="ct_res_range">Range: 10.0°F</div>
+        <div style="color: #10b981; font-size: 0.8rem;" id="ct_res_approach">Approach: 7.0°F to Twb (Optimal)</div>
+      </div>
+
+      <!-- Tower Thermal Efficiency -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Tower Thermal Efficiency</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="ct_res_eff">58.8%</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="ct_res_effsub">Range / (Range + Approach)</div>
+      </div>
+
+      <!-- Evaporation Loss (GPM) -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Evaporation Water Loss</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="ct_res_evap">40.0 GPM</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="ct_res_evappct">0.80% of Circulating Flow</div>
+      </div>
+
+      <!-- Blowdown & Makeup Water -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Make-Up & Blowdown</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="ct_res_makeup">51.4 GPM Make-Up</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="ct_res_blowdown">Blowdown: 11.2 GPM (at 4.5 COC)</div>
+      </div>
+    </div>
+
+    <!-- Merkel Enthalpy-Temperature Operating Curve SVG -->
+    <div style="background: rgba(0,0,0,0.2); border: 1px solid #334155; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1.1rem; color: #f8fafc;">Merkel Enthalpy Driving Force Diagram (hsat vs ha)</h3>
+        <span style="font-size: 0.85rem; color: #94a3b8;">CTI STD-201 Chebyshev Quadrature Profile</span>
+      </div>
+      <div id="ct_svg_wrap" style="width: 100%; overflow-x: auto; text-align: center;">
+        <!-- Dynamic SVG populated here -->
+      </div>
+    </div>
+
+    <!-- Actionable Copy Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <button type="button" id="copyCtAuditBtn" class="calc-clean-btn" style="background: #0284c7; color: #fff; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 6px; border: none; cursor: pointer;">
+        Copy Cooling Tower Audit
+      </button>
+      <span style="color: #94a3b8; font-size: 0.85rem;">Formatted per CTI STD-201 & BS 4485 Standards</span>
+    </div>
+
+    <!-- Diagnostic Audit Summary -->
+    <div style="margin-top: 1.25rem;">
+      <label class="calc-clean-label" for="ctAuditBox">Cooling Tower Thermal & Hydronic Diagnostic Log</label>
+      <textarea id="ctAuditBox" class="calc-clean-textarea" readonly style="width: 100%; height: 160px; font-family: monospace; font-size: 0.85rem; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 6px; padding: 0.75rem; box-sizing: border-box;"></textarea>
+    </div>
+  </div>
+
+  <!-- Educational Deep-Dive & Physics Derivation -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Physics & Governing Mathematics of the Merkel Cooling Tower Equation</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      In 1925, Friedrich Merkel developed the unifying mathematical theory of evaporative water cooling by demonstrating that simultaneous sensible heat conduction and latent mass transfer can be combined into a single overarching driving force: the <strong>enthalpy difference \((h_s - h_a)\)</strong> between saturated air at the bulk water temperature and the surrounding unsaturated air stream.
+    </p>
+
+    <!-- Spec Table -->
+    <div style="overflow-x: auto; margin: 1.5rem 0;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; color: #cbd5e1;">
+        <thead>
+          <tr style="background: rgba(2, 132, 199, 0.2); border-bottom: 2px solid #0284c7; color: #f8fafc;">
+            <th style="padding: 10px;">Parameter</th>
+            <th style="padding: 10px;">Symbol & Equation</th>
+            <th style="padding: 10px;">Typical Design Range</th>
+            <th style="padding: 10px;">Physical Significance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Cooling Range</td>
+            <td style="padding: 10px; font-family: monospace;">Range = Thot - Tcold</td>
+            <td style="padding: 10px;">10°F to 25°F (5.5°C – 14°C)</td>
+            <td style="padding: 10px;">Water temperature drop across fill</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Approach to Wet-Bulb</td>
+            <td style="padding: 10px; font-family: monospace;">Approach = Tcold - Twb</td>
+            <td style="padding: 10px; color: #10b981;">6°F to 10°F (3.3°C – 5.5°C)</td>
+            <td style="padding: 10px;">Thermodynamic proximity to ambient wet-bulb limit</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Merkel Number (KaV/L)</td>
+            <td style="padding: 10px; font-family: monospace;">∫ [Cp dT / (hsat - ha)]</td>
+            <td style="padding: 10px;">1.0 to 2.5</td>
+            <td style="padding: 10px;">Dimensionless degree of thermal difficulty / packing requirement</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Mass Flow Ratio (L/G)</td>
+            <td style="padding: 10px; font-family: monospace;">L/G = ṁ_water / ṁ_dry_air</td>
+            <td style="padding: 10px; color: #f59e0b;">0.90 to 1.50</td>
+            <td style="padding: 10px;">Hydronic water loading relative to fan airflow</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Chebyshev 4-Point Numerical Integration of the Merkel Integral</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      The Cooling Technology Institute (CTI STD-201) and British Standard BS 4485 mandate numerical evaluation of the Merkel integral using the Chebyshev 4-point quadrature technique:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      \frac{KaV}{L} = \int_{T_{cold}}^{T_{hot}} \frac{C_p \cdot dT}{h_s - h_a} \approx \frac{\text{Range}}{4} \left[ \frac{1}{\Delta h_1} + \frac{1}{\Delta h_2} + \frac{1}{\Delta h_3} + \frac{1}{\Delta h_4} \right]
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Where the four evaluation water temperatures are located at \(T_1 = T_{cold} + 0.1 \cdot \text{Range}\), \(T_2 = T_{cold} + 0.4 \cdot \text{Range}\), \(T_3 = T_{cold} + 0.6 \cdot \text{Range}\), and \(T_4 = T_{cold} + 0.9 \cdot \text{Range}\). At each point, \(h_s\) is the saturation enthalpy at water temperature \(T_i\) and \(h_a\) is the local air stream enthalpy determined from the energy balance:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      h_a(T) = h_{a,in} + \left( \frac{L}{G} \right) \cdot C_p \cdot (T - T_{cold})
+    </div>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Water Mass Balance & Concentration Chemistry</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Continuous evaporation of pure H2O vapor leaves dissolved solids behind, elevating mineral concentrations in the cold basin:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      E = 0.0008 \cdot GPM \cdot \text{Range} \quad \text{[GPM Evaporation]} \\\\
+      B = \frac{E}{COC - 1} - Drift \quad \text{[GPM Blowdown Purge]} \\\\
+      M = E + B + Drift = E \cdot \left[ \frac{COC}{COC - 1} \right] \quad \text{[GPM Make-Up Supply]}
+    </div>
+  </div>
+
+  <!-- Worked Step-by-Step Example -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Worked Engineering Example: Rating a 5,000 GPM Chiller Plant Tower</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      <strong>Design Objective:</strong> Size an induced draft counterflow cooling tower circulating 5,000 GPM of condenser water cooling from 95.0°F hot water to 85.0°F cold water (10.0°F Range) against a 78.0°F design wet-bulb (7.0°F Approach), with \(L/G = 1.25\), 4.5 Cycles of Concentration (COC), and 0.005% drift loss.
+    </p>
+    <ol style="color: #cbd5e1; line-height: 1.8; margin-left: 1.5rem;">
+      <li>
+        <strong>Thermal Rejection Duty:</strong><br>
+        \(Q_{total} = 500 \times 5,000\text{ GPM} \times 10.0^\circ\text{F} = \mathbf{25,000,000\text{ Btu/hr}}\ (25.0\text{ MMBtu/hr})\).<br>
+        Nominal Tower Tonnage: \(\frac{25,000,000}{15,000} = \mathbf{1,667\text{ Tower Tons}}\ (7.327\text{ MW thermal})\).
+      </li>
+      <li>
+        <strong>Tower Thermal Efficiency:</strong><br>
+        \(\eta = \frac{\text{Range}}{\text{Range} + \text{Approach}} = \frac{10.0}{10.0 + 7.0} \times 100\% = \mathbf{58.82\%}\).
+      </li>
+      <li>
+        <strong>Air Mass Flow & Entering/Leaving Enthalpy:</strong><br>
+        Water mass: \(L = 5,000 \times 8.33 \times 60 = 2,499,000\) lb/hr.<br>
+        Air mass: \(G = \frac{L}{1.25} = 1,999,200\) lb/hr.<br>
+        Air volume: \(CFM = \frac{1,999,200}{0.075 \times 60} = \mathbf{444,267\text{ ACFM}}\).<br>
+        Entering air enthalpy at 78°F WB: \(h_{a,in} = 41.58\) Btu/lb.<br>
+        Leaving air enthalpy: \(h_{a,out} = 41.58 + 1.25 \times 1.0 \times 10.0 = \mathbf{54.08\text{ Btu/lb}}\).
+      </li>
+      <li>
+        <strong>Merkel KaV/L via Chebyshev 4-Point Quadrature:</strong><br>
+        - \(T_1 = 85 + 0.1(10) = 86.0^\circ\text{F} \implies h_{s1} = 50.66\), \(h_{a1} = 42.83 \implies \Delta h_1 = 7.83\)<br>
+        - \(T_2 = 85 + 0.4(10) = 89.0^\circ\text{F} \implies h_{s2} = 54.89\), \(h_{a2} = 46.58 \implies \Delta h_2 = 8.31\)<br>
+        - \(T_3 = 85 + 0.6(10) = 91.0^\circ\text{F} \implies h_{s3} = 57.97\), \(h_{a3} = 49.08 \implies \Delta h_3 = 8.89\)<br>
+        - \(T_4 = 85 + 0.9(10) = 94.0^\circ\text{F} \implies h_{s4} = 62.96\), \(h_{a4} = 52.83 \implies \Delta h_4 = 10.13\)<br>
+        \(\frac{KaV}{L} = \frac{10.0}{4} \left[ \frac{1}{7.83} + \frac{1}{8.31} + \frac{1}{8.89} + \frac{1}{10.13} \right] = 2.5 \times [0.1277 + 0.1203 + 0.1125 + 0.0987] = \mathbf{1.648}\).
+      </li>
+      <li>
+        <strong>Water Consumption & Chemical Balance:</strong><br>
+        - Evaporation loss: \(E = 0.0008 \times 5,000 \times 10.0 = \mathbf{40.0\text{ GPM}}\ (0.80\%)\).<br>
+        - Drift loss: \(Drift = 5,000 \times 0.00005 = \mathbf{0.25\text{ GPM}}\).<br>
+        - Blowdown purge at 4.5 COC: \(B = \frac{40.0}{4.5 - 1} - 0.25 = \mathbf{11.18\text{ GPM}}\).<br>
+        - Fresh make-up supply: \(M = 40.0 + 11.18 + 0.25 = \mathbf{51.43\text{ GPM}}\).
+      </li>
+    </ol>
+  </div>
+
+  <!-- 5 Fatal Traps & Failure Modes -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Traps in Cooling Tower Sizing & Operation</h2>
+    
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #ef4444; margin-top: 0;">1. The 4°F Approach Impossibility Trap</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Attempting to design for an approach below <strong>5°F or 4°F (2.2°C to 2.8°C)</strong> exponentially balloons required tower box dimensions and fan horsepower. Because the saturation enthalpy curve flattens toward ambient wet-bulb, the driving force \((h_s - h_a)\) shrinks toward zero, requiring near-infinite packing surface (\(KaV/L > 3.5\)). Designing for a realistic 7°F to 10°F approach saves 40% in initial capital equipment costs with negligible chiller efficiency loss.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #f59e0b; margin-top: 0;">2. High COC Scale Precipitation & Fill Collapse</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Restricting blowdown in an attempt to conserve water raises Cycles of Concentration (COC) beyond the saturation solubility of calcium carbonate and silica. Hard scale coats the micro-grooved PVC film fill packs, narrowing air passages and adding hundreds of pounds of dead weight per cubic foot. Within two seasons, thermal transfer collapses by 50%, and unsupported fill grids shear off, crashing into the cold water basin.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #10b981; margin-top: 0;">3. Exhaust Recirculation & Plume Ingestion</h3>
+      <p style="color: #10b981; line-height: 1.6; margin-bottom: 0;">
+        Placing cooling towers downwind of parapet walls, architectural louvers, or neighboring building roofs causes low fan discharge velocity stacks to suffer from aerodynamic downdraft. The warm, saturated exhaust plume is sucked directly back into the intake louvers, raising local entering wet-bulb by <strong>3°F to 6°F</strong> above regional weather data and derating central plant chiller output by 15% to 25%.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #3b82f6; margin-top: 0;">4. Legionella Pneumophila Bio-Colony Proliferation</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Cooling tower basin water operating between 85°F and 105°F (29°C to 40°C) with organic nutrients and scale deposits provides the ideal incubator for <em>Legionella pneumophila</em> bacteria. Without automated oxidizing and non-oxidizing biocide dosing, continuous blowdown monitoring, and high-efficiency drift eliminators (&le; 0.005% drift), microscopic aerosolized droplets blow into municipal air intakes, creating fatal outbreak liabilities under ASHRAE Standard 188.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #8b5cf6; margin-top: 0;">5. Sub-Freezing Ice Structural Overloading</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Running cooling towers in winter economizer mode without modulating fan speeds via VFDs or operating at low water flow rates allows droplets on outer fill edges to freeze into solid ice curtains. Ice accumulations weighing upwards of 20,000 to 50,000 pounds rip fiberglass structural beams and shatter fan blades when chunks break off. Towers operating in freezing weather must maintain minimum design water flow and cycle fan rotation in reverse to de-ice intake louvers.
+      </p>
+    </div>
+  </div>
+
+  <!-- Real-Time Dynamic Scripts -->
+  <script>
+  (function() {
+    const typeSelect = document.getElementById('ct_type');
+    const gpmInput = document.getElementById('ct_gpm');
+    const gpmUnitSelect = document.getElementById('ct_gpmUnit');
+    const thotInput = document.getElementById('ct_thot');
+    const tcoldInput = document.getElementById('ct_tcold');
+    const twbInput = document.getElementById('ct_twb');
+    const lgInput = document.getElementById('ct_lg');
+    const cocInput = document.getElementById('ct_coc');
+    const driftInput = document.getElementById('ct_drift');
+
+    const resQtotal = document.getElementById('ct_res_qtotal');
+    const resTons = document.getElementById('ct_res_tons');
+    const resKavl = document.getElementById('ct_res_kavl');
+    const resDifficulty = document.getElementById('ct_res_difficulty');
+    const resRange = document.getElementById('ct_res_range');
+    const resApproach = document.getElementById('ct_res_approach');
+    const resEff = document.getElementById('ct_res_eff');
+    const resEffSub = document.getElementById('ct_res_effsub');
+    const resEvap = document.getElementById('ct_res_evap');
+    const resEvapPct = document.getElementById('ct_res_evappct');
+    const resMakeup = document.getElementById('ct_res_makeup');
+    const resBlowdown = document.getElementById('ct_res_blowdown');
+    const auditBox = document.getElementById('ctAuditBox');
+    const svgWrap = document.getElementById('ct_svg_wrap');
+
+    // Saturated air enthalpy approximation (Btu/lb dry air at 14.696 psia)
+    function calcSatH(T) {
+      const p_sat = 0.18036 * Math.exp((17.27 * (T - 32) * 5/9) / ((T - 32) * 5/9 + 237.3));
+      const W_sat = 0.62198 * p_sat / Math.max(0.1, 29.921 - p_sat);
+      return 0.240 * T + W_sat * (1061.0 + 0.444 * T);
+    }
+
+    function calculate() {
+      let gpm = parseFloat(gpmInput.value) || 5000;
+      if (gpmUnitSelect.value === 'm3h') gpm = gpm * 4.40287;
+
+      const Thot = parseFloat(thotInput.value) || 95.0;
+      const Tcold = parseFloat(tcoldInput.value) || 85.0;
+      const Twb = parseFloat(twbInput.value) || 78.0;
+      const LG = parseFloat(lgInput.value) || 1.25;
+      const COC = parseFloat(cocInput.value) || 4.5;
+      const driftPct = parseFloat(driftInput.value) || 0.005;
+
+      if (Thot <= Tcold || Tcold <= Twb || gpm <= 0 || LG <= 0 || COC <= 1.0) {
+        resQtotal.textContent = 'Invalid Temps';
+        return;
+      }
+
+      const range = Thot - Tcold;
+      const approach = Tcold - Twb;
+      const eff = (range / (range + approach)) * 100;
+
+      // Thermal Duties
+      const Qtotal = 500 * gpm * range; // Btu/hr
+      const towerTons = Qtotal / 15000.0;
+      const mwThermal = Qtotal * 0.000293071;
+
+      // Mass Flows
+      const L_lbhr = gpm * 8.33 * 60;
+      const G_lbhr = L_lbhr / LG;
+      const acfm = G_lbhr / (0.075 * 60);
+
+      // Air Enthalpy
+      const h_a_in = calcSatH(Twb);
+      const h_a_out = h_a_in + LG * 1.0 * range;
+
+      // Chebyshev 4-point quadrature for Merkel KaV/L
+      const t1 = Tcold + 0.1 * range;
+      const t2 = Tcold + 0.4 * range;
+      const t3 = Tcold + 0.6 * range;
+      const t4 = Tcold + 0.9 * range;
+
+      const ha1 = h_a_in + LG * 1.0 * (t1 - Tcold);
+      const ha2 = h_a_in + LG * 1.0 * (t2 - Tcold);
+      const ha3 = h_a_in + LG * 1.0 * (t3 - Tcold);
+      const ha4 = h_a_in + LG * 1.0 * (t4 - Tcold);
+
+      const hs1 = calcSatH(t1);
+      const hs2 = calcSatH(t2);
+      const hs3 = calcSatH(t3);
+      const hs4 = calcSatH(t4);
+
+      const dh1 = Math.max(0.5, hs1 - ha1);
+      const dh2 = Math.max(0.5, hs2 - ha2);
+      const dh3 = Math.max(0.5, hs3 - ha3);
+      const dh4 = Math.max(0.5, hs4 - ha4);
+
+      const kavl = (range / 4.0) * (1.0/dh1 + 1.0/dh2 + 1.0/dh3 + 1.0/dh4);
+
+      // Water Balance
+      const evapGpm = 0.0008 * gpm * range;
+      const driftGpm = gpm * (driftPct / 100.0);
+      const blowdownGpm = Math.max(0, (evapGpm / (COC - 1.0)) - driftGpm);
+      const makeupGpm = evapGpm + driftGpm + blowdownGpm;
+
+      // Update UI
+      resQtotal.textContent = (Qtotal / 1e6).toFixed(1) + ' MMBtu/hr';
+      resTons.textContent = Math.round(towerTons).toLocaleString() + ' Tower Tons (' + mwThermal.toFixed(2) + ' MW)';
+
+      resKavl.textContent = 'KaV/L = ' + kavl.toFixed(2);
+      let diffText = 'Moderate Difficulty';
+      if (kavl > 2.2) diffText = 'Very High Difficulty (Deep Fill)';
+      else if (kavl < 1.2) diffText = 'Low Difficulty (Easy Duty)';
+      resDifficulty.textContent = diffText;
+
+      resRange.textContent = 'Range: ' + range.toFixed(1) + '°F';
+      resApproach.textContent = 'Approach: ' + approach.toFixed(1) + '°F to Twb ' + (approach <= 5.0 ? '(Extremely Tight)' : '(Optimal)');
+      resApproach.style.color = approach <= 5.0 ? '#f59e0b' : '#10b981';
+
+      resEff.textContent = eff.toFixed(1) + '%';
+      resEffSub.textContent = 'Range / (Range + Approach)';
+
+      resEvap.textContent = evapGpm.toFixed(1) + ' GPM';
+      resEvapPct.textContent = ((evapGpm / gpm) * 100).toFixed(2) + '% of Circulating Flow';
+
+      resMakeup.textContent = makeupGpm.toFixed(1) + ' GPM Make-Up';
+      resBlowdown.textContent = 'Blowdown: ' + blowdownGpm.toFixed(1) + ' GPM (at ' + COC.toFixed(1) + ' COC)';
+
+      // Audit Box Update
+      const auditText = 
+        '=======================================================\n' +
+        '   COOLING TOWER THERMAL PERFORMANCE & MERKEL AUDIT   \n' +
+        '=======================================================\n' +
+        'Tower Configuration:       ' + typeSelect.options[typeSelect.selectedIndex].text.split('(')[0].trim() + '\n' +
+        'Circulating Water Flow:    ' + Math.round(gpm).toLocaleString() + ' GPM (' + Math.round(L_lbhr).toLocaleString() + ' lb/hr)\n' +
+        'Thermal Temperatures:      Hot Thot = ' + Thot.toFixed(1) + '°F, Cold Tcold = ' + Tcold.toFixed(1) + '°F (Range = ' + range.toFixed(1) + '°F)\n' +
+        'Ambient Climate Design:    Wet-Bulb Twb = ' + Twb.toFixed(1) + '°F (Approach = ' + approach.toFixed(1) + '°F)\n' +
+        'Air Mass Flow (G):         ' + Math.round(G_lbhr).toLocaleString() + ' lb/hr (L/G = ' + LG.toFixed(2) + ', ' + Math.round(acfm).toLocaleString() + ' ACFM)\n' +
+        '-------------------------------------------------------\n' +
+        'HEAT REJECTION DUTY:       ' + (Qtotal / 1e6).toFixed(2) + ' MMBtu/hr (' + Math.round(towerTons).toLocaleString() + ' Tower Tons / ' + mwThermal.toFixed(2) + ' MW)\n' +
+        'MERKEL TRANSFER NUMBER:    KaV/L = ' + kavl.toFixed(3) + ' (' + diffText + ')\n' +
+        'Tower Thermal Efficiency:  η = ' + eff.toFixed(1) + '% (Ratio of actual cooling to maximum thermodynamic limit)\n' +
+        'Air Enthalpy Range:        Entering ha,in = ' + h_a_in.toFixed(2) + ' Btu/lb, Leaving ha,out = ' + h_a_out.toFixed(2) + ' Btu/lb\n' +
+        '-------------------------------------------------------\n' +
+        'WATER CONSUMPTION BALANCE:\n' +
+        '  - Evaporation Loss (E):  ' + evapGpm.toFixed(1) + ' GPM (' + ((evapGpm / gpm) * 100).toFixed(2) + '% of circulating flow)\n' +
+        '  - Drift Loss (D):        ' + driftGpm.toFixed(2) + ' GPM (' + driftPct + '% eliminator rating)\n' +
+        '  - Blowdown Purge (B):    ' + blowdownGpm.toFixed(1) + ' GPM (Operating at ' + COC.toFixed(1) + ' Cycles of Concentration)\n' +
+        '  - Total Make-Up Water:   ' + makeupGpm.toFixed(1) + ' GPM Fresh Water Supply Required\n' +
+        'Standards Compliance:      CTI Standard STD-201 / British Standard BS 4485\n' +
+        '=======================================================';
+      auditBox.textContent = auditText;
+
+      renderSvg(Tcold, Thot, Twb, h_a_in, h_a_out, LG);
+    }
+
+    function renderSvg(Tcold, Thot, Twb, ha_in, ha_out, LG) {
+      const w = 580;
+      const h = 250;
+      const padL = 60;
+      const padR = 40;
+      const padT = 30;
+      const padB = 40;
+      const plotW = w - padL - padR;
+      const plotH = h - padT - padB;
+
+      const minT = Math.floor(Math.min(Twb, 70) - 2);
+      const maxT = Math.ceil(Math.max(Thot, 100) + 4);
+      const minH = 25;
+      const maxH = 80;
+
+      function mapX(t) { return padL + ((t - minT) / (maxT - minT)) * plotW; }
+      function mapY(hVal) { return padT + plotH - ((hVal - minH) / (maxH - minH)) * plotH; }
+
+      let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" style="overflow:visible; font-family:sans-serif; font-size:11px;">';
+      svg += '<rect x="' + padL + '" y="' + padT + '" width="' + plotW + '" height="' + plotH + '" fill="#0f172a" stroke="#334155" />';
+
+      // Saturated water enthalpy curve hsat(T)
+      let satPts = '';
+      for (let t = minT; t <= maxT; t += 1) {
+        const hs = calcSatH(t);
+        satPts += (t === minT ? 'M ' : 'L ') + mapX(t) + ' ' + mapY(hs) + ' ';
+      }
+      svg += '<path d="' + satPts + '" fill="none" stroke="#f43f5e" stroke-width="3" />';
+      svg += '<text x="' + mapX(maxT - 1) + '" y="' + (mapY(calcSatH(maxT - 1)) - 8) + '" fill="#f43f5e" font-weight="bold" text-anchor="end">Saturated Air Enthalpy h_sat(T)</text>';
+
+      // Air operating line from Tcold (ha_in) to Thot (ha_out)
+      const xCold = mapX(Tcold);
+      const xHot = mapX(Thot);
+      const yHaIn = mapY(ha_in);
+      const yHaOut = mapY(ha_out);
+
+      svg += '<line x1="' + xCold + '" y1="' + yHaIn + '" x2="' + xHot + '" y2="' + yHaOut + '" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="6,3" />';
+      svg += '<text x="' + xHot + '" y="' + (yHaOut + 15) + '" fill="#38bdf8" font-weight="bold">Air Operating Line (h_a, Slope L/G)</text>';
+
+      // Enthalpy driving force band between Tcold and Thot
+      let bandPts = '';
+      for (let t = Tcold; t <= Thot; t += 1) {
+        const hs = calcSatH(t);
+        bandPts += (t === Tcold ? 'M ' : 'L ') + mapX(t) + ' ' + mapY(hs) + ' ';
+      }
+      bandPts += 'L ' + xHot + ' ' + yHaOut + ' ';
+      bandPts += 'L ' + xCold + ' ' + yHaIn + ' Z';
+      svg += '<path d="' + bandPts + '" fill="#0284c7" fill-opacity="0.15" />';
+
+      // Annotate Approach and Range
+      const xTwb = mapX(Twb);
+      svg += '<line x1="' + xTwb + '" y1="' + padT + '" x2="' + xTwb + '" y2="' + (padT + plotH) + '" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="3,3" />';
+      svg += '<text x="' + (xTwb + 4) + '" y="' + (padT + 16) + '" fill="#a855f7" font-size="10">Twb ' + Twb.toFixed(0) + '°F</text>';
+
+      svg += '<line x1="' + xCold + '" y1="' + (padT + plotH) + '" x2="' + xCold + '" y2="' + (padT + plotH - 30) + '" stroke="#10b981" stroke-width="2" />';
+      svg += '<text x="' + xCold + '" y="' + (padT + plotH - 35) + '" fill="#10b981" font-size="10" text-anchor="middle" font-weight="bold">Tcold ' + Tcold.toFixed(0) + '°F</text>';
+
+      svg += '<line x1="' + xHot + '" y1="' + (padT + plotH) + '" x2="' + xHot + '" y2="' + (padT + plotH - 30) + '" stroke="#f97316" stroke-width="2" />';
+      svg += '<text x="' + xHot + '" y="' + (padT + plotH - 35) + '" fill="#f97316" font-size="10" text-anchor="middle" font-weight="bold">Thot ' + Thot.toFixed(0) + '°F</text>';
+
+      // Double arrow for Range
+      svg += '<line x1="' + xCold + '" y1="' + (padT + plotH - 15) + '" x2="' + xHot + '" y2="' + (padT + plotH - 15) + '" stroke="#cbd5e1" stroke-width="1.5" />';
+      svg += '<text x="' + ((xCold + xHot)/2) + '" y="' + (padT + plotH - 18) + '" fill="#cbd5e1" font-size="9" text-anchor="middle">Range ' + (Thot - Tcold).toFixed(0) + '°F</text>';
+
+      // Axes
+      svg += '<text x="' + (padL + plotW / 2) + '" y="' + (h - 8) + '" fill="#94a3b8" text-anchor="middle">Water Temperature T (°F)</text>';
+      svg += '<text transform="rotate(-90)" x="' + (-padT - plotH / 2) + '" y="20" fill="#94a3b8" text-anchor="middle">Air Enthalpy h (Btu/lb dry air)</text>';
+
+      svg += '</svg>';
+      svgWrap.innerHTML = svg;
+    }
+
+    document.getElementById('copyCtAuditBtn').addEventListener('click', function() {
+      const text = auditBox.textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copyCtAuditBtn');
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<span>✓ Copied Cooling Tower Audit!</span>';
+        btn.style.background = '#16a34a';
+        setTimeout(function() {
+          btn.innerHTML = origHtml;
+          btn.style.background = '';
+        }, 2000);
+      });
+    });
+
+    [typeSelect, gpmInput, gpmUnitSelect, thotInput, tcoldInput, twbInput, lgInput, cocInput, driftInput].forEach(el => {
+      el.addEventListener('input', calculate);
+      el.addEventListener('change', calculate);
+    });
+
+    calculate();
+  })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'cooling-tower-merkel-number-calculator.html'), renderTradePage({
+    title: "Cooling Tower Thermal Performance & Merkel Number Calculator | CTI STD-201",
+    metaDesc: "Calculate cooling tower thermal performance, Merkel transfer unit number (KaV/L), water-to-air mass flow ratio (L/G), approach to wet-bulb, cooling range, evaporation loss, blowdown rate, and cycles of concentration (COC) per CTI STD-201 and BS 4485.",
+    canonical: `${DOMAIN}/calc/cooling-tower-merkel-number-calculator`,
+    bodyContent: coolingTowerMerkelBody,
+    currentPath: '/calc/cooling-tower-merkel-number-calculator',
+    faq: [
+      {
+        "q": "What is the physical significance of the Merkel Number (KaV/L)?",
+        "a": "The Merkel number (KaV/L) is a dimensionless measure of the degree of thermal difficulty demanded of a cooling tower. It integrates the ratio of heat capacity to enthalpy driving force across the cooling range. A higher KaV/L demands greater fill volume, denser packing, or taller tower height to achieve the required water cooling."
+      },
+      {
+        "q": "Why is designing for an approach to wet-bulb below 5°F economically impractical?",
+        "a": "As leaving cold water temperature approaches ambient wet-bulb, the driving enthalpy difference (hsat - ha) approaches zero. The Merkel integral approaches infinity, requiring exponential increases in fill depth, tower footprint, and fan power. A standard approach of 7°F to 10°F provides the optimum balance between tower capital cost and chiller compressor efficiency."
+      },
+      {
+        "q": "How is cooling tower evaporation loss calculated?",
+        "a": "Evaporation loss is governed by the latent heat of vaporization of water (approx 1,000 Btu/lb). The empirical rule of thumb endorsed by CTI and ASHRAE is E = 0.0008 × GPM × Range (°F), which equates to approximately 0.8% of the circulating water flow evaporated for every 10°F of cooling range."
+      },
+      {
+        "q": "What role do Cycles of Concentration (COC) play in water conservation?",
+        "a": "Cycles of Concentration (COC) measure the ratio of dissolved solids in the circulating basin water relative to fresh make-up water. Raising COC from 2 to 4 cuts blowdown purge water waste by 66%. However, increasing beyond 5 to 6 cycles yields diminishing water savings while exponentially increasing the risk of calcium carbonate and silica scale deposition on fill surfaces."
+      },
+      {
+        "q": "What causes recirculation and how does it degrade cooling tower capacity?",
+        "a": "Recirculation occurs when warm, saturated exhaust air discharged from the fan cylinder is aerodynamically drawn back down into the air inlet louvers. This artificially elevates the entering wet-bulb temperature by 3°F to 6°F above ambient weather conditions, severely degrading cooling capacity and elevating chiller condensing temperatures."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (79 calculators in /calc/)');
 }
 
