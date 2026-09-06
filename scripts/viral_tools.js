@@ -2353,66 +2353,249 @@ export function buildViralTools() {
         <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">2 AM Metaphysical Trilemma</div>
         <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Simulation Argument Probability Calculator</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Are we living in base physical reality or an ancestor computer simulation? Calculate the Bayesian probability using philosopher Nick Bostrom's 2003 Trilemma.
+          Are we living in primordial base reality or inside an ancestor computer simulation? Calculate the Bayesian probability using Oxford philosopher Nick Bostrom\'s 2003 Trilemma.
         </p>
       </header>
 
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">fp: Civilizations Reaching Posthuman Tech (%)</label>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">f_p: Civilizations Reaching Posthuman Tech (%)</label>
             <input type="range" id="sim-fp" min="1" max="100" value="40" oninput="calcSim()" style="width: 100%; cursor: pointer;" />
             <div id="sim-fp-val" style="font-family: var(--mono); font-size: 0.9rem; color: #3b82f6;">40% (Survives extinction)</div>
           </div>
 
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Ancestor Simulations Run Per Posthuman Species</label>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">f_sim: Posthuman Species Running Ancestor Sims (%)</label>
+            <input type="range" id="sim-fsim" min="1" max="100" value="50" oninput="calcSim()" style="width: 100%; cursor: pointer;" />
+            <div id="sim-fsim-val" style="font-family: var(--mono); font-size: 0.9rem; color: #8b5cf6;">50% (Interested in ancestor history)</div>
+          </div>
+
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">N_I: Simulations Run Per Posthuman Species</label>
             <input type="range" id="sim-ni" min="1" max="1000" value="100" oninput="calcSim()" style="width: 100%; cursor: pointer;" />
             <div id="sim-ni-val" style="font-family: var(--mono); font-size: 0.9rem; color: #10b981;">100 simulations</div>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; text-align: center; margin-bottom: 1.5rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; text-align: center; margin-bottom: 1.5rem;">
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
-            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability We Are in a Simulation</span>
-            <div id="simResult" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">97.6%</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Simulated minds vastly outnumber biological originals</div>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability of Being Simulated</span>
+            <div id="simResult" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">95.2%</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Simulated minds outnumber biological originals</div>
           </div>
 
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
             <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability of Base Reality</span>
-            <div id="baseResult" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">2.4%</div>
+            <div id="baseResult" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">4.8%</div>
             <div style="font-size: 0.75rem; color: var(--text-muted);">Living in original primordial universe</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Simulated-to-Real Mind Ratio</span>
+            <div id="simRatio" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">20 : 1</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Virtual observers per real biological human</div>
           </div>
         </div>
 
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem 1.25rem; border-radius: 6px; font-size: 0.9rem; line-height: 1.6; color: var(--fg);">
-          <strong>Bostrom's Trilemma:</strong> At least one of the following must be true:
-          <ol style="margin-top: 0.5rem; padding-left: 1.2rem;">
-            <li>Humanity goes extinct before developing high-level planetary supercomputers.</li>
-            <li>Posthuman civilizations lose all interest in simulating conscious human ancestors.</li>
-            <li>We are almost certainly living inside a software simulation right now.</li>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem 1.25rem; border-radius: 6px; font-size: 0.9rem; line-height: 1.6; color: var(--fg); margin-bottom: 1.25rem;">
+          <strong>Bostrom\'s Trilemma:</strong> At least one of the following three propositions must be true:
+          <ol style="margin-top: 0.5rem; padding-left: 1.2rem; color: var(--text-muted);">
+            <li><strong>Proposition 1:</strong> Almost all human-level civilizations go extinct before reaching technological maturity.</li>
+            <li><strong>Proposition 2:</strong> There is strong convergence among technologically mature civilizations not to run ancestor simulations.</li>
+            <li><strong>Proposition 3:</strong> We are almost certainly living inside a computer simulation right now.</li>
           </ol>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" id="copySimBtn" onclick="copySimAssessment()" class="btn-sm" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+            📋 Copy Bayesian Simulation Report
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Nick Bostrom (2003) Bayesian Simulation Derivations</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Expected Observers Formulation</strong>
+            Let (f_p) be the fraction of civilizations reaching posthuman capability, and (f_{\text{sim}}) be the fraction that create ancestor simulations. If each simulating civilization runs (N_I) simulations, the expected ratio of simulated observers to biological originals is:
+            $$\text{Ratio} = f_p \times f_{\text{sim}} \times N_I$$
+            With current slider settings: <span id="derSimCalc">0.40 × 0.50 × 100 = 20.0 simulated minds per biological mind</span>.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Self-Sampling Assumption (SSA) Bayesian Inversion</strong>
+            According to the Self-Sampling Assumption: \"One should reason as if one were a random sample from the set of all observers in one\'s reference class.\"
+            $$P(\text{Simulation}) = \frac{N_{\text{sim}}}{N_{\text{sim}} + N_{\text{bio}}} = \frac{f_p \cdot f_{\text{sim}} \cdot N_I}{1 + f_p \cdot f_{\text{sim}} \cdot N_I}$$
+            When (N_I \gg 1), the denominator is dominated by (N_{\text{sim}}), causing (P(\text{Simulation}) \to 100\%).
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. Planetary Computational Bound (Bremermann\'s Limit)</strong>
+            A single planetary supercomputer converting all mass into a quantum computer (computational limit (\approx 1.36 \times 10^{50}\) operations per second per kilogram) could execute the entire mental history of humanity (roughly (10^{35}) operations) in less than (10^{-15}) seconds, making the energy cost of running ancestor simulations negligible for posthumans.
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & METAPHYSICAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Traps & Fallacies in the Simulation Argument</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Infinite Recursive Hierarchy Resource Collapse</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              If simulated beings create their own simulations (nested simulations), each tier demands an exponential multiplier of parent computing power. A civilization cannot simulate a universe with the same depth of quantum physics as its own without encountering a hard thermodynamic computational wall.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. The Unproven Substrate-Independence Axiom</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Bostrom\'s trilemma relies entirely on functionalism: the philosophical premise that subjective consciousness is substrate-independent and can arise from silicon transistors or optical logic gates just as it does from carbon synapses. If consciousness requires biological or non-computable quantum biology (e.g. Penrose\'s Orch-OR), simulation probability drops to zero.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. The Posthuman Ethics Prohibition (Proposition 2)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Simulating conscious sentient human ancestors inherently involves recreating trillions of hours of human disease, physical agony, torture, heartbreak, and warfare. Technologically mature posthumans with advanced moral frameworks might legally outlaw ancestor simulations as extreme ethical crimes against sentient minds.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. The Cognitive Glitch & Mandela Effect Misattribution</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Internet forums often cite memory slips, déjà vu, optical illusions, or the \"Mandela Effect\" as evidence of \"simulation render bugs.\" In reality, human memory is reconstructive and prone to neurobiological confabulation. A posthuman simulation engine would easily patch low-level memory discrepancies without leaving obvious perceptual glitches.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Self-Sampling (SSA) vs Self-Indication (SIA) Discrepancy</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Under the Self-Indication Assumption (SIA), being alive gives evidence that the total number of observers in existence is huge. Physicists like Robin Hanson demonstrate that different observer reference classes produce wildly varying simulation probabilities, meaning our confidence in the 95%+ figure is subject to epistemic prior uncertainty.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: The Simulation Argument</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is Nick Bostrom\'s Simulation Argument?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Published in 2003 by Oxford philosopher Nick Bostrom, the argument proves mathematically that at least one of three statements must be true: either humanity goes extinct before creating simulated realities, advanced species choose never to simulate ancestors, or we are almost certainly simulated right now.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Does the argument prove we are definitely in a simulation?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              No. It is a strict trilemma. If you believe humanity will destroy itself before developing mature supercomputers (Proposition 1), or that posthumans consider ancestor simulations unethical or boring (Proposition 2), then the probability of being in a simulation remains very low.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How could a computer possibly simulate all atoms in the universe?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              A simulator does not need to compute trillions of galaxies down to the Planck scale continuously. Modern game engines use occlusion culling and lazy evaluation: rendering high resolution only where conscious observers are actively looking (analogous to the quantum wave function collapsing upon measurement).
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How does this differ from Descartes\' Evil Demon?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Descartes used philosophical skepticism to demonstrate that sensory experience could be fabricated by an evil demon. Bostrom\'s argument is not skeptical solipsism; it relies on modern evolutionary cosmology, probability theory, and computer science to deduce relative observer populations.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can we perform any scientific test to detect if we are in a simulation?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Physicists like Silas Beane have proposed testing for grid artifacts in ultra-high-energy cosmic rays (Greisen-Zatsepin-Kuzmin cutoff) to determine if spacetime is discretized on a spatial lattice, which would be an engineering signature of a computational simulation.
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <script>
+      function toggleFaq(btn) {
+        var answer = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (answer.style.display === 'block') {
+          answer.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          answer.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
+      }
+
       function calcSim() {
         var fp = parseFloat(document.getElementById('sim-fp').value) / 100;
+        var fsim = parseFloat(document.getElementById('sim-fsim').value) / 100;
         var ni = parseFloat(document.getElementById('sim-ni').value);
 
         document.getElementById('sim-fp-val').textContent = (fp * 100).toFixed(0) + '% (Survives extinction)';
+        document.getElementById('sim-fsim-val').textContent = (fsim * 100).toFixed(0) + '% (Interested in ancestor sims)';
         document.getElementById('sim-ni-val').textContent = ni.toLocaleString('en-US') + ' simulations per civilization';
 
-        // Total simulated instances = fp * ni
-        // Base reality instances = 1
-        var totalSims = fp * ni;
-        var pSim = (totalSims / (1 + totalSims)) * 100;
+        // Expected simulated minds per biological original
+        var simRatio = fp * fsim * ni;
+        var pSim = (simRatio / (1 + simRatio)) * 100;
         var pBase = 100 - pSim;
 
         document.getElementById('simResult').textContent = pSim.toFixed(1) + '%';
         document.getElementById('baseResult').textContent = pBase.toFixed(1) + '%';
+        document.getElementById('simRatio').textContent = simRatio >= 1 ? simRatio.toFixed(1) + ' : 1' : '1 : ' + (1 / Math.max(0.001, simRatio)).toFixed(1);
+
+        var dCalc = document.getElementById('derSimCalc');
+        if (dCalc) {
+          dCalc.textContent = fp.toFixed(2) + ' × ' + fsim.toFixed(2) + ' × ' + ni.toFixed(0) + ' = ' + simRatio.toFixed(1) + ' simulated minds per biological mind';
+        }
+      }
+
+      function copySimAssessment() {
+        var fp = document.getElementById('sim-fp-val').textContent;
+        var fsim = document.getElementById('sim-fsim-val').textContent;
+        var ni = document.getElementById('sim-ni-val').textContent;
+        var pSim = document.getElementById('simResult').textContent;
+        var pBase = document.getElementById('baseResult').textContent;
+        var ratio = document.getElementById('simRatio').textContent;
+
+        var report = '=== BOSTROM SIMULATION ARGUMENT BAYESIAN REPORT ===\n' +
+          'Civilizations Reaching Maturity (f_p): ' + fp + '\n' +
+          'Civilizations Running Ancestor Sims (f_sim): ' + fsim + '\n' +
+          'Simulations Run Per Species (N_I): ' + ni + '\n' +
+          'Simulated-to-Base Mind Ratio: ' + ratio + '\n' +
+          'Probability We Live in a Simulation: ' + pSim + '\n' +
+          'Probability of Base Primordial Reality: ' + pBase + '\n' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        var btn = document.getElementById('copySimBtn');
+        navigator.clipboard.writeText(report).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Simulation Report Copied!';
+          btn.style.borderColor = '#10b981';
+          btn.style.color = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+          }, 2500);
+        });
       }
 
       document.addEventListener('DOMContentLoaded', calcSim);
@@ -2422,10 +2605,32 @@ export function buildViralTools() {
 
   writeFileSync(join(utilDir, 'simulation-argument-calculator.html'), renderPage({
     title: 'Simulation Hypothesis Calculator: Are We in a Simulation? | Digital Tools Shed',
-    metaDesc: 'Calculate the mathematical probability that our universe is an ancestor computer simulation using Nick Bostrom\'s 2003 Trilemma framework.',
+    metaDesc: 'Calculate the probability that we are living in a computer simulation using Nick Bostrom\'s 2003 Trilemma, Bayesian observer self-sampling, and posthuman computing limits.',
     canonical: `${DOMAIN}/util/simulation-argument-calculator`,
     bodyContent: simHtml,
-    currentPath: '/util/simulation-argument-calculator'
+    currentPath: '/util/simulation-argument-calculator',
+    faqSchema: [
+      {
+        q: "What is Nick Bostrom's Simulation Argument?",
+        a: "Published in 2003 by Oxford philosopher Nick Bostrom, it mathematically proves at least one of three statements must be true regarding extinction, desire to simulate, or living in a simulation."
+      },
+      {
+        q: "Does the argument prove we are definitely in a simulation?",
+        a: "No, it is a trilemma. If civilizations always go extinct or choose never to simulate ancestors, the simulation probability is near zero."
+      },
+      {
+        q: "How could a computer possibly simulate all atoms in the universe?",
+        a: "A posthuman simulation engine can utilize lazy evaluation and observer-relative rendering, computing high resolution only when conscious beings observe it."
+      },
+      {
+        q: "How does this differ from Descartes' Evil Demon?",
+        a: "Descartes used radical skepticism, whereas Bostrom uses empirical computational bounds, evolutionary biology, and anthropic probability theory."
+      },
+      {
+        q: "Can we perform any scientific test to detect if we are in a simulation?",
+        a: "Physicists have proposed searching for lattice discretization signatures in high-energy cosmic rays to identify computational boundaries."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -2438,76 +2643,279 @@ export function buildViralTools() {
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #dc2626; margin-bottom: 0.5rem;">2 AM Civilizational Fragility</div>
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Existential Risk & Human Survival Calculator</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ef4444; margin-bottom: 0.5rem;">2 AM Civilizational Survival</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Existential Risk & 100-Year Human Survival Calculator</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          What are the odds humanity survives the next 100 years? Based on Oxford philosopher Toby Ord's <em>The Precipice</em>, calibrate threats from AI, bioweapons, and nuclear war.
+          Calculate the statistical odds of human civilizational survival over the next century across AI, engineered pandemics, nuclear war, and natural hazards based on Oxford philosopher Toby Ord\'s <em>The Precipice</em>.
         </p>
       </header>
 
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+          <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Model Presets:</span>
+          <button type="button" class="btn-sm" onclick="setXRPreset('ord')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">Oxford (Toby Ord Precipice: ~1 in 6)</button>
+          <button type="button" class="btn-sm" onclick="setXRPreset('optimist')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">Techno-Optimist (~1 in 50)</button>
+          <button type="button" class="btn-sm" onclick="setXRPreset('pessimist')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">Existential Doom Peak (~1 in 2)</button>
+        </div>
+
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Unaligned AGI Catastrophe (%)</label>
-            <input type="range" id="xr-ai" min="0" max="50" value="10" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
-            <div id="xr-ai-val" style="font-family: var(--mono); font-size: 0.9rem; color: #ef4444;">10.0% (Toby Ord baseline: 1 in 10)</div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Unaligned Artificial Superintelligence (%)</label>
+            <input type="range" id="xr-ai" min="0" max="50" step="0.5" value="10" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-ai-val" style="font-family: var(--mono); font-size: 0.85rem; color: #ef4444;">10.0% (Ord: 1 in 10)</div>
           </div>
 
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Engineered Pandemic (%)</label>
-            <input type="range" id="xr-bio" min="0" max="30" value="3.3" step="0.5" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
-            <div id="xr-bio-val" style="font-family: var(--mono); font-size: 0.9rem; color: #f59e0b;">3.3% (Toby Ord baseline: 1 in 30)</div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Engineered Pandemics / Synthetic Bio (%)</label>
+            <input type="range" id="xr-bio" min="0" max="30" step="0.5" value="3.3" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-bio-val" style="font-family: var(--mono); font-size: 0.85rem; color: #f59e0b;">3.3% (Ord: 1 in 30)</div>
           </div>
 
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Nuclear World War (%)</label>
-            <input type="range" id="xr-nuke" min="0" max="20" value="1.0" step="0.5" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
-            <div id="xr-nuke-val" style="font-family: var(--mono); font-size: 0.9rem; color: #3b82f6;">1.0% (1 in 100)</div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Nuclear War & Severe Nuclear Winter (%)</label>
+            <input type="range" id="xr-nuke" min="0" max="20" step="0.1" value="1.0" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-nuke-val" style="font-family: var(--mono); font-size: 0.85rem; color: #eab308;">1.0% (Ord: 1 in 1,000 to 1 in 100)</div>
           </div>
 
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Runaway Climate Tipping (%)</label>
-            <input type="range" id="xr-clim" min="0" max="10" value="0.1" step="0.1" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
-            <div id="xr-clim-val" style="font-family: var(--mono); font-size: 0.9rem; color: #10b981;">0.1% (1 in 1,000)</div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Runaway Climate Change & Environmental (%)</label>
+            <input type="range" id="xr-clim" min="0" max="15" step="0.1" value="0.1" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-clim-val" style="font-family: var(--mono); font-size: 0.85rem; color: #10b981;">0.1% (Ord: 1 in 1,000)</div>
+          </div>
+
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Unforeseen Anthropogenic Risks (Nanotech, Physics) (%)</label>
+            <input type="range" id="xr-other" min="0" max="20" step="0.5" value="3.3" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-other-val" style="font-family: var(--mono); font-size: 0.85rem; color: #8b5cf6;">3.3% (Ord: 1 in 30)</div>
+          </div>
+
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Natural Risks (Supervolcanoes, Asteroids, Supernovae) (%)</label>
+            <input type="range" id="xr-nat" min="0" max="5" step="0.01" value="0.01" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-nat-val" style="font-family: var(--mono); font-size: 0.85rem; color: #3b82f6;">0.01% (Ord: 1 in 10,000)</div>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; text-align: center;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; text-align: center; margin-bottom: 1.5rem;">
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
-            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Total Catastrophe Risk (Next 100 Yrs)</span>
-            <div id="xrTotal" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">13.8%</div>
-            <div id="xrOdds" style="font-size: 0.8rem; color: var(--text-muted);">~1 in 7 chance of civilizational collapse</div>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">100-Year Extinction Probability</span>
+            <div id="xrTotal" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">16.7%</div>
+            <div id="xrOdds" style="font-size: 0.75rem; color: var(--text-muted);">~1 in 6 chance of civilizational collapse</div>
           </div>
 
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
-            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability of Human Survival</span>
-            <div id="xrSurvival" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">86.2%</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Navigating through "The Precipice" into adulthood</div>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">100-Year Survival Probability</span>
+            <div id="xrSurvival" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">83.3%</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Human potential reaches the next century</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" id="copyXRBtn" onclick="copyXRAssessment()" class="btn-sm" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+            📋 Copy Existential Risk Assessment
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">The Precipice Risk Model: Mathematical Derivations</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Joint Survival Probability Multiplicative Law</strong>
+            Assuming statistical independence across major existential threat vectors (r_1, r_2, \dots, r_n), the probability that humanity survives all vectors across the 100-year window is:
+            $$P(\text{Survival}) = \prod_{i=1}^n (1 - r_i) = (1 - r_{\text{AI}})(1 - r_{\text{Bio}})(1 - r_{\text{Nuke}})(1 - r_{\text{Clim}})(1 - r_{\text{Other}})(1 - r_{\text{Nat}})$$
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #f59e0b;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Complementary Extinction Formulation</strong>
+            $$P(\text{Extinction}) = 1 - P(\text{Survival})$$
+            $$\text{Odds of Collapse} = 1 \text{ in } \left(\frac{100}{P(\text{Extinction})\%}\right)$$
+            Under Toby Ord\'s baseline estimates ((r_{\text{AI}} = 10\%, r_{\text{Bio}} = 3.3\%, r_{\text{Other}} = 3.3\%, r_{\text{Nuke}} = 1\%)), (P(\text{Survival}) = 0.833) ((83.3\%)), yielding an exact total risk of (16.7\%) ((1 \text{ in } 6.0)).
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. Nick Bostrom\'s Astronomical Value Principle</strong>
+            If human civilization survives and colonizes our local supercluster, the future could support approximately (10^{52}) happy, conscious biological and digital lives over cosmic time. Therefore, reducing existential risk by just <strong>one millionth of one percent</strong> ((10^{-8})) has an expected value equivalent to saving (10^{44}) future human lives.
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & EXISTENTIAL RISK PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Fallacies in Existential Risk Modeling</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Statistical Risk Independence Fallacy (Poly-Crisis Cascade)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              The multiplicative model assumes AI, bioweapons, climate disruption, and nuclear tensions are uncorrelated independent variables. In reality, a severe climate failure will collapse agricultural trade, driving desperate nuclear superpowers into conflict, while competitive AI races lead nations to bypass critical safety protocols.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Anthropogenic vs Natural Risk Asymmetry (2,000x Disparity)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Homo sapiens have survived 200,000 years of natural hazards (supervolcanoes, ice ages, comets) without going extinct. The background natural extinction rate is less than 1 in 10,000 per century. Anthropogenic threats created by human technology account for over <strong>99.9%</strong> of our current extinction danger.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Confusing Global Catastrophe with Existential Extinction</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              A catastrophic event that kills 90% of humanity (like the Black Death or a localized nuclear exchange) is an unimaginable tragedy, but NOT an existential catastrophe if the remaining 10% can eventually recover and rebuild civilizational technological capabilities. True existential risk requires the <strong>permanent and irrevocable destruction</strong> of human potential.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. Anthropic Survivorship Bias (The Silent Graveyard)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              People assume that because humanity survived the 1962 Cuban Missile Crisis and the Cold War, our institutions are fundamentally robust. But an observer can only ever find themselves in a timeline where their civilization did not blow itself up. Historical survival provides zero statistical proof of ongoing systemic safety.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Unrecoverable Dystopian Lock-In (Permanent Tyranny)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Existential risk includes not only biological extinction, but also permanent stagnation or unrecoverable totalitarian dystopias. Ubiquitous AI facial recognition, biometric monitoring, and autonomous enforcement drones could allow a totalitarian regime to achieve permanent lock-in, forever extinguishing freedom and potential.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Existential Risk & Human Survival</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is an existential risk as defined by modern philosophy?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              An existential risk is a risk that threatens the premature extinction of Earth-originating intelligent life or the permanent and drastic destruction of its potential for desirable future development.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why did Oxford philosopher Toby Ord calculate a 1 in 6 risk this century?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              In his 2020 book <em>The Precipice</em>, Ord aggregated comprehensive peer-reviewed scientific studies across AI safety, bioweapon proliferation, nuclear war, and climate feedback loops, concluding humanity\'s total extinction risk this century is approximately 1 in 6 (Russian roulette with a six-chambered revolver).
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why is artificial intelligence considered the single highest existential threat?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Unlike past technologies that amplified human physical strength, AI amplifies cognitive steering. An artificial superintelligence with goals misaligned with human survival would possess strategic, social, and technological capabilities vastly exceeding all of humanity combined.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why are natural extinction risks considered negligible compared to tech?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Fossil records demonstrate that mammalian species survive an average of 1 to 2 million years before natural extinction. Humanity survived roughly 2,000 centuries as hunter-gatherers, proving the background natural risk is on the order of 1 in 10,000 per century.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What can humanity do right now to safeguard civilizational survival?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Key priorities include technical AI alignment research, international DNA synthesis screening to prevent synthetic pathogen printing, early pathogen detection wastewater sequencing, hardening critical infrastructure against EMPs, and maintaining diplomatic de-escalation hotlines.
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      function setXRPreset(preset) {
+        if (preset === 'ord') {
+          document.getElementById('xr-ai').value = 10.0;
+          document.getElementById('xr-bio').value = 3.3;
+          document.getElementById('xr-nuke').value = 1.0;
+          document.getElementById('xr-clim').value = 0.1;
+          document.getElementById('xr-other').value = 3.3;
+          document.getElementById('xr-nat').value = 0.01;
+        } else if (preset === 'optimist') {
+          document.getElementById('xr-ai').value = 1.0;
+          document.getElementById('xr-bio').value = 0.5;
+          document.getElementById('xr-nuke').value = 0.2;
+          document.getElementById('xr-clim').value = 0.1;
+          document.getElementById('xr-other').value = 0.2;
+          document.getElementById('xr-nat').value = 0.01;
+        } else if (preset === 'pessimist') {
+          document.getElementById('xr-ai').value = 35.0;
+          document.getElementById('xr-bio').value = 15.0;
+          document.getElementById('xr-nuke').value = 5.0;
+          document.getElementById('xr-clim').value = 3.0;
+          document.getElementById('xr-other').value = 8.0;
+          document.getElementById('xr-nat').value = 0.05;
+        }
+        calcXR();
+      }
+
       function calcXR() {
         var ai = parseFloat(document.getElementById('xr-ai').value) / 100;
         var bio = parseFloat(document.getElementById('xr-bio').value) / 100;
         var nuke = parseFloat(document.getElementById('xr-nuke').value) / 100;
         var clim = parseFloat(document.getElementById('xr-clim').value) / 100;
+        var other = parseFloat(document.getElementById('xr-other').value) / 100;
+        var nat = parseFloat(document.getElementById('xr-nat').value) / 100;
 
-        document.getElementById('xr-ai-val').textContent = (ai * 100).toFixed(1) + '%';
-        document.getElementById('xr-bio-val').textContent = (bio * 100).toFixed(1) + '%';
-        document.getElementById('xr-nuke-val').textContent = (nuke * 100).toFixed(1) + '%';
-        document.getElementById('xr-clim-val').textContent = (clim * 100).toFixed(1) + '%';
+        document.getElementById('xr-ai-val').textContent = (ai * 100).toFixed(1) + '% (Ord: 1 in 10)';
+        document.getElementById('xr-bio-val').textContent = (bio * 100).toFixed(1) + '% (Ord: 1 in 30)';
+        document.getElementById('xr-nuke-val').textContent = (nuke * 100).toFixed(1) + '% (Ord: 1 in 100)';
+        document.getElementById('xr-clim-val').textContent = (clim * 100).toFixed(1) + '% (Ord: 1 in 1,000)';
+        document.getElementById('xr-other-val').textContent = (other * 100).toFixed(1) + '% (Ord: 1 in 30)';
+        document.getElementById('xr-nat-val').textContent = (nat * 100).toFixed(2) + '% (Ord: 1 in 10,000)';
 
-        // Survival = (1 - ai) * (1 - bio) * (1 - nuke) * (1 - clim)
-        var pSurvive = (1 - ai) * (1 - bio) * (1 - nuke) * (1 - clim);
+        // Multiplicative survival model: P(Survive) = Product(1 - r_i)
+        var pSurvive = (1 - ai) * (1 - bio) * (1 - nuke) * (1 - clim) * (1 - other) * (1 - nat);
         var pDoom = (1 - pSurvive) * 100;
         var odds = pDoom > 0 ? (100 / pDoom) : 999;
 
         document.getElementById('xrTotal').textContent = pDoom.toFixed(1) + '%';
         document.getElementById('xrSurvival').textContent = (pSurvive * 100).toFixed(1) + '%';
-        document.getElementById('xrOdds').textContent = '~1 in ' + Math.round(odds) + ' chance of civilizational collapse';
+        document.getElementById('xrOdds').textContent = '~1 in ' + odds.toFixed(1) + ' chance of civilizational collapse';
+      }
+
+      function copyXRAssessment() {
+        var ai = document.getElementById('xr-ai-val').textContent;
+        var bio = document.getElementById('xr-bio-val').textContent;
+        var nuke = document.getElementById('xr-nuke-val').textContent;
+        var clim = document.getElementById('xr-clim-val').textContent;
+        var other = document.getElementById('xr-other-val').textContent;
+        var nat = document.getElementById('xr-nat-val').textContent;
+        var total = document.getElementById('xrTotal').textContent;
+        var surv = document.getElementById('xrSurvival').textContent;
+        var odds = document.getElementById('xrOdds').textContent;
+
+        var report = '=== 100-YEAR EXISTENTIAL RISK & CIVILIZATIONAL SURVIVAL REPORT ===\n' +
+          'Artificial Superintelligence Risk: ' + ai + '\n' +
+          'Engineered Pandemics / Synthetic Bio: ' + bio + '\n' +
+          'Nuclear War & Nuclear Winter: ' + nuke + '\n' +
+          'Runaway Climate Change: ' + clim + '\n' +
+          'Unforeseen Anthropogenic Tech: ' + other + '\n' +
+          'Natural Hazards (Supervolcano, Asteroid): ' + nat + '\n' +
+          'Cumulative 100-Year Extinction Risk: ' + total + ' (' + odds + ')\n' +
+          'Cumulative 100-Year Survival Probability: ' + surv + '\n' +
+          'Model Reference: Oxford Toby Ord (The Precipice)\n' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        var btn = document.getElementById('copyXRBtn');
+        navigator.clipboard.writeText(report).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Risk Report Copied!';
+          btn.style.borderColor = '#10b981';
+          btn.style.color = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+          }, 2500);
+        });
       }
 
       document.addEventListener('DOMContentLoaded', calcXR);
@@ -2520,7 +2928,29 @@ export function buildViralTools() {
     metaDesc: 'Calculate the probability of humanity surviving the next 100 years across artificial intelligence, bioweapons, and nuclear war based on Oxford\'s The Precipice.',
     canonical: `${DOMAIN}/util/existential-risk-calculator`,
     bodyContent: xriskHtml,
-    currentPath: '/util/existential-risk-calculator'
+    currentPath: '/util/existential-risk-calculator',
+    faqSchema: [
+      {
+        q: "What is an existential risk as defined by modern philosophy?",
+        a: "An existential risk threatens the premature extinction of intelligent life or the permanent destruction of its potential for desirable development."
+      },
+      {
+        q: "Why did Oxford philosopher Toby Ord calculate a 1 in 6 risk this century?",
+        a: "In The Precipice, Ord aggregated peer-reviewed studies across AI safety, bioweapons, nuclear war, and climate disruption, deriving a 1 in 6 cumulative risk."
+      },
+      {
+        q: "Why is artificial intelligence considered the single highest existential threat?",
+        a: "Because superintelligence steers capabilities faster than biological humans, misaligned goals could permanently disempower or eliminate humanity."
+      },
+      {
+        q: "Why are natural extinction risks considered negligible compared to tech?",
+        a: "Humanity survived 200,000 years of nature; fossil records show mammalian species survive ~1-2 million years, making natural background risk < 1 in 10,000/century."
+      },
+      {
+        q: "What can humanity do right now to safeguard civilizational survival?",
+        a: "Priorities include technical AI alignment, DNA synthesis biosecurity screening, early metagenomic wastewater pathogen detection, and de-escalation hotlines."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -2536,40 +2966,173 @@ export function buildViralTools() {
         <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #a855f7; margin-bottom: 0.5rem;">2 AM Deep Time Void</div>
         <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Heat Death of the Universe Logarithmic Timeline</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Scrub across 100 orders of magnitude of deep time: from the death of the Sun to proton decay, the evaporation of black holes, and the eternal Dark Era.
+          Scrub across 100 orders of magnitude of cosmological deep time: from the death of the Sun to proton decay, the evaporation of black holes, and the eternal Dark Era.
         </p>
       </header>
 
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
         <div style="margin-bottom: 1.5rem;">
-          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Logarithmic Deep Time Scrubber (10^X Years into the Future)</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Logarithmic Deep Time Scrubber (10^X Years into Future)</label>
+            <span id="hdExpDisplay" style="font-family: var(--mono); font-size: 0.85rem; color: #a855f7; font-weight: bold;">10^10 Years</span>
+          </div>
           <input type="range" id="hdSlider" min="0" max="100" value="10" oninput="updateHDTimeline(this.value)" style="width: 100%; cursor: pointer;" />
         </div>
 
         <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem;">
           <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Future Cosmic Epoch</div>
-          <div id="hdYear" style="font-family: var(--mono); font-size: 2.6rem; font-weight: bold; color: #a855f7; margin: 0.25rem 0;">Year 10^10 (10 Billion)</div>
+          <div id="hdYear" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #a855f7; margin: 0.25rem 0;">Year 10^10 (10 Billion)</div>
           <div id="hdEra" style="font-family: var(--serif); font-size: 1.3rem; color: var(--fg); margin-top: 0.35rem;">The Stelliferous Era</div>
+          <div id="hdThermodynamics" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">Active Hydrogen Fusion & Galactic Evolution</div>
         </div>
 
-        <div id="hdDetails" style="background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; font-size: 0.95rem; line-height: 1.6; color: var(--fg);"></div>
+        <div id="hdDetails" style="background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1.25rem;"></div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" id="copyHDBtn" onclick="copyTimelineAssessment()" class="btn-sm" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+            📋 Copy Cosmological Epoch Details
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL & PHYSICAL DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Fred Adams & Gregory Laughlin 5 Cosmic Eras: Step-by-Step Derivations</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. The 5 Thermodynamic Cosmic Eras</strong>
+            <ul>
+              <li><strong>1. Primordial Era ((10^{-50} \le t < 10^5) yrs):</strong> Inflation, Big Bang nucleosynthesis, CMB recombination.</li>
+              <li><strong>2. Stelliferous Era ((10^6 \le t < 10^{14}) yrs):</strong> Star birth, nuclear burning, biological life (WE ARE HERE: age (1.38 \times 10^{10}) yrs is only 0.0138% through!).</li>
+              <li><strong>3. Degenerate Era ((10^{15} \le t < 10^{39}) yrs):</strong> White dwarfs, neutron stars, black holes, brown dwarfs. All stars dead.</li>
+              <li><strong>4. Black Hole Era ((10^{40} \le t < 10^{100}) yrs):</strong> Proton decay wipes atomic matter; only black holes survive.</li>
+              <li><strong>5. Dark Era ((t \ge 10^{101}) yrs):</strong> Hawking evaporation completes; diffuse photons, leptons, absolute cold.</li>
+            </ul>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #a855f7;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Hawking Radiation Evaporation Time Formula</strong>
+            For a Schwarzschild black hole of mass (M), quantum virtual particle pairs at the event horizon evaporate the mass over timescale:
+            $$\tau = \frac{5120 \pi G^2 M^3}{\hbar c^4} \approx 2.1 \times 10^{67} \left(\frac{M}{M_\odot}\right)^3\text{ years}$$
+            For a stellar black hole ((3 M_\odot)), (\tau \approx 5.6 \times 10^{68}) years. For TON 618 (66 billion (M_\odot)), (\tau \approx 6.0 \times 10^{99}) years.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. Proton Decay & Grand Unification (GUT Scale)</strong>
+            $$p^+ \to e^+ + \pi^0 \to e^+ + 2\gamma$$
+            Under minimal GUT models, baryon number is not conserved. With a half-life of (10^{34}) to (10^{38}) years, every atomic nucleus in every dead star, planet, and asteroid dissolves into positrons, neutrinos, and gamma-ray photons by year (10^{40}).
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & COSMOLOGICAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Fallacies in Deep Time & Cosmology</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Logarithmic Scale Collapse Delusion</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              The human mind treats a slider from 0 to 100 as linear. Moving from (10^{10}) to (10^{20}) is not \"twice as long\"—it is ten billion times longer than the entire age of the universe. (10^{100}) exceeds the total number of atoms in the observable universe ((10^{80})) by twenty orders of magnitude.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. The Unobserved Proton Decay Hypothesis</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Proton decay is essential for the transition to the Black Hole Era. However, giant subterranean water Cherenkov detectors like Super-Kamiokande have not detected a single proton decay event, establishing an empirical lower bound of (\tau_p > 1.6 \times 10^{34}) years. If protons never decay, cold matter persists until quantum tunneling converts all matter into iron stars at year (10^{1500}).
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Phantom Dark Energy & The Big Rip Alternative</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Heat Death assumes dark energy obeys an exact cosmological constant (w = -1). If dark energy is phantom energy ((w < -1)), the expansion rate accelerates asymptotically into a <strong>Big Rip</strong> within ~22 billion years, tearing galaxies, stars, planets, and atomic nuclei apart long before the Stelliferous Era can naturally conclude.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. The Boltzmann Brain Paradox in de Sitter Vacuum</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              In an eternal de Sitter vacuum with temperature (T \sim 10^{-30}) K, rare thermodynamic quantum fluctuations will eventually spontaneously assemble conscious observer brains complete with false memories. Over infinite time, these \"Boltzmann Brains\" vastly outnumber biologically evolved observers unless vacuum decay triggers first.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. The True Definition of Absolute Zero Asymptote</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              The Third Law of Thermodynamics strictly prevents any physical system from reaching absolute zero ((0\text{ K})) in a finite number of steps. The expanding cosmic cosmological event horizon emits de Sitter Gibbons-Hawking radiation at roughly (T_{\text{dS}} \approx 10^{-30}\text{ K}), ensuring an eternal quantum thermal floor.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: The Heat Death of the Universe</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the Heat Death of the universe?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Heat Death (the Big Freeze) is the ultimate thermodynamic state of the universe where all physical processes cease. As entropy reaches its absolute maximum, temperature gradients flatten, stars burn out, black holes evaporate, and no thermodynamic work can ever be extracted again.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why are we living in the very dawn of the universe right now?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              The Stelliferous Era (the star-bearing era) lasts roughly 100 trillion years ((10^{14}) years). Our universe is currently only 13.8 billion years old ((1.38 \times 10^{10}) years), meaning only <strong>0.0138%</strong> of the star-forming era has elapsed. We exist in the earliest cosmological morning.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do black holes evaporate if nothing can escape their gravity?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              In 1974, Stephen Hawking proved quantum vacuum fluctuations create virtual particle-antiparticle pairs near the event horizon. One particle falls in while the other escapes as thermal radiation. To conserve energy, the black hole loses mass, evaporating completely over (10^{67}) to (10^{100}) years.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is proton decay and why does it dissolve solid matter?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Protons form atomic nuclei. Grand Unified Theories predict that protons are slightly unstable with half-lives around (10^{34}) to (10^{38}) years. When protons decay into leptons and gamma rays, atoms dissolve completely, turning all solid rocks, dead planets, and white dwarfs into pure radiation.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Could conscious life survive in the Black Hole Era?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Theoretically, advanced civilizations could harvest energy from rotating black holes using the Penrose Process or by encircling black holes with Dyson swarms to capture Hawking radiation. By slowing down subjective clock speeds (computational hibernation), digital minds could extract subjective eons of thought.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <script>
       var hdMilestones = [
-        { exp: 0, title: 'Year 1 (Today)', era: 'The Present Day', desc: 'Conscious biological beings build computers, look at the night sky, and wonder about the end of time. Stars shine brightly throughout billions of galaxies.' },
-        { exp: 9, title: 'Year 10^9 (1 Billion Yrs)', era: 'The Solar Evaporation Era', desc: 'The Sun expands in luminosity by 10%. Earth oceans evaporate entirely; complex surface life ceases to exist. Only subterranean extremophiles survive.' },
-        { exp: 10, title: 'Year 10^10 (10 Billion Yrs)', era: 'The Stelliferous Era', desc: 'The Sun exhausts its core hydrogen, expands into a red giant swallowing Mercury and Venus, and sheds outer layers into a planetary nebula, leaving behind a white dwarf.' },
-        { exp: 14, title: 'Year 10^14 (100 Trillion Yrs)', era: 'End of Star Formation', desc: 'The smallest red dwarf stars exhaust their hydrogen fuel. The last stars burn out. The universe goes dark to human eyes. Galaxies are populated only by white dwarfs, neutron stars, and black holes.' },
-        { exp: 15, title: 'Year 10^15 (1 Quadrillion Yrs)', era: 'The Degenerate Era', desc: 'Planetary orbits decay via gravitational radiation. Rogue planets are stripped from dead stars and ejected into interstellar space.' },
-        { exp: 40, title: 'Year 10^40 (10 Duodecillion Yrs)', era: 'Proton Decay', desc: 'Protons within atomic nuclei spontaneously decay into positrons and pions (half-life ~ 10^34 to 10^38 years). All matter dissolves. Rocks, dead planets, and white dwarfs melt away into radiation.' },
-        { exp: 67, title: 'Year 10^67 (Stellar Black Holes Evaporate)', era: 'The Black Hole Era', desc: 'Stellar-mass black holes completely evaporate into photons through Hawking radiation.' },
-        { exp: 100, title: 'Year 10^100 (The Big Freeze)', era: 'The Dark Era', desc: 'The final supermassive black holes evaporate in a burst of gamma rays. No energy can ever be extracted again. Absolute zero temperature. Maximum entropy. The end of time itself.' }
+        { exp: 0, title: 'Year 1 (Today)', era: 'The Present Day', thermo: 'Active Stellar Fusion & Anthropocene Biosphere', desc: 'Conscious biological beings build supercomputers, gaze at starry skies, and peer into deep time. Stars actively form across hundreds of billions of galaxies.' },
+        { exp: 8, title: 'Year 10^8 (100 Million Yrs)', era: 'Saturn Ring Evaporation', thermo: 'Planetary Gravitational Resonances', desc: 'Saturn\'s magnificent ice rings are completely drained into the planet\'s upper atmosphere by magnetic ring-rain. Earth experiences continuous continental drift.' },
+        { exp: 9, title: 'Year 10^9 (1 Billion Yrs)', era: 'The Solar Evaporation Era', thermo: 'Solar Core Helium Accumulation', desc: 'The Sun\'s core temperature rises, expanding solar luminosity by 10%. Terrestrial oceans boil away entirely into space. Surface life vanishes; only subterranean extremophiles survive.' },
+        { exp: 10, title: 'Year 10^10 (10 Billion Yrs)', era: 'The Stelliferous Era (Sun Dies)', thermo: 'Red Giant Transition & White Dwarf Cooling', desc: 'The Sun exhausts core hydrogen, expands into a red giant consuming Mercury and Venus, and sheds its outer envelope into a planetary nebula, leaving behind a cold white dwarf.' },
+        { exp: 12, title: 'Year 10^12 (1 Trillion Yrs)', era: 'The Milkomeda Elliptical Galaxy', thermo: 'Intergalactic Gas Starvation', desc: 'The Milky Way and Andromeda merge into a giant elliptical galaxy. Cosmological acceleration pulls distant galactic clusters beyond our cosmological event horizon.' },
+        { exp: 14, title: 'Year 10^14 (100 Trillion Yrs)', era: 'End of Star Formation', thermo: 'Exhaustion of Interstellar Molecular Clouds', desc: 'The longest-lived red dwarf stars exhaust their hydrogen reserves. The last stars burn out. The universe goes permanently dark to human vision. Only stellar remnants remain.' },
+        { exp: 15, title: 'Year 10^15 (1 Quadrillion Yrs)', era: 'The Degenerate Era', thermo: 'Gravitational Dynamical Relaxation', desc: 'Dead stars and planets encounter rogue bodies. Orbits decay via gravitational radiation. Dead planets are stripped from parent stars and tossed into the cosmic void.' },
+        { exp: 19, title: 'Year 10^19 (10 Quintillion Yrs)', era: 'Galaxy Evaporation', thermo: 'Gravitational Scattering & Slingshots', desc: 'Over 99% of dead stellar remnants in galaxies are flung out into intergalactic space by near-miss gravitational slingshots. The remaining 1% collapse into central supermassive black holes.' },
+        { exp: 34, title: 'Year 10^34 (Minimal Proton Decay)', era: 'Onset of Nucleon Instability', thermo: 'Grand Unified Scale Baryon Decay', desc: 'The minimal theoretical threshold for proton decay is breached. Positrons and pions begin radiating from inside atomic nuclei across all matter.' },
+        { exp: 40, title: 'Year 10^40 (Total Proton Decay)', era: 'The Black Hole Era', thermo: 'Total Dissolution of Baryonic Matter', desc: 'All protons and neutrons within atomic nuclei have decayed into positrons, neutrinos, and radiation. All planets, moons, and dead stars completely dissolve. Only black holes exist.' },
+        { exp: 67, title: 'Year 10^67 (Stellar Black Holes Die)', era: 'Hawking Radiation Evaporation', thermo: 'Quantum Virtual Particle Radiation', desc: 'Stellar-mass black holes (3 to 20 solar masses) completely evaporate into photons and gravitons, ending with a violent final burst of high-energy gamma rays.' },
+        { exp: 100, title: 'Year 10^100 (The Big Freeze)', era: 'The Dark Era', thermo: 'Thermodynamic Maximum Entropy', desc: 'The most gargantuan supermassive black holes (TON 618, Phoenix A) evaporate in blinding flashes of radiation. No thermodynamic free energy remains anywhere. The universe reaches maximum entropy.' }
       ];
 
       function updateHDTimeline(val) {
         var exp = parseInt(val, 10);
+        document.getElementById('hdExpDisplay').textContent = '10^' + exp + ' Years';
+
         var cur = hdMilestones[0];
         for (var i = 0; i < hdMilestones.length; i++) {
           if (exp >= hdMilestones[i].exp) {
@@ -2579,7 +3142,36 @@ export function buildViralTools() {
 
         document.getElementById('hdYear').textContent = 'Year 10^' + exp;
         document.getElementById('hdEra').textContent = cur.era;
+        document.getElementById('hdThermodynamics').textContent = cur.thermo;
         document.getElementById('hdDetails').innerHTML = '<strong>' + cur.title + ':</strong> ' + cur.desc;
+      }
+
+      function copyTimelineAssessment() {
+        var year = document.getElementById('hdYear').textContent;
+        var era = document.getElementById('hdEra').textContent;
+        var thermo = document.getElementById('hdThermodynamics').textContent;
+        var details = document.getElementById('hdDetails').textContent;
+
+        var report = '=== COSMOLOGICAL DEEP TIME & HEAT DEATH REPORT ===\n' +
+          'Selected Cosmic Epoch: ' + year + '\n' +
+          'Thermodynamic Era: ' + era + '\n' +
+          'Dominant Physical Process: ' + thermo + '\n' +
+          'Cosmic Event Summary: ' + details + '\n' +
+          'Reference: Adams & Laughlin (1997) Five Cosmic Eras\n' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        var btn = document.getElementById('copyHDBtn');
+        navigator.clipboard.writeText(report).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Epoch Details Copied!';
+          btn.style.borderColor = '#10b981';
+          btn.style.color = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+          }, 2500);
+        });
       }
 
       document.addEventListener('DOMContentLoaded', function() { updateHDTimeline(10); });
@@ -2591,7 +3183,29 @@ export function buildViralTools() {
     metaDesc: 'Interactive deep time logarithmic slider tracking the universe from the death of the Sun to proton decay, black hole evaporation, and the Big Freeze.',
     canonical: `${DOMAIN}/util/heat-death-timeline`,
     bodyContent: heatDeathHtml,
-    currentPath: '/util/heat-death-timeline'
+    currentPath: '/util/heat-death-timeline',
+    faqSchema: [
+      {
+        q: "What is the Heat Death of the universe?",
+        a: "Heat Death (the Big Freeze) is the ultimate thermodynamic state of maximum entropy where temperature gradients flatten and all physical work ceases."
+      },
+      {
+        q: "Why are we living in the very dawn of the universe right now?",
+        a: "The star-forming Stelliferous Era lasts 100 trillion years; at 13.8 billion years old, only 0.0138% of the star-forming era has elapsed."
+      },
+      {
+        q: "How do black holes evaporate if nothing can escape their gravity?",
+        a: "Quantum vacuum fluctuations at the event horizon produce Hawking radiation, causing black holes to slowly lose mass over 10^67 to 10^100 years."
+      },
+      {
+        q: "What is proton decay and why does it dissolve solid matter?",
+        a: "Predicted by GUT models, proton decay causes atomic nuclei to decay into positrons and photons, completely dissolving all baryonic matter."
+      },
+      {
+        q: "Could conscious life survive in the Black Hole Era?",
+        a: "Digital minds could theoretically harvest energy from rotating black holes via the Penrose process, slowing clock speeds to survive subjective eons."
+      }
+    ]
   }));
 
   console.log('  ✓ Built Viral & Reality Suite (AI Water Counter, Desmos Graphing Calculator, Scale Visualizer, Fermi Paradox, Cosmic Calendar, Life in Weeks, Billion Seconds, Blast Radius, Infinite Monkey, Simulation Argument, Existential Risk, Heat Death Timeline)');

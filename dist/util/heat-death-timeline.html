@@ -1034,40 +1034,173 @@
         <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #a855f7; margin-bottom: 0.5rem;">2 AM Deep Time Void</div>
         <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Heat Death of the Universe Logarithmic Timeline</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Scrub across 100 orders of magnitude of deep time: from the death of the Sun to proton decay, the evaporation of black holes, and the eternal Dark Era.
+          Scrub across 100 orders of magnitude of cosmological deep time: from the death of the Sun to proton decay, the evaporation of black holes, and the eternal Dark Era.
         </p>
       </header>
 
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
         <div style="margin-bottom: 1.5rem;">
-          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Logarithmic Deep Time Scrubber (10^X Years into the Future)</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Logarithmic Deep Time Scrubber (10^X Years into Future)</label>
+            <span id="hdExpDisplay" style="font-family: var(--mono); font-size: 0.85rem; color: #a855f7; font-weight: bold;">10^10 Years</span>
+          </div>
           <input type="range" id="hdSlider" min="0" max="100" value="10" oninput="updateHDTimeline(this.value)" style="width: 100%; cursor: pointer;" />
         </div>
 
         <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem;">
           <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Future Cosmic Epoch</div>
-          <div id="hdYear" style="font-family: var(--mono); font-size: 2.6rem; font-weight: bold; color: #a855f7; margin: 0.25rem 0;">Year 10^10 (10 Billion)</div>
+          <div id="hdYear" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #a855f7; margin: 0.25rem 0;">Year 10^10 (10 Billion)</div>
           <div id="hdEra" style="font-family: var(--serif); font-size: 1.3rem; color: var(--fg); margin-top: 0.35rem;">The Stelliferous Era</div>
+          <div id="hdThermodynamics" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">Active Hydrogen Fusion & Galactic Evolution</div>
         </div>
 
-        <div id="hdDetails" style="background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; font-size: 0.95rem; line-height: 1.6; color: var(--fg);"></div>
+        <div id="hdDetails" style="background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1.25rem;"></div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" id="copyHDBtn" onclick="copyTimelineAssessment()" class="btn-sm" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+            📋 Copy Cosmological Epoch Details
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL & PHYSICAL DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Fred Adams & Gregory Laughlin 5 Cosmic Eras: Step-by-Step Derivations</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. The 5 Thermodynamic Cosmic Eras</strong>
+            <ul>
+              <li><strong>1. Primordial Era ((10^{-50} le t < 10^5) yrs):</strong> Inflation, Big Bang nucleosynthesis, CMB recombination.</li>
+              <li><strong>2. Stelliferous Era ((10^6 le t < 10^{14}) yrs):</strong> Star birth, nuclear burning, biological life (WE ARE HERE: age (1.38 	imes 10^{10}) yrs is only 0.0138% through!).</li>
+              <li><strong>3. Degenerate Era ((10^{15} le t < 10^{39}) yrs):</strong> White dwarfs, neutron stars, black holes, brown dwarfs. All stars dead.</li>
+              <li><strong>4. Black Hole Era ((10^{40} le t < 10^{100}) yrs):</strong> Proton decay wipes atomic matter; only black holes survive.</li>
+              <li><strong>5. Dark Era ((t ge 10^{101}) yrs):</strong> Hawking evaporation completes; diffuse photons, leptons, absolute cold.</li>
+            </ul>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #a855f7;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Hawking Radiation Evaporation Time Formula</strong>
+            For a Schwarzschild black hole of mass (M), quantum virtual particle pairs at the event horizon evaporate the mass over timescale:
+            $$	au = rac{5120 pi G^2 M^3}{hbar c^4} approx 2.1 	imes 10^{67} left(rac{M}{M_odot}ight)^3	ext{ years}$$
+            For a stellar black hole ((3 M_odot)), (	au approx 5.6 	imes 10^{68}) years. For TON 618 (66 billion (M_odot)), (	au approx 6.0 	imes 10^{99}) years.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. Proton Decay & Grand Unification (GUT Scale)</strong>
+            $$p^+ 	o e^+ + pi^0 	o e^+ + 2gamma$$
+            Under minimal GUT models, baryon number is not conserved. With a half-life of (10^{34}) to (10^{38}) years, every atomic nucleus in every dead star, planet, and asteroid dissolves into positrons, neutrinos, and gamma-ray photons by year (10^{40}).
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & COSMOLOGICAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Fallacies in Deep Time & Cosmology</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Logarithmic Scale Collapse Delusion</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              The human mind treats a slider from 0 to 100 as linear. Moving from (10^{10}) to (10^{20}) is not "twice as long"—it is ten billion times longer than the entire age of the universe. (10^{100}) exceeds the total number of atoms in the observable universe ((10^{80})) by twenty orders of magnitude.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. The Unobserved Proton Decay Hypothesis</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Proton decay is essential for the transition to the Black Hole Era. However, giant subterranean water Cherenkov detectors like Super-Kamiokande have not detected a single proton decay event, establishing an empirical lower bound of (	au_p > 1.6 	imes 10^{34}) years. If protons never decay, cold matter persists until quantum tunneling converts all matter into iron stars at year (10^{1500}).
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Phantom Dark Energy & The Big Rip Alternative</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Heat Death assumes dark energy obeys an exact cosmological constant (w = -1). If dark energy is phantom energy ((w < -1)), the expansion rate accelerates asymptotically into a <strong>Big Rip</strong> within ~22 billion years, tearing galaxies, stars, planets, and atomic nuclei apart long before the Stelliferous Era can naturally conclude.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. The Boltzmann Brain Paradox in de Sitter Vacuum</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              In an eternal de Sitter vacuum with temperature (T sim 10^{-30}) K, rare thermodynamic quantum fluctuations will eventually spontaneously assemble conscious observer brains complete with false memories. Over infinite time, these "Boltzmann Brains" vastly outnumber biologically evolved observers unless vacuum decay triggers first.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. The True Definition of Absolute Zero Asymptote</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              The Third Law of Thermodynamics strictly prevents any physical system from reaching absolute zero ((0	ext{ K})) in a finite number of steps. The expanding cosmic cosmological event horizon emits de Sitter Gibbons-Hawking radiation at roughly (T_{	ext{dS}} approx 10^{-30}	ext{ K}), ensuring an eternal quantum thermal floor.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: The Heat Death of the Universe</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the Heat Death of the universe?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Heat Death (the Big Freeze) is the ultimate thermodynamic state of the universe where all physical processes cease. As entropy reaches its absolute maximum, temperature gradients flatten, stars burn out, black holes evaporate, and no thermodynamic work can ever be extracted again.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why are we living in the very dawn of the universe right now?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              The Stelliferous Era (the star-bearing era) lasts roughly 100 trillion years ((10^{14}) years). Our universe is currently only 13.8 billion years old ((1.38 	imes 10^{10}) years), meaning only <strong>0.0138%</strong> of the star-forming era has elapsed. We exist in the earliest cosmological morning.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How do black holes evaporate if nothing can escape their gravity?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              In 1974, Stephen Hawking proved quantum vacuum fluctuations create virtual particle-antiparticle pairs near the event horizon. One particle falls in while the other escapes as thermal radiation. To conserve energy, the black hole loses mass, evaporating completely over (10^{67}) to (10^{100}) years.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is proton decay and why does it dissolve solid matter?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Protons form atomic nuclei. Grand Unified Theories predict that protons are slightly unstable with half-lives around (10^{34}) to (10^{38}) years. When protons decay into leptons and gamma rays, atoms dissolve completely, turning all solid rocks, dead planets, and white dwarfs into pure radiation.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Could conscious life survive in the Black Hole Era?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Theoretically, advanced civilizations could harvest energy from rotating black holes using the Penrose Process or by encircling black holes with Dyson swarms to capture Hawking radiation. By slowing down subjective clock speeds (computational hibernation), digital minds could extract subjective eons of thought.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <script>
       var hdMilestones = [
-        { exp: 0, title: 'Year 1 (Today)', era: 'The Present Day', desc: 'Conscious biological beings build computers, look at the night sky, and wonder about the end of time. Stars shine brightly throughout billions of galaxies.' },
-        { exp: 9, title: 'Year 10^9 (1 Billion Yrs)', era: 'The Solar Evaporation Era', desc: 'The Sun expands in luminosity by 10%. Earth oceans evaporate entirely; complex surface life ceases to exist. Only subterranean extremophiles survive.' },
-        { exp: 10, title: 'Year 10^10 (10 Billion Yrs)', era: 'The Stelliferous Era', desc: 'The Sun exhausts its core hydrogen, expands into a red giant swallowing Mercury and Venus, and sheds outer layers into a planetary nebula, leaving behind a white dwarf.' },
-        { exp: 14, title: 'Year 10^14 (100 Trillion Yrs)', era: 'End of Star Formation', desc: 'The smallest red dwarf stars exhaust their hydrogen fuel. The last stars burn out. The universe goes dark to human eyes. Galaxies are populated only by white dwarfs, neutron stars, and black holes.' },
-        { exp: 15, title: 'Year 10^15 (1 Quadrillion Yrs)', era: 'The Degenerate Era', desc: 'Planetary orbits decay via gravitational radiation. Rogue planets are stripped from dead stars and ejected into interstellar space.' },
-        { exp: 40, title: 'Year 10^40 (10 Duodecillion Yrs)', era: 'Proton Decay', desc: 'Protons within atomic nuclei spontaneously decay into positrons and pions (half-life ~ 10^34 to 10^38 years). All matter dissolves. Rocks, dead planets, and white dwarfs melt away into radiation.' },
-        { exp: 67, title: 'Year 10^67 (Stellar Black Holes Evaporate)', era: 'The Black Hole Era', desc: 'Stellar-mass black holes completely evaporate into photons through Hawking radiation.' },
-        { exp: 100, title: 'Year 10^100 (The Big Freeze)', era: 'The Dark Era', desc: 'The final supermassive black holes evaporate in a burst of gamma rays. No energy can ever be extracted again. Absolute zero temperature. Maximum entropy. The end of time itself.' }
+        { exp: 0, title: 'Year 1 (Today)', era: 'The Present Day', thermo: 'Active Stellar Fusion & Anthropocene Biosphere', desc: 'Conscious biological beings build supercomputers, gaze at starry skies, and peer into deep time. Stars actively form across hundreds of billions of galaxies.' },
+        { exp: 8, title: 'Year 10^8 (100 Million Yrs)', era: 'Saturn Ring Evaporation', thermo: 'Planetary Gravitational Resonances', desc: 'Saturn's magnificent ice rings are completely drained into the planet's upper atmosphere by magnetic ring-rain. Earth experiences continuous continental drift.' },
+        { exp: 9, title: 'Year 10^9 (1 Billion Yrs)', era: 'The Solar Evaporation Era', thermo: 'Solar Core Helium Accumulation', desc: 'The Sun's core temperature rises, expanding solar luminosity by 10%. Terrestrial oceans boil away entirely into space. Surface life vanishes; only subterranean extremophiles survive.' },
+        { exp: 10, title: 'Year 10^10 (10 Billion Yrs)', era: 'The Stelliferous Era (Sun Dies)', thermo: 'Red Giant Transition & White Dwarf Cooling', desc: 'The Sun exhausts core hydrogen, expands into a red giant consuming Mercury and Venus, and sheds its outer envelope into a planetary nebula, leaving behind a cold white dwarf.' },
+        { exp: 12, title: 'Year 10^12 (1 Trillion Yrs)', era: 'The Milkomeda Elliptical Galaxy', thermo: 'Intergalactic Gas Starvation', desc: 'The Milky Way and Andromeda merge into a giant elliptical galaxy. Cosmological acceleration pulls distant galactic clusters beyond our cosmological event horizon.' },
+        { exp: 14, title: 'Year 10^14 (100 Trillion Yrs)', era: 'End of Star Formation', thermo: 'Exhaustion of Interstellar Molecular Clouds', desc: 'The longest-lived red dwarf stars exhaust their hydrogen reserves. The last stars burn out. The universe goes permanently dark to human vision. Only stellar remnants remain.' },
+        { exp: 15, title: 'Year 10^15 (1 Quadrillion Yrs)', era: 'The Degenerate Era', thermo: 'Gravitational Dynamical Relaxation', desc: 'Dead stars and planets encounter rogue bodies. Orbits decay via gravitational radiation. Dead planets are stripped from parent stars and tossed into the cosmic void.' },
+        { exp: 19, title: 'Year 10^19 (10 Quintillion Yrs)', era: 'Galaxy Evaporation', thermo: 'Gravitational Scattering & Slingshots', desc: 'Over 99% of dead stellar remnants in galaxies are flung out into intergalactic space by near-miss gravitational slingshots. The remaining 1% collapse into central supermassive black holes.' },
+        { exp: 34, title: 'Year 10^34 (Minimal Proton Decay)', era: 'Onset of Nucleon Instability', thermo: 'Grand Unified Scale Baryon Decay', desc: 'The minimal theoretical threshold for proton decay is breached. Positrons and pions begin radiating from inside atomic nuclei across all matter.' },
+        { exp: 40, title: 'Year 10^40 (Total Proton Decay)', era: 'The Black Hole Era', thermo: 'Total Dissolution of Baryonic Matter', desc: 'All protons and neutrons within atomic nuclei have decayed into positrons, neutrinos, and radiation. All planets, moons, and dead stars completely dissolve. Only black holes exist.' },
+        { exp: 67, title: 'Year 10^67 (Stellar Black Holes Die)', era: 'Hawking Radiation Evaporation', thermo: 'Quantum Virtual Particle Radiation', desc: 'Stellar-mass black holes (3 to 20 solar masses) completely evaporate into photons and gravitons, ending with a violent final burst of high-energy gamma rays.' },
+        { exp: 100, title: 'Year 10^100 (The Big Freeze)', era: 'The Dark Era', thermo: 'Thermodynamic Maximum Entropy', desc: 'The most gargantuan supermassive black holes (TON 618, Phoenix A) evaporate in blinding flashes of radiation. No thermodynamic free energy remains anywhere. The universe reaches maximum entropy.' }
       ];
 
       function updateHDTimeline(val) {
         var exp = parseInt(val, 10);
+        document.getElementById('hdExpDisplay').textContent = '10^' + exp + ' Years';
+
         var cur = hdMilestones[0];
         for (var i = 0; i < hdMilestones.length; i++) {
           if (exp >= hdMilestones[i].exp) {
@@ -1077,7 +1210,42 @@
 
         document.getElementById('hdYear').textContent = 'Year 10^' + exp;
         document.getElementById('hdEra').textContent = cur.era;
+        document.getElementById('hdThermodynamics').textContent = cur.thermo;
         document.getElementById('hdDetails').innerHTML = '<strong>' + cur.title + ':</strong> ' + cur.desc;
+      }
+
+      function copyTimelineAssessment() {
+        var year = document.getElementById('hdYear').textContent;
+        var era = document.getElementById('hdEra').textContent;
+        var thermo = document.getElementById('hdThermodynamics').textContent;
+        var details = document.getElementById('hdDetails').textContent;
+
+        var report = '=== COSMOLOGICAL DEEP TIME & HEAT DEATH REPORT ===
+' +
+          'Selected Cosmic Epoch: ' + year + '
+' +
+          'Thermodynamic Era: ' + era + '
+' +
+          'Dominant Physical Process: ' + thermo + '
+' +
+          'Cosmic Event Summary: ' + details + '
+' +
+          'Reference: Adams & Laughlin (1997) Five Cosmic Eras
+' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        var btn = document.getElementById('copyHDBtn');
+        navigator.clipboard.writeText(report).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Epoch Details Copied!';
+          btn.style.borderColor = '#10b981';
+          btn.style.color = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+          }, 2500);
+        });
       }
 
       document.addEventListener('DOMContentLoaded', function() { updateHDTimeline(10); });

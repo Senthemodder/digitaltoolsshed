@@ -1031,76 +1031,289 @@
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #dc2626; margin-bottom: 0.5rem;">2 AM Civilizational Fragility</div>
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Existential Risk & Human Survival Calculator</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ef4444; margin-bottom: 0.5rem;">2 AM Civilizational Survival</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Existential Risk & 100-Year Human Survival Calculator</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          What are the odds humanity survives the next 100 years? Based on Oxford philosopher Toby Ord's <em>The Precipice</em>, calibrate threats from AI, bioweapons, and nuclear war.
+          Calculate the statistical odds of human civilizational survival over the next century across AI, engineered pandemics, nuclear war, and natural hazards based on Oxford philosopher Toby Ord's <em>The Precipice</em>.
         </p>
       </header>
 
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+          <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Model Presets:</span>
+          <button type="button" class="btn-sm" onclick="setXRPreset('ord')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">Oxford (Toby Ord Precipice: ~1 in 6)</button>
+          <button type="button" class="btn-sm" onclick="setXRPreset('optimist')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">Techno-Optimist (~1 in 50)</button>
+          <button type="button" class="btn-sm" onclick="setXRPreset('pessimist')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">Existential Doom Peak (~1 in 2)</button>
+        </div>
+
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Unaligned AGI Catastrophe (%)</label>
-            <input type="range" id="xr-ai" min="0" max="50" value="10" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
-            <div id="xr-ai-val" style="font-family: var(--mono); font-size: 0.9rem; color: #ef4444;">10.0% (Toby Ord baseline: 1 in 10)</div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Unaligned Artificial Superintelligence (%)</label>
+            <input type="range" id="xr-ai" min="0" max="50" step="0.5" value="10" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-ai-val" style="font-family: var(--mono); font-size: 0.85rem; color: #ef4444;">10.0% (Ord: 1 in 10)</div>
           </div>
 
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Engineered Pandemic (%)</label>
-            <input type="range" id="xr-bio" min="0" max="30" value="3.3" step="0.5" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
-            <div id="xr-bio-val" style="font-family: var(--mono); font-size: 0.9rem; color: #f59e0b;">3.3% (Toby Ord baseline: 1 in 30)</div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Engineered Pandemics / Synthetic Bio (%)</label>
+            <input type="range" id="xr-bio" min="0" max="30" step="0.5" value="3.3" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-bio-val" style="font-family: var(--mono); font-size: 0.85rem; color: #f59e0b;">3.3% (Ord: 1 in 30)</div>
           </div>
 
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Nuclear World War (%)</label>
-            <input type="range" id="xr-nuke" min="0" max="20" value="1.0" step="0.5" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
-            <div id="xr-nuke-val" style="font-family: var(--mono); font-size: 0.9rem; color: #3b82f6;">1.0% (1 in 100)</div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Nuclear War & Severe Nuclear Winter (%)</label>
+            <input type="range" id="xr-nuke" min="0" max="20" step="0.1" value="1.0" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-nuke-val" style="font-family: var(--mono); font-size: 0.85rem; color: #eab308;">1.0% (Ord: 1 in 1,000 to 1 in 100)</div>
           </div>
 
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Runaway Climate Tipping (%)</label>
-            <input type="range" id="xr-clim" min="0" max="10" value="0.1" step="0.1" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
-            <div id="xr-clim-val" style="font-family: var(--mono); font-size: 0.9rem; color: #10b981;">0.1% (1 in 1,000)</div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Runaway Climate Change & Environmental (%)</label>
+            <input type="range" id="xr-clim" min="0" max="15" step="0.1" value="0.1" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-clim-val" style="font-family: var(--mono); font-size: 0.85rem; color: #10b981;">0.1% (Ord: 1 in 1,000)</div>
+          </div>
+
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Unforeseen Anthropogenic Risks (Nanotech, Physics) (%)</label>
+            <input type="range" id="xr-other" min="0" max="20" step="0.5" value="3.3" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-other-val" style="font-family: var(--mono); font-size: 0.85rem; color: #8b5cf6;">3.3% (Ord: 1 in 30)</div>
+          </div>
+
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Natural Risks (Supervolcanoes, Asteroids, Supernovae) (%)</label>
+            <input type="range" id="xr-nat" min="0" max="5" step="0.01" value="0.01" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-nat-val" style="font-family: var(--mono); font-size: 0.85rem; color: #3b82f6;">0.01% (Ord: 1 in 10,000)</div>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; text-align: center;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; text-align: center; margin-bottom: 1.5rem;">
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
-            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Total Catastrophe Risk (Next 100 Yrs)</span>
-            <div id="xrTotal" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">13.8%</div>
-            <div id="xrOdds" style="font-size: 0.8rem; color: var(--text-muted);">~1 in 7 chance of civilizational collapse</div>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">100-Year Extinction Probability</span>
+            <div id="xrTotal" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">16.7%</div>
+            <div id="xrOdds" style="font-size: 0.75rem; color: var(--text-muted);">~1 in 6 chance of civilizational collapse</div>
           </div>
 
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
-            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability of Human Survival</span>
-            <div id="xrSurvival" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">86.2%</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Navigating through "The Precipice" into adulthood</div>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">100-Year Survival Probability</span>
+            <div id="xrSurvival" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">83.3%</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Human potential reaches the next century</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" id="copyXRBtn" onclick="copyXRAssessment()" class="btn-sm" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+            📋 Copy Existential Risk Assessment
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">The Precipice Risk Model: Mathematical Derivations</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Joint Survival Probability Multiplicative Law</strong>
+            Assuming statistical independence across major existential threat vectors (r_1, r_2, dots, r_n), the probability that humanity survives all vectors across the 100-year window is:
+            $$P(	ext{Survival}) = prod_{i=1}^n (1 - r_i) = (1 - r_{	ext{AI}})(1 - r_{	ext{Bio}})(1 - r_{	ext{Nuke}})(1 - r_{	ext{Clim}})(1 - r_{	ext{Other}})(1 - r_{	ext{Nat}})$$
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #f59e0b;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Complementary Extinction Formulation</strong>
+            $$P(	ext{Extinction}) = 1 - P(	ext{Survival})$$
+            $$	ext{Odds of Collapse} = 1 	ext{ in } left(rac{100}{P(	ext{Extinction})%}ight)$$
+            Under Toby Ord's baseline estimates ((r_{	ext{AI}} = 10%, r_{	ext{Bio}} = 3.3%, r_{	ext{Other}} = 3.3%, r_{	ext{Nuke}} = 1%)), (P(	ext{Survival}) = 0.833) ((83.3%)), yielding an exact total risk of (16.7%) ((1 	ext{ in } 6.0)).
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. Nick Bostrom's Astronomical Value Principle</strong>
+            If human civilization survives and colonizes our local supercluster, the future could support approximately (10^{52}) happy, conscious biological and digital lives over cosmic time. Therefore, reducing existential risk by just <strong>one millionth of one percent</strong> ((10^{-8})) has an expected value equivalent to saving (10^{44}) future human lives.
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & EXISTENTIAL RISK PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Fallacies in Existential Risk Modeling</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Statistical Risk Independence Fallacy (Poly-Crisis Cascade)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              The multiplicative model assumes AI, bioweapons, climate disruption, and nuclear tensions are uncorrelated independent variables. In reality, a severe climate failure will collapse agricultural trade, driving desperate nuclear superpowers into conflict, while competitive AI races lead nations to bypass critical safety protocols.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Anthropogenic vs Natural Risk Asymmetry (2,000x Disparity)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Homo sapiens have survived 200,000 years of natural hazards (supervolcanoes, ice ages, comets) without going extinct. The background natural extinction rate is less than 1 in 10,000 per century. Anthropogenic threats created by human technology account for over <strong>99.9%</strong> of our current extinction danger.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Confusing Global Catastrophe with Existential Extinction</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              A catastrophic event that kills 90% of humanity (like the Black Death or a localized nuclear exchange) is an unimaginable tragedy, but NOT an existential catastrophe if the remaining 10% can eventually recover and rebuild civilizational technological capabilities. True existential risk requires the <strong>permanent and irrevocable destruction</strong> of human potential.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. Anthropic Survivorship Bias (The Silent Graveyard)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              People assume that because humanity survived the 1962 Cuban Missile Crisis and the Cold War, our institutions are fundamentally robust. But an observer can only ever find themselves in a timeline where their civilization did not blow itself up. Historical survival provides zero statistical proof of ongoing systemic safety.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Unrecoverable Dystopian Lock-In (Permanent Tyranny)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Existential risk includes not only biological extinction, but also permanent stagnation or unrecoverable totalitarian dystopias. Ubiquitous AI facial recognition, biometric monitoring, and autonomous enforcement drones could allow a totalitarian regime to achieve permanent lock-in, forever extinguishing freedom and potential.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Existential Risk & Human Survival</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is an existential risk as defined by modern philosophy?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              An existential risk is a risk that threatens the premature extinction of Earth-originating intelligent life or the permanent and drastic destruction of its potential for desirable future development.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why did Oxford philosopher Toby Ord calculate a 1 in 6 risk this century?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              In his 2020 book <em>The Precipice</em>, Ord aggregated comprehensive peer-reviewed scientific studies across AI safety, bioweapon proliferation, nuclear war, and climate feedback loops, concluding humanity's total extinction risk this century is approximately 1 in 6 (Russian roulette with a six-chambered revolver).
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why is artificial intelligence considered the single highest existential threat?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Unlike past technologies that amplified human physical strength, AI amplifies cognitive steering. An artificial superintelligence with goals misaligned with human survival would possess strategic, social, and technological capabilities vastly exceeding all of humanity combined.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why are natural extinction risks considered negligible compared to tech?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Fossil records demonstrate that mammalian species survive an average of 1 to 2 million years before natural extinction. Humanity survived roughly 2,000 centuries as hunter-gatherers, proving the background natural risk is on the order of 1 in 10,000 per century.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What can humanity do right now to safeguard civilizational survival?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Key priorities include technical AI alignment research, international DNA synthesis screening to prevent synthetic pathogen printing, early pathogen detection wastewater sequencing, hardening critical infrastructure against EMPs, and maintaining diplomatic de-escalation hotlines.
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      function setXRPreset(preset) {
+        if (preset === 'ord') {
+          document.getElementById('xr-ai').value = 10.0;
+          document.getElementById('xr-bio').value = 3.3;
+          document.getElementById('xr-nuke').value = 1.0;
+          document.getElementById('xr-clim').value = 0.1;
+          document.getElementById('xr-other').value = 3.3;
+          document.getElementById('xr-nat').value = 0.01;
+        } else if (preset === 'optimist') {
+          document.getElementById('xr-ai').value = 1.0;
+          document.getElementById('xr-bio').value = 0.5;
+          document.getElementById('xr-nuke').value = 0.2;
+          document.getElementById('xr-clim').value = 0.1;
+          document.getElementById('xr-other').value = 0.2;
+          document.getElementById('xr-nat').value = 0.01;
+        } else if (preset === 'pessimist') {
+          document.getElementById('xr-ai').value = 35.0;
+          document.getElementById('xr-bio').value = 15.0;
+          document.getElementById('xr-nuke').value = 5.0;
+          document.getElementById('xr-clim').value = 3.0;
+          document.getElementById('xr-other').value = 8.0;
+          document.getElementById('xr-nat').value = 0.05;
+        }
+        calcXR();
+      }
+
       function calcXR() {
         var ai = parseFloat(document.getElementById('xr-ai').value) / 100;
         var bio = parseFloat(document.getElementById('xr-bio').value) / 100;
         var nuke = parseFloat(document.getElementById('xr-nuke').value) / 100;
         var clim = parseFloat(document.getElementById('xr-clim').value) / 100;
+        var other = parseFloat(document.getElementById('xr-other').value) / 100;
+        var nat = parseFloat(document.getElementById('xr-nat').value) / 100;
 
-        document.getElementById('xr-ai-val').textContent = (ai * 100).toFixed(1) + '%';
-        document.getElementById('xr-bio-val').textContent = (bio * 100).toFixed(1) + '%';
-        document.getElementById('xr-nuke-val').textContent = (nuke * 100).toFixed(1) + '%';
-        document.getElementById('xr-clim-val').textContent = (clim * 100).toFixed(1) + '%';
+        document.getElementById('xr-ai-val').textContent = (ai * 100).toFixed(1) + '% (Ord: 1 in 10)';
+        document.getElementById('xr-bio-val').textContent = (bio * 100).toFixed(1) + '% (Ord: 1 in 30)';
+        document.getElementById('xr-nuke-val').textContent = (nuke * 100).toFixed(1) + '% (Ord: 1 in 100)';
+        document.getElementById('xr-clim-val').textContent = (clim * 100).toFixed(1) + '% (Ord: 1 in 1,000)';
+        document.getElementById('xr-other-val').textContent = (other * 100).toFixed(1) + '% (Ord: 1 in 30)';
+        document.getElementById('xr-nat-val').textContent = (nat * 100).toFixed(2) + '% (Ord: 1 in 10,000)';
 
-        // Survival = (1 - ai) * (1 - bio) * (1 - nuke) * (1 - clim)
-        var pSurvive = (1 - ai) * (1 - bio) * (1 - nuke) * (1 - clim);
+        // Multiplicative survival model: P(Survive) = Product(1 - r_i)
+        var pSurvive = (1 - ai) * (1 - bio) * (1 - nuke) * (1 - clim) * (1 - other) * (1 - nat);
         var pDoom = (1 - pSurvive) * 100;
         var odds = pDoom > 0 ? (100 / pDoom) : 999;
 
         document.getElementById('xrTotal').textContent = pDoom.toFixed(1) + '%';
         document.getElementById('xrSurvival').textContent = (pSurvive * 100).toFixed(1) + '%';
-        document.getElementById('xrOdds').textContent = '~1 in ' + Math.round(odds) + ' chance of civilizational collapse';
+        document.getElementById('xrOdds').textContent = '~1 in ' + odds.toFixed(1) + ' chance of civilizational collapse';
+      }
+
+      function copyXRAssessment() {
+        var ai = document.getElementById('xr-ai-val').textContent;
+        var bio = document.getElementById('xr-bio-val').textContent;
+        var nuke = document.getElementById('xr-nuke-val').textContent;
+        var clim = document.getElementById('xr-clim-val').textContent;
+        var other = document.getElementById('xr-other-val').textContent;
+        var nat = document.getElementById('xr-nat-val').textContent;
+        var total = document.getElementById('xrTotal').textContent;
+        var surv = document.getElementById('xrSurvival').textContent;
+        var odds = document.getElementById('xrOdds').textContent;
+
+        var report = '=== 100-YEAR EXISTENTIAL RISK & CIVILIZATIONAL SURVIVAL REPORT ===
+' +
+          'Artificial Superintelligence Risk: ' + ai + '
+' +
+          'Engineered Pandemics / Synthetic Bio: ' + bio + '
+' +
+          'Nuclear War & Nuclear Winter: ' + nuke + '
+' +
+          'Runaway Climate Change: ' + clim + '
+' +
+          'Unforeseen Anthropogenic Tech: ' + other + '
+' +
+          'Natural Hazards (Supervolcano, Asteroid): ' + nat + '
+' +
+          'Cumulative 100-Year Extinction Risk: ' + total + ' (' + odds + ')
+' +
+          'Cumulative 100-Year Survival Probability: ' + surv + '
+' +
+          'Model Reference: Oxford Toby Ord (The Precipice)
+' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        var btn = document.getElementById('copyXRBtn');
+        navigator.clipboard.writeText(report).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Risk Report Copied!';
+          btn.style.borderColor = '#10b981';
+          btn.style.color = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+          }, 2500);
+        });
       }
 
       document.addEventListener('DOMContentLoaded', calcXR);

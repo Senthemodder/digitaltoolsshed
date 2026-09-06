@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Simulation Hypothesis Calculator: Are We in a Simulation? | Digital Tools Shed</title>
-  <meta name="description" content="Calculate the mathematical probability that our universe is an ancestor computer simulation using Nick Bostrom's 2003 Trilemma framework — 100% free, instant & private.">
+  <meta name="description" content="Calculate the probability that we are living in a computer simulation using Nick Bostrom's 2003 Trilemma, Bayesian observer self-sampling, and posthuman computing limits.">
   <link rel="canonical" href="https://digitaltoolsshed.com/util/simulation-argument-calculator">
   <meta property="og:title" content="Simulation Hypothesis Calculator: Are We in a Simulation? | Digital Tools Shed">
-  <meta property="og:description" content="Calculate the mathematical probability that our universe is an ancestor computer simulation using Nick Bostrom's 2003 Trilemma framework — 100% free, instant & private.">
+  <meta property="og:description" content="Calculate the probability that we are living in a computer simulation using Nick Bostrom's 2003 Trilemma, Bayesian observer self-sampling, and posthuman computing limits.">
   <meta property="og:url" content="https://digitaltoolsshed.com/util/simulation-argument-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Simulation Hypothesis Calculator: Are We in a Simulation? | Digital Tools Shed">
-  <meta name="twitter:description" content="Calculate the mathematical probability that our universe is an ancestor computer simulation using Nick Bostrom's 2003 Trilemma framework — 100% free, instant & private.">
+  <meta name="twitter:description" content="Calculate the probability that we are living in a computer simulation using Nick Bostrom's 2003 Trilemma, Bayesian observer self-sampling, and posthuman computing limits.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -91,7 +91,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Calculate the mathematical probability that our universe is an ancestor computer simulation using Nick Bostrom's 2003 Trilemma framework.",
+  "description": "Calculate the probability that we are living in a computer simulation using Nick Bostrom's 2003 Trilemma, Bayesian observer self-sampling, and posthuman computing limits.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -136,7 +136,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the Simulation Hypothesis Calculator: Are We in a Simulation?",
-  "description": "Calculate the mathematical probability that our universe is an ancestor computer simulation using Nick Bostrom's 2003 Trilemma framework.",
+  "description": "Calculate the probability that we are living in a computer simulation using Nick Bostrom's 2003 Trilemma, Bayesian observer self-sampling, and posthuman computing limits.",
   "step": [
     {
       "@type": "HowToStep",
@@ -1034,66 +1034,256 @@
         <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">2 AM Metaphysical Trilemma</div>
         <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Simulation Argument Probability Calculator</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Are we living in base physical reality or an ancestor computer simulation? Calculate the Bayesian probability using philosopher Nick Bostrom's 2003 Trilemma.
+          Are we living in primordial base reality or inside an ancestor computer simulation? Calculate the Bayesian probability using Oxford philosopher Nick Bostrom's 2003 Trilemma.
         </p>
       </header>
 
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">fp: Civilizations Reaching Posthuman Tech (%)</label>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">f_p: Civilizations Reaching Posthuman Tech (%)</label>
             <input type="range" id="sim-fp" min="1" max="100" value="40" oninput="calcSim()" style="width: 100%; cursor: pointer;" />
             <div id="sim-fp-val" style="font-family: var(--mono); font-size: 0.9rem; color: #3b82f6;">40% (Survives extinction)</div>
           </div>
 
           <div>
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Ancestor Simulations Run Per Posthuman Species</label>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">f_sim: Posthuman Species Running Ancestor Sims (%)</label>
+            <input type="range" id="sim-fsim" min="1" max="100" value="50" oninput="calcSim()" style="width: 100%; cursor: pointer;" />
+            <div id="sim-fsim-val" style="font-family: var(--mono); font-size: 0.9rem; color: #8b5cf6;">50% (Interested in ancestor history)</div>
+          </div>
+
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">N_I: Simulations Run Per Posthuman Species</label>
             <input type="range" id="sim-ni" min="1" max="1000" value="100" oninput="calcSim()" style="width: 100%; cursor: pointer;" />
             <div id="sim-ni-val" style="font-family: var(--mono); font-size: 0.9rem; color: #10b981;">100 simulations</div>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; text-align: center; margin-bottom: 1.5rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; text-align: center; margin-bottom: 1.5rem;">
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
-            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability We Are in a Simulation</span>
-            <div id="simResult" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">97.6%</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Simulated minds vastly outnumber biological originals</div>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability of Being Simulated</span>
+            <div id="simResult" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">95.2%</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Simulated minds outnumber biological originals</div>
           </div>
 
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
             <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability of Base Reality</span>
-            <div id="baseResult" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">2.4%</div>
+            <div id="baseResult" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">4.8%</div>
             <div style="font-size: 0.75rem; color: var(--text-muted);">Living in original primordial universe</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Simulated-to-Real Mind Ratio</span>
+            <div id="simRatio" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">20 : 1</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Virtual observers per real biological human</div>
           </div>
         </div>
 
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem 1.25rem; border-radius: 6px; font-size: 0.9rem; line-height: 1.6; color: var(--fg);">
-          <strong>Bostrom's Trilemma:</strong> At least one of the following must be true:
-          <ol style="margin-top: 0.5rem; padding-left: 1.2rem;">
-            <li>Humanity goes extinct before developing high-level planetary supercomputers.</li>
-            <li>Posthuman civilizations lose all interest in simulating conscious human ancestors.</li>
-            <li>We are almost certainly living inside a software simulation right now.</li>
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem 1.25rem; border-radius: 6px; font-size: 0.9rem; line-height: 1.6; color: var(--fg); margin-bottom: 1.25rem;">
+          <strong>Bostrom's Trilemma:</strong> At least one of the following three propositions must be true:
+          <ol style="margin-top: 0.5rem; padding-left: 1.2rem; color: var(--text-muted);">
+            <li><strong>Proposition 1:</strong> Almost all human-level civilizations go extinct before reaching technological maturity.</li>
+            <li><strong>Proposition 2:</strong> There is strong convergence among technologically mature civilizations not to run ancestor simulations.</li>
+            <li><strong>Proposition 3:</strong> We are almost certainly living inside a computer simulation right now.</li>
           </ol>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" id="copySimBtn" onclick="copySimAssessment()" class="btn-sm" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+            📋 Copy Bayesian Simulation Report
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Nick Bostrom (2003) Bayesian Simulation Derivations</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Expected Observers Formulation</strong>
+            Let (f_p) be the fraction of civilizations reaching posthuman capability, and (f_{	ext{sim}}) be the fraction that create ancestor simulations. If each simulating civilization runs (N_I) simulations, the expected ratio of simulated observers to biological originals is:
+            $$	ext{Ratio} = f_p 	imes f_{	ext{sim}} 	imes N_I$$
+            With current slider settings: <span id="derSimCalc">0.40 × 0.50 × 100 = 20.0 simulated minds per biological mind</span>.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Self-Sampling Assumption (SSA) Bayesian Inversion</strong>
+            According to the Self-Sampling Assumption: "One should reason as if one were a random sample from the set of all observers in one's reference class."
+            $$P(	ext{Simulation}) = rac{N_{	ext{sim}}}{N_{	ext{sim}} + N_{	ext{bio}}} = rac{f_p cdot f_{	ext{sim}} cdot N_I}{1 + f_p cdot f_{	ext{sim}} cdot N_I}$$
+            When (N_I gg 1), the denominator is dominated by (N_{	ext{sim}}), causing (P(	ext{Simulation}) 	o 100%).
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. Planetary Computational Bound (Bremermann's Limit)</strong>
+            A single planetary supercomputer converting all mass into a quantum computer (computational limit (approx 1.36 	imes 10^{50}) operations per second per kilogram) could execute the entire mental history of humanity (roughly (10^{35}) operations) in less than (10^{-15}) seconds, making the energy cost of running ancestor simulations negligible for posthumans.
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & METAPHYSICAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Traps & Fallacies in the Simulation Argument</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Infinite Recursive Hierarchy Resource Collapse</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              If simulated beings create their own simulations (nested simulations), each tier demands an exponential multiplier of parent computing power. A civilization cannot simulate a universe with the same depth of quantum physics as its own without encountering a hard thermodynamic computational wall.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. The Unproven Substrate-Independence Axiom</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Bostrom's trilemma relies entirely on functionalism: the philosophical premise that subjective consciousness is substrate-independent and can arise from silicon transistors or optical logic gates just as it does from carbon synapses. If consciousness requires biological or non-computable quantum biology (e.g. Penrose's Orch-OR), simulation probability drops to zero.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. The Posthuman Ethics Prohibition (Proposition 2)</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Simulating conscious sentient human ancestors inherently involves recreating trillions of hours of human disease, physical agony, torture, heartbreak, and warfare. Technologically mature posthumans with advanced moral frameworks might legally outlaw ancestor simulations as extreme ethical crimes against sentient minds.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. The Cognitive Glitch & Mandela Effect Misattribution</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Internet forums often cite memory slips, déjà vu, optical illusions, or the "Mandela Effect" as evidence of "simulation render bugs." In reality, human memory is reconstructive and prone to neurobiological confabulation. A posthuman simulation engine would easily patch low-level memory discrepancies without leaving obvious perceptual glitches.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. Self-Sampling (SSA) vs Self-Indication (SIA) Discrepancy</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Under the Self-Indication Assumption (SIA), being alive gives evidence that the total number of observers in existence is huge. Physicists like Robin Hanson demonstrate that different observer reference classes produce wildly varying simulation probabilities, meaning our confidence in the 95%+ figure is subject to epistemic prior uncertainty.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: The Simulation Argument</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is Nick Bostrom's Simulation Argument?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Published in 2003 by Oxford philosopher Nick Bostrom, the argument proves mathematically that at least one of three statements must be true: either humanity goes extinct before creating simulated realities, advanced species choose never to simulate ancestors, or we are almost certainly simulated right now.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Does the argument prove we are definitely in a simulation?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              No. It is a strict trilemma. If you believe humanity will destroy itself before developing mature supercomputers (Proposition 1), or that posthumans consider ancestor simulations unethical or boring (Proposition 2), then the probability of being in a simulation remains very low.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How could a computer possibly simulate all atoms in the universe?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              A simulator does not need to compute trillions of galaxies down to the Planck scale continuously. Modern game engines use occlusion culling and lazy evaluation: rendering high resolution only where conscious observers are actively looking (analogous to the quantum wave function collapsing upon measurement).
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How does this differ from Descartes' Evil Demon?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Descartes used philosophical skepticism to demonstrate that sensory experience could be fabricated by an evil demon. Bostrom's argument is not skeptical solipsism; it relies on modern evolutionary cosmology, probability theory, and computer science to deduce relative observer populations.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can we perform any scientific test to detect if we are in a simulation?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Physicists like Silas Beane have proposed testing for grid artifacts in ultra-high-energy cosmic rays (Greisen-Zatsepin-Kuzmin cutoff) to determine if spacetime is discretized on a spatial lattice, which would be an engineering signature of a computational simulation.
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <script>
+      function toggleFaq(btn) {
+        var answer = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (answer.style.display === 'block') {
+          answer.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          answer.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
+      }
+
       function calcSim() {
         var fp = parseFloat(document.getElementById('sim-fp').value) / 100;
+        var fsim = parseFloat(document.getElementById('sim-fsim').value) / 100;
         var ni = parseFloat(document.getElementById('sim-ni').value);
 
         document.getElementById('sim-fp-val').textContent = (fp * 100).toFixed(0) + '% (Survives extinction)';
+        document.getElementById('sim-fsim-val').textContent = (fsim * 100).toFixed(0) + '% (Interested in ancestor sims)';
         document.getElementById('sim-ni-val').textContent = ni.toLocaleString('en-US') + ' simulations per civilization';
 
-        // Total simulated instances = fp * ni
-        // Base reality instances = 1
-        var totalSims = fp * ni;
-        var pSim = (totalSims / (1 + totalSims)) * 100;
+        // Expected simulated minds per biological original
+        var simRatio = fp * fsim * ni;
+        var pSim = (simRatio / (1 + simRatio)) * 100;
         var pBase = 100 - pSim;
 
         document.getElementById('simResult').textContent = pSim.toFixed(1) + '%';
         document.getElementById('baseResult').textContent = pBase.toFixed(1) + '%';
+        document.getElementById('simRatio').textContent = simRatio >= 1 ? simRatio.toFixed(1) + ' : 1' : '1 : ' + (1 / Math.max(0.001, simRatio)).toFixed(1);
+
+        var dCalc = document.getElementById('derSimCalc');
+        if (dCalc) {
+          dCalc.textContent = fp.toFixed(2) + ' × ' + fsim.toFixed(2) + ' × ' + ni.toFixed(0) + ' = ' + simRatio.toFixed(1) + ' simulated minds per biological mind';
+        }
+      }
+
+      function copySimAssessment() {
+        var fp = document.getElementById('sim-fp-val').textContent;
+        var fsim = document.getElementById('sim-fsim-val').textContent;
+        var ni = document.getElementById('sim-ni-val').textContent;
+        var pSim = document.getElementById('simResult').textContent;
+        var pBase = document.getElementById('baseResult').textContent;
+        var ratio = document.getElementById('simRatio').textContent;
+
+        var report = '=== BOSTROM SIMULATION ARGUMENT BAYESIAN REPORT ===
+' +
+          'Civilizations Reaching Maturity (f_p): ' + fp + '
+' +
+          'Civilizations Running Ancestor Sims (f_sim): ' + fsim + '
+' +
+          'Simulations Run Per Species (N_I): ' + ni + '
+' +
+          'Simulated-to-Base Mind Ratio: ' + ratio + '
+' +
+          'Probability We Live in a Simulation: ' + pSim + '
+' +
+          'Probability of Base Primordial Reality: ' + pBase + '
+' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        var btn = document.getElementById('copySimBtn');
+        navigator.clipboard.writeText(report).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Simulation Report Copied!';
+          btn.style.borderColor = '#10b981';
+          btn.style.color = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+          }, 2500);
+        });
       }
 
       document.addEventListener('DOMContentLoaded', calcSim);
