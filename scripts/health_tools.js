@@ -7020,7 +7020,1258 @@ window.copyIdealWeightSummary = function() {
           document.addEventListener('DOMContentLoaded', calcNoise);
         </script>
       `
-    }
+    },
+    {
+      slug: 'one-rep-max-calculator',
+      title: 'One-Rep Max Calculator (1RM) — Epley, Brzycki & 5/3/1 Load Table',
+      metaDesc: 'Calculate your true one-rep max (1RM) across 7 clinical strength formulas (Epley, Brzycki, Lander, Lombardi, Mayhew, O\'Conner, Wathan), RPE exertion scale, and percentage working set table for barbell training.',
+      category: 'Health & Fitness',
+      faq: [
+        { q: 'Which 1RM formula is the most accurate for barbell lifting?', a: 'The Epley and Brzycki formulas are the industry gold standards. For repetitions under 10, the Brzycki formula [Weight × (36 / (37 - Reps))] is widely regarded as the most accurate for the bench press, while the Epley formula [Weight × (1 + Reps / 30)] is favored by competitive powerlifters and strength coaches for squats and deadlifts.' },
+        { q: 'Why do 1RM calculators become inaccurate above 10 repetitions?', a: 'High-repetition sets (>10 reps) test muscular endurance, anaerobic lactic capacity, and cardiovascular conditioning rather than pure maximal neuromuscular recruitment. Muscle fiber recruitment kinetics shift from fast-twitch Type IIx to fatigue-resistant Type IIa and Type I fibers, making mathematical 1RM extrapolations significantly overestimate true single-rep capacity.' },
+        { q: 'What is RPE and how does it adjust my 1RM calculation?', a: 'Rating of Perceived Exertion (RPE) measures Reps in Reserve (RIR). An RPE of 10 means maximal effort with 0 reps in reserve. An RPE of 9 means 1 rep left before failure, and RPE 8 means 2 reps in reserve. Our calculator accounts for RPE by adjusting the effective rep count (Effective Reps = Reps + 10 - RPE) before calculating your theoretical maximum.' },
+        { q: 'How often should an athlete test their true physical 1RM?', a: 'Attempting a true maximal single rep imposes extreme axial compression and central nervous system (CNS) fatigue. Powerlifters and strength athletes typically test true 1RMs only every 8 to 16 weeks during a meet or peaking cycle. For daily progressive overload, submaximal estimates (e.g. 3-rep or 5-rep maximums) are safer and just as effective.' },
+        { q: 'How should I use the percentage load table for 5/3/1 or strength programming?', a: 'Most strength programs use a Training Max (TM), typically 90% of your calculated 1RM. For example, in Jim Wendler\'s 5/3/1 protocol, week 1 working sets are performed at 65%, 75%, and 85% of your Training Max. Our breakdown table provides exact barbell poundages for all standard training intensities from 50% to 95%.' }
+      ],
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 960px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health &amp; Fitness</a> &gt; One-Rep Max Calculator
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; line-height: 1.2;">One-Rep Max Calculator (1RM)</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Predict your 1-rep maximum load across 7 scientific formulas, RPE exertion levels, strength standards, and complete percentage working set tables for powerlifting and bodybuilding.
+          </p>
+
+          <div class="tool-box">
+            <!-- Unit Selector -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+              <button type="button" id="btn1rmLbs" onclick="set1rmUnit('lbs')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.15); color: #3b82f6; cursor: pointer; font-weight: 600;">Pounds (lbs)</button>
+              <button type="button" id="btn1rmKgs" onclick="set1rmUnit('kgs')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Kilograms (kg)</button>
+            </div>
+
+            <!-- Primary Inputs Grid -->
+            <div class="grid-inputs">
+              <div class="field-group">
+                <label class="field-label" id="lbl1rmWeight">Weight Lifted (lbs)</label>
+                <input type="number" id="rmWeight" class="code-input" value="225" min="10" max="1500" step="2.5" oninput="calc1RM()" style="font-size: 1.2rem; font-weight: bold;" />
+                <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; display: block;">Total barbell weight including collars</span>
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Reps Completed</label>
+                <input type="number" id="rmReps" class="code-input" value="5" min="1" max="15" step="1" oninput="calc1RM()" style="font-size: 1.2rem; font-weight: bold;" />
+                <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; display: block;">Best accuracy achieved between 1 and 8 reps</span>
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">RPE (Rating of Perceived Exertion)</label>
+                <select id="rmRpe" class="code-input" onchange="calc1RM()" style="font-size: 1rem;">
+                  <option value="10" selected>10 — Absolute Max (0 Reps in Reserve)</option>
+                  <option value="9.5">9.5 — Could maybe do 1 more rep</option>
+                  <option value="9">9.0 — Definitely 1 Rep in Reserve (1 RIR)</option>
+                  <option value="8.5">8.5 — Definitely 1, maybe 2 reps left</option>
+                  <option value="8">8.0 — Solid 2 Reps in Reserve (2 RIR)</option>
+                  <option value="7.5">7.5 — 2 to 3 Reps in Reserve</option>
+                  <option value="7">7.0 — Bar moved fast (3 Reps in Reserve)</option>
+                </select>
+                <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; display: block;">Adjusts for submaximal effort</span>
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Lift Discipline</label>
+                <select id="rmLiftType" class="code-input" onchange="calc1RM()" style="font-size: 1rem;">
+                  <option value="bench" selected>Barbell Bench Press</option>
+                  <option value="squat">Back Squat</option>
+                  <option value="deadlift">Conventional Deadlift</option>
+                  <option value="ohp">Overhead Press (OHP)</option>
+                </select>
+                <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; display: block;">Customizes primary recommendation</span>
+              </div>
+            </div>
+
+            <!-- RESULT DISPLAY CARDS -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div class="result-card" style="border-top: 4px solid #3b82f6;">
+                <div class="field-label" style="margin-bottom: 0.2rem;">Calculated 1RM (Epley Standard)</div>
+                <div id="resEpley" class="result-val" style="color: #3b82f6;">262.5 lbs</div>
+                <div id="resEpleyAlt" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">119.1 kg</div>
+              </div>
+
+              <div class="result-card" style="border-top: 4px solid #10b981;">
+                <div class="field-label" style="margin-bottom: 0.2rem;">Brzycki Formula (Upper Body Gold)</div>
+                <div id="resBrzycki" class="result-val" style="color: #10b981;">253.1 lbs</div>
+                <div id="resBrzyckiAlt" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">114.8 kg</div>
+              </div>
+
+              <div class="result-card" style="border-top: 4px solid #8b5cf6;">
+                <div class="field-label" style="margin-bottom: 0.2rem;">Wendler 90% Training Max (TM)</div>
+                <div id="resTrainingMax" class="result-val" style="color: #8b5cf6;">236.3 lbs</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Recommended baseline for 5/3/1</div>
+              </div>
+            </div>
+
+            <!-- COPY BUTTON -->
+            <div class="action-bar" style="justify-content: flex-end; margin-top: 1.25rem;">
+              <button type="button" id="btnCopy1rm" class="btn-primary" onclick="copy1rmSummary()" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>Copy 1RM Card &amp; Load Table</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- INTERACTIVE SVG LOAD VS REPS VISUALIZER -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.4rem;">Strength Curve &amp; Repetition Drop-Off</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">Visual comparison of your 1RM across reps 1 through 10, highlighting neuromuscular fatigue curves.</p>
+            <div style="overflow-x: auto;">
+              <svg id="svg1rmCurve" viewBox="0 0 800 240" style="width: 100%; height: auto; min-width: 550px; font-family: var(--mono);"></svg>
+            </div>
+          </div>
+
+          <!-- ALL 7 FORMULAS BREAKDOWN TABLE -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 1rem;">Multi-Formula Scientific Comparison</h3>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; font-family: var(--mono); text-align: left;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+                    <th style="padding: 0.6rem 0.75rem;">Formula</th>
+                    <th style="padding: 0.6rem 0.75rem;">Mathematical Equation</th>
+                    <th style="padding: 0.6rem 0.75rem;">Calculated 1RM</th>
+                    <th style="padding: 0.6rem 0.75rem;">Best Suited For</th>
+                  </tr>
+                </thead>
+                <tbody id="tblFormulaBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- WORKING SETS PERCENTAGE TABLE -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 1rem;">Working Sets &amp; Intensity Loading Percentages</h3>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; font-family: var(--mono); text-align: left;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+                    <th style="padding: 0.6rem 0.75rem;">% of 1RM</th>
+                    <th style="padding: 0.6rem 0.75rem;">Target Load (<span id="th1rmUnit">lbs</span>)</th>
+                    <th style="padding: 0.6rem 0.75rem;">Max Estimated Reps</th>
+                    <th style="padding: 0.6rem 0.75rem;">Training Adaptation Zone</th>
+                  </tr>
+                </thead>
+                <tbody id="tblPercentageBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- WORKED MATHEMATICAL DERIVATION -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 0.8rem;">Live Step-by-Step Mathematical Derivation</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+              The exact mathematical sequence used by our calculation engine with your live inputs:
+            </p>
+            <div id="derivationBox1rm" style="background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; overflow-x: auto;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- 5 CRITICAL BIOMECHANICAL & STRENGTH TRAPS -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1.25rem;">5 Fatal Traps &amp; Biomechanical Pitfalls in 1RM Testing</h3>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+              <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #ef4444; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">1. Ego Lifting &amp; Degraded Range of Motion</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  Cutting depth on squats (above parallel) or bouncing the bar off the ribcage on bench press invalidates 1RM calculations. Partial reps utilize tendon elasticity and leverage advantages rather than true muscular force generation, leading to catastrophic joint failure when full-range loads are loaded.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #f59e0b; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">2. High-Rep (>10) Formula Invalidation</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  Entering a 15-rep set into a 1RM calculator creates massive mathematical overestimation. Sets beyond 10 reps are heavily confounded by aerobic capacity, pain tolerance, and capillary density rather than maximal central nervous system motor unit recruitment. Always test submaximal sets between 3 and 5 reps.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">3. Chronic CNS Fatigue from Frequent Testing</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  True maximal attempts shock the sympathetic nervous system and neurotransmitter reserves. Testing actual 1RMs every 1 to 2 weeks induces systemic overtraining, blunting testosterone, elevating resting heart rate, and precipitating tendonitis. Use submaximal calculated 1RMs to guide progression.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #3b82f6; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">4. Neglecting Post-Activation Potentiation (PAP)</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  Jumping straight from a light warmup to a heavy working set fails to prime the neuromuscular junction. Proper warmups utilize progressive pyramidal singles (e.g. 50% × 5, 70% × 3, 85% × 1, 92% × 1) to induce post-activation potentiation without accumulating metabolic lactate fatigue.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #8b5cf6; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">5. Unaccounted Barbell &amp; Collar Mass</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  Standard Olympic men's barbells weigh 20 kg (44.1 lbs), whereas women's barbells weigh 15 kg (33.0 lbs), and cheap commercial gym bars frequently weigh between 35 and 40 lbs. Heavy metal spring collars can add up to 2.5 kg (5.5 lbs). Always weigh gym bars on a scale when calibrating true 1RM baselines.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var cur1rmUnit = 'lbs';
+
+          window.set1rmUnit = function(unit) {
+            cur1rmUnit = unit;
+            var btnLbs = document.getElementById('btn1rmLbs');
+            var btnKgs = document.getElementById('btn1rmKgs');
+            var lblW = document.getElementById('lbl1rmWeight');
+            var thU = document.getElementById('th1rmUnit');
+            var wInput = document.getElementById('rmWeight');
+
+            if (unit === 'lbs') {
+              btnLbs.style.border = '1px solid #3b82f6';
+              btnLbs.style.background = 'rgba(59, 130, 246, 0.15)';
+              btnLbs.style.color = '#3b82f6';
+              btnKgs.style.border = '1px solid var(--border)';
+              btnKgs.style.background = 'var(--surface-alt)';
+              btnKgs.style.color = 'var(--fg)';
+              lblW.textContent = 'Weight Lifted (lbs)';
+              thU.textContent = 'lbs';
+              wInput.value = (parseFloat(wInput.value) * 2.20462).toFixed(1);
+            } else {
+              btnKgs.style.border = '1px solid #3b82f6';
+              btnKgs.style.background = 'rgba(59, 130, 246, 0.15)';
+              btnKgs.style.color = '#3b82f6';
+              btnLbs.style.border = '1px solid var(--border)';
+              btnLbs.style.background = 'var(--surface-alt)';
+              btnLbs.style.color = 'var(--fg)';
+              lblW.textContent = 'Weight Lifted (kg)';
+              thU.textContent = 'kg';
+              wInput.value = (parseFloat(wInput.value) / 2.20462).toFixed(1);
+            }
+            calc1RM();
+          };
+
+          window.calc1RM = function() {
+            var w = parseFloat(document.getElementById('rmWeight').value) || 0;
+            var r = parseFloat(document.getElementById('rmReps').value) || 1;
+            var rpe = parseFloat(document.getElementById('rmRpe').value) || 10;
+            var liftType = document.getElementById('rmLiftType').value;
+
+            // RPE adjustment: effective reps
+            var rir = 10 - rpe;
+            var effReps = Math.max(1, r + rir);
+
+            // 7 Formulas:
+            // 1. Epley: w * (1 + effReps/30)
+            var epley = effReps === 1 ? w : w * (1 + effReps / 30);
+
+            // 2. Brzycki: w * (36 / (37 - effReps))
+            var brzycki = effReps === 1 ? w : (effReps < 37 ? w * (36 / (37 - effReps)) : w * 1.5);
+
+            // 3. Lander: (100 * w) / (101.3 - 2.67123 * effReps)
+            var lander = effReps === 1 ? w : (100 * w) / (101.3 - (2.67123 * effReps));
+
+            // 4. Lombardi: w * (effReps ** 0.10)
+            var lombardi = effReps === 1 ? w : w * Math.pow(effReps, 0.10);
+
+            // 5. Mayhew et al.: (100 * w) / (52.2 + (41.9 * Math.exp(-0.055 * effReps)))
+            var mayhew = effReps === 1 ? w : (100 * w) / (52.2 + (41.9 * Math.exp(-0.055 * effReps)));
+
+            // 6. O'Conner: w * (1 + 0.025 * effReps)
+            var oconner = effReps === 1 ? w : w * (1 + 0.025 * effReps);
+
+            // 7. Wathan: (100 * w) / (48.8 + (53.8 * Math.exp(-0.075 * effReps)))
+            var wathan = effReps === 1 ? w : (100 * w) / (48.8 + (53.8 * Math.exp(-0.075 * effReps)));
+
+            var trainingMax = epley * 0.90;
+
+            var unit = cur1rmUnit;
+            var altUnit = unit === 'lbs' ? 'kg' : 'lbs';
+            var toAlt = function(val) {
+              return unit === 'lbs' ? (val / 2.20462).toFixed(1) : (val * 2.20462).toFixed(1);
+            };
+
+            // Display main results
+            document.getElementById('resEpley').textContent = epley.toFixed(1) + ' ' + unit;
+            document.getElementById('resEpleyAlt').textContent = toAlt(epley) + ' ' + altUnit;
+
+            document.getElementById('resBrzycki').textContent = brzycki.toFixed(1) + ' ' + unit;
+            document.getElementById('resBrzyckiAlt').textContent = toAlt(brzycki) + ' ' + altUnit;
+
+            document.getElementById('resTrainingMax').textContent = trainingMax.toFixed(1) + ' ' + unit;
+
+            // Multi-formula table
+            var formulas = [
+              { name: 'Epley (1985)', eq: 'W × (1 + R / 30)', val: epley, best: 'Squats, Deadlifts & Powerlifting' },
+              { name: 'Brzycki (1993)', eq: 'W × (36 / (37 - R))', val: brzycki, best: 'Bench Press & Low-Rep Upper Body' },
+              { name: 'Lander (1985)', eq: '100W / (101.3 - 2.67123R)', val: lander, best: 'High-Intensity Strength Sets' },
+              { name: 'Lombardi (1989)', eq: 'W × R^0.10', val: lombardi, best: 'General Compound Lifts' },
+              { name: 'Mayhew et al. (1992)', eq: '100W / (52.2 + 41.9e^(-0.055R))', val: mayhew, best: 'College Athletes & Football Training' },
+              { name: "O'Conner et al. (1989)", eq: 'W × (1 + 0.025R)', val: oconner, best: 'Conservative Safety Baselines' },
+              { name: 'Wathan (1994)', eq: '100W / (48.8 + 53.8e^(-0.075R))', val: wathan, best: 'Resistance Machine Variations' }
+            ];
+
+            var tblF = document.getElementById('tblFormulaBody');
+            var fHtml = '';
+            formulas.forEach(function(item) {
+              fHtml += '<tr style="border-bottom: 1px solid var(--border);">' +
+                '<td style="padding: 0.6rem 0.75rem; font-weight: 600;">' + item.name + '</td>' +
+                '<td style="padding: 0.6rem 0.75rem; color: var(--text-muted);">' + item.eq + '</td>' +
+                '<td style="padding: 0.6rem 0.75rem; font-weight: bold; color: #3b82f6;">' + item.val.toFixed(1) + ' ' + unit + '</td>' +
+                '<td style="padding: 0.6rem 0.75rem; font-size: 0.8rem; color: var(--text-muted);">' + item.best + '</td>' +
+              '</tr>';
+            });
+            tblF.innerHTML = fHtml;
+
+            // Working sets percentage table
+            var pcts = [
+              { pct: 100, reps: '1', zone: 'Absolute Maximum / Neural Peaking' },
+              { pct: 95, reps: '2', zone: 'Maximal Strength / Heavy Singles' },
+              { pct: 90, reps: '3–4', zone: 'Heavy Strength Peaking' },
+              { pct: 85, reps: '5–6', zone: 'Hypertrophy & Strength (5/3/1 Core)' },
+              { pct: 80, reps: '7–8', zone: 'Muscular Hypertrophy (Muscle Size)' },
+              { pct: 75, reps: '9–10', zone: 'Volume Work & Work Capacity' },
+              { pct: 70, reps: '11–12', zone: 'Hypertrophic Endurance' },
+              { pct: 65, reps: '15', zone: 'Speed Work & Deload Sets' },
+              { pct: 60, reps: '18+', zone: 'Technique & Warm-Up Sets' },
+              { pct: 50, reps: '20+', zone: 'Dynamic Warm-Up & Recovery' }
+            ];
+
+            var tblP = document.getElementById('tblPercentageBody');
+            var pHtml = '';
+            pcts.forEach(function(p) {
+              var load = (epley * (p.pct / 100)).toFixed(1);
+              pHtml += '<tr style="border-bottom: 1px solid var(--border);">' +
+                '<td style="padding: 0.6rem 0.75rem; font-weight: 600;">' + p.pct + '%</td>' +
+                '<td style="padding: 0.6rem 0.75rem; font-weight: bold; color: var(--fg);">' + load + ' ' + unit + '</td>' +
+                '<td style="padding: 0.6rem 0.75rem; color: #10b981;">' + p.reps + ' reps</td>' +
+                '<td style="padding: 0.6rem 0.75rem; font-size: 0.8rem; color: var(--text-muted);">' + p.zone + '</td>' +
+              '</tr>';
+            });
+            tblP.innerHTML = pHtml;
+
+            // Derivation box
+            var deriv = document.getElementById('derivationBox1rm');
+            deriv.innerHTML = '<strong>1. Input Parameters:</strong><br>' +
+              '• Measured Weight (W) = ' + w + ' ' + unit + '<br>' +
+              '• Repetitions Performed (R) = ' + r + '<br>' +
+              '• Rating of Perceived Exertion (RPE) = ' + rpe + ' (Reps in Reserve RIR = ' + rir + ')<br>' +
+              '• Effective Normalized Reps (R_eff) = ' + r + ' + ' + rir + ' = ' + effReps + '<br><br>' +
+              '<strong>2. Epley Calculation:</strong><br>' +
+              '1RM = W × (1 + R_eff / 30) = ' + w + ' × (1 + ' + effReps + ' / 30) = ' + w + ' × ' + (1 + effReps/30).toFixed(4) + ' = <strong>' + epley.toFixed(2) + ' ' + unit + '</strong><br><br>' +
+              '<strong>3. Brzycki Calculation:</strong><br>' +
+              '1RM = W × (36 / (37 - R_eff)) = ' + w + ' × (36 / (37 - ' + effReps + ')) = ' + w + ' × (36 / ' + (37 - effReps) + ') = <strong>' + brzycki.toFixed(2) + ' ' + unit + '</strong><br><br>' +
+              '<strong>4. Wendler 90% Training Max:</strong><br>' +
+              'TM = 0.90 × 1RM = 0.90 × ' + epley.toFixed(2) + ' = <strong>' + trainingMax.toFixed(2) + ' ' + unit + '</strong>';
+
+            renderCurve(epley, unit);
+          };
+
+          function renderCurve(oneRm, unit) {
+            var svg = document.getElementById('svg1rmCurve');
+            if (!svg) return;
+
+            var svgW = 800;
+            var svgH = 240;
+            var padL = 60;
+            var padR = 40;
+            var padT = 30;
+            var padB = 40;
+
+            var chartW = svgW - padL - padR;
+            var chartH = svgH - padT - padB;
+
+            var maxLoad = oneRm;
+            var minLoad = oneRm * 0.65;
+
+            var pts = [];
+            for (var reps = 1; reps <= 10; reps++) {
+              var load = oneRm / (1 + reps / 30);
+              var x = padL + ((reps - 1) / 9) * chartW;
+              var y = padT + chartH - ((load - minLoad) / (maxLoad - minLoad)) * chartH;
+              pts.push({ x: x, y: y, reps: reps, load: load });
+            }
+
+            var pathD = 'M ' + pts[0].x + ' ' + pts[0].y;
+            for (var i = 1; i < pts.length; i++) {
+              pathD += ' L ' + pts[i].x + ' ' + pts[i].y;
+            }
+
+            var html = '';
+            // Grid lines
+            for (var g = 0; g <= 4; g++) {
+              var gy = padT + (g / 4) * chartH;
+              var gLoad = maxLoad - (g / 4) * (maxLoad - minLoad);
+              html += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (svgW - padR) + '" y2="' + gy + '" stroke="var(--border)" stroke-dasharray="3,3"/>';
+              html += '<text x="' + (padL - 10) + '" y="' + (gy + 4) + '" fill="var(--text-muted)" font-size="11" text-anchor="end">' + Math.round(gLoad) + '</text>';
+            }
+
+            // Curve line
+            html += '<path d="' + pathD + '" fill="none" stroke="#3b82f6" stroke-width="3"/>';
+
+            // Points
+            pts.forEach(function(pt) {
+              html += '<circle cx="' + pt.x + '" cy="' + pt.y + '" r="4.5" fill="#10b981" stroke="var(--surface)" stroke-width="2"/>';
+              html += '<text x="' + pt.x + '" y="' + (svgH - 15) + '" fill="var(--text-muted)" font-size="11" text-anchor="middle">' + pt.reps + 'R</text>';
+              html += '<text x="' + pt.x + '" y="' + (pt.y - 10) + '" fill="var(--fg)" font-size="10" font-weight="bold" text-anchor="middle">' + Math.round(pt.load) + '</text>';
+            });
+
+            svg.innerHTML = html;
+          }
+
+          window.copy1rmSummary = function() {
+            var w = document.getElementById('rmWeight').value;
+            var r = document.getElementById('rmReps').value;
+            var rpe = document.getElementById('rmRpe').value;
+            var epley = document.getElementById('resEpley').textContent;
+            var brzycki = document.getElementById('resBrzycki').textContent;
+            var tm = document.getElementById('resTrainingMax').textContent;
+            var lift = document.getElementById('rmLiftType').options[document.getElementById('rmLiftType').selectedIndex].text;
+
+            var text = '🏋️ One-Rep Max (1RM) Summary Card\n' +
+              '• Exercise: ' + lift + '\n' +
+              '• Tested Lift: ' + w + ' ' + cur1rmUnit + ' × ' + r + ' reps (RPE ' + rpe + ')\n' +
+              '• Calculated 1RM (Epley Standard): ' + epley + '\n' +
+              '• Calculated 1RM (Brzycki Formula): ' + brzycki + '\n' +
+              '• 5/3/1 Training Max (90% TM): ' + tm + '\n\n' +
+              'Working Intensities:\n' +
+              '• 90% (Heavy Doubles): ' + (parseFloat(epley) * 0.90).toFixed(1) + ' ' + cur1rmUnit + '\n' +
+              '• 85% (Strength 5-rep): ' + (parseFloat(epley) * 0.85).toFixed(1) + ' ' + cur1rmUnit + '\n' +
+              '• 75% (Hypertrophy 10-rep): ' + (parseFloat(epley) * 0.75).toFixed(1) + ' ' + cur1rmUnit + '\n\n' +
+              'Calculated at digitaltoolsshed.com/health/one-rep-max-calculator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopy1rm');
+              var orig = btn.innerHTML;
+              btn.innerHTML = '<span>✓ Copied 1RM Card!</span>';
+              setTimeout(function() { btn.innerHTML = orig; }, 2000);
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', calc1RM);
+        </script>
+      `
+    },
+    {
+      slug: 'calorie-deficit-calculator',
+      title: 'Calorie Deficit Calculator — Target Weight Date & Metabolic Adaptation Predictor',
+      metaDesc: 'Calculate your exact daily calorie deficit, estimated date to hit target weight, metabolic adaptation downregulation, and personalized macro split for safe fat loss.',
+      category: 'Health & Fitness',
+      faq: [
+        { q: 'How many calories make up one pound of body fat?', a: 'Scientifically, one pound of adipose body tissue contains approximately 3,500 calories of stored chemical energy (composed of roughly 87% pure lipids, water, and protein matrix). Therefore, an accumulated cumulative deficit of 3,500 kcal equates to roughly one pound of true fat loss.' },
+        { q: 'What is metabolic adaptation and how does it slow weight loss?', a: 'Metabolic adaptation (adaptive thermogenesis) is the evolutionary survival mechanism where your Resting Metabolic Rate (RMR) and Non-Exercise Activity Thermogenesis (NEAT) downregulate beyond what would be predicted by weight loss alone. The body becomes more energy-efficient, burning 10–15% fewer calories per day as you get leaner, meaning weight loss plateaus unless calories are dynamically adjusted.' },
+        { q: 'What is the maximum safe calorie deficit per day?', a: 'Clinical guidelines recommend limiting daily deficits to 20% to 25% below maintenance (typically 500 to 750 kcal/day), targeting 0.5% to 1.0% of total bodyweight lost per week. Deficits exceeding 1,000 kcal/day cause severe muscle catabolism, thyroid downregulation (decreased T3/T4 conversion), gallstone risk, and rebound binge eating.' },
+        { q: 'How much protein should I eat during a calorie deficit to avoid muscle loss?', a: 'During an energy deficit, protein requirements increase to prevent lean tissue proteolysis. Clinical sports nutrition studies recommend consuming 0.8 to 1.2 grams of protein per pound of lean body mass (1.8 to 2.4 g/kg). High protein also maximizes the Thermic Effect of Food (TEF) and boosts satiety hormones like peptide YY and GLP-1.' },
+        { q: 'Why did my scale weight spike even though I was in a calorie deficit?', a: 'Day-to-day weight fluctuations are almost entirely driven by fluid dynamics, cortisol-induced water retention, sodium balance, and bowel transit time. A single high-sodium meal or intense weight-training workout causing micro-tears can trigger 3 to 5 pounds of cellular water retention that completely masks real fat loss for 48 to 72 hours.' }
+      ],
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 960px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health &amp; Fitness</a> &gt; Calorie Deficit Calculator
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; line-height: 1.2;">Calorie Deficit Calculator &amp; Goal Date Predictor</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Determine your daily calorie targets, projected goal achievement date, metabolic adaptation buffer, and clinical macronutrient distribution for healthy, sustained fat loss.
+          </p>
+
+          <div class="tool-box">
+            <!-- Unit Selector -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+              <button type="button" id="btnDefLbs" onclick="setDefUnit('lbs')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.15); color: #3b82f6; cursor: pointer; font-weight: 600;">US Imperial (lbs, in)</button>
+              <button type="button" id="btnDefKgs" onclick="setDefUnit('kgs')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Metric (kg, cm)</button>
+            </div>
+
+            <!-- Primary Inputs Grid -->
+            <div class="grid-inputs">
+              <div class="field-group">
+                <label class="field-label" id="lblDefCurrWeight">Current Weight (lbs)</label>
+                <input type="number" id="defCurrW" class="code-input" value="190" min="50" max="600" step="0.5" oninput="calcDeficit()" style="font-size: 1.15rem; font-weight: bold;" />
+              </div>
+
+              <div class="field-group">
+                <label class="field-label" id="lblDefTargetWeight">Target Goal Weight (lbs)</label>
+                <input type="number" id="defTargetW" class="code-input" value="170" min="50" max="600" step="0.5" oninput="calcDeficit()" style="font-size: 1.15rem; font-weight: bold;" />
+              </div>
+
+              <div class="field-group">
+                <label class="field-label" id="lblDefHeight">Height (Inches)</label>
+                <input type="number" id="defHeight" class="code-input" value="70" min="36" max="96" step="0.5" oninput="calcDeficit()" style="font-size: 1.15rem;" />
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Age (Years)</label>
+                <input type="number" id="defAge" class="code-input" value="32" min="15" max="95" step="1" oninput="calcDeficit()" style="font-size: 1.15rem;" />
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Biological Sex</label>
+                <select id="defSex" class="code-input" onchange="calcDeficit()" style="font-size: 1rem;">
+                  <option value="male" selected>Male (Mifflin-St Jeor +5)</option>
+                  <option value="female">Female (Mifflin-St Jeor -161)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Physical Activity Level</label>
+                <select id="defActivity" class="code-input" onchange="calcDeficit()" style="font-size: 1rem;">
+                  <option value="1.2">Sedentary (Desk job, minimal movement)</option>
+                  <option value="1.375" selected>Lightly Active (1–3 days light exercise/walks)</option>
+                  <option value="1.55">Moderately Active (3–5 days moderate training)</option>
+                  <option value="1.725">Very Active (6–7 days vigorous sports/heavy lifting)</option>
+                  <option value="1.9">Extremely Active (Athletic training + physical job)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Deficit Strategy / Weekly Rate</label>
+                <select id="defRate" class="code-input" onchange="calcDeficit()" style="font-size: 1rem;">
+                  <option value="250">Mild Deficit (0.5 lb/wk — 250 kcal/day)</option>
+                  <option value="500" selected>Standard Deficit (1.0 lb/wk — 500 kcal/day)</option>
+                  <option value="750">Aggressive Deficit (1.5 lb/wk — 750 kcal/day)</option>
+                  <option value="1000">Maximum Safe Deficit (2.0 lb/wk — 1,000 kcal/day)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- RESULT DISPLAY CARDS -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div class="result-card" style="border-top: 4px solid #10b981;">
+                <div class="field-label" style="margin-bottom: 0.2rem;">Daily Calorie Budget</div>
+                <div id="resDefTargetKcal" class="result-val" style="color: #10b981;">1,780 kcal</div>
+                <div id="resDefMaintenanceKcal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Maintenance: 2,280 kcal</div>
+              </div>
+
+              <div class="result-card" style="border-top: 4px solid #3b82f6;">
+                <div class="field-label" style="margin-bottom: 0.2rem;">Projected Goal Date</div>
+                <div id="resDefGoalDate" class="result-val" style="color: #3b82f6; font-size: 1.6rem;">Oct 24, 2026</div>
+                <div id="resDefWeeksCount" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">20.0 Weeks (140 Days)</div>
+              </div>
+
+              <div class="result-card" style="border-top: 4px solid #f59e0b;">
+                <div class="field-label" style="margin-bottom: 0.2rem;">Metabolic Adaptation Buffer</div>
+                <div id="resDefAdaptation" class="result-val" style="color: #f59e0b; font-size: 1.6rem;">-120 kcal</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Estimated metabolic slowdown at goal</div>
+              </div>
+            </div>
+
+            <!-- COPY BUTTON -->
+            <div class="action-bar" style="justify-content: flex-end; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyDef" class="btn-primary" onclick="copyDefSummary()" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>Copy Calorie &amp; Macro Roadmap</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- PROJECTED WEIGHT TRAJECTORY SVG -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.4rem;">Projected Fat Loss Trajectory &amp; Plateau Dampening</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">Week-by-week weight decline incorporating metabolic slowing and adaptive thermogenesis.</p>
+            <div style="overflow-x: auto;">
+              <svg id="svgDefTrajectory" viewBox="0 0 800 240" style="width: 100%; height: auto; min-width: 550px; font-family: var(--mono);"></svg>
+            </div>
+          </div>
+
+          <!-- MACRO SPLIT CARDS -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 1rem;">Evidence-Based Macronutrient Distribution</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+              <div style="background: var(--bg); border: 1px solid var(--border); padding: 1rem; border-radius: 6px;">
+                <div style="font-weight: 700; color: #ef4444; font-size: 0.95rem; margin-bottom: 0.25rem;">Protein (35%)</div>
+                <div id="macroProteinGrams" style="font-family: var(--mono); font-size: 1.5rem; font-weight: bold; color: var(--fg);">156 g</div>
+                <div id="macroProteinKcal" style="font-size: 0.8rem; color: var(--text-muted);">623 kcal (4 kcal/g)</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">Satiety &amp; lean muscle sparing</div>
+              </div>
+
+              <div style="background: var(--bg); border: 1px solid var(--border); padding: 1rem; border-radius: 6px;">
+                <div style="font-weight: 700; color: #3b82f6; font-size: 0.95rem; margin-bottom: 0.25rem;">Carbohydrates (40%)</div>
+                <div id="macroCarbGrams" style="font-family: var(--mono); font-size: 1.5rem; font-weight: bold; color: var(--fg);">178 g</div>
+                <div id="macroCarbKcal" style="font-size: 0.8rem; color: var(--text-muted);">712 kcal (4 kcal/g)</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">Glycogen repletion &amp; training energy</div>
+              </div>
+
+              <div style="background: var(--bg); border: 1px solid var(--border); padding: 1rem; border-radius: 6px;">
+                <div style="font-weight: 700; color: #f59e0b; font-size: 0.95rem; margin-bottom: 0.25rem;">Fats (25%)</div>
+                <div id="macroFatGrams" style="font-family: var(--mono); font-size: 1.5rem; font-weight: bold; color: var(--fg);">49 g</div>
+                <div id="macroFatKcal" style="font-size: 0.8rem; color: var(--text-muted);">445 kcal (9 kcal/g)</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">Hormonal homeostasis &amp; vitamin uptake</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP-BY-STEP DERIVATION -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 0.8rem;">Live Step-by-Step Metabolic Derivation</h3>
+            <div id="derivationBoxDef" style="background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; overflow-x: auto;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- 5 CRITICAL FAT LOSS TRAPS -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1.25rem;">5 Fatal Traps &amp; Metabolic Pitfalls in Fat Loss</h3>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+              <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #ef4444; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">1. Aggressive Starvation Deficits (>30%)</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  Cutting calories in half (e.g. 1,200 kcal for a 200 lb adult) triggers extreme thyroid suppression, crashes leptin, spikes cortisol, and forces the body to cannibalize amino acids from lean muscle tissue. The result is "skinny-fat" composition and immediate weight regain once normal eating resumes.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #f59e0b; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">2. The Unconscious NEAT Collapse</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  When dieting, the subconscious mind conserves energy by reducing Non-Exercise Activity Thermogenesis (NEAT)—you fidget less, take fewer steps, sit more, and posture slouches. This unconscious drop can reduce daily caloric output by 300 to 500 calories, completely neutralizing your intended deficit.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">3. Weekend Blowouts Neutralizing 5-Day Deficits</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  Being in a strict 500 kcal deficit Monday through Friday accumulates a 2,500 kcal deficit. However, consuming an extra 1,500 kcal on Saturday and Sunday (alcohol, restaurant meals, dessert) totals +3,000 kcal, placing you in a net surplus for the week despite "dieting" 70% of the time.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #3b82f6; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">4. Inadequate Protein &amp; Resistance Training</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  Dieting without heavy resistance training and high protein intake signals the body that muscle mass is an expensive metabolic luxury. As much as 40% of weight lost on low-protein cardio diets comes from skeletal muscle, permanently reducing resting metabolic rate and functional strength.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #8b5cf6; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">5. Mistaking Glycogen &amp; Water for True Fat Loss</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  In the first week of a diet, the rapid 4 to 8 pound loss is primarily cellular glycogen and bound water (each gram of glycogen holds 3 to 4 grams of water). Expecting that same rate of loss in subsequent weeks causes frustration; real sustainable fat loss occurs at 0.5 to 2.0 pounds per week.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var curDefUnit = 'lbs';
+
+          window.setDefUnit = function(unit) {
+            curDefUnit = unit;
+            var btnLbs = document.getElementById('btnDefLbs');
+            var btnKgs = document.getElementById('btnDefKgs');
+            var lblC = document.getElementById('lblDefCurrWeight');
+            var lblT = document.getElementById('lblDefTargetWeight');
+            var lblH = document.getElementById('lblDefHeight');
+            var cInput = document.getElementById('defCurrW');
+            var tInput = document.getElementById('defTargetW');
+            var hInput = document.getElementById('defHeight');
+
+            if (unit === 'lbs') {
+              btnLbs.style.border = '1px solid #3b82f6';
+              btnLbs.style.background = 'rgba(59, 130, 246, 0.15)';
+              btnLbs.style.color = '#3b82f6';
+              btnKgs.style.border = '1px solid var(--border)';
+              btnKgs.style.background = 'var(--surface-alt)';
+              btnKgs.style.color = 'var(--fg)';
+              lblC.textContent = 'Current Weight (lbs)';
+              lblT.textContent = 'Target Goal Weight (lbs)';
+              lblH.textContent = 'Height (Inches)';
+              cInput.value = (parseFloat(cInput.value) * 2.20462).toFixed(1);
+              tInput.value = (parseFloat(tInput.value) * 2.20462).toFixed(1);
+              hInput.value = (parseFloat(hInput.value) / 2.54).toFixed(1);
+            } else {
+              btnKgs.style.border = '1px solid #3b82f6';
+              btnKgs.style.background = 'rgba(59, 130, 246, 0.15)';
+              btnKgs.style.color = '#3b82f6';
+              btnLbs.style.border = '1px solid var(--border)';
+              btnLbs.style.background = 'var(--surface-alt)';
+              btnLbs.style.color = 'var(--fg)';
+              lblC.textContent = 'Current Weight (kg)';
+              lblT.textContent = 'Target Goal Weight (kg)';
+              lblH.textContent = 'Height (cm)';
+              cInput.value = (parseFloat(cInput.value) / 2.20462).toFixed(1);
+              tInput.value = (parseFloat(tInput.value) / 2.20462).toFixed(1);
+              hInput.value = (parseFloat(hInput.value) * 2.54).toFixed(1);
+            }
+            calcDeficit();
+          };
+
+          window.calcDeficit = function() {
+            var currW = parseFloat(document.getElementById('defCurrW').value) || 0;
+            var targetW = parseFloat(document.getElementById('defTargetW').value) || 0;
+            var h = parseFloat(document.getElementById('defHeight').value) || 0;
+            var age = parseFloat(document.getElementById('defAge').value) || 30;
+            var sex = document.getElementById('defSex').value;
+            var actMult = parseFloat(document.getElementById('defActivity').value) || 1.375;
+            var defKcal = parseFloat(document.getElementById('defRate').value) || 500;
+
+            var weightKg = curDefUnit === 'lbs' ? currW / 2.20462 : currW;
+            var targetKg = curDefUnit === 'lbs' ? targetW / 2.20462 : targetW;
+            var heightCm = curDefUnit === 'lbs' ? h * 2.54 : h;
+
+            // BMR using Mifflin-St Jeor:
+            // Men: 10 * weight(kg) + 6.25 * height(cm) - 5 * age + 5
+            // Women: 10 * weight(kg) + 6.25 * height(cm) - 5 * age - 161
+            var bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) + (sex === 'male' ? 5 : -161);
+            var tdee = bmr * actMult;
+
+            var targetCalories = Math.max(1200, Math.round(tdee - defKcal));
+            var totalWeightToLose = Math.max(0, currW - targetW);
+            var totalKcalToLose = (curDefUnit === 'lbs' ? totalWeightToLose * 3500 : totalWeightToLose * 7700);
+
+            // Metabolic adaptation estimate (~15 kcal per kg lost)
+            var weightDeltaKg = Math.max(0, weightKg - targetKg);
+            var adaptationKcal = Math.round(weightDeltaKg * 15);
+
+            var daysNeeded = defKcal > 0 ? Math.ceil(totalKcalToLose / defKcal) : 0;
+            // Add adaptation penalty (roughly 10% more time)
+            daysNeeded = Math.round(daysNeeded * 1.10);
+            var weeksNeeded = (daysNeeded / 7).toFixed(1);
+
+            var goalDate = new Date();
+            goalDate.setDate(goalDate.getDate() + daysNeeded);
+            var goalDateStr = goalDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            // Display Results
+            document.getElementById('resDefTargetKcal').textContent = targetCalories.toLocaleString() + ' kcal';
+            document.getElementById('resDefMaintenanceKcal').textContent = 'Maintenance: ' + Math.round(tdee).toLocaleString() + ' kcal';
+            document.getElementById('resDefGoalDate').textContent = goalDateStr;
+            document.getElementById('resDefWeeksCount').textContent = weeksNeeded + ' Weeks (' + daysNeeded + ' Days)';
+            document.getElementById('resDefAdaptation').textContent = '-' + adaptationKcal + ' kcal';
+
+            // Macronutrient split (35% P, 40% C, 25% F)
+            var protKcal = targetCalories * 0.35;
+            var carbKcal = targetCalories * 0.40;
+            var fatKcal = targetCalories * 0.25;
+
+            var protGrams = Math.round(protKcal / 4);
+            var carbGrams = Math.round(carbKcal / 4);
+            var fatGrams = Math.round(fatKcal / 9);
+
+            document.getElementById('macroProteinGrams').textContent = protGrams + ' g';
+            document.getElementById('macroProteinKcal').textContent = Math.round(protKcal) + ' kcal (4 kcal/g)';
+            document.getElementById('macroCarbGrams').textContent = carbGrams + ' g';
+            document.getElementById('macroCarbKcal').textContent = Math.round(carbKcal) + ' kcal (4 kcal/g)';
+            document.getElementById('macroFatGrams').textContent = fatGrams + ' g';
+            document.getElementById('macroFatKcal').textContent = Math.round(fatKcal) + ' kcal (9 kcal/g)';
+
+            // Live Derivation Box
+            var dBox = document.getElementById('derivationBoxDef');
+            dBox.innerHTML = '<strong>1. Basal Metabolic Rate (BMR — Mifflin-St Jeor):</strong><br>' +
+              'BMR = 10 × ' + weightKg.toFixed(1) + ' kg + 6.25 × ' + heightCm.toFixed(1) + ' cm - 5 × ' + age + ' ' + (sex === 'male' ? '+ 5' : '- 161') + ' = <strong>' + Math.round(bmr) + ' kcal/day</strong><br><br>' +
+              '<strong>2. Total Daily Energy Expenditure (TDEE):</strong><br>' +
+              'TDEE = BMR × Activity Multiplier (' + actMult + ') = ' + Math.round(bmr) + ' × ' + actMult + ' = <strong>' + Math.round(tdee) + ' kcal/day</strong><br><br>' +
+              '<strong>3. Caloric Deficit Target:</strong><br>' +
+              'Budget = TDEE - ' + defKcal + ' kcal = ' + Math.round(tdee) + ' - ' + defKcal + ' = <strong>' + targetCalories + ' kcal/day</strong><br><br>' +
+              '<strong>4. Time to Target Weight (' + totalWeightToLose.toFixed(1) + ' ' + curDefUnit + '):</strong><br>' +
+              'Total Energy Deficit = ' + Math.round(totalKcalToLose).toLocaleString() + ' kcal<br>' +
+              'Duration = (' + Math.round(totalKcalToLose) + ' / ' + defKcal + ') × 1.10 (adaptive buffer) = <strong>' + daysNeeded + ' days (' + weeksNeeded + ' weeks)</strong>';
+
+            renderDefTrajectory(currW, targetW, weeksNeeded, curDefUnit);
+          };
+
+          function renderDefTrajectory(startW, endW, weeks, unit) {
+            var svg = document.getElementById('svgDefTrajectory');
+            if (!svg) return;
+
+            var svgW = 800;
+            var svgH = 240;
+            var padL = 60;
+            var padR = 40;
+            var padT = 30;
+            var padB = 40;
+
+            var chartW = svgW - padL - padR;
+            var chartH = svgH - padT - padB;
+
+            var numWeeks = Math.max(4, Math.min(24, Math.round(parseFloat(weeks)) || 12));
+            var pts = [];
+
+            for (var w = 0; w <= numWeeks; w++) {
+              var progress = w / numWeeks;
+              // Diminishing exponential curve representing metabolic adaptation
+              var curveProgress = 1 - Math.exp(-2.2 * progress) / (1 - Math.exp(-2.2));
+              var curWeight = startW - (startW - endW) * (progress * 0.85 + (1 - Math.pow(1 - progress, 1.4)) * 0.15);
+              var x = padL + (w / numWeeks) * chartW;
+              var y = padT + ((curWeight - endW) / (startW - endW || 1)) * chartH;
+              pts.push({ x: x, y: y, week: w, w: curWeight });
+            }
+
+            var pathD = 'M ' + pts[0].x + ' ' + pts[0].y;
+            for (var i = 1; i < pts.length; i++) {
+              pathD += ' L ' + pts[i].x + ' ' + pts[i].y;
+            }
+
+            var html = '';
+            // Grid lines
+            for (var g = 0; g <= 4; g++) {
+              var gy = padT + (g / 4) * chartH;
+              var gW = startW - (g / 4) * (startW - endW);
+              html += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (svgW - padR) + '" y2="' + gy + '" stroke="var(--border)" stroke-dasharray="3,3"/>';
+              html += '<text x="' + (padL - 10) + '" y="' + (gy + 4) + '" fill="var(--text-muted)" font-size="11" text-anchor="end">' + Math.round(gW) + ' ' + unit + '</text>';
+            }
+
+            // Target baseline
+            html += '<line x1="' + padL + '" y1="' + (padT + chartH) + '" x2="' + (svgW - padR) + '" y2="' + (padT + chartH) + '" stroke="#10b981" stroke-width="1.5" stroke-dasharray="5,5"/>';
+
+            // Trajectory curve
+            html += '<path d="' + pathD + '" fill="none" stroke="#3b82f6" stroke-width="3"/>';
+
+            // Selected Key Points
+            var step = Math.max(1, Math.floor(numWeeks / 6));
+            for (var k = 0; k <= numWeeks; k += step) {
+              var p = pts[k];
+              html += '<circle cx="' + p.x + '" cy="' + p.y + '" r="4.5" fill="#3b82f6" stroke="var(--surface)" stroke-width="2"/>';
+              html += '<text x="' + p.x + '" y="' + (svgH - 15) + '" fill="var(--text-muted)" font-size="11" text-anchor="middle">Wk ' + p.week + '</text>';
+              html += '<text x="' + p.x + '" y="' + (p.y - 10) + '" fill="var(--fg)" font-size="10" font-weight="bold" text-anchor="middle">' + Math.round(p.w) + '</text>';
+            }
+
+            svg.innerHTML = html;
+          }
+
+          window.copyDefSummary = function() {
+            var curr = document.getElementById('defCurrW').value;
+            var target = document.getElementById('defTargetW').value;
+            var kcal = document.getElementById('resDefTargetKcal').textContent;
+            var date = document.getElementById('resDefGoalDate').textContent;
+            var weeks = document.getElementById('resDefWeeksCount').textContent;
+            var prot = document.getElementById('macroProteinGrams').textContent;
+            var carb = document.getElementById('macroCarbGrams').textContent;
+            var fat = document.getElementById('macroFatGrams').textContent;
+
+            var text = '🥗 Calorie Deficit & Macro Target Sheet\n' +
+              '• Current Weight: ' + curr + ' ' + curDefUnit + ' ➔ Goal: ' + target + ' ' + curDefUnit + '\n' +
+              '• Daily Calorie Intake: ' + kcal + '\n' +
+              '• Projected Goal Date: ' + date + ' (' + weeks + ')\n\n' +
+              'Macronutrient Distribution:\n' +
+              '• Protein (35%): ' + prot + '\n' +
+              '• Carbohydrates (40%): ' + carb + '\n' +
+              '• Fats (25%): ' + fat + '\n\n' +
+              'Calculated at digitaltoolsshed.com/health/calorie-deficit-calculator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyDef');
+              var orig = btn.innerHTML;
+              btn.innerHTML = '<span>✓ Copied Deficit Plan!</span>';
+              setTimeout(function() { btn.innerHTML = orig; }, 2000);
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', calcDeficit);
+        </script>
+      `
+    },
+    {
+      slug: 'pace-calculator',
+      title: 'Running Pace Calculator — Mile/Km Splits, Race Predictor & Training Zones',
+      metaDesc: 'Calculate running pace, 5K/10K/Half/Full Marathon finish time splits, Riegel race predictions, and heart rate training zones (Zone 2 to VO2 max) with metric & imperial units.',
+      category: 'Health & Fitness',
+      faq: [
+        { q: 'How do I calculate my running pace per mile or kilometer?', a: 'To calculate pace, divide your total finish time in minutes by the total distance covered. For example, running 5 kilometers (3.107 miles) in 25 minutes gives a pace of 5:00 per kilometer (25 / 5) or 8:03 per mile (25 / 3.107). Our calculator automates fractional seconds and bidirectional pace/time/distance derivations.' },
+        { q: 'What is Riegel\'s formula for predicting marathon race times?', a: 'Formulated by engineer Peter Riegel in 1977, Riegel\'s formula [T2 = T1 × (D2 / D1)^1.06] predicts race finish times across different distances based on current performance. The 1.06 exponent accounts for physiological fatigue, cardiac drift, and glycogen depletion over longer endurance runs.' },
+        { q: 'What pace should my easy Zone 2 recovery runs be?', a: 'Zone 2 aerobic base building should be performed at an intensity where you can speak in full, uninterrupted sentences (the "talk test"), typically corresponding to 60% to 70% of maximum heart rate. In terms of running pace, Zone 2 is typically 90 to 120 seconds slower per mile (55 to 75 sec/km) than your current 5K race pace.' },
+        { q: 'Why is negative splitting the most effective marathon racing strategy?', a: 'A negative split means running the second half of a race faster than the first half. Starting conservatively prevents early glycogen exhaustion, minimizes premature lactic acid buildup, and preserves core body temperature. Almost all world records in events from the 1,500m to the marathon were achieved with negative splits.' },
+        { q: 'How does elevation gain or hot weather affect running pace?', a: 'As a physiological rule of thumb, every 100 feet of elevation gain slows your pace by approximately 15 to 20 seconds. In hot conditions, every 5°F increase in temperature above 60°F (15°C) increases heart rate by roughly 2 to 4 beats per minute due to cutaneous vasodilation for sweating, requiring a 1.5% to 3% slowdown to maintain aerobic safety.' }
+      ],
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 960px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health &amp; Fitness</a> &gt; Pace Calculator
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; line-height: 1.2;">Running Pace Calculator &amp; Race Split Predictor</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Compute exact running pace, marathon splits, Riegel race time projections, and 5-zone cardiovascular training paces with instantaneous metric and imperial unit synchronization.
+          </p>
+
+          <div class="tool-box">
+            <!-- Mode Selector -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+              <button type="button" id="btnPaceCalcPace" onclick="setPaceMode('pace')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.15); color: #3b82f6; cursor: pointer; font-weight: 600;">Calculate Pace (From Time &amp; Distance)</button>
+              <button type="button" id="btnPaceCalcTime" onclick="setPaceMode('time')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Calculate Finish Time (From Pace)</button>
+            </div>
+
+            <!-- Primary Inputs Grid -->
+            <div class="grid-inputs">
+              <div class="field-group">
+                <label class="field-label">Race Distance</label>
+                <select id="pacePresetDist" class="code-input" onchange="onPacePresetChange()" style="font-size: 1rem;">
+                  <option value="5k" selected>5 Kilometers (5K — 3.11 miles)</option>
+                  <option value="10k">10 Kilometers (10K — 6.21 miles)</option>
+                  <option value="half">Half Marathon (13.11 miles / 21.1 km)</option>
+                  <option value="marathon">Full Marathon (26.22 miles / 42.2 km)</option>
+                  <option value="custom_miles">Custom Distance (Miles)</option>
+                  <option value="custom_km">Custom Distance (Kilometers)</option>
+                </select>
+              </div>
+
+              <div class="field-group" id="grpCustomDist" style="display: none;">
+                <label class="field-label" id="lblCustomDist">Custom Distance Value</label>
+                <input type="number" id="paceCustomDistVal" class="code-input" value="10" min="0.1" max="1000" step="0.1" oninput="calcPaceEngine()" style="font-size: 1.15rem;" />
+              </div>
+
+              <!-- Time Inputs (Hours, Mins, Secs) -->
+              <div class="field-group" id="grpTimeInputs">
+                <label class="field-label">Total Time (HH : MM : SS)</label>
+                <div style="display: flex; gap: 0.4rem;">
+                  <input type="number" id="paceHours" class="code-input" value="0" min="0" max="99" placeholder="HH" oninput="calcPaceEngine()" style="font-size: 1.1rem; text-align: center;" />
+                  <input type="number" id="paceMinutes" class="code-input" value="24" min="0" max="59" placeholder="MM" oninput="calcPaceEngine()" style="font-size: 1.1rem; text-align: center;" />
+                  <input type="number" id="paceSeconds" class="code-input" value="30" min="0" max="59" placeholder="SS" oninput="calcPaceEngine()" style="font-size: 1.1rem; text-align: center;" />
+                </div>
+              </div>
+
+              <!-- Pace Inputs (when in 'time' mode) -->
+              <div class="field-group" id="grpPaceInputs" style="display: none;">
+                <label class="field-label">Target Pace (MM : SS per Mile)</label>
+                <div style="display: flex; gap: 0.4rem;">
+                  <input type="number" id="targetPaceMin" class="code-input" value="7" min="2" max="30" placeholder="MM" oninput="calcPaceEngine()" style="font-size: 1.1rem; text-align: center;" />
+                  <input type="number" id="targetPaceSec" class="code-input" value="53" min="0" max="59" placeholder="SS" oninput="calcPaceEngine()" style="font-size: 1.1rem; text-align: center;" />
+                </div>
+              </div>
+            </div>
+
+            <!-- RESULT DISPLAY CARDS -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div class="result-card" style="border-top: 4px solid #3b82f6;">
+                <div class="field-label" style="margin-bottom: 0.2rem;">Pace Per Mile</div>
+                <div id="resPacePerMile" class="result-val" style="color: #3b82f6;">7:53 /mi</div>
+                <div id="resSpeedMph" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Speed: 7.61 mph</div>
+              </div>
+
+              <div class="result-card" style="border-top: 4px solid #10b981;">
+                <div class="field-label" style="margin-bottom: 0.2rem;">Pace Per Kilometer</div>
+                <div id="resPacePerKm" class="result-val" style="color: #10b981;">4:54 /km</div>
+                <div id="resSpeedKmh" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Speed: 12.24 km/h</div>
+              </div>
+
+              <div class="result-card" style="border-top: 4px solid #8b5cf6;">
+                <div class="field-label" style="margin-bottom: 0.2rem;">Total Finish Time</div>
+                <div id="resPaceTotalTime" class="result-val" style="color: #8b5cf6;">00:24:30</div>
+                <div id="resPaceDistance" style="font-size: 0.85rem; color: var(--text-muted);">5.00 km (3.11 miles)</div>
+              </div>
+            </div>
+
+            <!-- COPY BUTTON -->
+            <div class="action-bar" style="justify-content: flex-end; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyPace" class="btn-primary" onclick="copyPaceSummary()" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>Copy Race Pacing &amp; Splits Card</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- RIEGEL RACE TIME PREDICTIONS -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 1rem;">Riegel Scientific Equivalent Race Predictions</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Predicted race finish times across classic distances based on your current endurance performance.</p>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; font-family: var(--mono); text-align: left;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+                    <th style="padding: 0.6rem 0.75rem;">Race Event</th>
+                    <th style="padding: 0.6rem 0.75rem;">Distance</th>
+                    <th style="padding: 0.6rem 0.75rem;">Predicted Finish Time</th>
+                    <th style="padding: 0.6rem 0.75rem;">Predicted Mile Pace</th>
+                    <th style="padding: 0.6rem 0.75rem;">Predicted Km Pace</th>
+                  </tr>
+                </thead>
+                <tbody id="tblRiegelBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 5 TRAINING ZONES TABLE -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 1rem;">5 Cardiovascular Training Pacing Zones</h3>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; font-family: var(--mono); text-align: left;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+                    <th style="padding: 0.6rem 0.75rem;">Zone</th>
+                    <th style="padding: 0.6rem 0.75rem;">Physiological Name</th>
+                    <th style="padding: 0.6rem 0.75rem;">Target Mile Pace</th>
+                    <th style="padding: 0.6rem 0.75rem;">Target Km Pace</th>
+                    <th style="padding: 0.6rem 0.75rem;">Primary Training Adaptation</th>
+                  </tr>
+                </thead>
+                <tbody id="tblZonesBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- DERIVATION BOX -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 0.8rem;">Live Step-by-Step Pacing Derivation</h3>
+            <div id="derivationBoxPace" style="background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; overflow-x: auto;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- 5 CRITICAL ENDURANCE TRAPS -->
+          <div class="tool-box" style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1.25rem;">5 Fatal Traps &amp; Pacing Pitfalls in Distance Running</h3>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+              <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #ef4444; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">1. The Adrenaline-Fueled Mile 1 Surge ("Fly and Die")</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  Starting a marathon or 10K just 20 to 30 seconds faster than target pace burns through anaerobic glycogen stores exponentially faster. Glycogen consumption is non-linear relative to speed. Going out too fast creates early metabolic acidosis that guarantees a catastrophic pace collapse in the final third of the race.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #f59e0b; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">2. The "Black Hole" Zone 3 Training Trap</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  Amateur runners run their easy days too hard and their hard days too easy. Running in Zone 3 (the "gray zone") feels productive but produces high autonomic fatigue while providing minimal mitochondrial density adaptations compared to true Zone 2, while lacking the enzymatic velocity stimulus of Zone 4/5. Follow the 80/20 polarized training rule.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">3. Ignoring Temperature &amp; Dew Point Adjustments</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  Attempting to hold goal pace when the sum of temperature (°F) and dew point exceeds 130 leads to severe cardiac drift. As blood is diverted to the skin for evaporative cooling, stroke volume declines, forcing the heart to beat 10–20 bpm faster at the same pace. Adjust pace 1.5% slower per 5°F above 60°F.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #3b82f6; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">4. GPS Watch Weaving &amp; Tangent Blunders</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  Certified race courses are measured along the shortest possible legal line of travel (the tangents). Runners who weave around water stations and take wide turns around corners regularly log 26.5 to 26.7 miles on a 26.2-mile marathon course. If your GPS says you ran 7:00 pace, your official chip time may reflect 7:08 pace.
+                </p>
+              </div>
+
+              <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--bg); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <strong style="color: #8b5cf6; display: block; margin-bottom: 0.4rem; font-size: 0.95rem;">5. The Mile 20 "Bonk" from Inadequate Intra-Race Carbs</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                  The human liver and muscles store roughly 2,000 kcal of glycogen—enough for roughly 18 to 20 miles of running. Without exogenous carbohydrate ingestion (30 to 60 grams of glucose/fructose maltodextrin gels per hour), runners experience sudden hypoglycemia and total muscle rigidity known as "hitting the wall."
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var curPaceMode = 'pace';
+
+          window.setPaceMode = function(mode) {
+            curPaceMode = mode;
+            var btnP = document.getElementById('btnPaceCalcPace');
+            var btnT = document.getElementById('btnPaceCalcTime');
+            var grpTime = document.getElementById('grpTimeInputs');
+            var grpPace = document.getElementById('grpPaceInputs');
+
+            if (mode === 'pace') {
+              btnP.style.border = '1px solid #3b82f6';
+              btnP.style.background = 'rgba(59, 130, 246, 0.15)';
+              btnP.style.color = '#3b82f6';
+              btnT.style.border = '1px solid var(--border)';
+              btnT.style.background = 'var(--surface-alt)';
+              btnT.style.color = 'var(--fg)';
+              grpTime.style.display = 'block';
+              grpPace.style.display = 'none';
+            } else {
+              btnT.style.border = '1px solid #3b82f6';
+              btnT.style.background = 'rgba(59, 130, 246, 0.15)';
+              btnT.style.color = '#3b82f6';
+              btnP.style.border = '1px solid var(--border)';
+              btnP.style.background = 'var(--surface-alt)';
+              btnP.style.color = 'var(--fg)';
+              grpTime.style.display = 'none';
+              grpPace.style.display = 'block';
+            }
+            calcPaceEngine();
+          };
+
+          window.onPacePresetChange = function() {
+            var val = document.getElementById('pacePresetDist').value;
+            var grpCustom = document.getElementById('grpCustomDist');
+            var lblCustom = document.getElementById('lblCustomDist');
+
+            if (val === 'custom_miles') {
+              grpCustom.style.display = 'block';
+              lblCustom.textContent = 'Custom Distance (Miles)';
+            } else if (val === 'custom_km') {
+              grpCustom.style.display = 'block';
+              lblCustom.textContent = 'Custom Distance (Kilometers)';
+            } else {
+              grpCustom.style.display = 'none';
+            }
+            calcPaceEngine();
+          };
+
+          function formatPace(totalSecs) {
+            var m = Math.floor(totalSecs / 60);
+            var s = Math.round(totalSecs % 60);
+            if (s === 60) { m++; s = 0; }
+            return m + ':' + (s < 10 ? '0' : '') + s;
+          }
+
+          function formatTime(totalSecs) {
+            var h = Math.floor(totalSecs / 3600);
+            var m = Math.floor((totalSecs % 3600) / 60);
+            var s = Math.round(totalSecs % 60);
+            if (s === 60) { m++; s = 0; }
+            if (m === 60) { h++; m = 0; }
+            var hh = (h < 10 ? '0' : '') + h;
+            var mm = (m < 10 ? '0' : '') + m;
+            var ss = (s < 10 ? '0' : '') + s;
+            return hh + ':' + mm + ':' + ss;
+          }
+
+          window.calcPaceEngine = function() {
+            var distChoice = document.getElementById('pacePresetDist').value;
+            var distKm = 5.0;
+            var distMiles = 3.10686;
+
+            if (distChoice === '5k') {
+              distKm = 5.0;
+              distMiles = 3.10686;
+            } else if (distChoice === '10k') {
+              distKm = 10.0;
+              distMiles = 6.21371;
+            } else if (distChoice === 'half') {
+              distKm = 21.0975;
+              distMiles = 13.1094;
+            } else if (distChoice === 'marathon') {
+              distKm = 42.195;
+              distMiles = 26.2188;
+            } else if (distChoice === 'custom_miles') {
+              distMiles = parseFloat(document.getElementById('paceCustomDistVal').value) || 1.0;
+              distKm = distMiles * 1.60934;
+            } else if (distChoice === 'custom_km') {
+              distKm = parseFloat(document.getElementById('paceCustomDistVal').value) || 1.0;
+              distMiles = distKm / 1.60934;
+            }
+
+            var totalTimeSecs = 0;
+
+            if (curPaceMode === 'pace') {
+              var h = parseFloat(document.getElementById('paceHours').value) || 0;
+              var m = parseFloat(document.getElementById('paceMinutes').value) || 0;
+              var s = parseFloat(document.getElementById('paceSeconds').value) || 0;
+              totalTimeSecs = (h * 3600) + (m * 60) + s;
+              if (totalTimeSecs <= 0) totalTimeSecs = 1;
+            } else {
+              var pm = parseFloat(document.getElementById('targetPaceMin').value) || 8;
+              var ps = parseFloat(document.getElementById('targetPaceSec').value) || 0;
+              var secPerMile = (pm * 60) + ps;
+              totalTimeSecs = secPerMile * distMiles;
+            }
+
+            var secPerMile = totalTimeSecs / distMiles;
+            var secPerKm = totalTimeSecs / distKm;
+
+            var mph = (distMiles / (totalTimeSecs / 3600)).toFixed(2);
+            var kmh = (distKm / (totalTimeSecs / 3600)).toFixed(2);
+
+            // Output displays
+            document.getElementById('resPacePerMile').textContent = formatPace(secPerMile) + ' /mi';
+            document.getElementById('resSpeedMph').textContent = 'Speed: ' + mph + ' mph';
+            document.getElementById('resPacePerKm').textContent = formatPace(secPerKm) + ' /km';
+            document.getElementById('resSpeedKmh').textContent = 'Speed: ' + kmh + ' km/h';
+            document.getElementById('resPaceTotalTime').textContent = formatTime(totalTimeSecs);
+            document.getElementById('resPaceDistance').textContent = distKm.toFixed(2) + ' km (' + distMiles.toFixed(2) + ' miles)';
+
+            // Riegel Predictions: T2 = T1 * (D2 / D1)^1.06
+            var events = [
+              { name: '1 Mile', dM: 1.0, dK: 1.60934 },
+              { name: '5K', dM: 3.10686, dK: 5.0 },
+              { name: '10K', dM: 6.21371, dK: 10.0 },
+              { name: 'Half Marathon', dM: 13.1094, dK: 21.0975 },
+              { name: 'Marathon', dM: 26.2188, dK: 42.195 }
+            ];
+
+            var rHtml = '';
+            events.forEach(function(ev) {
+              var predSecs = totalTimeSecs * Math.pow(ev.dM / distMiles, 1.06);
+              var predPaceMile = predSecs / ev.dM;
+              var predPaceKm = predSecs / ev.dK;
+
+              rHtml += '<tr style="border-bottom: 1px solid var(--border);">' +
+                '<td style="padding: 0.6rem 0.75rem; font-weight: 600;">' + ev.name + '</td>' +
+                '<td style="padding: 0.6rem 0.75rem; color: var(--text-muted);">' + ev.dM.toFixed(1) + ' mi / ' + ev.dK.toFixed(1) + ' km</td>' +
+                '<td style="padding: 0.6rem 0.75rem; font-weight: bold; color: #3b82f6;">' + formatTime(predSecs) + '</td>' +
+                '<td style="padding: 0.6rem 0.75rem; font-family: var(--mono); color: #10b981;">' + formatPace(predPaceMile) + ' /mi</td>' +
+                '<td style="padding: 0.6rem 0.75rem; font-family: var(--mono); color: var(--text-muted);">' + formatPace(predPaceKm) + ' /km</td>' +
+              '</tr>';
+            });
+            document.getElementById('tblRiegelBody').innerHTML = rHtml;
+
+            // 5 Training Zones (based on 5K pace baseline)
+            var base5kSecMile = totalTimeSecs * Math.pow(3.10686 / distMiles, 1.06) / 3.10686;
+            var zones = [
+              { z: 'Zone 1', name: 'Active Recovery', offsetM: 150, offsetK: 93, adapt: 'Capillary flush, lactic clearance' },
+              { z: 'Zone 2', name: 'Aerobic Base (Easy Run)', offsetM: 105, offsetK: 65, adapt: 'Mitochondrial biogenesis & fat oxidation' },
+              { z: 'Zone 3', name: 'Tempo / Marathon Pace', offsetM: 35, offsetK: 22, adapt: 'Glycogen sparing & steady-state economy' },
+              { z: 'Zone 4', name: 'Lactate Threshold (LT)', offsetM: 10, offsetK: 6, adapt: 'Lactate clearance capacity (OBLA)' },
+              { z: 'Zone 5', name: 'VO2 Max Intervals', offsetM: -25, offsetK: -16, adapt: 'Max stroke volume & cardiac output' }
+            ];
+
+            var zHtml = '';
+            zones.forEach(function(item) {
+              var zSecM = base5kSecMile + item.offsetM;
+              var zSecK = (base5kSecMile / 1.60934) + item.offsetK;
+
+              zHtml += '<tr style="border-bottom: 1px solid var(--border);">' +
+                '<td style="padding: 0.6rem 0.75rem; font-weight: 700; color: #3b82f6;">' + item.z + '</td>' +
+                '<td style="padding: 0.6rem 0.75rem; font-weight: 600;">' + item.name + '</td>' +
+                '<td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">' + formatPace(zSecM) + ' /mi</td>' +
+                '<td style="padding: 0.6rem 0.75rem; font-family: var(--mono); color: var(--text-muted);">' + formatPace(zSecK) + ' /km</td>' +
+                '<td style="padding: 0.6rem 0.75rem; font-size: 0.8rem; color: var(--text-muted);">' + item.adapt + '</td>' +
+              '</tr>';
+            });
+            document.getElementById('tblZonesBody').innerHTML = zHtml;
+
+            // Derivation box
+            var dBox = document.getElementById('derivationBoxPace');
+            dBox.innerHTML = '<strong>1. Distance & Time Conversions:</strong><br>' +
+              '• Total Distance = ' + distMiles.toFixed(4) + ' miles (' + distKm.toFixed(4) + ' km)<br>' +
+              '• Total Time = ' + totalTimeSecs.toFixed(1) + ' seconds (' + formatTime(totalTimeSecs) + ')<br><br>' +
+              '<strong>2. Pace per Mile Derivation:</strong><br>' +
+              'Pace (Mile) = Total Seconds / Miles = ' + totalTimeSecs.toFixed(1) + ' / ' + distMiles.toFixed(4) + ' = ' + secPerMile.toFixed(2) + ' sec = <strong>' + formatPace(secPerMile) + ' /mi</strong><br><br>' +
+              '<strong>3. Pace per Kilometer Derivation:</strong><br>' +
+              'Pace (Km) = Total Seconds / Km = ' + totalTimeSecs.toFixed(1) + ' / ' + distKm.toFixed(4) + ' = ' + secPerKm.toFixed(2) + ' sec = <strong>' + formatPace(secPerKm) + ' /km</strong><br><br>' +
+              '<strong>4. Speed Equivalents:</strong><br>' +
+              'Speed (mph) = Distance (mi) / Hours = ' + distMiles.toFixed(2) + ' / ' + (totalTimeSecs / 3600).toFixed(4) + ' = <strong>' + mph + ' mph</strong> (' + kmh + ' km/h)';
+          };
+
+          window.copyPaceSummary = function() {
+            var dist = document.getElementById('resPaceDistance').textContent;
+            var time = document.getElementById('resPaceTotalTime').textContent;
+            var pMile = document.getElementById('resPacePerMile').textContent;
+            var pKm = document.getElementById('resPacePerKm').textContent;
+            var speed = document.getElementById('resSpeedMph').textContent;
+
+            var text = '🏃 Running Pace & Race Summary Card\n' +
+              '• Distance: ' + dist + '\n' +
+              '• Finish Time: ' + time + '\n' +
+              '• Pace per Mile: ' + pMile + ' (' + speed + ')\n' +
+              '• Pace per Kilometer: ' + pKm + '\n\n' +
+              'Calculated at digitaltoolsshed.com/health/pace-calculator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyPace');
+              var orig = btn.innerHTML;
+              btn.innerHTML = '<span>✓ Copied Race Pacing Card!</span>';
+              setTimeout(function() { btn.innerHTML = orig; }, 2000);
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', calcPaceEngine);
+        </script>
+      `
+    },
   ];
 
   // Render individual pages
