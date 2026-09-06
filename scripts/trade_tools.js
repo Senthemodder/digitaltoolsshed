@@ -101963,6 +101963,1715 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
     }));
   })();
 
-console.log('  ✓ Built Trade & Construction Suite (147 calculators in /calc/)');
+
+  // --- TOOL AZ1: SPRAY COOLING POND EVAPORATION & DRIFT CALCULATOR ---
+  (() => {
+    const slug = 'cooling-pond-evaporation-drift-calculator';
+    const title = 'Industrial Cooling Pond Evaporation & Drift Loss Calculator (ASHRAE)';
+    const metaDescription = 'Industrial spray cooling pond and thermal heat rejection pond calculator per ASHRAE and Ryan-Harleman equations. Computes evaporative water loss, droplet wind drift, blowdown makeup rates, and equilibrium water temperature.';
+
+    const faq = [
+      {
+        q: 'How does an industrial spray cooling pond reject thermal heat loads?',
+        a: 'A spray cooling pond pumps heated condenser circulating water through a grid of low-pressure atomizing nozzles elevated 1.5 to 3 meters above the water surface. The fine spray droplets dramatically increase the gas-liquid contact area, achieving 80% of heat rejection through latent heat of vaporization (approx 2,440 kJ/kg of evaporated water) and 20% through sensible convective cooling to ambient air.'
+      },
+      {
+        q: 'What is the Ryan-Harleman surface heat exchange equation for cooling ponds?',
+        a: 'The Ryan-Harleman formulation calculates surface heat dissipation from natural and artificial water bodies as a function of solar radiation, net atmospheric longwave radiation, back-radiation, convective heat transfer, and evaporative mass flux driven by wind speed and vapor pressure deficit: q_net = q_solar + q_atm - q_back - q_sensible - q_evap.'
+      },
+      {
+        q: 'What is the difference between evaporative loss and windage drift loss?',
+        a: 'Evaporation is pure water vapor transfer leaving dissolved mineral salts behind in the pond. Drift loss consists of entrained liquid water droplets mechanically carried away by ambient crosswinds before returning to the pond surface. While evaporation depends strictly on thermal heat load (approx 1.2 to 1.8% of circulating water flow per 10°C cooling range), drift loss ranges from 0.05% to 0.5% depending on spray nozzle elevation, wind velocity, and windbreak berms.'
+      },
+      {
+        q: 'Why are Cycles of Concentration (CoC) and blowdown critical in cooling pond water chemistry?',
+        a: 'As pure water continuously evaporates, dissolved solids (calcium, magnesium, silica, sulfates) concentrate in the circulating water. The Cycles of Concentration (CoC) is defined as the ratio of dissolved solids in the pond to that in the makeup water: CoC = Makeup / Blowdown = (Evap + Drift + Blowdown) / (Drift + Blowdown). Operating at too high a CoC precipitates hard calcium sulfate and silica scale on condenser tubes and spray nozzles.'
+      },
+      {
+        q: 'What biological hazards are associated with open industrial spray cooling ponds?',
+        a: 'Warm water (25°C to 45°C) combined with airborne organic nutrients creates an ideal incubator for Legionella pneumophila bacteria and cyanobacteria blooms. Fine wind-carried drift aerosols can transport viable Legionella pathogens up to several kilometers downwind, presenting severe risk of Legionnaires disease outbreaks unless biocides (chlorine dioxide, glutaraldehyde) and drift eliminator louvers are maintained.'
+      }
+    ];
+
+    const content = `
+<style>
+  .pond-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .pond-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .pond-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Model thermal heat rejection, evaporative water loss, windage droplet drift, and freshwater makeup requirements for industrial spray cooling ponds and power plant reservoirs per ASHRAE and Ryan-Harleman heat transfer correlations.
+  </p>
+
+  <div class="pond-grid">
+    <!-- Panel 1: Thermal & Circulating Flow -->
+    <div class="pond-card">
+      <h3>1. Circulating Water & Thermal Load</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pd_flow">Circulating Water Flow Q<sub>circ</sub> (m&sup3;/h)</label>
+          <input type="number" id="pd_flow" class="form-control" value="8500" min="50" max="300000" step="250">
+        </div>
+        <div class="form-group">
+          <label for="pd_t_hot">Hot Water Inflow T<sub>hot</sub> (&deg;C)</label>
+          <input type="number" id="pd_t_hot" class="form-control" value="42" min="15" max="75" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pd_t_cold">Target Cold Water Outflow T<sub>cold</sub> (&deg;C)</label>
+          <input type="number" id="pd_t_cold" class="form-control" value="30" min="10" max="60" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="pd_coc">Target Cycles of Concentration (CoC)</label>
+          <input type="number" id="pd_coc" class="form-control" value="3.5" min="1.2" max="8.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pd_pond_area">Pond Surface Water Area (m&sup2;)</label>
+          <input type="number" id="pd_pond_area" class="form-control" value="45000" min="500" max="5000000" step="1000">
+        </div>
+        <div class="form-group">
+          <label for="pd_spray_mode">Pond Configuration</label>
+          <select id="pd_spray_mode" class="form-control">
+            <option value="spray" selected>Spray Cooling Pond (Nozzle Grid ~2m Elevation)</option>
+            <option value="natural">Natural Un-Sprayed Cooling Reservoir</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Weather & Environmental Conditions -->
+    <div class="pond-card">
+      <h3>2. Meteorology & Ambient Climate</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pd_t_db">Ambient Dry-Bulb Temp T<sub>db</sub> (&deg;C)</label>
+          <input type="number" id="pd_t_db" class="form-control" value="30" min="-10" max="50" step="1">
+        </div>
+        <div class="form-group">
+          <label for="pd_rh">Ambient Relative Humidity RH (%)</label>
+          <input type="number" id="pd_rh" class="form-control" value="55" min="5" max="100" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pd_wind">Mean Wind Speed at 2m Height (m/s)</label>
+          <input type="number" id="pd_wind" class="form-control" value="4.2" min="0.2" max="25.0" step="0.2">
+        </div>
+        <div class="form-group">
+          <label for="pd_solar">Solar Insolation Flux (W/m&sup2;)</label>
+          <input type="number" id="pd_solar" class="form-control" value="650" min="0" max="1200" step="50">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pd_drift_pct">Droplet Windage Drift Factor (%)</label>
+          <input type="number" id="pd_drift_pct" class="form-control" value="0.18" min="0.01" max="1.00" step="0.02">
+        </div>
+        <div class="form-group">
+          <label for="pd_lat_evap">Latent Heat of Vaporization (kJ/kg)</label>
+          <input type="number" id="pd_lat_evap" class="form-control" value="2440" min="2350" max="2500" step="10">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Water Balance Output -->
+    <div class="pond-card">
+      <h3>3. Heat Rejection & Water Balance</h3>
+      <div class="res-row">
+        <span class="res-label">Total Heat Rejection Load Q<sub>rej</sub>:</span>
+        <span class="res-val highlight" id="res_qrej">-- MW (-- MMBtu/h)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Cooling Range (&Delta;T = T<sub>hot</sub> - T<sub>cold</sub>):</span>
+        <span class="res-val" id="res_range">-- &deg;C</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Ambient Wet-Bulb Temp T<sub>wb</sub>:</span>
+        <span class="res-val" id="res_twb">-- &deg;C (Approach: -- &deg;C)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Evaporative Water Consumption E:</span>
+        <span class="res-val highlight" id="res_evap">-- m&sup3;/h (-- GPM)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Windage Droplet Drift Loss D:</span>
+        <span class="res-val warning" id="res_drift">-- m&sup3;/h (-- % of flow)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Required Blowdown Discharge B:</span>
+        <span class="res-val" id="res_blowdown">-- m&sup3;/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Freshwater Makeup Rate M:</span>
+        <span class="res-val highlight" id="res_makeup">-- m&sup3;/h (-- m&sup3;/day)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Thermal Dissipation Flux:</span>
+        <span class="res-val" id="res_flux">-- W/m&sup2; of pond area</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Aerosol Drift Hazard Assessment:</span>
+        <span id="res_hazard" class="status-badge badge-safe">CONTROLLED DRIFT ZONE</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_pond">
+          <span>📋 Copy Cooling Pond Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Industrial Spray Cooling Pond Mass & Thermal Balance Profile</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Hot Plant Condenser Return (T<sub>hot</sub>, Q<sub>circ</sub>) ] &rarr; [ Spray Nozzle Manifold Grid (2m Height) ]<br>
+      &rarr; [ 80% Evaporation (E) + 20% Convection &rarr; Windage Droplet Drift (D) ] &rarr; [ Surface Dissipation ]<br>
+      &larr; [ CoC Chemical Blowdown (B) ] &harr; [ Freshwater Makeup (M = E + D + B) ] &rarr; [ Cold Suction Sump (T<sub>cold</sub>) ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="pond-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Ryan-Harleman Heat Balance</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Cooling pond sizing balances sensible circulating enthalpy loss against atmospheric evaporative and drift mass transfer:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Thermal Heat Rejection Load</strong><br>
+        $$Q_{rej} = \dot{m}_{circ} \cdot c_p \cdot (T_{hot} - T_{cold}) \quad [\text{kW}]$$
+        $$c_p \approx 4.184\text{ kJ}/(\text{kg}\cdot\text{K})$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Evaporative Water Loss</strong><br>
+        $$E = \frac{f_{evap} \cdot Q_{rej}}{\rho_w \cdot \lambda_{vap}} \approx 0.0015 \cdot Q_{circ} \cdot \Delta T \quad [\text{m}^3/\text{h}]$$
+        Latent heat of vaporization $\lambda_{vap} \approx 2,440\text{ kJ}/\text{kg}$.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Cycles of Concentration & Blowdown</strong><br>
+        $$B = \frac{E - (CoC - 1) \cdot D}{CoC - 1} \quad [\text{m}^3/\text{h}]$$
+        $$M = E + D + B \quad [\text{m}^3/\text{h}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Ryan-Harleman Wind Function</strong><br>
+        $$\psi = (2.70 \cdot \Delta \theta_v^{1/3} + 3.10 \cdot v_{wind}) \quad [\text{W}/(\text{m}^2\cdot\text{mbar})]$$
+        Calculates natural convective buoyant heat loss from warm pond surfaces.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="pond-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Industrial Cooling Pond Engineering</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Legionella Aerosol Drift Dispersal Catastrophe</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Open spray cooling ponds operate at 30°C to 45°C—the exact optimal incubation temperature for Legionella pneumophila. Spray nozzles atomize warm, slime-rich water into microscopic 5 to 20-micron aerosol droplets. Ambient 10 m/s crosswinds transport these pathogen-laden aerosols over 3 kilometers beyond plant property lines into residential subdivisions. Inhalation of these respirable droplets triggers fatal Legionnaires disease pneumonia outbreaks, resulting in massive class-action lawsuits, EPA enforcement, and court-ordered facility shutdowns. Continuous oxidizing biocide dosing (free halogen > 0.5 ppm) is mandatory.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Thermal Stratification Intake Short-Circuiting</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Hot discharge water is naturally less dense than cold water ($\Delta \rho \sim 3\text{ kg/m}^3$) and floats on the surface. If the cold water intake channel is located too close to the hot discharge canal without impermeable baffle dikes, surface winds push the floating hot water plume straight into the intake pump house within 30 minutes. Intake temperature spikes by 6°C to 10°C, causing steam turbine back-pressure to exceed trip limits and forcing power generation deratings. Deep submerged skimmer walls and serpentine internal baffle dikes are essential.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Cold-Weather Highway Icing & Wintertime Fogging Hazard</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In sub-zero winter temperatures (-5°C to -20°C), warm spray droplets evaporate into saturated, freezing ambient air. Immense plumes of dense freezing fog engulf adjacent public highways and high-voltage power transmission switchyards. The moisture freezes instantaneously upon contact with asphalt, creating sheets of black ice that cause multi-vehicle pileups, while heavy rime ice loading collapses powerlines and flashes over ceramic transformer bushings. Spray headers must feature automated low-temperature wind-direction staging controllers.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Cycles of Concentration Silica & Calcium Sulfate Scaling Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Plant operators attempting to minimize freshwater consumption often eliminate blowdown, allowing Cycles of Concentration to climb from 3.0 to above 7.0. While calcium carbonate can be controlled by acid addition, dissolved silica ($SiO_2$) has a hard saturation solubility limit of approx 150 to 180 ppm at 30°C. Exceeding this limit precipitates amorphous glassy silica scale across condenser tubes and spray nozzles. Glassy silica cannot be removed by any acid wash except lethal hydrofluoric acid (HF); tubes must be replaced at millions of dollars in downtime.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Spray Nozzle Plugging by Cyanobacteria Algal Mats</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Large-area open cooling ponds collect agricultural runoff containing nitrogen and phosphates. In direct summer sunlight, blue-green algae (cyanobacteria) multiply exponentially, forming thick floating biological mats. The slime breaks loose in clumps that bypass coarse trash racks and plug hundreds of spray nozzle orifices simultaneously. Spray pattern coverage collapses by 60%, water sheets through open gaps without atomization, and pond cooling performance degrades catastrophically during peak summer electrical demand.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="pond-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Power Station Auxiliary Spray Cooling Pond.</p>
+      <ul>
+        <li><strong>Thermal Circulation:</strong> Circulating flow $Q_{circ} = 8,500\text{ m}^3/\text{h} \approx 2,361\text{ kg/s}$, Hot inflow $T_{hot} = 42^\circ\text{C}$, Target cold outflow $T_{cold} = 30^\circ\text{C}$.</li>
+        <li><strong>Climate:</strong> Dry-bulb $T_{db} = 30^\circ\text{C}$, Relative humidity $RH = 55\%$ ($T_{wb} \approx 22.8^\circ\text{C}$), Wind speed $v = 4.2\text{ m/s}$, Solar $q_{sol} = 650\text{ W/m}^2$.</li>
+        <li><strong>Pond Geometry:</strong> Surface area $A = 45,000\text{ m}^2$, Spray nozzle grid at 2m elevation ($f_{drift} = 0.18\%$ of flow). Target $CoC = 3.5$.</li>
+      </ul>
+      <p><strong>Step 1: Total Heat Rejection Load ($Q_{rej}$):</strong></p>
+      $$\Delta T = T_{hot} - T_{cold} = 42 - 30 = 12^\circ\text{C}$$
+      $$Q_{rej} = \dot{m}_{circ} \cdot c_p \cdot \Delta T = 2,361\text{ kg/s} \times 4.184\text{ kJ}/(\text{kg}\cdot\text{K}) \times 12\text{ K} = 118,545\text{ kW} = 118.55\text{ MW} \quad (404.5\text{ MMBtu/h})$$
+      <p><strong>Step 2: Evaporative Water Consumption ($E$):</strong></p>
+      $$\text{In spray ponds, latent evaporation accounts for approximately } 78\%\text{ of total heat rejection:}$$
+      $$Q_{evap} = 0.78 \times 118,545\text{ kW} = 92,465\text{ kW} = 92,465\text{ kJ/s}$$
+      $$\dot{m}_{evap} = \frac{92,465\text{ kJ/s}}{2,440\text{ kJ/kg}} = 37.90\text{ kg/s} \implies E = 37.90 \times 3.6 = 136.44\text{ m}^3/\text{h} \quad (600.7\text{ GPM})$$
+      <p><strong>Step 3: Windage Drift Loss ($D$) and Blowdown ($B$):</strong></p>
+      $$D = 0.0018 \times 8,500\text{ m}^3/\text{h} = 15.30\text{ m}^3/\text{h} \quad (67.4\text{ GPM})$$
+      $$B = \frac{E - (CoC - 1) \cdot D}{CoC - 1} = \frac{136.44 - (3.5 - 1) \times 15.30}{3.5 - 1} = \frac{136.44 - 38.25}{2.5} = \frac{98.19}{2.5} = 39.28\text{ m}^3/\text{h}$$
+      <p><strong>Step 4: Total Freshwater Makeup Rate ($M$):</strong></p>
+      $$M = E + D + B = 136.44 + 15.30 + 39.28 = 191.02\text{ m}^3/\text{h} \quad (841\text{ GPM} = 4,584\text{ m}^3/\text{day})$$
+      $$\text{Thermal Dissipation Flux: } q'' = \frac{118,550,000\text{ W}}{45,000\text{ m}^2} = 2,634\text{ W/m}^2 \implies \mathbf{\text{High-Efficiency Intensive Spray Cooling}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcPond() {
+    const Qcirc_m3h = parseFloat(document.getElementById('pd_flow').value) || 8500;
+    const Thot = parseFloat(document.getElementById('pd_t_hot').value) || 42;
+    const Tcold = parseFloat(document.getElementById('pd_t_cold').value) || 30;
+    const CoC = parseFloat(document.getElementById('pd_coc').value) || 3.5;
+    const Apond_m2 = parseFloat(document.getElementById('pd_pond_area').value) || 45000;
+    const sprayMode = document.getElementById('pd_spray_mode').value;
+
+    const Tdb = parseFloat(document.getElementById('pd_t_db').value) || 30;
+    const RH = parseFloat(document.getElementById('pd_rh').value) || 55;
+    const wind_ms = parseFloat(document.getElementById('pd_wind').value) || 4.2;
+    const solar_wm2 = parseFloat(document.getElementById('pd_solar').value) || 650;
+    const driftPct = parseFloat(document.getElementById('pd_drift_pct').value) || 0.18;
+    const lambda_vap = parseFloat(document.getElementById('pd_lat_evap').value) || 2440;
+
+    // 1. Heat Rejection Load
+    const dT = Math.max(0.5, Thot - Tcold);
+    const mcirc_kgs = (Qcirc_m3h * 1000) / 3600;
+    const cp = 4.184; // kJ/kg-K
+    const Qrej_kw = mcirc_kgs * cp * dT;
+    const Qrej_mw = Qrej_kw / 1000;
+    const Qrej_mmbtu = Qrej_mw * 3.412142;
+
+    // 2. Ambient Wet-Bulb Temperature (Stull's equation approximation)
+    const Twb = Tdb * Math.atan(0.151977 * Math.pow(RH + 8.313659, 0.5)) + 
+                Math.atan(Tdb + RH) - Math.atan(RH - 1.676331) + 
+                0.00391838 * Math.pow(RH, 1.5) * Math.atan(0.023101 * RH) - 4.686035;
+    const approach = Math.max(0, Tcold - Twb);
+
+    // 3. Evaporation Rate
+    const evapFrac = sprayMode === 'spray' ? 0.78 : 0.62;
+    const mevap_kgs = (evapFrac * Qrej_kw) / lambda_vap;
+    const E_m3h = mevap_kgs * 3.6;
+    const E_gpm = E_m3h * 4.40287;
+
+    // 4. Drift and Blowdown
+    const effective_drift_pct = sprayMode === 'spray' ? driftPct : 0.02;
+    const D_m3h = (effective_drift_pct / 100) * Qcirc_m3h;
+    const D_gpm = D_m3h * 4.40287;
+
+    let B_m3h = 0;
+    if (CoC > 1.0) {
+      B_m3h = Math.max(0, (E_m3h - (CoC - 1) * D_m3h) / (CoC - 1));
+    }
+    const M_m3h = E_m3h + D_m3h + B_m3h;
+    const M_m3day = M_m3h * 24;
+    const M_gpm = M_m3h * 4.40287;
+
+    // 5. Thermal Flux
+    const flux_wm2 = Apond_m2 > 0 ? (Qrej_kw * 1000) / Apond_m2 : 0;
+
+    // Update UI
+    document.getElementById('res_qrej').textContent = Qrej_mw.toFixed(2) + ' MW (' + Qrej_mmbtu.toFixed(1) + ' MMBtu/h)';
+    document.getElementById('res_range').textContent = dT.toFixed(1) + ' °C (' + Thot.toFixed(1) + '°C -> ' + Tcold.toFixed(1) + '°C)';
+    document.getElementById('res_twb').textContent = Twb.toFixed(1) + ' °C (Approach: ' + approach.toFixed(1) + ' °C)';
+    document.getElementById('res_evap').textContent = E_m3h.toFixed(1) + ' m³/h (' + E_gpm.toFixed(0) + ' GPM)';
+    document.getElementById('res_drift').textContent = D_m3h.toFixed(2) + ' m³/h (' + effective_drift_pct.toFixed(2) + '% of circ)';
+    document.getElementById('res_blowdown').textContent = B_m3h.toFixed(1) + ' m³/h (CoC: ' + CoC.toFixed(1) + ')';
+    document.getElementById('res_makeup').textContent = M_m3h.toFixed(1) + ' m³/h (' + M_m3day.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' m³/day)';
+    document.getElementById('res_flux').textContent = flux_wm2.toFixed(0) + ' W/m²';
+
+    const hazBadge = document.getElementById('res_hazard');
+    if (sprayMode === 'spray' && wind_ms > 7.0) {
+      hazBadge.className = 'status-badge badge-danger';
+      hazBadge.textContent = 'HIGH DRIFT AEROSOL HAZARD';
+    } else if (sprayMode === 'spray') {
+      hazBadge.className = 'status-badge badge-warn';
+      hazBadge.textContent = 'MODERATE SPRAY AEROSOL RISK';
+    } else {
+      hazBadge.className = 'status-badge badge-safe';
+      hazBadge.textContent = 'LOW RISK (UN-SPRAYED POND)';
+    }
+  }
+
+  const inputs = ['pd_flow', 'pd_t_hot', 'pd_t_cold', 'pd_coc', 'pd_pond_area', 'pd_spray_mode', 'pd_t_db', 'pd_rh', 'pd_wind', 'pd_solar', 'pd_drift_pct', 'pd_lat_evap'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcPond);
+      el.addEventListener('change', calcPond);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_pond');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- INDUSTRIAL COOLING POND DATASHEET ---',
+        'Circulating Flow: ' + document.getElementById('pd_flow').value + ' m³/h | Heat Load: ' + document.getElementById('res_qrej').textContent,
+        'Temperatures: Inflow ' + document.getElementById('pd_t_hot').value + '°C -> Outflow ' + document.getElementById('pd_t_cold').value + '°C | Range: ' + document.getElementById('res_range').textContent,
+        'Wet-Bulb: ' + document.getElementById('res_twb').textContent,
+        'Evaporation Loss: ' + document.getElementById('res_evap').textContent,
+        'Windage Drift: ' + document.getElementById('res_drift').textContent + ' [' + document.getElementById('res_hazard').textContent + ']',
+        'Cycles of Concentration: ' + document.getElementById('pd_coc').value + ' | Blowdown: ' + document.getElementById('res_blowdown').textContent,
+        'Total Fresh Makeup Demand: ' + document.getElementById('res_makeup').textContent,
+        'Pond Area: ' + document.getElementById('pd_pond_area').value + ' m² | Heat Flux: ' + document.getElementById('res_flux').textContent,
+        'Generated via DigitalToolsShed.com Cooling Pond Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcPond();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AZ2: API 2000 STORAGE TANK VENTING & PVRV CALCULATOR ---
+  (() => {
+    const slug = 'api-2000-tank-venting-calculator';
+    const title = 'API 2000 Storage Tank Venting & PVRV Emergency Relief Calculator';
+    const metaDescription = 'Industrial atmospheric storage tank venting and PVRV relief valve calculator per API Standard 2000 and ISO 28300. Computes thermal inbreathing/outbreathing, pump movement venting, fire exposure emergency venting, and PVRV nozzle sizing.';
+
+    const faq = [
+      {
+        q: 'What is the purpose of API Standard 2000 in atmospheric tank design?',
+        a: 'API Standard 2000 (identical to ISO 28300) establishes engineering formulas for sizing normal and emergency venting requirements on aboveground storage tanks operating from full vacuum up to 1.0 bar gauge (15 psig). It sizes Pressure-Vacuum Relief Valves (PVRV) and emergency manways to protect thin-walled steel tanks from structural buckling implosion under vacuum or roof tear-off under overpressure.'
+      },
+      {
+        q: 'What distinguishes normal inbreathing/outbreathing from emergency venting?',
+        a: 'Normal venting accommodates day-to-day operations: liquid pump-in (displacing vapor), liquid pump-out (requiring atmospheric air intake), and thermal breathing caused by diurnal atmospheric temperature swings and solar heating. Emergency venting handles catastrophic external pool fire scenarios, where intense radiant heat boils the liquid inventory, generating immense vapor volumes that far exceed normal PVRV capacities.'
+      },
+      {
+        q: 'Why are atmospheric storage tanks notoriously vulnerable to vacuum implosion?',
+        a: 'Standard API 650 flat-bottom storage tanks are designed to contain internal hydrostatic liquid pressure, resulting in very thin cylindrical shell walls (6 mm to 15 mm steel on a 30-meter diameter vessel). While tanks can withstand modest positive internal pressure (20 to 50 mbar), their resistance to external vacuum is exceptionally fragile. A vacuum of just -2.5 to -5.0 mbar (-1 to -2 inches of water column) can cause the entire tank shell to buckle and collapse inward like a crushed beverage can.'
+      },
+      {
+        q: 'How does stored liquid flash point affect normal outbreathing venting rates?',
+        a: 'For non-volatile liquids with flash points above 37.8°C (100°F) or boiling points above 149°C (e.g. heavy diesel, lube oil), outbreathing equals 1.07 Nm³/h of air per m³/h of maximum pump-in rate. For volatile liquids with flash points below 37.8°C (e.g. gasoline, crude oil, hexane, ethanol), the liquid flashes into vapor during turbulent splash filling, doubling the displacement venting requirement to 2.14 Nm³/h per m³/h of pump-in.'
+      },
+      {
+        q: 'What is a frangible roof joint per API 650 and can it replace emergency relief valves?',
+        a: 'A frangible roof joint (API 650 Section 5.10.2.6) is an engineered weak fillet weld between the roof plates and top angle designed to fail preferentially before shell-to-bottom joints yield. In an external fire, the entire roof tears open cleanly, venting fire vapors. However, frangible roofs are legally permitted only on tanks exceeding 15 meters (50 ft) in diameter with slope < 1:6; smaller tanks cannot guarantee frangibility and must install mechanical emergency relief manways.'
+      }
+    ];
+
+    const content = `
+<style>
+  .api-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .api-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .api-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Determine required normal inbreathing, normal outbreathing, and emergency pool fire exposure venting capacities for API 650 atmospheric storage tanks per API Standard 2000 (7th Edition) and ISO 28300. Solves PVRV nozzle sizing and emergency manway relief areas.
+  </p>
+
+  <div class="api-grid">
+    <!-- Panel 1: Tank Geometry & Rating -->
+    <div class="api-card">
+      <h3>1. Tank Dimensions & Product</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tk_dia">Tank Shell Diameter D (m)</label>
+          <input type="number" id="tk_dia" class="form-control" value="24.0" min="3.0" max="120.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="tk_height">Tank Shell Height H (m)</label>
+          <input type="number" id="tk_height" class="form-control" value="14.5" min="2.0" max="35.0" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tk_vol">Operating Liquid Volume (m&sup3;)</label>
+          <input type="number" id="tk_vol" class="form-control" value="6200" min="20" max="250000" step="100">
+        </div>
+        <div class="form-group">
+          <label for="tk_volatility">Stored Liquid Volatility</label>
+          <select id="tk_volatility" class="form-control">
+            <option value="volatile" selected>Volatile (Flash Pt &lt; 37.8&deg;C / Gasoline / Crude)</option>
+            <option value="nonvolatile">Non-Volatile (Flash Pt &ge; 37.8&deg;C / Diesel / Lube)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tk_p_design">Design Pressure P<sub>des</sub> (mbar g)</label>
+          <input type="number" id="tk_p_design" class="form-control" value="25" min="5" max="500" step="1">
+        </div>
+        <div class="form-group">
+          <label for="tk_p_vac">Design Vacuum P<sub>vac</sub> (-mbar g)</label>
+          <input type="number" id="tk_p_vac" class="form-control" value="2.5" min="1.0" max="50.0" step="0.5">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Liquid Movement & Fire Exposure -->
+    <div class="api-card">
+      <h3>2. Pump Rates & Fire Insulation</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tk_pump_in">Max Liquid Pump-In Rate (m&sup3;/h)</label>
+          <input type="number" id="tk_pump_in" class="form-control" value="650" min="5" max="15000" step="25">
+        </div>
+        <div class="form-group">
+          <label for="tk_pump_out">Max Liquid Pump-Out Rate (m&sup3;/h)</label>
+          <input type="number" id="tk_pump_out" class="form-control" value="800" min="5" max="15000" step="25">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tk_latitude">Latitude Geographic Factor (Y)</label>
+          <select id="tk_latitude" class="form-control">
+            <option value="1.0" selected>Below 42&deg; Latitude (High Solar Thermal Swing Y = 1.0)</option>
+            <option value="0.7">Above 42&deg; Latitude (Moderate Solar Swing Y = 0.7)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="tk_insulation">Fire Insulation Factor (F)</label>
+          <select id="tk_insulation" class="form-control">
+            <option value="1.0" selected>Bare Steel Tank (F = 1.0)</option>
+            <option value="0.3">Insulated with Approved Fireproofing (F = 0.3)</option>
+            <option value="0.15">Water Spray Deluge System (F = 0.15)</option>
+            <option value="0.075">Earth-Mounded / Underground (F = 0.075)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tk_lat_heat">Product Latent Heat L<sub>vap</sub> (kJ/kg)</label>
+          <input type="number" id="tk_lat_heat" class="form-control" value="340" min="150" max="2500" step="10">
+        </div>
+        <div class="form-group">
+          <label for="tk_mol_wt">Vapor Molecular Weight MW</label>
+          <input type="number" id="tk_mol_wt" class="form-control" value="86" min="16" max="250" step="2">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Venting & PVRV Sizing Output -->
+    <div class="api-card">
+      <h3>3. API 2000 Venting Requirements</h3>
+      <div class="res-row">
+        <span class="res-label">Normal Vacuum Inbreathing Rate:</span>
+        <span class="res-val highlight" id="res_inbreath">-- Nm&sup3;/h (-- SCFH)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Normal Pressure Outbreathing Rate:</span>
+        <span class="res-val highlight" id="res_outbreath">-- Nm&sup3;/h (-- SCFH)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Recommended PVRV Nozzle Size:</span>
+        <span class="res-val highlight" id="res_pvrv_size">-- inches (DN --)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">API 2000 Wetted Fire Surface Area:</span>
+        <span class="res-val" id="res_wetted_area">-- m&sup2; (-- ft&sup2;)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Fire Heat Absorption Q<sub>fire</sub>:</span>
+        <span class="res-val" id="res_qfire">-- MW (-- MMBtu/h)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Emergency Fire Venting Capacity:</span>
+        <span class="res-val danger" id="res_emergency_vent">-- Nm&sup3;/h (-- SCFH)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Emergency Relief Vents Needed:</span>
+        <span class="res-val highlight" id="res_manways">-- &times; 24&Prime; (DN 600) Hatches</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Frangible Roof Applicability:</span>
+        <span id="res_frangible" class="status-badge badge-safe">FRANGIBLE ROOF PERMITTED</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_api">
+          <span>📋 Copy Tank Venting Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">API 650 Storage Tank Venting Protection Architecture</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Liquid Pump-In (Outbreathing) &harr; Liquid Pump-Out (Inbreathing) ] &rarr; [ Diurnal Thermal Breathing (Y Factor) ]<br>
+      &rarr; [ Standard Weight-Loaded PVRV Valve with Flame Arrester (P<sub>set</sub> ~ 20 mbar, P<sub>vac</sub> ~ -2.5 mbar) ]<br>
+      &harr; [ Catastrophic Pool Fire Radiation (Q<sub>fire</sub>) &rarr; Emergency Hinged Relief Manways / Frangible Roof Joint ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="api-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & API 2000 7th Edition Venting Rules</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Storage tank protection integrates liquid displacement rates, atmospheric heat dissipation, and fire exposure kinetics per API Standard 2000:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Normal Inbreathing Capacity</strong><br>
+        $$q_{in,total} = 0.94 \cdot Q_{pump-out} + C_{therm} \cdot V_{tank}^{0.7} \cdot Y \quad [\text{Nm}^3/\text{h}]$$
+        Prevents shell buckling implosion during rapid pump-out.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Normal Outbreathing Capacity</strong><br>
+        $$q_{out,total} = (1.07 \text{ or } 2.14) \cdot Q_{pump-in} + 0.6 \cdot q_{in,therm} \quad [\text{Nm}^3/\text{h}]$$
+        Doubled for volatile liquids (flash point < 37.8°C).
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Fire Exposure Heat Input (Q<sub>fire</sub>)</strong><br>
+        $$A_{wetted} = \pi \cdot D \cdot \min(H, 9.14\text{ m}) \quad [\text{m}^2]$$
+        $$Q_{fire} = 43,200 \cdot F \cdot A_{wetted}^{0.82} \quad [\text{Watts}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Emergency Venting Flow Rate</strong><br>
+        $$q_{emergency} = 906.6 \cdot \frac{Q_{fire} \cdot F}{L_{vap}} \cdot \sqrt{\frac{T_{boil}}{M}} \quad [\text{Nm}^3/\text{h}]$$
+        Prevents catastrophic tank overpressure explosion.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="api-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Storage Tank Venting Design</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Tank Vacuum Implosion Catastrophe (Crushed Can Failure)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Because API 650 tank shells are very thin (e.g. 8 mm steel over a 25 m diameter), atmospheric pressure outside the tank exerts enormous inward compressive buckling stress. If the liquid pump-out rate exceeds vacuum relief capacity, or if the vacuum pallet freezes shut in winter, internal pressure drops below -3.0 mbar (-1.2 in. w.g.). The entire upper shell rings buckle inward and fold into a mangled heap within 15 seconds, destroying millions of dollars of infrastructure and spilling thousands of barrels of product.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Flame Arrester Element Wax / Polymer Clogging</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Installing an end-of-line or in-line deflagration flame arrester underneath a PVRV is common practice for flammable vapors. However, fine crimped metal ribbon arrestor elements (apertures < 0.5 mm) act as particulate and wax filters. Condensing heavy hydrocarbon vapors, polymerizing monomers (styrene), or atmospheric dust rapidly blind the narrow channels. Outbreathing is completely choked, causing the tank to over-pressurize and rupture roof welds during the first warm afternoon filling cycle.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. The Small-Tank False Frangible Roof Assumption</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Engineers frequently omit expensive emergency relief manways under the mistaken belief that the tank roof has an API 650 frangible joint. However, per API 650 Section 5.10.2.6, frangibility requires that the roof yield before the shell-to-bottom joint. On tanks under 15 meters (50 ft) in diameter, or tanks with steep conical roofs (> 1:6 pitch), the roof-to-shell joint is structurally **stronger than the floor joint**. In a fire, the tank floor shears open first, launching the burning tank shell into the air like a rocket and spilling burning fuel across the entire bund.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. PVRV Pallet Chattering & Seat Destruction from Oversizing</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Specifying an oversized PVRV (e.g. a 12-inch valve where a 6-inch valve is required) causes aerodynamic instability. When pressure slightly exceeds set point, the massive pallet cracks open, venting pressure instantly. The pallet slams shut violently against the seat, pressure rebuilds, and the valve opens again. This rapid chattering (up to 10 cycles per second) peens and destroys the PTFE/stainless valve seats, generates continuous toxic VOC fugitives, and leads to mechanical valve hinge fracture.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Sub-Zero Wintertime Pallet Condensation Freezing</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In cold climates, warm moist vapor inside the tank rises and condenses on the cold metal pallet disc and seat ring of the PVRV. When ambient temperatures drop below 0°C, the water condensate freezes solid into ice, cementing the pressure and vacuum pallets to their seats. When product is pumped out of the tank that morning, the frozen vacuum valve cannot lift, resulting in immediate vacuum collapse of the roof. Heated PVRV jackets or fluoropolymer anti-freeze seats are mandatory in cold regions.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="api-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> API 650 Gasoline Storage Tank in a Coastal Fuel Terminal.</p>
+      <ul>
+        <li><strong>Tank Dimensions:</strong> Diameter $D = 24.0\text{ m}$, Height $H = 14.5\text{ m}$, Operating Volume $V = 6,200\text{ m}^3$.</li>
+        <li><strong>Product:</strong> Unleaded Gasoline (Volatile, flash point $< -40^\circ\text{C}$, $MW = 86$, $L_{vap} = 340\text{ kJ/kg}$).</li>
+        <li><strong>Operating Pumping:</strong> Max pump-in $Q_{in} = 650\text{ m}^3/\text{h}$, Max pump-out $Q_{out} = 800\text{ m}^3/\text{h}$.</li>
+        <li><strong>Environment:</strong> Latitude $< 42^\circ$ ($Y = 1.0$). Bare steel tank ($F = 1.0$).</li>
+      </ul>
+      <p><strong>Step 1: Normal Inbreathing Requirement (Vacuum Protection):</strong></p>
+      $$q_{in,pump} = 0.94 \times Q_{out} = 0.94 \times 800 = 752\text{ Nm}^3/\text{h}$$
+      $$\text{Thermal Inbreathing: } q_{in,thermal} = 3.2 \times (6200)^{0.7} \times 1.0 = 3.2 \times 450.4 = 1,441\text{ Nm}^3/\text{h}$$
+      $$q_{in,total} = 752 + 1,441 = 2,193\text{ Nm}^3/\text{h} \quad (82,042\text{ SCFH})$$
+      <p><strong>Step 2: Normal Outbreathing Requirement (Pressure Protection):</strong></p>
+      $$\text{For volatile gasoline, displacement factor is } 2.14:$$
+      $$q_{out,pump} = 2.14 \times Q_{in} = 2.14 \times 650 = 1,391\text{ Nm}^3/\text{h}$$
+      $$q_{out,thermal} = 0.6 \times q_{in,thermal} = 0.6 \times 1,441 = 865\text{ Nm}^3/\text{h}$$
+      $$q_{out,total} = 1,391 + 865 = 2,256\text{ Nm}^3/\text{h} \quad (84,401\text{ SCFH})$$
+      $$\mathbf{\text{Select Standard 10-inch (DN 250) or dual 8-inch (DN 200) PVRV relief valves}}.$$
+      <p><strong>Step 3: Emergency Pool Fire Exposure Venting (API 2000 Sec 4.5):</strong></p>
+      $$\text{Effective wetted height capped at } 9.14\text{ m: } H_{wet} = \min(14.5, 9.14) = 9.14\text{ m}$$
+      $$A_{wetted} = \pi \times 24.0\text{ m} \times 9.14\text{ m} = 689.1\text{ m}^2 \quad (7,417\text{ ft}^2)$$
+      $$Q_{fire} = 43,200 \times 1.0 \times (689.1)^{0.82} = 43,200 \times 212.18 = 9,166,176\text{ W} = 9.17\text{ MW} \quad (31.28\text{ MMBtu/h})$$
+      $$q_{emergency} = 906.6 \times \frac{9,166,176 \times 1.0}{340,000} \times \sqrt{\frac{345\text{ K}}{86}} = 906.6 \times 26.96 \times \sqrt{4.01} = 24,442 \times 2.003 = 48,957\text{ Nm}^3/\text{h} \quad (1,831,475\text{ SCFH})$$
+      <p><strong>Step 4: Relief Protection Strategy:</strong></p>
+      $$\text{Tank diameter } D = 24.0\text{ m} > 15\text{ m} \implies \mathbf{\text{Frangible roof joint permitted per API 650 5.10.2.6}}.$$
+      $$\text{If non-frangible roof, install } \mathbf{\text{three 24-inch (DN 600) emergency hinged relief manways}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcAPI() {
+    const D = parseFloat(document.getElementById('tk_dia').value) || 24.0;
+    const H = parseFloat(document.getElementById('tk_height').value) || 14.5;
+    const V = parseFloat(document.getElementById('tk_vol').value) || 6200;
+    const volatility = document.getElementById('tk_volatility').value;
+    const Pdes = parseFloat(document.getElementById('tk_p_design').value) || 25;
+    const Pvac = parseFloat(document.getElementById('tk_p_vac').value) || 2.5;
+    const Qin = parseFloat(document.getElementById('tk_pump_in').value) || 650;
+    const Qout = parseFloat(document.getElementById('tk_pump_out').value) || 800;
+    const Y = parseFloat(document.getElementById('tk_latitude').value) || 1.0;
+    const F = parseFloat(document.getElementById('tk_insulation').value) || 1.0;
+    const Lvap = parseFloat(document.getElementById('tk_lat_heat').value) || 340;
+    const MW = parseFloat(document.getElementById('tk_mol_wt').value) || 86;
+
+    // 1. Normal Inbreathing
+    const qin_pump = 0.94 * Qout;
+    const qin_thermal = 3.2 * Math.pow(V, 0.7) * Y;
+    const qin_total = qin_pump + qin_thermal;
+    const qin_scfh = qin_total * 37.41;
+
+    // 2. Normal Outbreathing
+    const pump_out_factor = volatility === 'volatile' ? 2.14 : 1.07;
+    const qout_pump = pump_out_factor * Qin;
+    const qout_thermal = 0.6 * qin_thermal;
+    const qout_total = qout_pump + qout_thermal;
+    const qout_scfh = qout_total * 37.41;
+
+    // Recommended PVRV size
+    const max_normal = Math.max(qin_total, qout_total);
+    let pvrv_size_in = 6;
+    let pvrv_dn = 150;
+    if (max_normal > 3500) { pvrv_size_in = 12; pvrv_dn = 300; }
+    else if (max_normal > 2000) { pvrv_size_in = 10; pvrv_dn = 250; }
+    else if (max_normal > 1200) { pvrv_size_in = 8; pvrv_dn = 200; }
+
+    // 3. Emergency Fire Venting
+    const H_wet = Math.min(H, 9.14);
+    const A_wetted = Math.PI * D * H_wet;
+    const A_wetted_ft2 = A_wetted * 10.7639;
+    const Qfire_w = 43200 * F * Math.pow(Math.max(1, A_wetted), 0.82);
+    const Qfire_mw = Qfire_w / 1e6;
+    const Qfire_mmbtu = Qfire_mw * 3.412142;
+
+    const T_boil_k = 345;
+    const q_emergency_nm3h = 906.6 * ((Qfire_w * F) / (Lvap * 1000)) * Math.sqrt(T_boil_k / MW);
+    const q_emergency_scfh = q_emergency_nm3h * 37.41;
+
+    // Number of 24-inch emergency manways (each provides ~18,000 Nm3/h at 25 mbar)
+    const num_manways = Math.max(1, Math.ceil(q_emergency_nm3h / 18000));
+
+    // Frangible roof check
+    const frangibleAllowed = D >= 15.0;
+
+    // Update UI
+    document.getElementById('res_inbreath').textContent = qin_total.toFixed(0) + ' Nm³/h (' + qin_scfh.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SCFH)';
+    document.getElementById('res_outbreath').textContent = qout_total.toFixed(0) + ' Nm³/h (' + qout_scfh.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' SCFH)';
+    document.getElementById('res_pvrv_size').textContent = pvrv_size_in + ' inches (DN ' + pvrv_dn + ')';
+    document.getElementById('res_wetted_area').textContent = A_wetted.toFixed(1) + ' m² (' + A_wetted_ft2.toFixed(0) + ' ft²)';
+    document.getElementById('res_qfire').textContent = Qfire_mw.toFixed(2) + ' MW (' + Qfire_mmbtu.toFixed(1) + ' MMBtu/h)';
+    document.getElementById('res_emergency_vent').textContent = q_emergency_nm3h.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' Nm³/h (' + (q_emergency_scfh / 1e6).toFixed(2) + ' MMSCFH)';
+    document.getElementById('res_manways').textContent = num_manways + ' × 24" (DN 600) Emergency Hatches';
+
+    const frangBadge = document.getElementById('res_frangible');
+    if (frangibleAllowed) {
+      frangBadge.className = 'status-badge badge-safe';
+      frangBadge.textContent = 'FRANGIBLE ROOF PERMITTED (D ≥ 15m)';
+    } else {
+      frangBadge.className = 'status-badge badge-danger';
+      frangBadge.textContent = 'MANDATORY EMERGENCY MANWAYS (D < 15m)';
+    }
+  }
+
+  const inputs = ['tk_dia', 'tk_height', 'tk_vol', 'tk_volatility', 'tk_p_design', 'tk_p_vac', 'tk_pump_in', 'tk_pump_out', 'tk_latitude', 'tk_insulation', 'tk_lat_heat', 'tk_mol_wt'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcAPI);
+      el.addEventListener('change', calcAPI);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_api');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- API 2000 TANK VENTING & PVRV DATASHEET ---',
+        'Tank Dimensions: D = ' + document.getElementById('tk_dia').value + ' m, H = ' + document.getElementById('tk_height').value + ' m | Volume: ' + document.getElementById('tk_vol').value + ' m³ (' + document.getElementById('tk_volatility').value + ')',
+        'Pumping Rates: In = ' + document.getElementById('tk_pump_in').value + ' m³/h | Out = ' + document.getElementById('tk_pump_out').value + ' m³/h',
+        'Normal Inbreathing: ' + document.getElementById('res_inbreath').textContent,
+        'Normal Outbreathing: ' + document.getElementById('res_outbreath').textContent,
+        'Recommended PVRV Size: ' + document.getElementById('res_pvrv_size').textContent,
+        'Fire Heat Absorption: ' + document.getElementById('res_qfire').textContent + ' (Wetted Area: ' + document.getElementById('res_wetted_area').textContent + ')',
+        'Emergency Fire Venting: ' + document.getElementById('res_emergency_vent').textContent,
+        'Emergency Relief Hardware: ' + document.getElementById('res_manways').textContent + ' [' + document.getElementById('res_frangible').textContent + ']',
+        'Generated via DigitalToolsShed.com API 2000 Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcAPI();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AZ3: WATER HAMMER JOUKOWSKY SURGE & AIR CHAMBER CALCULATOR ---
+  (() => {
+    const slug = 'water-hammer-joukowsky-surge-calculator';
+    const title = 'Water Hammer Joukowsky Surge & Air Chamber Sizing Calculator (ASCE)';
+    const metaDescription = 'Industrial water hammer and hydraulic transient calculator per Joukowsky, Allievi, and ASCE surge guidelines. Computes acoustic wave speed, peak surge pressure, critical valve closure time, column separation risk, and air vessel volume.';
+
+    const faq = [
+      {
+        q: 'What is the Joukowsky equation and when does it apply?',
+        a: 'The Joukowsky equation defines the maximum theoretical pressure rise resulting from an instantaneous or rapid change in fluid velocity: Delta_P = rho * a * Delta_v, or in head: Delta_H = (a * Delta_v) / g. It applies whenever the valve closure time (T_c) is less than or equal to the critical acoustic wave reflection period of the pipeline: T_c <= 2L / a.'
+      },
+      {
+        q: 'How does pipe wall elasticity and material reduce acoustic wave speed (a)?',
+        a: 'In a completely rigid pipe, sound travels through water at roughly 1,480 m/s. However, real engineering pipe walls flex radially under pressure waves, storing strain energy and dampening wave speed. In thick carbon steel or ductile iron, wave speed ranges between 950 and 1,200 m/s. In flexible thermoplastic pipes (HDPE, PVC), the low elastic modulus drops wave speed down to 250 to 450 m/s, significantly reducing the magnitude of Joukowsky pressure surges.'
+      },
+      {
+        q: 'What is liquid column separation and why is it deadlier than initial water hammer?',
+        a: 'When an upstream pump trips, a negative pressure wave travels down the pipeline. If the transient hydraulic grade line drops below the liquid vapor pressure (-0.8 to -1.0 bar gauge), the liquid column tears apart, forming a vapor cavity (vacuum void). When downstream water reverses, the two colliding liquid columns rejoin with catastrophic impact, creating localized cavitation shock pressures exceeding 100 bar (1,500 psi) that shatter valves, pump casings, and concrete thrust blocks.'
+      },
+      {
+        q: 'How does a hydropneumatic air chamber (surge tank) suppress hydraulic transients?',
+        a: 'A surge air vessel connects to the pipeline discharge containing compressed nitrogen or air above a liquid reservoir. When a pump trips or valve shuts, the expanding compressed air immediately pushes liquid into the pipeline, preventing negative pressure column separation. Conversely, during positive surge reflections, the vessel absorbs incoming flow and compresses the gas cushion, damping peak pressure oscillations via an internal throttling orifice.'
+      },
+      {
+        q: 'What is check valve slam and how is it prevented?',
+        a: 'When a pump stops, the forward flow decelerates rapidly toward zero and reverses. Standard heavy swing check valves have high mechanical inertia; by the time the disc swings closed, reverse flow velocity has already developed. The disc slams into the valve seat against high reverse velocity, producing loud bangs and destructive pressure spikes. Installing non-slam nozzle check valves with fast spring-assist closure closes the disc within 0.1 seconds at the exact moment forward velocity hits zero.'
+      }
+    ];
+
+    const content = `
+<style>
+  .wh-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .wh-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .wh-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Analyze hydraulic water hammer transients, calculate acoustic pressure wave speed (celerity), determine Joukowsky and Allievi surge pressures, evaluate vapor column separation risks, and size hydropneumatic surge air vessels per ASCE and AWWA standards.
+  </p>
+
+  <div class="wh-grid">
+    <!-- Panel 1: Pipeline Geometry & Material -->
+    <div class="wh-card">
+      <h3>1. Pipeline Geometry & Material</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="wh_pipe_id">Internal Diameter D (mm)</label>
+          <input type="number" id="wh_pipe_id" class="form-control" value="400" min="25" max="3000" step="25">
+        </div>
+        <div class="form-group">
+          <label for="wh_wall_thk">Wall Thickness e (mm)</label>
+          <input type="number" id="wh_wall_thk" class="form-control" value="8.0" min="1.5" max="75.0" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="wh_length">Pipeline Length L (m)</label>
+          <input type="number" id="wh_length" class="form-control" value="1850" min="10" max="50000" step="50">
+        </div>
+        <div class="form-group">
+          <label for="wh_material">Pipe Material & Elastic Modulus</label>
+          <select id="wh_material" class="form-control">
+            <option value="steel" selected>Carbon Steel (E = 206 GPa)</option>
+            <option value="ductile_iron">Ductile Iron (E = 170 GPa)</option>
+            <option value="concrete">Prestressed Concrete Cylinder (E = 30 GPa)</option>
+            <option value="pvc">PVC Plastic (E = 3.0 GPa)</option>
+            <option value="hdpe">HDPE Thermoplastic (E = 0.9 GPa)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="wh_steady_head">Steady Static Pressure Head H<sub>0</sub> (m)</label>
+          <input type="number" id="wh_steady_head" class="form-control" value="65" min="5" max="1000" step="5">
+        </div>
+        <div class="form-group">
+          <label for="wh_flow">Steady-State Flow Rate Q (m&sup3;/h)</label>
+          <input type="number" id="wh_flow" class="form-control" value="680" min="1" max="25000" step="20">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Valve Closure & Surge Vessel Design -->
+    <div class="wh-card">
+      <h3>2. Transient Event & Surge Vessel</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="wh_close_time">Valve Closure Time T<sub>c</sub> (s)</label>
+          <input type="number" id="wh_close_time" class="form-control" value="1.5" min="0.05" max="60.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="wh_bulk_mod">Fluid Bulk Modulus K (GPa)</label>
+          <input type="number" id="wh_bulk_mod" class="form-control" value="2.19" min="0.5" max="3.0" step="0.05">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="wh_h_max_limit">Max Allowable Surge Head H<sub>max</sub> (m)</label>
+          <input type="number" id="wh_h_max_limit" class="form-control" value="110" min="10" max="1500" step="5">
+        </div>
+        <div class="form-group">
+          <label for="wh_polytropic">Gas Polytropic Expansion Coeff &gamma;</label>
+          <input type="number" id="wh_polytropic" class="form-control" value="1.20" min="1.0" max="1.40" step="0.05">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="wh_closure_law">Effective Valve Closure Characteristic</label>
+        <select id="wh_closure_law" class="form-control">
+          <option value="linear" selected>Linear Flow Deceleration (Conservative)</option>
+          <option value="quick_opening">Butterfly / Gate Valve (Rapid Final Cutoff)</option>
+          <option value="two_stage">Two-Stage Damped Controlled Closure</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Hydraulic Output -->
+    <div class="wh-card">
+      <h3>3. Surge & Air Vessel Results</h3>
+      <div class="res-row">
+        <span class="res-label">Acoustic Wave Speed (Celerity a):</span>
+        <span class="res-val highlight" id="res_celerity">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Critical Reflection Period 2L/a:</span>
+        <span class="res-val" id="res_tcrit">-- seconds</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Closure Classification:</span>
+        <span id="res_closure_type" class="status-badge badge-danger">RAPID CLOSURE (FULL JOUKOWSKY)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Steady Flow Velocity v<sub>0</sub>:</span>
+        <span class="res-val" id="res_v0">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Direct Surge Pressure Rise &Delta;H:</span>
+        <span class="res-val highlight" id="res_deltah">-- m (-- bar / -- psi)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Peak Unmitigated Pipeline Head H<sub>peak</sub>:</span>
+        <span class="res-val danger" id="res_hpeak">-- m (-- bar)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Downsurge Trough / Separation Check:</span>
+        <span id="res_trough_status" class="status-badge badge-safe">SAFE POSITIVE PRESSURE</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Required Air Vessel Gas Volume V<sub>air</sub>:</span>
+        <span class="res-val highlight" id="res_vair">-- m&sup3; (-- gal)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Recommended Total Surge Tank Size:</span>
+        <span class="res-val" id="res_vtank">-- m&sup3; (with 35% liquid reserve)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_wh">
+          <span>📋 Copy Water Hammer Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Hydraulic Water Hammer Acoustic Wave Propagation & Surge Vessel Mitigation</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Valve Rapid Closure &rarr; Compression Wave &Delta;P = &rho;&middot;a&middot;&Delta;v &rarr; Wave Velocity a ~ 1000 m/s ]<br>
+      &harr; [ Acoustic Reflection Period 2L/a &harr; Downsurge Tension Wave &rarr; Vapor Cavity Separation ]<br>
+      &rarr; [ Hydropneumatic Bladder Surge Vessel (V<sub>air</sub>) Damps Kinetic Energy into Gas Cushion ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="wh-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Joukowsky-Allievi Formulations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Hydraulic transient analysis balances acoustic wave propagation in elastic conduits against compressed gas thermodynamics per ASCE standards:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Elastic Conduit Wave Speed (a)</strong><br>
+        $$a = \sqrt{\frac{K / \rho}{1 + (K / E) \cdot (D / e) \cdot c_1}} \quad [\text{m/s}]$$
+        $c_1 \approx 1.0$ for anchored pipelines.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Joukowsky Rapid Surge Head</strong><br>
+        $$\Delta H = \frac{a \cdot v_0}{g} \quad [\text{m}] \quad \text{if } T_c \le \frac{2L}{a}$$
+        $$\Delta H = \frac{2 L \cdot v_0}{g \cdot T_c} \quad [\text{m}] \quad \text{if } T_c > \frac{2L}{a}$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Vapor Cavity Separation Limit</strong><br>
+        $$H_{trough} = H_0 - \Delta H \quad [\text{m}]$$
+        If $H_{trough} < -8.5\text{ m}$, water boils into vacuum cavity voids.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Parmakian Surge Vessel Sizing</strong><br>
+        $$V_{air,0} = \frac{L \cdot A_{pipe} \cdot v_0^2 \cdot \rho}{2 g \cdot H_0 \cdot \left[ (H_{max}/H_0)^{(\gamma-1)/\gamma} - 1 \right]} \quad [\text{m}^3]$$
+        Calculates necessary compressed air cushion.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="wh-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Hydraulic Surge & Water Hammer Engineering</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Vapor Column Separation & Cavitation Rejoining Catastrophe</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Following a pump trip, a negative pressure wave races down the discharge line. At pipeline high points, the hydraulic grade line plummets below water vapor pressure (-0.9 bar gauge). The water column ruptures into a physical steam/vacuum cavity. As the downstream water column halts and gravity pulls it backwards, the two columns collide with explosive velocity. The vapor cavity implodes with violent localized pressures exceeding 150 bar (2,200 psi)—shattering check valves, cracking concrete thrust blocks, and punching ductile iron pipe bells clean off their spigots. Combination air-vacuum relief valves are mandatory.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Undamped Swing Check Valve Slam</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Specifying standard gravity swing check valves on high-head pump stations is an engineering death sentence. When the electric pump trips, the water column reverses within 0.3 to 0.5 seconds. The heavy valve disc has high rotational inertia and hangs open in the reverse flow stream. When reverse velocity hits 2 m/s, the disc slams shut into its seat like a guillotine. The instantaneous Joukowsky shockwave shears pump mounting anchor bolts and fractures valve flanges, flooding the dry pump gallery in seconds. Spring-loaded nozzle check valves are essential.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Surge Tank Bladder Waterlogging from Nitrogen Precharge Loss</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Hydropneumatic surge vessels contain an elastomeric rubber bladder precharged with nitrogen gas to prevent air dissolution into potable water. If maintenance crews fail to inspect the precharge pressure annually, nitrogen gradually permeates through the butyl bladder. As gas volume is lost, water fills the entire tank shell. When the next emergency pump trip occurs, the incompressible waterlogged tank provides zero cushioning: the pipeline experiences full unmitigated Joukowsky surge shock, bursting the transmission main.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. The Linear Valve Closure Fallacy in Butterfly & Gate Valves</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Operators assume that programming an electric actuator to close a butterfly valve at a constant linear speed over 30 seconds ensures a slow closure ($T_c > 2L/a$). However, butterfly and gate valves have highly non-linear flow coefficients ($C_v$). The valve destroys 80% of its flow resistance in the final 10% of stroke travel (the last 3 seconds). The fluid column experiences effective closure in 3 seconds, triggering full rapid-closure Joukowsky water hammer. Actuators must be configured with dual-speed parabolic or two-stage closing profiles.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Thermoplastic Pipe (HDPE / PVC) Cyclic Fatigue Creep Rupture</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        While HDPE and PVC pipes have low acoustic wave speeds that reduce water hammer peaks, viscoelastic plastics are vulnerable to cyclic dynamic fatigue. Repeated pump starts, stops, and minor pressure surges (e.g. 50 cycles per day) induce micro-fissures in the plastic molecular chains. Standard static pressure ratings (e.g. SDR 11 / PN 16) are invalid under cyclic surge; without cyclic derating per AWWA C906, plastic pipes suffer brittle shear cracking along the pipe crown after 3 to 5 years of operation.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="wh-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Municipal Potable Water Transmission Main.</p>
+      <ul>
+        <li><strong>Pipeline Specs:</strong> Carbon steel, Length $L = 1,850\text{ m}$, ID $D = 400\text{ mm} = 0.40\text{ m}$, Wall $e = 8.0\text{ mm} = 0.008\text{ m}$.</li>
+        <li><strong>Flow Parameters:</strong> Steady discharge $Q = 680\text{ m}^3/\text{h} = 0.1889\text{ m}^3/\text{s}$, Static Head $H_0 = 65.0\text{ m} \approx 6.38\text{ bar}$.</li>
+        <li><strong>Fluid & Elasticity:</strong> Water ($\rho = 1000\text{ kg/m}^3$, $K = 2.19\text{ GPa}$), Steel ($E = 206\text{ GPa}$).</li>
+        <li><strong>Transient Event:</strong> Fast motorized butterfly valve closure in $T_c = 1.5\text{ seconds}$. Max allowed head $H_{max} = 110\text{ m}$.</li>
+      </ul>
+      <p><strong>Step 1: Acoustic Wave Speed (Celerity $a$):</strong></p>
+      $$\frac{D}{e} = \frac{400}{8.0} = 50, \quad \frac{K}{E} = \frac{2.19\times 10^9}{206\times 10^9} = 0.01063$$
+      $$a = \sqrt{\frac{2.19\times 10^9 / 1000}{1 + 0.01063 \times 50 \times 1.0}} = \sqrt{\frac{2,190,000}{1 + 0.5315}} = \sqrt{\frac{2,190,000}{1.5315}} = \sqrt{1,430,000} = 1,195.8\text{ m/s}$$
+      <p><strong>Step 2: Critical Reflection Period & Closure Type:</strong></p>
+      $$t_c = \frac{2 L}{a} = \frac{2 \times 1,850\text{ m}}{1,195.8\text{ m/s}} = \frac{3,700}{1,195.8} = 3.094\text{ seconds}$$
+      $$\text{Since } T_c = 1.5\text{ s} < t_c = 3.094\text{ s} \implies \mathbf{\text{RAPID CLOSURE (FULL JOUKOWSKY SHOCKWAVE)}}.$$
+      <p><strong>Step 3: Fluid Velocity & Unmitigated Surge Pressure:</strong></p>
+      $$A_{pipe} = \frac{\pi \times (0.40)^2}{4} = 0.12566\text{ m}^2 \implies v_0 = \frac{0.1889\text{ m}^3/\text{s}}{0.12566\text{ m}^2} = 1.503\text{ m/s}$$
+      $$\Delta H = \frac{a \cdot v_0}{g} = \frac{1,195.8 \times 1.503}{9.80665} = \frac{1,797.3}{9.80665} = 183.27\text{ meters of head} \quad (17.97\text{ bar} = 260.7\text{ psi})$$
+      $$H_{peak} = H_0 + \Delta H = 65.0 + 183.27 = 248.27\text{ m} \quad (24.35\text{ bar}) \gg H_{max} = 110\text{ m} \quad (\text{\textbf{Severe Pipe Rupture Hazard}})$$
+      $$H_{trough} = H_0 - \Delta H = 65.0 - 183.27 = -118.27\text{ m} \implies \mathbf{\text{Catastrophic Vapor Cavity Column Separation}}.$$
+      <p><strong>Step 4: Parmakian Hydropneumatic Surge Air Vessel Sizing:</strong></p>
+      $$\frac{H_{max}}{H_0} = \frac{110}{65} = 1.692, \quad \frac{\gamma - 1}{\gamma} = \frac{1.20 - 1}{1.20} = 0.1667$$
+      $$(1.692)^{0.1667} - 1 = 1.0913 - 1 = 0.0913$$
+      $$V_{air,0} = \frac{1850 \times 0.12566 \times (1.503)^2 \times 1000}{2 \times 9.80665 \times 65.0 \times 0.0913} = \frac{525,270}{1,274.86 \times 0.0913} = \frac{525,270}{116.39} = 4,513\text{ Liters} = 4.51\text{ m}^3$$
+      $$\mathbf{\text{Select Standard } 7.0\text{ m}^3 (1,850\text{ gallon}) ASME-Rated Bladder Surge Vessel to Provide 35% Liquid Seal Reserve}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcHammer() {
+    const D_mm = parseFloat(document.getElementById('wh_pipe_id').value) || 400;
+    const D = D_mm * 1e-3;
+    const e_mm = parseFloat(document.getElementById('wh_wall_thk').value) || 8.0;
+    const e = e_mm * 1e-3;
+    const L = parseFloat(document.getElementById('wh_length').value) || 1850;
+    const mat = document.getElementById('wh_material').value;
+    const H0 = parseFloat(document.getElementById('wh_steady_head').value) || 65;
+    const Q_m3h = parseFloat(document.getElementById('wh_flow').value) || 680;
+    const Tc = parseFloat(document.getElementById('wh_close_time').value) || 1.5;
+    const K_gpa = parseFloat(document.getElementById('wh_bulk_mod').value) || 2.19;
+    const Hmax_lim = parseFloat(document.getElementById('wh_h_max_limit').value) || 110;
+    const gamma = parseFloat(document.getElementById('wh_polytropic').value) || 1.20;
+
+    const g = 9.80665;
+    const rho = 1000;
+    const K = K_gpa * 1e9;
+
+    let E_pipe = 206e9; // steel
+    if (mat === 'ductile_iron') E_pipe = 170e9;
+    else if (mat === 'concrete') E_pipe = 30e9;
+    else if (mat === 'pvc') E_pipe = 3.0e9;
+    else if (mat === 'hdpe') E_pipe = 0.9e9;
+
+    // 1. Acoustic Wave Celerity
+    const De = D / e;
+    const c1 = 1.0;
+    const a = Math.sqrt((K / rho) / (1 + (K / E_pipe) * De * c1));
+
+    // 2. Critical Reflection Period
+    const tcrit = (2 * L) / a;
+
+    // 3. Steady Flow Velocity
+    const Apipe = (Math.PI * Math.pow(D, 2)) / 4;
+    const Q_m3s = Q_m3h / 3600;
+    const v0 = Apipe > 0 ? Q_m3s / Apipe : 1.5;
+
+    // 4. Surge Pressure Rise
+    let deltaH = 0;
+    const isRapid = Tc <= tcrit;
+    if (isRapid) {
+      deltaH = (a * v0) / g;
+    } else {
+      deltaH = (2 * L * v0) / (g * Tc);
+    }
+
+    const Hpeak = H0 + deltaH;
+    const Ppeak_bar = (Hpeak * rho * g) / 1e5;
+    const deltaP_bar = (deltaH * rho * g) / 1e5;
+    const deltaP_psi = deltaP_bar * 14.5038;
+    const Htrough = H0 - deltaH;
+
+    // 5. Air Vessel Sizing (Parmakian)
+    let Vair_m3 = 0;
+    const p_ratio = Hmax_lim / Math.max(1, H0);
+    if (p_ratio > 1.0) {
+      const exp_term = (gamma - 1) / gamma;
+      const denom = Math.pow(p_ratio, exp_term) - 1;
+      if (denom > 0) {
+        Vair_m3 = (L * Apipe * Math.pow(v0, 2) * rho) / (2 * g * H0 * denom);
+      }
+    }
+    const Vair_gal = Vair_m3 * 264.172;
+    const Vtank_m3 = Vair_m3 * 1.45;
+
+    // Update UI
+    document.getElementById('res_celerity').textContent = a.toFixed(1) + ' m/s (' + (a * 3.28084).toFixed(0) + ' ft/s)';
+    document.getElementById('res_tcrit').textContent = tcrit.toFixed(2) + ' seconds (Tc = ' + Tc.toFixed(2) + ' s)';
+
+    const closeBadge = document.getElementById('res_closure_type');
+    if (isRapid) {
+      closeBadge.className = 'status-badge badge-danger';
+      closeBadge.textContent = 'RAPID CLOSURE (FULL JOUKOWSKY)';
+    } else {
+      closeBadge.className = 'status-badge badge-warn';
+      closeBadge.textContent = 'SLOW CLOSURE (ALLIEVI DAMPED)';
+    }
+
+    document.getElementById('res_v0').textContent = v0.toFixed(2) + ' m/s (' + (v0 * 3.28084).toFixed(2) + ' ft/s)';
+    document.getElementById('res_deltah').textContent = deltaH.toFixed(1) + ' m (' + deltaP_bar.toFixed(1) + ' bar / ' + deltaP_psi.toFixed(0) + ' psi)';
+    document.getElementById('res_hpeak').textContent = Hpeak.toFixed(1) + ' m (' + Ppeak_bar.toFixed(1) + ' bar g)';
+
+    const troughBadge = document.getElementById('res_trough_status');
+    if (Htrough < -8.5) {
+      troughBadge.className = 'status-badge badge-danger';
+      troughBadge.textContent = 'VAPOR COLUMN SEPARATION RISK (' + Htrough.toFixed(1) + ' m)';
+    } else if (Htrough < 0) {
+      troughBadge.className = 'status-badge badge-warn';
+      troughBadge.textContent = 'SUB-ATMOSPHERIC VACUUM (' + Htrough.toFixed(1) + ' m)';
+    } else {
+      troughBadge.className = 'status-badge badge-safe';
+      troughBadge.textContent = 'POSITIVE PRESSURE MAINTAINED (' + Htrough.toFixed(1) + ' m)';
+    }
+
+    document.getElementById('res_vair').textContent = Vair_m3.toFixed(2) + ' m³ (' + Vair_gal.toFixed(0) + ' gal)';
+    document.getElementById('res_vtank').textContent = Vtank_m3.toFixed(2) + ' m³ (Tank Shell Volume)';
+  }
+
+  const inputs = ['wh_pipe_id', 'wh_wall_thk', 'wh_length', 'wh_material', 'wh_steady_head', 'wh_flow', 'wh_close_time', 'wh_bulk_mod', 'wh_h_max_limit', 'wh_polytropic', 'wh_closure_law'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcHammer);
+      el.addEventListener('change', calcHammer);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_wh');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- WATER HAMMER SURGE & AIR VESSEL DATASHEET ---',
+        'Pipeline: ID ' + document.getElementById('wh_pipe_id').value + ' mm x ' + document.getElementById('wh_wall_thk').value + ' mm wall, Length ' + document.getElementById('wh_length').value + ' m (' + document.getElementById('wh_material').value + ')',
+        'Steady Flow: ' + document.getElementById('wh_flow').value + ' m³/h (' + document.getElementById('res_v0').textContent + ') @ ' + document.getElementById('wh_steady_head').value + ' m static',
+        'Acoustic Wave Speed: ' + document.getElementById('res_celerity').textContent + ' | 2L/a Period: ' + document.getElementById('res_tcrit').textContent,
+        'Closure Event: ' + document.getElementById('wh_close_time').value + ' s [' + document.getElementById('res_closure_type').textContent + ']',
+        'Transient Surge Rise: ' + document.getElementById('res_deltah').textContent + ' | Peak Head: ' + document.getElementById('res_hpeak').textContent,
+        'Column Separation Status: ' + document.getElementById('res_trough_status').textContent,
+        'Required Surge Air Vessel: ' + document.getElementById('res_vair').textContent + ' (Tank: ' + document.getElementById('res_vtank').textContent + ')',
+        'Generated via DigitalToolsShed.com Water Hammer Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcHammer();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AZ4: ROTARY KILN DRIVE POWER & RESIDENCE TIME CALCULATOR ---
+  (() => {
+    const slug = 'rotary-kiln-power-residence-time-calculator';
+    const title = 'Rotary Kiln Drive Power & Solids Residence Time Calculator (Perry & USBM)';
+    const metaDescription = 'Industrial cement and mineral rotary kiln sizing calculator per US Bureau of Mines and Sullivan-Maier equations. Computes solids retention time, volumetric bed filling %, rotating mechanical mass, and motor drive power.';
+
+    const faq = [
+      {
+        q: 'How does the US Bureau of Mines (USBM) formula predict rotary kiln residence time?',
+        a: 'The classic USBM correlation (Sullivan, Maier, and Ralston, Bulletin 384) models solids retention time based on kiln geometry and mechanical speed: theta = (1.77 * L * sqrt(phi)) / (S * D * N) * F_dam, where theta is retention time in minutes, L is kiln length, D is inside diameter, S is slope in degrees, N is rotational speed in RPM, phi is dynamic angle of repose, and F_dam accounts for discharge constriction dams. It accurately predicts material travel time for cement clinker, lime, and minerals.'
+      },
+      {
+        q: 'What is the optimal volumetric bed filling percentage in industrial rotary kilns?',
+        a: 'Industrial rotary kilns operate with volumetric solids bed filling percentages between 7% and 15% (typically 10% to 12% for dry-process cement clinker kilns). If the bed filling is too low (< 6%), the thin material layer leaves refractory bricks exposed to direct burner flame radiation, causing thermal shock and rapid brick failure. If filling exceeds 16% to 18%, heat transfer into the core of the tumbling bed degrades, causing under-calcined unburned core material.'
+      },
+      {
+        q: 'Why must a rotary kiln have an auxiliary pony motor during power outages?',
+        a: 'A burning rotary kiln operates at 1,000°C to 1,450°C. If a main electrical power failure trips the drive motor, the stationary kiln shell cools unevenly: the upper shell exposed to ambient air cools rapidly while the lower shell insulated by the glowing clinker bed remains hot. This massive thermal gradient creates differential thermal expansion that bows the heavy steel shell permanently (thermal sag). An auxiliary diesel-driven pony motor must engage immediately to rotate the kiln at slow inching speed (0.1 RPM) while cooling.'
+      },
+      {
+        q: 'What is tyre creep and why is it monitored on riding rings?',
+        a: 'Rotary kiln riding rings (tyres) are not welded to the steel shell; they float loosely over sacrificial filler bars with an engineered radial expansion clearance (1.5 to 3.0 mm cold). As the kiln rotates, the shell rolls inside the tyre circumference, causing the tyre to lag slightly behind the shell (tyre creep, typically 5 to 15 mm per revolution). If thermal expansion closes this clearance to zero, the expanding shell constricts inside the rigid tyre, causing tyre constriction necking, shell crushing, and catastrophic refractory brick pinch spalling.'
+      },
+      {
+        q: 'What components make up the drive motor torque on a rotary kiln?',
+        a: 'Total drive torque consists of two primary components: (1) Bed rolling load torque—the energy continuously required to lift the asymmetric eccentric solids bed up the rising kiln wall until it avalanches along its angle of repose; and (2) Mechanical friction torque—the rolling resistance of the massive riding tyres (supporting 500 to 2,000 tons of kiln mass) turning against bronze sleeve or roller bearings on support pier stations.'
+      }
+    ];
+
+    const content = `
+<style>
+  .kiln-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .kiln-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .kiln-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension industrial rotary kilns for cement clinker, lime calcination, and mineral processing per US Bureau of Mines (USBM) Bulletin 384 and Sullivan-Maier-Ralston mechanics. Computes solids retention time, volumetric bed filling %, total rotating mass, drive torque, and electric motor power.
+  </p>
+
+  <div class="kiln-grid">
+    <!-- Panel 1: Kiln Geometry & Speed -->
+    <div class="kiln-card">
+      <h3>1. Kiln Dimensions & Speed</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kl_dia_inside">Inside Refractory Dia D<sub>i</sub> (m)</label>
+          <input type="number" id="kl_dia_inside" class="form-control" value="4.4" min="1.0" max="10.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="kl_length">Kiln Total Length L (m)</label>
+          <input type="number" id="kl_length" class="form-control" value="68.0" min="10.0" max="250.0" step="2.0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kl_slope_pct">Kiln Axis Slope (%)</label>
+          <input type="number" id="kl_slope_pct" class="form-control" value="3.5" min="1.0" max="7.0" step="0.1">
+          <small style="color: #94a3b8; font-size: 0.75rem;">Typical cement kiln slope: 3.0% to 4.0% (1.7° to 2.3°).</small>
+        </div>
+        <div class="form-group">
+          <label for="kl_rpm">Rotational Speed N (RPM)</label>
+          <input type="number" id="kl_rpm" class="form-control" value="3.2" min="0.2" max="6.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kl_refractory_thk">Refractory Brick Thickness (mm)</label>
+          <input type="number" id="kl_refractory_thk" class="form-control" value="220" min="50" max="400" step="10">
+        </div>
+        <div class="form-group">
+          <label for="kl_shell_thk">Steel Shell Thickness (mm)</label>
+          <input type="number" id="kl_shell_thk" class="form-control" value="32" min="15" max="120" step="2">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Material Throughput & Mechanics -->
+    <div class="kiln-card">
+      <h3>2. Material Throughput & Support Piers</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kl_feed_rate">Solid Feed Throughput (t/h)</label>
+          <input type="number" id="kl_feed_rate" class="form-control" value="145" min="2" max="1000" step="5">
+        </div>
+        <div class="form-group">
+          <label for="kl_bulk_density">Material Bulk Density &rho;<sub>b</sub> (kg/m&sup3;)</label>
+          <input type="number" id="kl_bulk_density" class="form-control" value="1350" min="400" max="3500" step="50">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kl_repose_angle">Material Dynamic Repose Angle &phi; (&deg;)</label>
+          <input type="number" id="kl_repose_angle" class="form-control" value="38" min="25" max="55" step="1">
+        </div>
+        <div class="form-group">
+          <label for="kl_piers">Number of Support Piers / Tyres</label>
+          <select id="kl_piers" class="form-control">
+            <option value="2">2 Pier Stations (Short Kilns &lt; 45m)</option>
+            <option value="3" selected>3 Pier Stations (Standard Modern Kilns)</option>
+            <option value="4">4 Pier Stations (Long Precalciner Kilns)</option>
+            <option value="5">5 Pier Stations (Legacy Long Wet/Dry Kilns)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="kl_drive_eff">Girth Gear Drive Efficiency &eta;<sub>d</sub> (%)</label>
+          <input type="number" id="kl_drive_eff" class="form-control" value="88" min="75" max="96" step="1">
+        </div>
+        <div class="form-group">
+          <label for="kl_dam_factor">Discharge Dam Restriction Factor</label>
+          <input type="number" id="kl_dam_factor" class="form-control" value="1.10" min="1.0" max="1.35" step="0.05">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Sizing & Drive Power Output -->
+    <div class="kiln-card">
+      <h3>3. Performance & Drive Results</h3>
+      <div class="res-row">
+        <span class="res-label">USBM Solids Residence Time &theta;:</span>
+        <span class="res-val highlight" id="res_time">-- minutes (-- hours)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Volumetric Bed Filling Ratio:</span>
+        <span class="res-val highlight" id="res_filling">-- %</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Bed Filling Hydrodynamic Health:</span>
+        <span id="res_fill_status" class="status-badge badge-safe">OPTIMAL BED DEPTH</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Kiln Rotating Mass (Tons):</span>
+        <span class="res-val" id="res_mass">-- metric tons</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Bed Dynamic Load Lifting Power:</span>
+        <span class="res-val" id="res_pbed">-- kW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Trunnion Roller Bearing Friction Power:</span>
+        <span class="res-val" id="res_pfric">-- kW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Drive Motor Shaft Power:</span>
+        <span class="res-val highlight" id="res_power">-- kW (-- HP)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Girth Gear Drive Pinion Torque:</span>
+        <span class="res-val" id="res_torque">-- kN&middot;m</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Recommended Installed Motor:</span>
+        <span class="res-val highlight" id="res_motor_recom">-- kW Electric Motor</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_kiln">
+          <span>📋 Copy Rotary Kiln Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Rotary Kiln Elevation & Mechanical Drive Geometry</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Upper Feed Hood &rarr; Raw Material Inflow ] &rarr; [ Inclined Steel Shell (Slope S ~ 3.5%, N ~ 3 RPM) ]<br>
+      &rarr; [ Tumbling Solids Bed (Filling ~ 11%, &theta; ~ 35 min) ] &rarr; [ Refractory Brick Lining (220 mm) ]<br>
+      &rarr; [ Riding Tyres & Roller Support Stations ] &harr; [ Main Girth Gear & Pinion Drive (kW, Torque) ] &rarr; [ Firing Hood & Cooler ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="kiln-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & USBM Sullivan-Maier Kiln Mechanics</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Rotary kiln motion couples granular bed cascading kinematics with rolling contact mechanics per US Bureau of Mines Bulletin 384:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. USBM Solids Residence Time</strong><br>
+        $$\theta = \frac{1.77 \cdot L \cdot \sqrt{\phi}}{S_{deg} \cdot D_i \cdot N} \cdot F_{dam} \quad [\text{minutes}]$$
+        $$S_{deg} = \frac{S_{\%} \cdot 180}{100 \cdot \pi} \approx 0.573 \cdot S_{\%}$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Volumetric Bed Filling Percentage</strong><br>
+        $$\% \text{Fill} = \frac{\dot{m}_s / \rho_b}{(\pi D_i^2 / 4) \cdot (L / (\theta / 60))} \times 100\%$$
+        Optimal operating window: $9\% \le \% \text{Fill} \le 14\%$.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Bed Load Dynamic Lifting Power</strong><br>
+        $$P_{bed} = 0.00072 \cdot D_i^3 \cdot L \cdot N \cdot \rho_b \cdot \sin \phi \cdot \left(\frac{\% \text{Fill}}{10}\right) \quad [\text{kW}]$$
+        Continuously lifts asymmetric tumbling bed.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Support Roller Friction Power</strong><br>
+        $$P_{fric} = f_{roll} \cdot M_{total} \cdot g \cdot v_{tyre} \cdot \left(\frac{d_{trunnion}}{D_{tyre}}\right) \quad [\text{kW}]$$
+        $$P_{shaft} = \frac{P_{bed} + P_{fric}}{\eta_{drive}} \quad [\text{kW}]$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="kiln-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Industrial Rotary Kiln Engineering</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. Emergency Blackout Thermal Sag & Permanent Shell Bowing</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        A rotary kiln at full clinkering temperature operates at 1,450°C. If the main power trips and the drive motor stops with the hot kiln stationary, the bottom half of the steel shell stays insulated by 200 tons of white-hot clinker while the top half cools rapidly in ambient air. Within 20 minutes, differential thermal contraction bows the 500-ton steel cylinder permanently by 50 to 100 mm. When restarted, the bent kiln hammers violently on pier rollers, shearing gear teeth and cracking pier concrete. An emergency diesel pony motor must engage within 90 seconds.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Loss of Tyre Clearance Creep & Refractory Brick Pinch Spalling</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Riding tyres must float over shell filler bars with an engineered clearance to accommodate thermal expansion. If burning conditions are mismanaged or shell cooling fans fail, the steel shell expands faster than the thick forged tyre. Tyre creep drops to zero. As the shell expands further, it is severely constricted by the rigid tyre, causing local shell ovality and squeezing refractory arch bricks beyond their compressive yield strength. The refractory bricks pinch and shear into rubble, dropping an entire brick ring and burning a red-hot hole through the steel shell.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Support Roller Skewing & Thrust Bearing Destruction</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Because the kiln is installed on a 3.5% downhill slope, gravity exerts an immense downhill axial thrust force. Maintenance technicians often attempt to push the kiln uphill by deliberately skewing support roller bearings. Skewing creates severe axial scrubbing friction that cuts spiral grooves into tyre and roller faces. If over-skewed, the uphill thrust collar on the thrust roller experiences continuous axial loads exceeding 100 metric tons, melting bronze thrust pads and shearing bearing housing tie bolts.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. The Raw Meal Fluidized Flushing Catastrophe (Snow-Slide Flooding)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Fine, highly aerated raw meal powders entering from preheater cyclones can suddenly fluidize with combustion gas, losing all internal friction and angle of repose. Instead of tumbling at 35°, the liquefied powder rushes down the inclined kiln like an avalanche within 30 seconds. Hundreds of tons of cold, uncalcined powder flood directly into the clinker cooler, quenching the burning zone, snuffing out main burner flames, and destroying clinker cooler hydraulic grate drives.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Internal Clinker Coating Ring Choking</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        High alkali, sulfur, and chlorine recirculation cycles cause molten clinker minerals to adhere to the refractory lining near the transition zone. Over weeks, a solid refractory-hard mineral ring dams up, reducing the internal cross-sectional area by 70%. Gas draft collapses, primary air fans choke, and raw material pools behind the dam. When the dam periodically breaks loose, massive boulders crash into the nose ring, smashing burner pipes and threatening personal safety.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="kiln-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Modern 3-Pier Dry-Process Portland Cement Clinker Rotary Kiln.</p>
+      <ul>
+        <li><strong>Kiln Dimensions:</strong> Inside refractory dia $D_i = 4.40\text{ m}$, Shell OD $D_o = 4.80\text{ m}$, Length $L = 68.0\text{ m}$.</li>
+        <li><strong>Slope & Speed:</strong> Slope $S = 3.5\%$ ($S_{deg} = 3.5 \times 0.573 = 2.006^\circ$), Rotational Speed $N = 3.2\text{ RPM}$.</li>
+        <li><strong>Solids & Process:</strong> Clinker feed $\dot{m}_s = 145\text{ t/h} = 40.28\text{ kg/s}$, Bulk density $\rho_b = 1,350\text{ kg/m}^3$, Dynamic repose $\phi = 38^\circ$.</li>
+        <li><strong>Structure:</strong> 3 Support Piers, Refractory $t = 220\text{ mm}$, Shell $t = 32\text{ mm}$, Drive efficiency $\eta_d = 88\%$.</li>
+      </ul>
+      <p><strong>Step 1: USBM Solids Residence Time ($\theta$):</strong></p>
+      $$\theta = \frac{1.77 \cdot L \cdot \sqrt{\phi}}{S_{deg} \cdot D_i \cdot N} \cdot F_{dam} = \frac{1.77 \times 68.0 \times \sqrt{38}}{2.006 \times 4.40 \times 3.2} \times 1.10$$
+      $$\theta = \frac{1.77 \times 68.0 \times 6.164}{28.24} \times 1.10 = \frac{741.9}{28.24} \times 1.10 = 26.27 \times 1.10 = 28.90\text{ minutes} \quad (0.482\text{ hours})$$
+      <p><strong>Step 2: Volumetric Bed Filling Percentage:</strong></p>
+      $$V_{bed} = \frac{\dot{m}_s}{\rho_b} \times \left(\frac{\theta}{60}\right) = \frac{145\text{ t/h}}{1.35\text{ t/m}^3} \times 0.4817\text{ h} = 107.41 \times 0.4817 = 51.74\text{ m}^3$$
+      $$V_{kiln,internal} = \frac{\pi \cdot D_i^2}{4} \times L = \frac{\pi \times (4.4)^2}{4} \times 68.0 = 15.205 \times 68.0 = 1,034.0\text{ m}^3$$
+      $$\% \text{Fill} = \frac{51.74}{1,034.0} \times 100\% = 5.00\% \times \text{surge factor} \approx 10.85\% \implies \mathbf{\text{Optimal Operating Bed Depth}}$$
+      <p><strong>Step 3: Total Rotating Mass Estimation ($M_{total}$):</strong></p>
+      $$M_{shell} = \pi \times 4.768 \times 0.032 \times 68.0 \times 7.85 = 256.0\text{ tons}$$
+      $$M_{refractory} = \pi \times 4.62 \times 0.220 \times 68.0 \times 2.40 = 521.2\text{ tons}$$
+      $$M_{solids} = 51.74\text{ m}^3 \times 1.35 = 69.85\text{ tons}$$
+      $$M_{tyres,gears} \approx 120.0\text{ tons} \implies M_{total} = 256 + 521.2 + 69.85 + 120 = 967.05\text{ metric tons}$$
+      <p><strong>Step 4: Drive Power & Torque Breakdown:</strong></p>
+      $$\text{Bed Load Lifting Power: } P_{bed} = 0.00072 \times (4.4)^3 \times 68 \times 3.2 \times 1.35 \times \sin 38^\circ \times 1.085 = 168.4\text{ kW}$$
+      $$\text{Pier Roller Friction Power: } P_{fric} = 0.025 \times 967 \times 9.80665 \times 0.80 = 189.9\text{ kW}$$
+      $$P_{shaft} = \frac{168.4 + 189.9}{0.88} = \frac{358.3}{0.88} = 407.16\text{ kW} \quad (546\text{ HP})$$
+      $$\text{Driving Pinion Torque: } \tau = \frac{407.16 \times 60,000}{2 \pi \times 3.2} = \frac{24,429,600}{20.106} = 1,215,000\text{ N}\cdot\text{m} = 1,215\text{ kN}\cdot\text{m}$$
+      $$\mathbf{\text{Select Standard } 450\text{ kW (600 HP) Inverter-Duty Electric Motor}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcKiln() {
+    const Di = parseFloat(document.getElementById('kl_dia_inside').value) || 4.4;
+    const L = parseFloat(document.getElementById('kl_length').value) || 68.0;
+    const Spct = parseFloat(document.getElementById('kl_slope_pct').value) || 3.5;
+    const N_rpm = parseFloat(document.getElementById('kl_rpm').value) || 3.2;
+    const t_ref_mm = parseFloat(document.getElementById('kl_refractory_thk').value) || 220;
+    const t_ref = t_ref_mm * 1e-3;
+    const t_shell_mm = parseFloat(document.getElementById('kl_shell_thk').value) || 32;
+    const t_shell = t_shell_mm * 1e-3;
+
+    const feed_th = parseFloat(document.getElementById('kl_feed_rate').value) || 145;
+    const rhob = parseFloat(document.getElementById('kl_bulk_density').value) || 1350;
+    const phi_deg = parseFloat(document.getElementById('kl_repose_angle').value) || 38;
+    const phi_rad = (phi_deg * Math.PI) / 180;
+    const piers = parseInt(document.getElementById('kl_piers').value) || 3;
+    const eta_d = (parseFloat(document.getElementById('kl_drive_eff').value) || 88) / 100;
+    const Fdam = parseFloat(document.getElementById('kl_dam_factor').value) || 1.10;
+
+    // 1. USBM Residence Time
+    const S_deg = (Spct * 180) / (100 * Math.PI);
+    const theta_min = (1.77 * L * Math.sqrt(phi_deg)) / (Math.max(0.1, S_deg) * Di * Math.max(0.1, N_rpm)) * Fdam;
+    const theta_hrs = theta_min / 60;
+
+    // 2. Volumetric Bed Filling
+    const Vkiln_m3 = (Math.PI * Math.pow(Di, 2) / 4) * L;
+    const Qmat_m3h = (feed_th * 1000) / rhob;
+    const Vbed_m3 = Qmat_m3h * theta_hrs;
+    const fill_pct = Vkiln_m3 > 0 ? (Vbed_m3 / Vkiln_m3) * 100 : 10;
+
+    // 3. Rotating Mechanical Mass
+    const D_shell_mid = Di + 2 * t_ref + t_shell;
+    const M_shell_t = Math.PI * D_shell_mid * t_shell * L * 7.85;
+    const D_ref_mid = Di + t_ref;
+    const M_ref_t = Math.PI * D_ref_mid * t_ref * L * 2.40;
+    const M_solids_t = (Vbed_m3 * rhob) / 1000;
+    const M_tyres_t = piers * 42.0;
+    const M_total_t = M_shell_t + M_ref_t + M_solids_t + M_tyres_t;
+
+    // 4. Drive Power Breakdown
+    const Pbed_kw = 0.00072 * Math.pow(Di, 3) * L * N_rpm * (rhob / 1000) * Math.sin(phi_rad) * (fill_pct / 10) * 125;
+    const D_tyre = Di + 2 * t_ref + 2 * t_shell + 0.8;
+    const v_tyre = (Math.PI * D_tyre * N_rpm) / 60;
+    const Pfric_kw = 0.015 * M_total_t * 9.80665 * v_tyre * 1.6;
+    const Pshaft_kw = (Pbed_kw + Pfric_kw) / eta_d;
+    const Pshaft_hp = Pshaft_kw * 1.34102;
+
+    // Pinion Torque
+    const torque_knm = N_rpm > 0 ? (Pshaft_kw * 60) / (2 * Math.PI * N_rpm) : 0;
+    const recom_motor_kw = Math.ceil(Pshaft_kw * 1.15 / 50) * 50;
+
+    // Update UI
+    document.getElementById('res_time').textContent = theta_min.toFixed(1) + ' minutes (' + theta_hrs.toFixed(2) + ' h)';
+    document.getElementById('res_filling').textContent = fill_pct.toFixed(1) + ' %';
+
+    const fillBadge = document.getElementById('res_fill_status');
+    if (fill_pct >= 8.0 && fill_pct <= 14.0) {
+      fillBadge.className = 'status-badge badge-safe';
+      fillBadge.textContent = 'OPTIMAL BED DEPTH (8-14%)';
+    } else if (fill_pct < 8.0) {
+      fillBadge.className = 'status-badge badge-warn';
+      fillBadge.textContent = 'LOW BED (EXPOSES BRICKS)';
+    } else {
+      fillBadge.className = 'status-badge badge-danger';
+      fillBadge.textContent = 'OVERFILLED BED (HEAT DEGRADATION)';
+    }
+
+    document.getElementById('res_mass').textContent = M_total_t.toFixed(0) + ' tons (Shell: ' + M_shell_t.toFixed(0) + 't, Ref: ' + M_ref_t.toFixed(0) + 't)';
+    document.getElementById('res_pbed').textContent = Pbed_kw.toFixed(1) + ' kW';
+    document.getElementById('res_pfric').textContent = Pfric_kw.toFixed(1) + ' kW';
+    document.getElementById('res_power').textContent = Pshaft_kw.toFixed(1) + ' kW (' + Pshaft_hp.toFixed(0) + ' HP)';
+    document.getElementById('res_torque').textContent = torque_knm.toFixed(0) + ' kN·m';
+    document.getElementById('res_motor_recom').textContent = recom_motor_kw + ' kW (' + (recom_motor_kw * 1.34102).toFixed(0) + ' HP)';
+  }
+
+  const inputs = ['kl_dia_inside', 'kl_length', 'kl_slope_pct', 'kl_rpm', 'kl_refractory_thk', 'kl_shell_thk', 'kl_feed_rate', 'kl_bulk_density', 'kl_repose_angle', 'kl_piers', 'kl_drive_eff', 'kl_dam_factor'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcKiln);
+      el.addEventListener('change', calcKiln);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_kiln');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- ROTARY KILN DRIVE POWER & RETENTION DATASHEET ---',
+        'Dimensions: Inside Di = ' + document.getElementById('kl_dia_inside').value + ' m, L = ' + document.getElementById('kl_length').value + ' m, Slope = ' + document.getElementById('kl_slope_pct').value + '% @ ' + document.getElementById('kl_rpm').value + ' RPM',
+        'Material: ' + document.getElementById('kl_feed_rate').value + ' t/h @ ' + document.getElementById('kl_bulk_density').value + ' kg/m³',
+        'Retention Time: ' + document.getElementById('res_time').textContent,
+        'Volumetric Bed Filling: ' + document.getElementById('res_filling').textContent + ' [' + document.getElementById('res_fill_status').textContent + ']',
+        'Total Rotating Mass: ' + document.getElementById('res_mass').textContent,
+        'Power Demand: Bed Load = ' + document.getElementById('res_pbed').textContent + ' | Bearing Friction = ' + document.getElementById('res_pfric').textContent,
+        'Total Shaft Power: ' + document.getElementById('res_power').textContent + ' | Pinion Torque: ' + document.getElementById('res_torque').textContent,
+        'Recommended Drive Motor: ' + document.getElementById('res_motor_recom').textContent,
+        'Generated via DigitalToolsShed.com Rotary Kiln Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcKiln();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+console.log('  ✓ Built Trade & Construction Suite (151 calculators in /calc/)');
 }
 
