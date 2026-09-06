@@ -168751,6 +168751,2416 @@ window.addEventListener('DOMContentLoaded', function() {
     }));
   })();
 
-  console.log('  ✓ Built Trade & Construction Suite (259 calculators in /calc/)');
+    // ─── TOOL CB1: CARBON MOLECULAR SIEVE (CMS) NITROGEN PSA GENERATOR SIZING CALCULATOR ───
+  (() => {
+    const slug = 'psa-nitrogen-generator-carbon-molecular-sieve-cms-calculator';
+    const title = 'Carbon Molecular Sieve (CMS) Nitrogen PSA Generator Sizing Calculator | Industrial Gas Separation & Air Ratio Engine';
+    const desc = 'Industrial Pressure Swing Adsorption (PSA) nitrogen generator sizing calculator utilizing Carbon Molecular Sieve (CMS) microporous kinetics. Accurately calculate feed air flow, Air-to-N2 recovery ratio, CMS bed volume, compressor brake power, and buffer vessel storage.';
+
+    const faqs = [
+      {
+        q: 'How does Carbon Molecular Sieve (CMS) separate nitrogen from atmospheric air in a PSA system?',
+        a: 'Carbon Molecular Sieve (CMS) separates gases based on kinetic diffusion rates rather than equilibrium adsorption capacity. Both oxygen and nitrogen molecules have kinetic diameters very close to the micropore apertures of CMS (oxygen is approximately 3.46 Angstroms, while nitrogen is approximately 3.64 Angstroms). Because oxygen molecules are slightly smaller and exhibit higher kinetic velocity, they diffuse into the micropores of the carbon lattice orders of magnitude faster than nitrogen. When pressurized air (typically 7 to 10 barg) enters an active CMS column, oxygen is preferentially adsorbed inside the pore network while nitrogen passes unhindered through the interstitial bed voids as high-purity product gas.'
+      },
+      {
+        q: 'Why does the Air-to-Nitrogen ratio increase drastically as purity increases from 95% to 99.999%?',
+        a: 'At 95% nitrogen purity (5% residual oxygen), only the fastest oxygen molecules need to be captured, allowing high product recovery with an Air-to-N2 ratio of approximately 1.8 to 2.2 Nm3 of air per Nm3 of N2. However, achieving 99.999% purity (10 ppm residual O2) requires removing virtually every oxygen molecule before the adsorption wavefront reaches the column exit. To prevent breakthrough, the adsorption cycle time must be drastically shortened, cycle velocity reduced, and a significant fraction of purified product gas used as purge gas to sweep out desorbed oxygen from the regenerating bed. Consequently, the Air-to-N2 ratio escalates to 5.0 to 6.5 Nm3 air per Nm3 N2, more than tripling compressed air and energy demands.'
+      },
+      {
+        q: 'What is the role and typical duration of bed pressure equalization in dual-bed PSA systems?',
+        a: 'Dual-bed PSA nitrogen generators utilize pressure equalization at the end of each half-cycle (typically lasting 1 to 4 seconds). The high-pressure bed completing its adsorption step is pneumatically connected (top-to-top and bottom-to-bottom) with the low-pressure bed that has just finished atmospheric desorption and purge. This step recovers between 40% and 55% of the mechanical compression energy and re-uses nitrogen-enriched void gas to pre-pressurize the regenerating column before raw feed air is introduced. Proper equalization timing reduces thermal shocks, minimizes fluidization attrition of the CMS pellets, and drastically cuts feed air compressor power consumption.'
+      },
+      {
+        q: 'How does inlet compressed air temperature and oil aerosol contamination affect CMS longevity?',
+        a: 'CMS performance is exceptionally sensitive to inlet air quality. Air entering the PSA beds must have a pressure dew point of -40 deg C (ISO 8573-1 Class 1:2:1 or better) and oil aerosol content below 0.003 mg/m3. Liquid water or condensed water vapor permanently occupies micropores and causes mechanical fracturing of carbon pellets. Lubricant oil aerosols form an impermeable hydrophobic film over pellet surfaces, blinding micropore entrances and permanently destroying oxygen diffusion kinetics within weeks. Furthermore, feed air temperatures exceeding 35 deg C diminish kinetic selectivity and degrade yield by up to 1.2% per degree Celsius.'
+      },
+      {
+        q: 'How should the product nitrogen buffer vessel and air receiver tank be sized?',
+        a: 'Because a dual-bed PSA generator delivers nitrogen intermittently during adsorption half-cycles and pauses delivery during pressure equalization, a downstream product buffer tank is mandatory to deliver constant flow and stable pressure to the process. The product receiver volume is sized using V_buf = (Q_N2 * t_eq) / (Delta P_allowable * 60), where t_eq is the equalization time plus pressurization lag (typically 20 to 30 seconds) and Delta P is allowable pressure decay (0.5 to 1.0 bar). Upstream feed air receivers require similar dampening (typically 30% to 50% of peak cycle air demand) to buffer surge loads during bed repressurization.'
+      }
+    ];
+
+    const content = `<style>
+      .psa-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .psa-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .psa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .psa-group { margin-bottom: 16px; }
+      .psa-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .psa-group select, .psa-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .psa-group select:focus, .psa-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .psa-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-blue { background: #eff6ff; color: #1d4ed8; }
+      .badge-green { background: #ecfdf5; color: #047857; }
+      .psa-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .psa-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .psa-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .psa-res-sub { font-size: 0.8rem; color: #64748b; }
+      .psa-btn { background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .psa-btn:hover { background: #1d4ed8; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="psa-wrap">
+      <div class="psa-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Carbon Molecular Sieve (CMS) Nitrogen PSA Generator Sizing Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">High-precision kinetic gas separation modeling for dual-bed industrial nitrogen generators.</p>
+          </div>
+          <span class="psa-badge badge-blue">ISO 8573-1 & ASME Sec VIII</span>
+        </div>
+
+        <div class="psa-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Nitrogen Demand & Purity Targets</h3>
+            <div class="psa-group">
+              <label for="psa_flow">Product Nitrogen Flow (Q_N2)</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="psa_flow" value="120" min="1" step="1">
+                <select id="psa_flow_unit" style="width:130px;">
+                  <option value="Nm3h" selected>Nm3/h</option>
+                  <option value="SCFM">SCFM</option>
+                  <option value="kg_h">kg/h</option>
+                </select>
+              </div>
+            </div>
+            <div class="psa-group">
+              <label for="psa_purity">Nitrogen Purity Specification (% N2 + Ar)</label>
+              <select id="psa_purity">
+                <option value="95.0">95.0% (50,000 ppm O2) - Blanketing / Fire Prevention</option>
+                <option value="98.0">98.0% (20,000 ppm O2) - Grain Silos / Tires</option>
+                <option value="99.0">99.0% (10,000 ppm O2) - Food Packaging / MAP</option>
+                <option value="99.5" selected>99.5% (5,000 ppm O2) - General Industrial</option>
+                <option value="99.9">99.9% (1,000 ppm O2) - Laser Cutting (Mild Steel)</option>
+                <option value="99.99">99.99% (100 ppm O2) - Heat Treatment / Chemical</option>
+                <option value="99.999">99.999% (10 ppm O2) - Semiconductor / Soldering</option>
+              </select>
+            </div>
+            <div class="psa-group">
+              <label for="psa_n2_press">Product Nitrogen Delivery Pressure (barg)</label>
+              <input type="number" id="psa_n2_press" value="6.5" min="3.0" max="14.0" step="0.1">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Feed Air Supply & Kinetics</h3>
+            <div class="psa-group">
+              <label for="psa_air_press">Feed Air Pressure to PSA Inlet (barg)</label>
+              <input type="number" id="psa_air_press" value="7.5" min="5.0" max="14.0" step="0.1">
+            </div>
+            <div class="psa-group">
+              <label for="psa_temp">Feed Air Inlet Temperature (deg C)</label>
+              <input type="number" id="psa_temp" value="25" min="5" max="50" step="1">
+            </div>
+            <div class="psa-group">
+              <label for="psa_cycle_time">Total Cycle Time per Bed (seconds, Ads + Reg)</label>
+              <input type="number" id="psa_cycle_time" value="120" min="40" max="300" step="10">
+              <small style="color:#64748b;">Half-cycle (Adsorption / Regeneration) = 60 s, Equalization = 2-3 s.</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Adsorbent & Compressor Specs</h3>
+            <div class="psa-group">
+              <label for="psa_cms_grade">Carbon Molecular Sieve (CMS) Grade</label>
+              <select id="psa_cms_grade">
+                <option value="standard" selected>Standard Industrial CMS (Bulk density ~680 kg/m3)</option>
+                <option value="premium">High-Selectivity Premium CMS (Bulk density ~700 kg/m3)</option>
+                <option value="rapid">Rapid-Cycle Micro-Pellet CMS (Bulk density ~720 kg/m3)</option>
+              </select>
+            </div>
+            <div class="psa-group">
+              <label for="psa_comp_eff">Air Compressor Isentropic Efficiency (%)</label>
+              <input type="number" id="psa_comp_eff" value="75" min="55" max="90" step="1">
+            </div>
+            <div class="psa-group">
+              <label for="psa_elec_cost">Electricity Tariff ($/kWh)</label>
+              <input type="number" id="psa_elec_cost" value="0.12" min="0.01" max="0.60" step="0.01">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="psa-btn" id="psa_calc_btn">Calculate PSA System & Regeneration Profile</button>
+        </div>
+      </div>
+
+      <div class="psa-card" id="psa_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Engineering Sizing & Diagnostic Output</h2>
+          <button class="copy-btn" id="psa_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="psa_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="psa-res-grid">
+          <div class="psa-res-card">
+            <div class="psa-res-sub">Feed Air Requirement (Q_air)</div>
+            <div class="psa-res-val" id="res_q_air">0</div>
+            <div class="psa-res-sub" id="res_q_air_scfm">0 SCFM / FAD</div>
+          </div>
+          <div class="psa-res-card">
+            <div class="psa-res-sub">Air-to-N2 Ratio (R_air/N2)</div>
+            <div class="psa-res-val" id="res_air_ratio">0</div>
+            <div class="psa-res-sub" id="res_air_recovery">Recovery: 0%</div>
+          </div>
+          <div class="psa-res-card">
+            <div class="psa-res-sub">CMS Adsorbent Mass (Total)</div>
+            <div class="psa-res-val" id="res_cms_mass">0</div>
+            <div class="psa-res-sub" id="res_cms_vol">Volume: 0 m3</div>
+          </div>
+          <div class="psa-res-card">
+            <div class="psa-res-sub">Column Geometry (Each Bed)</div>
+            <div class="psa-res-val" id="res_col_dim">0 x 0</div>
+            <div class="psa-res-sub" id="res_col_aspect">L/D Aspect: 0</div>
+          </div>
+          <div class="psa-res-card">
+            <div class="psa-res-sub">Compressor Power (Brake kW)</div>
+            <div class="psa-res-val" id="res_comp_power">0 kW</div>
+            <div class="psa-res-sub" id="res_comp_hp">0 HP</div>
+          </div>
+          <div class="psa-res-card">
+            <div class="psa-res-sub">N2 Buffer Vessel Size</div>
+            <div class="psa-res-val" id="res_buf_vol">0 L</div>
+            <div class="psa-res-sub" id="res_buf_gal">0 Gallons</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Specific Power & Operating Cost</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Specific Energy: <strong id="res_spec_power">0.00 kWh/Nm3 N2</strong></div>
+            <div>Hourly Power Cost: <strong id="res_cost_hr">$0.00 / hr</strong></div>
+            <div>Annual Operating Cost (8,000 hrs): <strong id="res_cost_yr">$0 / yr</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Real-Time Dual-Bed PSA Adsorption Cycle Simulator</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Visualizing Bed A (Adsorption & N2 generation) and Bed B (Countercurrent blowdown, desorption & purge sweep) with pressure waveforms.</p>
+          <div class="anim-box">
+            <canvas id="psa_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Fluidization Attrition & "Carbon Dusting" Catastrophe</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">When feed air valves or equalization valves open too abruptly (opening time under 0.5 seconds), the instantaneous gas velocity exceeds the minimum fluidization velocity (U_mf) of the packed CMS pellets. The pellets collide violently, grinding against each other and shattering into fine micro-particles. This carbon dust clogs internal sintered stainless-steel retainers, blows downstream into solenoid valves, and permanently destroys the bed height, resulting in catastrophic gas channeling and irreversible purity collapse.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Oil Aerosol Blinding of Micropores</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">Carbon molecular sieves possess an active internal surface area of 800 to 1,200 m2/g, penetrated exclusively by 3.5 to 4.2 Angstrom pore necks. Hydrocarbon compressor oil carryover passing through failed coalescing filters coats the outer surface of the pellets with an impermeable liquid layer. Unlike moisture, which can be partially desorbed by dry gas purging, heavy lubricating oil cannot be desorbed at ambient conditions. A mere 50 grams of oil aerosol is sufficient to permanently destroy 500 kg of CMS.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Over-Sizing Column Diameter & Low Gas Velocity Maldistribution</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Designing oversized columns to decrease pressure drop often backfires catastrophically. If the superficial gas velocity drops below 0.08 m/s, plug flow breaks down into severe buoyancy-induced channeling and wall flow bypass. Because oxygen diffusion into CMS is kinetically governed, gas passing through channels spends insufficient contact time with the pellets, causing high oxygen contamination in the product stream even though the CMS bulk capacity is largely unspent.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Ignoring Ambient Temperature Selectivity Derating</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">Compressor rooms without HVAC frequently reach 42 deg C in summer. Gas diffusion kinetics are temperature-dependent: higher thermal energy increases the kinetic velocity of nitrogen molecules, causing them to enter CMS micropores alongside oxygen. This ruins the kinetic selectivity ratio (D_O2 / D_N2 drops from ~30:1 at 20 deg C to under 18:1 at 40 deg C). If an air pre-cooler is not integrated, a PSA generator designed for 99.9% N2 at 25 deg C will drop to 98.2% purity during peak summer heat waves.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Equalization Surge Starvation of Feed Air Compressor</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">During the 2-second pressure equalization and subsequent bed pressurization step, the incoming column draws up to 220% of the nominal steady-state feed air flow. If an adequate upstream wet air receiver tank is not installed between the compressor package and the PSA skid, the feed air pressure collapses by 2 to 3 bar every 60 seconds. This cyclic pressure drop trips the screw compressor into fault unloaded cycles, reduces feed pressure, and forces high oxygen slip into the product header.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Chemical Engineering Derivations & Kinetic Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The separation of air in Carbon Molecular Sieve (CMS) is governed by <strong>Fickian micropore diffusion</strong>. The uptake of gas species $i$ ($O_2$ or $N_2$) into spherical CMS pellets of radius $r_p$ is expressed by the diffusion equation:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\frac{\partial q_i}{\partial t} = \frac{D_{e,i}}{r^2} \frac{\partial}{\partial r}\left(r^2 \frac{\partial q_i}{\partial r}\right)$$
+          </div>
+          <p>Where $D_{e,O2} \approx 1.5 \times 10^{-8} \text{ cm}^2/\text{s}$ and $D_{e,N2} \approx 5.0 \times 10^{-10} \text{ cm}^2/\text{s}$. The kinetic selectivity factor is:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\alpha_k = \sqrt{\frac{D_{e,O2}}{D_{e,N2}}} \approx 5.5 \text{ to } 7.0$$
+          </div>
+          <p>The gross feed air requirement $Q_{air}$ (in $\text{Nm}^3/\text{h}$) is determined by empirical recovery functions correlating product purity $y_{N2}$ (fractional):</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$R_{air/N2} = \frac{Q_{air}}{Q_{N2}} = \beta_0 + \beta_1 \ln\left(\frac{1}{1 - y_{N2}}\right) + \beta_2 \left(\frac{P_{air}}{P_{N2}}\right)^{-0.4}$$
+          </div>
+          <p>For standard CMS at 7.5 barg: $R_{air/N2} \approx 2.1$ at 95%, $2.4$ at 98%, $2.8$ at 99.5%, $4.2$ at 99.99%, and $6.0$ at 99.999% purity.</p>
+          <p>The isentropic compressor brake power $P_{comp}$ in kilowatts is calculated via:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$P_{comp} = \frac{1}{\eta_c} \cdot \frac{\gamma}{\gamma - 1} \cdot P_{atm} \cdot \frac{Q_{air}}{3600} \left[ \left( \frac{P_{feed}}{P_{atm}} \right)^{\frac{\gamma - 1}{\gamma}} - 1 \right]$$
+          </div>
+          <p>Where $\gamma = 1.4$ for air, $\eta_c \approx 0.72 - 0.78$ is the overall combined isentropic and mechanical efficiency, and $P_{feed}$ is absolute inlet pressure.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var flowInput = document.getElementById('psa_flow');
+        var flowUnit = document.getElementById('psa_flow_unit');
+        var puritySel = document.getElementById('psa_purity');
+        var n2PressInput = document.getElementById('psa_n2_press');
+        var airPressInput = document.getElementById('psa_air_press');
+        var tempInput = document.getElementById('psa_temp');
+        var cycleInput = document.getElementById('psa_cycle_time');
+        var cmsGrade = document.getElementById('psa_cms_grade');
+        var compEff = document.getElementById('psa_comp_eff');
+        var elecCost = document.getElementById('psa_elec_cost');
+        var calcBtn = document.getElementById('psa_calc_btn');
+        var copyBtn = document.getElementById('psa_copy_btn');
+        var copyMsg = document.getElementById('psa_copy_msg');
+
+        var resQAir = document.getElementById('res_q_air');
+        var resQAirScfm = document.getElementById('res_q_air_scfm');
+        var resAirRatio = document.getElementById('res_air_ratio');
+        var resAirRecovery = document.getElementById('res_air_recovery');
+        var resCmsMass = document.getElementById('res_cms_mass');
+        var resCmsVol = document.getElementById('res_cms_vol');
+        var resColDim = document.getElementById('res_col_dim');
+        var resColAspect = document.getElementById('res_col_aspect');
+        var resCompPower = document.getElementById('res_comp_power');
+        var resCompHp = document.getElementById('res_comp_hp');
+        var resBufVol = document.getElementById('res_buf_vol');
+        var resBufGal = document.getElementById('res_buf_gal');
+        var resSpecPower = document.getElementById('res_spec_power');
+        var resCostHr = document.getElementById('res_cost_hr');
+        var resCostYr = document.getElementById('res_cost_yr');
+
+        var canvas = document.getElementById('psa_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function getAirRatio(purityVal, airP, tempVal, grade) {
+          var baseRatio = 2.8;
+          if (purityVal <= 95.0) baseRatio = 1.95;
+          else if (purityVal <= 98.0) baseRatio = 2.25;
+          else if (purityVal <= 99.0) baseRatio = 2.50;
+          else if (purityVal <= 99.5) baseRatio = 2.80;
+          else if (purityVal <= 99.9) baseRatio = 3.65;
+          else if (purityVal <= 99.99) baseRatio = 4.40;
+          else baseRatio = 5.85;
+
+          // Temperature correction: +1% per deg C above 25 deg C
+          var tempFactor = 1.0 + Math.max(0, tempVal - 25) * 0.012 - Math.max(0, 20 - tempVal) * 0.005;
+          // Pressure correction: lower pressure requires higher air volume
+          var pressFactor = Math.pow(7.5 / airP, 0.35);
+          // Grade modifier
+          var gradeMod = 1.0;
+          if (grade === 'premium') gradeMod = 0.94;
+          if (grade === 'rapid') gradeMod = 0.90;
+
+          return baseRatio * tempFactor * pressFactor * gradeMod;
+        }
+
+        function calculate() {
+          var flow = parseFloat(flowInput.value) || 120;
+          var unit = flowUnit.value;
+          var purity = parseFloat(puritySel.value) || 99.5;
+          var n2P = parseFloat(n2PressInput.value) || 6.5;
+          var airP = parseFloat(airPressInput.value) || 7.5;
+          var temp = parseFloat(tempInput.value) || 25;
+          var cycleT = parseFloat(cycleInput.value) || 120;
+          var grade = cmsGrade.value;
+          var eff = (parseFloat(compEff.value) || 75) / 100;
+          var tariff = parseFloat(elecCost.value) || 0.12;
+
+          // Normalize flow to Nm3/h
+          var flowNm3h = flow;
+          if (unit === 'SCFM') {
+            flowNm3h = flow * 1.60753; // SCFM to Nm3/h approx
+          } else if (unit === 'kg_h') {
+            flowNm3h = flow / 1.2506; // Density of N2 approx 1.2506 kg/Nm3
+          }
+
+          var ratio = getAirRatio(purity, airP, temp, grade);
+          var qAirNm3h = flowNm3h * ratio;
+          var qAirScfm = qAirNm3h * 0.622;
+          var recoveryPct = (1 / ratio) * 100;
+
+          // Specific CMS productivity: Nm3 N2 per kg CMS per hour
+          // Highly dependent on purity: 95% ~ 0.22, 99.5% ~ 0.12, 99.999% ~ 0.035
+          var prodRate = 0.12;
+          if (purity <= 95.0) prodRate = 0.24;
+          else if (purity <= 98.0) prodRate = 0.18;
+          else if (purity <= 99.0) prodRate = 0.15;
+          else if (purity <= 99.5) prodRate = 0.12;
+          else if (purity <= 99.9) prodRate = 0.075;
+          else if (purity <= 99.99) prodRate = 0.052;
+          else prodRate = 0.032;
+
+          if (grade === 'premium') prodRate *= 1.08;
+          if (grade === 'rapid') prodRate *= 1.15;
+
+          var totalCmsMass = flowNm3h / prodRate; // kg total across 2 beds
+          var bulkDensity = (grade === 'rapid') ? 720 : (grade === 'premium' ? 700 : 680); // kg/m3
+          var totalCmsVol = totalCmsMass / bulkDensity; // m3
+          var singleBedVol = totalCmsVol / 2;
+
+          // Column geometry: L/D aspect ratio typically 3.0 to 4.5
+          var targetAspect = 3.5;
+          // Vol = pi/4 * D^2 * (targetAspect * D) = (pi/4)*targetAspect * D^3
+          var colDiam = Math.pow((singleBedVol * 4) / (Math.PI * targetAspect), 1 / 3);
+          var colHeight = colDiam * targetAspect;
+
+          // Compressor Power Calculation (Isentropic multi-stage with intercooling approx)
+          // P = (gamma / (gamma - 1)) * (P1 * Q / 3600) * ((P2/P1)^((g-1)/g) - 1) / eff
+          var p1 = 101.325; // kPa abs
+          var p2 = (airP + 1.01325) * 100; // kPa abs
+          var gamma = 1.4;
+          var exp = (gamma - 1) / gamma;
+          var vDot = qAirNm3h / 3600; // m3/s at standard
+          var isentropicPowerKw = (gamma / (gamma - 1)) * p1 * vDot * (Math.pow(p2 / p1, exp) - 1);
+          var brakePowerKw = isentropicPowerKw / eff;
+          var brakeHp = brakePowerKw * 1.34102;
+
+          // Buffer Vessel Sizing: V = (Q * t_eq) / (Delta_P * 60)
+          var tEq = 25; // seconds
+          var deltaPAllowed = 0.8; // bar allowable drop
+          var bufVolM3 = (flowNm3h * (tEq / 3600)) / (deltaPAllowed / 1.01325);
+          var bufVolLiters = bufVolM3 * 1000;
+          var bufVolGal = bufVolLiters * 0.264172;
+
+          // Specific Power & Operating Cost
+          var specPower = brakePowerKw / flowNm3h; // kWh / Nm3 N2
+          var hourlyCost = brakePowerKw * tariff;
+          var annualCost = hourlyCost * 8000;
+
+          // Update DOM
+          resQAir.innerText = qAirNm3h.toFixed(1) + ' Nm3/h';
+          resQAirScfm.innerText = qAirScfm.toFixed(0) + ' SCFM / FAD';
+          resAirRatio.innerText = ratio.toFixed(2) + ' : 1';
+          resAirRecovery.innerText = 'Recovery: ' + recoveryPct.toFixed(1) + '%';
+          resCmsMass.innerText = Math.round(totalCmsMass).toLocaleString() + ' kg';
+          resCmsVol.innerText = 'Total Bed: ' + totalCmsVol.toFixed(2) + ' m3 (' + Math.round(totalCmsMass/2) + ' kg/bed)';
+          resColDim.innerText = (colDiam * 1000).toFixed(0) + ' mm ID x ' + colHeight.toFixed(2) + ' m H';
+          resColAspect.innerText = 'L/D Aspect: ' + (colHeight / colDiam).toFixed(1) + ' (Bed Volume: ' + (singleBedVol * 1000).toFixed(0) + ' L)';
+          resCompPower.innerText = brakePowerKw.toFixed(1) + ' kW';
+          resCompHp.innerText = brakeHp.toFixed(1) + ' HP (Shaft)';
+          resBufVol.innerText = Math.round(bufVolLiters).toLocaleString() + ' L';
+          resBufGal.innerText = Math.round(bufVolGal).toLocaleString() + ' US Gallons';
+          resSpecPower.innerText = specPower.toFixed(3) + ' kWh/Nm3 N2';
+          resCostHr.innerText = '$' + hourlyCost.toFixed(2) + ' / hr';
+          resCostYr.innerText = '$' + Math.round(annualCost).toLocaleString() + ' / yr';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 600;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Background Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Cycle phase determination: 0-270 Bed A Adsorb / Bed B Regen, 271-300 Equalization,
+          // 301-570 Bed B Adsorb / Bed A Regen, 571-600 Equalization
+          var isPhase1 = animStep < 270;
+          var isEq1 = animStep >= 270 && animStep < 300;
+          var isPhase2 = animStep >= 300 && animStep < 570;
+          var isEq2 = animStep >= 570;
+
+          // Bed A & Bed B Positions
+          var bedW = 140;
+          var bedH = 200;
+          var bedAY = 60;
+          var bedAX = 260;
+          var bedBX = 560;
+
+          // Draw Bed A
+          drawBed(bedAX, bedAY, bedW, bedH, 'BED A', isPhase1 ? 'ADSORBING (7.5 barg)' : (isPhase2 ? 'REGENERATING (0.1 barg)' : 'EQUALIZING'), isPhase1 ? '#3b82f6' : (isPhase2 ? '#9333ea' : '#f59e0b'), isPhase1);
+
+          // Draw Bed B
+          drawBed(bedBX, bedAY, bedW, bedH, 'BED B', isPhase2 ? 'ADSORBING (7.5 barg)' : (isPhase1 ? 'REGENERATING (0.1 barg)' : 'EQUALIZING'), isPhase2 ? '#3b82f6' : (isPhase1 ? '#9333ea' : '#f59e0b'), isPhase2);
+
+          // Draw Buffer Vessel
+          var bufX = 840;
+          var bufY = 80;
+          var bufW = 100;
+          var bufH = 160;
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(bufX, bufY, bufW, bufH, 20);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('N2 BUFFER', bufX + bufW / 2, bufY + 30);
+          ctx.font = '11px sans-serif';
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('6.5 barg', bufX + bufW / 2, bufY + 50);
+
+          // Compressor Block
+          ctx.fillStyle = '#334155';
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.roundRect(40, 120, 110, 80, 8);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('AIR COMPRESSOR', 95, 155);
+          ctx.font = '10px sans-serif';
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('FAD Feed Supply', 95, 175);
+
+          // Connecting Pipes & Flows
+          ctx.lineWidth = 4;
+          // Air feed pipe
+          ctx.strokeStyle = '#64748b';
+          ctx.beginPath();
+          ctx.moveTo(150, 160);
+          ctx.lineTo(210, 160);
+          ctx.lineTo(210, 240);
+          ctx.stroke();
+
+          // Product discharge pipe
+          ctx.strokeStyle = '#38bdf8';
+          ctx.beginPath();
+          ctx.moveTo(bedAX + bedW/2, bedAY);
+          ctx.lineTo(bedAX + bedW/2, 35);
+          ctx.lineTo(bufX + bufW/2, 35);
+          ctx.lineTo(bufX + bufW/2, bufY);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(bedBX + bedW/2, bedAY);
+          ctx.lineTo(bedBX + bedW/2, 35);
+          ctx.stroke();
+
+          // Animated particles along pipe
+          var flowTargetX = isPhase1 ? (bedAX + bedW/2) : (isPhase2 ? (bedBX + bedW/2) : 480);
+          ctx.fillStyle = '#38bdf8';
+          var pOffset = (animStep * 5) % 100;
+          ctx.beginPath();
+          ctx.arc(bufX + bufW + 40, 160, 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Status & Cycle Telemetry Overlay
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = 'bold 13px monospace';
+          ctx.textAlign = 'left';
+          var phaseText = isPhase1 ? 'CYCLE STAGE 1: Bed A Adsorbing N2 -> Buffer | Bed B Depressurizing & Waste Vent' :
+                          (isEq1 || isEq2 ? 'STAGE: TOP & BOTTOM EQUALIZATION (Pressure Balance 4.2 barg)' :
+                          'CYCLE STAGE 2: Bed B Adsorbing N2 -> Buffer | Bed A Depressurizing & Waste Vent');
+          ctx.fillText(phaseText, 40, 295);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        function drawBed(x, y, w, h, name, status, color, isActive) {
+          ctx.save();
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(x, y, w, h, 16);
+          ctx.fill();
+          ctx.stroke();
+
+          // CMS Pellet Fill Visualization
+          ctx.fillStyle = isActive ? 'rgba(59, 130, 246, 0.25)' : 'rgba(147, 51, 234, 0.2)';
+          ctx.fillRect(x + 6, y + 25, w - 12, h - 50);
+
+          // Simulated pellets
+          ctx.fillStyle = isActive ? '#60a5fa' : '#c084fc';
+          for (var py = y + 35; py < y + h - 35; py += 22) {
+            for (var px = x + 18; px < x + w - 15; px += 24) {
+              ctx.beginPath();
+              ctx.arc(px, py, 3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(name, x + w / 2, y + 20);
+
+          ctx.font = 'bold 10px sans-serif';
+          ctx.fillStyle = color;
+          ctx.fillText(status, x + w / 2, y + h - 12);
+          ctx.restore();
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== PSA NITROGEN GENERATOR (CMS) SIZING REPORT ===',
+            'Product Nitrogen Flow: ' + flowInput.value + ' ' + flowUnit.value,
+            'Purity Target: ' + puritySel.value + '% N2 + Ar',
+            'Feed Air Requirement: ' + resQAir.innerText + ' (' + resQAirScfm.innerText + ')',
+            'Air-to-Nitrogen Ratio: ' + resAirRatio.innerText,
+            'Total CMS Adsorbent Mass: ' + resCmsMass.innerText + ' (' + resCmsVol.innerText + ')',
+            'Column Geometry (Per Bed): ' + resColDim.innerText,
+            'Feed Air Compressor Power: ' + resCompPower.innerText + ' (' + resCompHp.innerText + ')',
+            'Product Nitrogen Buffer Tank: ' + resBufVol.innerText + ' (' + resBufGal.innerText + ')',
+            'Specific Energy Consumption: ' + resSpecPower.innerText,
+            'Estimated Annual Operating Cost: ' + resCostYr.innerText,
+            'Standard Compliance: ISO 8573-1:2010 & ASME Sec VIII Div 1'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        [flowInput, flowUnit, puritySel, n2PressInput, airPressInput, tempInput, cycleInput, cmsGrade, compEff, elecCost].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CB2: WATER-GAS SHIFT (WGS) REACTOR SIZING & SYNGAS EQUILIBRIUM CALCULATOR ───
+  (() => {
+    const slug = 'water-gas-shift-wgs-reactor-syngas-equilibrium-calculator';
+    const title = 'Water-Gas Shift (WGS) Reactor Sizing & Syngas Equilibrium Calculator | High & Low Temperature Shift';
+    const desc = 'Industrial Water-Gas Shift (WGS) reactor sizing and thermodynamic equilibrium calculator for hydrogen, ammonia, and syngas manufacturing. Model HTS and LTS catalyst volumes, CO conversion kinetics, adiabatic temperature rise, and steam-to-dry gas ratios.';
+
+    const faqs = [
+      {
+        q: 'What is the Water-Gas Shift (WGS) reaction and why is a two-stage (HTS/LTS) configuration required?',
+        a: 'The Water-Gas Shift reaction converts carbon monoxide and steam into carbon dioxide and hydrogen: CO + H2O <=> CO2 + H2 (exothermic, Delta H = -41.1 kJ/mol). Because the reaction is exothermic, chemical equilibrium favors high conversion at low temperatures, but reaction kinetics are sluggish. Conversely, high temperatures yield rapid reaction rates but unfavorable equilibrium conversion. Industrial syngas plants therefore employ a two-stage adiabatic architecture: a High-Temperature Shift (HTS) reactor operating at 340 to 450 deg C with iron-chromium catalyst to rapidly drop CO from ~12% to ~2.5-3.5%, followed by interstage cooling and a Low-Temperature Shift (LTS) reactor at 200 to 240 deg C with copper-zinc-alumina catalyst to drive CO down to 0.1-0.3%.'
+      },
+      {
+        q: 'How does the Steam-to-Dry-Gas (S/DG) ratio prevent catalyst reduction and Fischer-Tropsch byproducts?',
+        a: 'The Steam-to-Dry-Gas ratio (typically 0.35 to 0.55 mol steam / mol dry gas for HTS) is critical not only to drive thermodynamic equilibrium conversion via Le Chatelier principle, but also to prevent catalyst destruction. In HTS reactors, the active catalytic phase is magnetite (Fe3O4). If the steam ratio falls below the critical threshold, reducing gases (CO and H2) reduce magnetite to metallic iron (Fe), which catalyzes runaway Fischer-Tropsch hydrocarbon synthesis and catastrophic carbon deposition (coking). In LTS reactors, sufficient steam prevents the reduction of ZnO and inhibits methanol byproduct formation.'
+      },
+      {
+        q: 'What is the definition of Approach to Equilibrium (Delta T_app) in WGS reactor design?',
+        a: 'Approach to equilibrium (Delta T_app) represents the temperature difference between the actual outlet gas temperature and the equilibrium temperature corresponding to the measured outlet composition. Because commercial adiabatic reactors do not reach complete infinite-time equilibrium, designers specify an approach temperature: typically 8 to 15 deg C for fresh HTS catalyst and 15 to 25 deg C near end-of-run; and 10 to 18 deg C for LTS catalyst. A lower approach temperature requires substantially larger catalyst volumes.'
+      },
+      {
+        q: 'What causes rapid deactivation and sulfur poisoning in LTS copper catalysts?',
+        a: 'Copper-zinc-alumina (Cu-ZnO-Al2O3) LTS catalysts are among the most sensitive in industrial chemistry. Active metallic copper crystallites sinter rapidly if exposed to temperatures above 260 deg C. Furthermore, copper reacts irreversibly with hydrogen sulfide (H2S) and chlorine even at single-digit parts-per-billion (ppb) levels. A chlorine concentration of only 1 ppb in syngas can poison an entire LTS bed within 6 months. To mitigate this, plants incorporate sacrificial ZnO guard beds upstream and strictly monitor feed steam quality.'
+      },
+      {
+        q: 'How is the adiabatic temperature rise calculated across a shift converter?',
+        a: 'Because industrial shift reactors operate adiabatically, the heat released by the exothermic reaction (approximately 41.1 kJ per mole of CO reacted) heats the reacting gas mixture. The adiabatic temperature rise is calculated by Delta T_ad = (Delta n_CO * (-Delta H_rxn)) / (n_total * Cp_avg). In typical HTS converters with 10% inlet CO, the temperature rise is 50 to 90 deg C. Careful monitoring of this Delta T provides real-time verification of CO conversion and allows operators to detect catalyst bed fouling or channeling.'
+      }
+    ];
+
+    const content = `<style>
+      .wgs-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .wgs-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .wgs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .wgs-group { margin-bottom: 16px; }
+      .wgs-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .wgs-group select, .wgs-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .wgs-group select:focus, .wgs-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .wgs-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-blue { background: #eff6ff; color: #1d4ed8; }
+      .wgs-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .wgs-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .wgs-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .wgs-res-sub { font-size: 0.8rem; color: #64748b; }
+      .wgs-btn { background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .wgs-btn:hover { background: #1d4ed8; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="wgs-wrap">
+      <div class="wgs-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Water-Gas Shift (WGS) Reactor Sizing & Equilibrium Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Thermodynamic equilibrium modeling, catalyst volume sizing, and adiabatic temperature rise for HTS and LTS converters.</p>
+          </div>
+          <span class="wgs-badge badge-blue">Syngas & H2 Engineering</span>
+        </div>
+
+        <div class="wgs-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Reactor Stage & Feed Syngas</h3>
+            <div class="wgs-group">
+              <label for="wgs_stage">Shift Reactor Stage</label>
+              <select id="wgs_stage">
+                <option value="HTS" selected>High-Temperature Shift (HTS: Fe-Cr, 320-430 deg C)</option>
+                <option value="LTS">Low-Temperature Shift (LTS: Cu-Zn-Al, 190-240 deg C)</option>
+                <option value="MTS">Medium-Temperature Shift (MTS: Cu-promoted, 250-320 deg C)</option>
+              </select>
+            </div>
+            <div class="wgs-group">
+              <label for="wgs_flow">Dry Syngas Feed Rate (Q_dry)</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="wgs_flow" value="45000" min="100" step="500">
+                <select id="wgs_flow_unit" style="width:130px;">
+                  <option value="Nm3h" selected>Nm3/h</option>
+                  <option value="kmol_h">kmol/h</option>
+                  <option value="MMSCFD">MMSCFD</option>
+                </select>
+              </div>
+            </div>
+            <div class="wgs-group">
+              <label for="wgs_press">Operating Pressure (barg)</label>
+              <input type="number" id="wgs_press" value="28.0" min="1.0" max="70.0" step="0.5">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Gas Composition (Dry Mol %)</h3>
+            <div class="wgs-group">
+              <label for="wgs_co">Inlet CO (mol % dry)</label>
+              <input type="number" id="wgs_co" value="12.5" min="0.1" max="40.0" step="0.1">
+            </div>
+            <div class="wgs-group">
+              <label for="wgs_co2">Inlet CO2 (mol % dry)</label>
+              <input type="number" id="wgs_co2" value="8.0" min="0.1" max="30.0" step="0.1">
+            </div>
+            <div class="wgs-group">
+              <label for="wgs_h2">Inlet H2 (mol % dry)</label>
+              <input type="number" id="wgs_h2" value="62.0" min="5.0" max="85.0" step="0.5">
+            </div>
+            <div class="wgs-group">
+              <label for="wgs_s_dg">Steam-to-Dry-Gas Ratio (mol H2O / mol Dry Gas)</label>
+              <input type="number" id="wgs_s_dg" value="0.45" min="0.15" max="1.20" step="0.02">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Thermal & Catalyst Parameters</h3>
+            <div class="wgs-group">
+              <label for="wgs_tin">Reactor Inlet Temperature (deg C)</label>
+              <input type="number" id="wgs_tin" value="350" min="180" max="420" step="5">
+            </div>
+            <div class="wgs-group">
+              <label for="wgs_app_temp">Approach to Equilibrium (Delta T_app, deg C)</label>
+              <input type="number" id="wgs_app_temp" value="12" min="3" max="35" step="1">
+            </div>
+            <div class="wgs-group">
+              <label for="wgs_ghsv">Design Space Velocity (GHSV, h^-1)</label>
+              <input type="number" id="wgs_ghsv" value="3800" min="1000" max="10000" step="100">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="wgs-btn" id="wgs_calc_btn">Compute WGS Equilibrium, Conversion & Vessel Sizing</button>
+        </div>
+      </div>
+
+      <div class="wgs-card" id="wgs_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Simulation & Reactor Sizing Output</h2>
+          <button class="copy-btn" id="wgs_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="wgs_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="wgs-res-grid">
+          <div class="wgs-res-card">
+            <div class="wgs-res-sub">CO Conversion (Actual)</div>
+            <div class="wgs-res-val" id="res_co_conv">0%</div>
+            <div class="wgs-res-sub" id="res_co_eq_conv">Equilibrium Limit: 0%</div>
+          </div>
+          <div class="wgs-res-card">
+            <div class="wgs-res-sub">Outlet CO Content (Dry)</div>
+            <div class="wgs-res-val" id="res_outlet_co">0%</div>
+            <div class="wgs-res-sub" id="res_outlet_co_wet">Wet Gas: 0%</div>
+          </div>
+          <div class="wgs-res-card">
+            <div class="wgs-res-sub">Adiabatic Temperature Rise</div>
+            <div class="wgs-res-val" id="res_delta_t">0 deg C</div>
+            <div class="wgs-res-sub" id="res_tout">Outlet Temp: 0 deg C</div>
+          </div>
+          <div class="wgs-res-card">
+            <div class="wgs-res-sub">Catalyst Volume (Bed)</div>
+            <div class="wgs-res-val" id="res_cat_vol">0 m3</div>
+            <div class="wgs-res-sub" id="res_cat_mass">Mass: 0 tonnes</div>
+          </div>
+          <div class="wgs-res-card">
+            <div class="wgs-res-sub">Reactor Vessel Geometry</div>
+            <div class="wgs-res-val" id="res_vessel_dim">0 x 0 m</div>
+            <div class="wgs-res-sub" id="res_bed_velocity">Superficial Vel: 0 m/s</div>
+          </div>
+          <div class="wgs-res-card">
+            <div class="wgs-res-sub">Exothermic Heat Release</div>
+            <div class="wgs-res-val" id="res_heat_mw">0 MW</div>
+            <div class="wgs-res-sub" id="res_heat_gcal">0 Gcal/h</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Syngas Mass & Equilibrium Telemetry</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Thermodynamic K_eq: <strong id="res_keq">0.00</strong></div>
+            <div>Hydrogen Yield Gain: <strong id="res_h2_gain">+0.0 Nm3/h H2</strong></div>
+            <div>Steam Consumption: <strong id="res_steam_cons">0.0 t/h Steam</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Thermodynamic Equilibrium Curve & Bed Axial Temperature Profile</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Plotting equilibrium conversion limit versus reactor operating line across catalyst depth.</p>
+          <div class="anim-box">
+            <canvas id="wgs_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="wgs-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Magnetite Over-Reduction & Fischer-Tropsch Runaway</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">In High-Temperature Shift reactors, the active catalytic component is magnetite (Fe3O4). If the steam-to-dry-gas ratio drops below approximately 0.30 due to a boiler feed trip or upstream steam valve fluctuation, the reducing potential of CO and H2 drives the reduction of Fe3O4 to metallic alpha-iron (Fe). Metallic iron functions as an active Fischer-Tropsch catalyst, initiating runaway methanation and hydrocarbon synthesis. This side reaction is violently exothermic, triggering uncontrollable thermal spikes exceeding 600 deg C that melt catalyst retainers and rupture reactor shells.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Condensation Wetting & Catalyst Pellet Shattering</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">During startup or plant turndown, if syngas enters the shift converter below the gas dew point (typically 160 to 180 deg C depending on steam partial pressure and operating pressure), liquid water condenses directly into the porous catalyst structure. Both Fe-Cr and Cu-Zn-Al tablets possess zero hydrothermal mechanical strength when exposed to liquid water; capillary pressure destroys the binder, causing pellets to dissolve into soft mud. Upon re-evaporation, the bed collapses into an impermeable plug, causing thousands of kPa of pressure drop and forcing immediate shutdown.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Copper Thermal Sintering Above 260 deg C in LTS Beds</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Low-Temperature Shift catalysts rely on ultra-fine, nano-dispersed copper crystallites supported on ZnO and alumina. If inlet temperature regulation fails or upstream HTS CO slip surges beyond design (e.g. rising from 3% to 6% CO), the excessive exothermic heat release raises the LTS bed exit temperature above 260 deg C. At this temperature, Tammann mobility initiates irreversible copper sintering; crystallites agglomerate into massive, inactive grains. The catalyst activity drops by 80% within 48 hours and can never be regenerated.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Sub-PPM Chlorine & Sulfur Poisoning of LTS Catalysts</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">While HTS iron-chromium catalysts tolerate up to 50 ppm H2S, copper LTS catalysts are permanently and stoichiometrically poisoned by sulfur and chlorine compounds. Chlorine forms cuprous chloride (CuCl), a volatile compound that mobilizes copper and accelerates sintering at as low as 0.001 ppm (1 ppb). Plant designs must strictly incorporate a sacrificial guard bed or activated alumina chlorine guard upstream of the LTS vessel to guarantee catalyst longevity of 3 to 5 years.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Wall Channeling & Thermowell Misalignment</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">Due to large reactor diameters (often 2.5 to 4.5 meters), improper dense-phase catalyst loading causes severe packing density gradients. Gas bypasses through lower-density zones near the vessel walls. If multipoint thermocouples are only positioned along the centerline, operators receive false indications of normal adiabatic temperature rise while peripheral zones suffer severe CO breakthrough. A multi-radial thermowell array and laser-leveled catalyst surface during loading are mandatory to avoid catastrophic unshifted CO slip to methanation or PSA units.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Chemical Thermodynamic Derivations & Rate Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The Water-Gas Shift equilibrium constant $K_{eq}$ as a function of absolute temperature $T$ (in Kelvin) is accurately predicted by the <strong>Twigg & Moe thermodynamic relation</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$K_{eq}(T) = \exp\left( \frac{4577.8}{T} - 4.33 \right)$$
+          </div>
+          <p>The reaction quotient $Q_p$ and equilibrium composition are related by:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$K_{eq} = \frac{y_{CO2} \cdot y_{H2}}{y_{CO} \cdot y_{H2O}} = \frac{(n_{CO2,0} + \Delta n_{CO})(n_{H2,0} + \Delta n_{CO})}{(n_{CO,0} - \Delta n_{CO})(n_{H2O,0} - \Delta n_{CO})}$$
+          </div>
+          <p>Where $\Delta n_{CO}$ is the extent of reaction (moles of CO converted). Because the stoichiometric sum $\sum \nu_i = 0$, operating pressure has zero effect on ideal gas equilibrium conversion, though elevated pressure substantially accelerates intrinsic reaction rates.</p>
+          <p>The adiabatic temperature rise $\Delta T_{ad}$ is computed by integrating the mixture heat capacity:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\Delta T_{ad} = \frac{\Delta n_{CO} \cdot (-\Delta H_{rxn})}{\sum n_i C_{p,i}} \approx \frac{X_{CO} \cdot y_{CO,0} \cdot 41100}{\bar{C}_p}$$
+          </div>
+          <p>Where $\bar{C}_p \approx 30.5 \text{ J/(mol}\cdot\text{K)}$ for typical moist syngas mixtures. Catalyst volume $V_{cat}$ is determined by the gas hourly space velocity (GHSV) referenced to dry standard conditions ($0^\circ\text{C}, 1 \text{ atm}$):</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$V_{cat} = \frac{Q_{dry,std}}{\text{GHSV}}$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var stageSel = document.getElementById('wgs_stage');
+        var flowInput = document.getElementById('wgs_flow');
+        var flowUnit = document.getElementById('wgs_flow_unit');
+        var pressInput = document.getElementById('wgs_press');
+        var coInput = document.getElementById('wgs_co');
+        var co2Input = document.getElementById('wgs_co2');
+        var h2Input = document.getElementById('wgs_h2');
+        var sDgInput = document.getElementById('wgs_s_dg');
+        var tinInput = document.getElementById('wgs_tin');
+        var appTempInput = document.getElementById('wgs_app_temp');
+        var ghsvInput = document.getElementById('wgs_ghsv');
+        var calcBtn = document.getElementById('wgs_calc_btn');
+        var copyBtn = document.getElementById('wgs_copy_btn');
+        var copyMsg = document.getElementById('wgs_copy_msg');
+
+        var resCoConv = document.getElementById('res_co_conv');
+        var resCoEqConv = document.getElementById('res_co_eq_conv');
+        var resOutletCo = document.getElementById('res_outlet_co');
+        var resOutletCoWet = document.getElementById('res_outlet_co_wet');
+        var resDeltaT = document.getElementById('res_delta_t');
+        var resTout = document.getElementById('res_tout');
+        var resCatVol = document.getElementById('res_cat_vol');
+        var resCatMass = document.getElementById('res_cat_mass');
+        var resVesselDim = document.getElementById('res_vessel_dim');
+        var resBedVel = document.getElementById('res_bed_velocity');
+        var resHeatMw = document.getElementById('res_heat_mw');
+        var resHeatGcal = document.getElementById('res_heat_gcal');
+        var resKeq = document.getElementById('res_keq');
+        var resH2Gain = document.getElementById('res_h2_gain');
+        var resSteamCons = document.getElementById('res_steam_cons');
+
+        var canvas = document.getElementById('wgs_canvas');
+        var ctx = canvas.getContext('2d');
+        var lastCalcData = null;
+
+        function updateStageDefaults() {
+          var stage = stageSel.value;
+          if (stage === 'HTS') {
+            tinInput.value = 350;
+            appTempInput.value = 12;
+            ghsvInput.value = 3800;
+          } else if (stage === 'LTS') {
+            tinInput.value = 205;
+            appTempInput.value = 14;
+            ghsvInput.value = 2800;
+            coInput.value = 3.2;
+            co2Input.value = 16.5;
+            h2Input.value = 58.0;
+          } else { // MTS
+            tinInput.value = 270;
+            appTempInput.value = 15;
+            ghsvInput.value = 3200;
+          }
+          calculate();
+        }
+
+        function calculate() {
+          var stage = stageSel.value;
+          var rawFlow = parseFloat(flowInput.value) || 45000;
+          var unit = flowUnit.value;
+          var pBarg = parseFloat(pressInput.value) || 28.0;
+          var coPct = parseFloat(coInput.value) || 12.5;
+          var co2Pct = parseFloat(co2Input.value) || 8.0;
+          var h2Pct = parseFloat(h2Input.value) || 62.0;
+          var sDg = parseFloat(sDgInput.value) || 0.45;
+          var tinC = parseFloat(tinInput.value) || 350;
+          var deltaApp = parseFloat(appTempInput.value) || 12;
+          var ghsv = parseFloat(ghsvInput.value) || 3800;
+
+          // Normalize flow to Nm3/h dry
+          var flowNm3h = rawFlow;
+          if (unit === 'kmol_h') {
+            flowNm3h = rawFlow * 22.414;
+          } else if (unit === 'MMSCFD') {
+            flowNm3h = rawFlow * 1179.87;
+          }
+
+          var dryKmolH = flowNm3h / 22.414;
+          var steamKmolH = dryKmolH * sDg;
+          var totalFeedKmolH = dryKmolH + steamKmolH;
+
+          // Inlet moles per hour
+          var nCo0 = dryKmolH * (coPct / 100);
+          var nCo20 = dryKmolH * (co2Pct / 100);
+          var nH20 = dryKmolH * (h2Pct / 100);
+          var nH2O0 = steamKmolH;
+
+          // Iterative solution for adiabatic temperature rise and conversion
+          // Delta H rxn approx -41.1 kJ/mol CO
+          // Cp avg approx 32 kJ/(kmol K)
+          var cpAvg = 32.0; // kJ/(kmol * K)
+          var xi = 0; // extent of reaction in kmol/h
+          var toutC = tinC;
+          var keq = 1.0;
+
+          // Solve adiabatic equilibrium with approach temperature
+          for (var iter = 0; iter < 100; iter++) {
+            var teqK = (toutC + deltaApp) + 273.15;
+            keq = Math.exp(4577.8 / teqK - 4.33);
+
+            // Solve quadratic: Keq = (nCo2 + xi)*(nH2 + xi) / ((nCo - xi)*(nH2O - xi))
+            // Keq * (nCo*nH2O - xi*(nCo + nH2O) + xi^2) = (nCo2*nH2 + xi*(nCo2 + nH2) + xi^2)
+            // (Keq - 1)*xi^2 - [Keq*(nCo + nH2O) + (nCo2 + nH2)]*xi + [Keq*nCo*nH2O - nCo2*nH2] = 0
+            var A = keq - 1.0;
+            var B = -(keq * (nCo0 + nH2O0) + (nCo20 + nH20));
+            var C = keq * nCo0 * nH2O0 - nCo20 * nH20;
+
+            var xiNew = 0;
+            if (Math.abs(A) < 1e-6) {
+              xiNew = -C / B;
+            } else {
+              var disc = B * B - 4 * A * C;
+              if (disc >= 0) {
+                var r1 = (-B - Math.sqrt(disc)) / (2 * A);
+                var r2 = (-B + Math.sqrt(disc)) / (2 * A);
+                xiNew = (r1 > 0 && r1 < nCo0 && r1 < nH2O0) ? r1 : r2;
+              }
+            }
+
+            xiNew = Math.max(0, Math.min(nCo0 * 0.99, xiNew));
+            var heatReleasedKj = xiNew * 41100; // kJ/h
+            var deltaTCalc = heatReleasedKj / (totalFeedKmolH * cpAvg);
+            var toutNew = tinC + deltaTCalc;
+
+            if (Math.abs(toutNew - toutC) < 0.05) {
+              xi = xiNew;
+              toutC = toutNew;
+              break;
+            }
+            xi = xiNew;
+            toutC = toutC * 0.5 + toutNew * 0.5;
+          }
+
+          var actualConvPct = (xi / nCo0) * 100;
+          var eqConvPct = Math.min(99.9, actualConvPct * (1 + deltaApp * 0.005));
+
+          // Outlet gas moles
+          var nCoOut = nCo0 - xi;
+          var nCo2Out = nCo20 + xi;
+          var nH2Out = nH20 + xi;
+          var nH2OOut = nH2O0 - xi;
+          var totalDryOut = dryKmolH; // Stoichiometric moles of dry gas unchanged
+          var coOutDryPct = (nCoOut / totalDryOut) * 100;
+          var coOutWetPct = (nCoOut / (totalDryOut + nH2OOut)) * 100;
+
+          var deltaTAd = toutC - tinC;
+          var heatMw = (xi * 41100) / 3600000; // MW
+          var heatGcal = heatMw * 0.859845;
+
+          // Catalyst sizing
+          var catVolM3 = flowNm3h / ghsv;
+          var bulkDensity = (stage === 'LTS') ? 1300 : (stage === 'HTS' ? 1100 : 1200); // kg/m3
+          var catMassTonnes = (catVolM3 * bulkDensity) / 1000;
+
+          // Reactor dimensions (L/D ~ 1.5 to 2.5)
+          var aspect = (stage === 'LTS') ? 1.8 : 2.0;
+          var diam = Math.pow((catVolM3 * 4) / (Math.PI * aspect), 1 / 3);
+          var bedHeight = diam * aspect;
+
+          // Superficial velocity at operating conditions
+          var pTotalBar = pBarg + 1.013;
+          var tAvgK = ((tinC + toutC) / 2) + 273.15;
+          var qActualM3s = (totalFeedKmolH * 8.314 * tAvgK / (pTotalBar * 1e5)) / 3600;
+          var area = (Math.PI / 4) * diam * diam;
+          var supVel = qActualM3s / area;
+
+          // H2 gain and steam consumption
+          var h2GainNm3h = xi * 22.414;
+          var steamConsTh = (xi * 18.015) / 1000;
+
+          // Update DOM
+          resCoConv.innerText = actualConvPct.toFixed(1) + '%';
+          resCoEqConv.innerText = 'Equilibrium Limit: ' + eqConvPct.toFixed(1) + '%';
+          resOutletCo.innerText = coOutDryPct.toFixed(2) + '% dry';
+          resOutletCoWet.innerText = 'Wet Gas: ' + coOutWetPct.toFixed(2) + '%';
+          resDeltaT.innerText = '+' + deltaTAd.toFixed(1) + ' deg C';
+          resTout.innerText = 'Outlet Temp: ' + toutC.toFixed(1) + ' deg C';
+          resCatVol.innerText = catVolM3.toFixed(1) + ' m3';
+          resCatMass.innerText = 'Mass: ' + catMassTonnes.toFixed(1) + ' tonnes';
+          resVesselDim.innerText = diam.toFixed(2) + ' m ID x ' + bedHeight.toFixed(2) + ' m H';
+          resBedVel.innerText = 'Superficial Vel: ' + supVel.toFixed(2) + ' m/s';
+          resHeatMw.innerText = heatMw.toFixed(2) + ' MW';
+          resHeatGcal.innerText = heatGcal.toFixed(2) + ' Gcal/h';
+          resKeq.innerText = keq.toFixed(2);
+          resH2Gain.innerText = '+' + Math.round(h2GainNm3h).toLocaleString() + ' Nm3/h H2';
+          resSteamCons.innerText = steamConsTh.toFixed(2) + ' t/h Steam';
+
+          lastCalcData = {
+            tin: tinC,
+            tout: toutC,
+            deltaApp: deltaApp,
+            actualConv: actualConvPct,
+            eqConv: eqConvPct,
+            stage: stage
+          };
+
+          drawCanvas();
+        }
+
+        function drawCanvas() {
+          if (!lastCalcData) return;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 50) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Left Chart: Equilibrium Conversion vs Temperature
+          var chartX = 80;
+          var chartY = 40;
+          var chartW = 420;
+          var chartH = 220;
+
+          ctx.strokeStyle = '#475569';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(chartX, chartY);
+          ctx.lineTo(chartX, chartY + chartH);
+          ctx.lineTo(chartX + chartW, chartY + chartH);
+          ctx.stroke();
+
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '11px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Reaction Temperature (deg C)', chartX + chartW / 2, chartY + chartH + 32);
+          ctx.save();
+          ctx.translate(chartX - 35, chartY + chartH / 2);
+          ctx.rotate(-Math.PI / 2);
+          ctx.fillText('CO Conversion (%)', 0, 0);
+          ctx.restore();
+
+          // Plot Equilibrium Curve
+          var tMin = 180;
+          var tMax = 460;
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          for (var t = tMin; t <= tMax; t += 5) {
+            var tK = t + 273.15;
+            var k = Math.exp(4577.8 / tK - 4.33);
+            // approximate conversion limit representation
+            var convLimit = 100 / (1 + 1.2 / Math.sqrt(k));
+            convLimit = Math.max(10, Math.min(99.5, convLimit));
+            var px = chartX + ((t - tMin) / (tMax - tMin)) * chartW;
+            var py = chartY + chartH - (convLimit / 100) * chartH;
+            if (t === tMin) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+
+          // Operating line (Inlet Tin to Outlet Tout)
+          var opX1 = chartX + ((lastCalcData.tin - tMin) / (tMax - tMin)) * chartW;
+          var opY1 = chartY + chartH;
+          var opX2 = chartX + ((lastCalcData.tout - tMin) / (tMax - tMin)) * chartW;
+          var opY2 = chartY + chartH - (lastCalcData.actualConv / 100) * chartH;
+
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(opX1, opY1);
+          ctx.lineTo(opX2, opY2);
+          ctx.stroke();
+
+          // Operating Point
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(opX2, opY2, 6, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText('EQUILIBRIUM vs ADIABATIC PATH', chartX, chartY - 12);
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillText('-- Equilibrium Boundary (Twigg)', chartX + 220, chartY - 12);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('-- Operating Trajectory', chartX + 220, chartY + 10);
+
+          // Right Diagram: Shift Reactor Vessel Cutaway
+          var rX = 640;
+          var rY = 50;
+          var rW = 160;
+          var rH = 220;
+
+          // Vessel Shell
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(rX, rY, rW, rH, 30);
+          ctx.fill();
+          ctx.stroke();
+
+          // Catalyst Bed
+          var catH = rH * 0.65;
+          var catY = rY + 40;
+          var catGrad = ctx.createLinearGradient(rX, catY, rX, catY + catH);
+          catGrad.addColorStop(0, '#2563eb');
+          catGrad.addColorStop(1, '#dc2626');
+          ctx.fillStyle = catGrad;
+          ctx.fillRect(rX + 8, catY, rW - 16, catH);
+
+          // Temperature Labels along Bed
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('FEED SYNGAS IN', rX + rW / 2, rY + 25);
+          ctx.fillText(lastCalcData.tin.toFixed(0) + ' deg C', rX + rW / 2, catY + 16);
+
+          ctx.fillText('SHIFTED GAS OUT', rX + rW / 2, rY + rH - 12);
+          ctx.fillText(lastCalcData.tout.toFixed(0) + ' deg C', rX + rW / 2, catY + catH - 10);
+
+          // Labels on the right
+          ctx.textAlign = 'left';
+          ctx.fillStyle = '#38bdf8';
+          ctx.font = 'bold 13px sans-serif';
+          ctx.fillText('CATALYST BED PROFILE', rX + rW + 30, rY + 40);
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Stage: ' + lastCalcData.stage, rX + rW + 30, rY + 65);
+          ctx.fillText('Delta T: +' + (lastCalcData.tout - lastCalcData.tin).toFixed(1) + ' deg C', rX + rW + 30, rY + 85);
+          ctx.fillText('Approach: ' + lastCalcData.deltaApp + ' deg C', rX + rW + 30, rY + 105);
+          ctx.fillText('CO Conv: ' + lastCalcData.actualConv.toFixed(1) + '%', rX + rW + 30, rY + 125);
+          ctx.fillText('Axial Exotherm: Adiabatic', rX + rW + 30, rY + 145);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== WATER-GAS SHIFT (WGS) REACTOR SIZING REPORT ===',
+            'Reactor Stage: ' + stageSel.value,
+            'Feed Syngas Rate: ' + flowInput.value + ' ' + flowUnit.value + ' dry',
+            'Inlet Composition (mol % dry): ' + coInput.value + '% CO, ' + co2Input.value + '% CO2, ' + h2Input.value + '% H2',
+            'Steam-to-Dry-Gas Ratio: ' + sDgInput.value + ' mol H2O / mol dry gas',
+            'Inlet / Outlet Temperature: ' + tinInput.value + ' -> ' + resTout.innerText,
+            'Adiabatic Temperature Rise: ' + resDeltaT.innerText,
+            'Actual CO Conversion: ' + resCoConv.innerText + ' (' + resCoEqConv.innerText + ')',
+            'Outlet CO Concentration: ' + resOutletCo.innerText + ' (' + resOutletCoWet.innerText + ')',
+            'Catalyst Volume / Mass: ' + resCatVol.innerText + ' / ' + resCatMass.innerText,
+            'Reactor Geometry: ' + resVesselDim.innerText,
+            'Superficial Gas Velocity: ' + resBedVel.innerText,
+            'Exothermic Reaction Heat: ' + resHeatMw.innerText + ' (' + resHeatGcal.innerText + ')',
+            'Hydrogen Yield Gain: ' + resH2Gain.innerText,
+            'Steam Consumed: ' + resSteamCons.innerText
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        stageSel.addEventListener('change', updateStageDefaults);
+        [flowInput, flowUnit, pressInput, coInput, co2Input, h2Input, sDgInput, tinInput, appTempInput, ghsvInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CB3: BIO-TRICKLING FILTER (BTF) ODOR & VOC SIZING CALCULATOR ───
+  (() => {
+    const slug = 'bio-trickling-filter-btf-odor-voc-sizing-calculator';
+    const title = 'Bio-Trickling Filter (BTF) Odor & VOC Control Sizing Calculator | Biological Scrubber & Waste Gas Engine';
+    const desc = 'Industrial Bio-Trickling Filter (BTF) sizing calculator for hydrogen sulfide (H2S), VOCs, and ammonia biological odor abatement. Size synthetic structured packing volume, empty bed residence time (EBRT), elimination capacity, trickling recirculation liquid rate, and fan head loss.';
+
+    const faqs = [
+      {
+        q: 'How does a Bio-Trickling Filter (BTF) differ from a conventional organic biofilter and chemical wet scrubber?',
+        a: 'Unlike conventional biofilters that use organic compost, wood chips, or peat media which decompose and compact over 2 to 4 years, a Bio-Trickling Filter (BTF) employs inert, non-degradable structured packing (polypropylene rings, open-cell polyurethane foam, or lava rock). A liquid nutrient solution is continuously or periodically trickled over the media. This creates a dense, immobilized bacterial biofilm while maintaining a high void fraction (>90%). Compared to chemical scrubbers, a BTF consumes zero chlorine dioxide or bleach and operates at over 90% lower chemical operating expense, relying entirely on biological oxidation.'
+      },
+      {
+        q: 'What is Empty Bed Residence Time (EBRT) and how is it selected for different odor compounds?',
+        a: 'Empty Bed Residence Time (EBRT) is the superficial contact time between the foul gas stream and the packed media volume: EBRT = V_media / Q_gas. For highly soluble, rapidly biodegradable compounds such as hydrogen sulfide (H2S), typical design EBRT ranges from 1.5 to 5.0 seconds. For moderately soluble compounds like ammonia (NH3) or dimethyl sulfide (DMS), EBRTs of 8 to 15 seconds are required. Highly hydrophobic volatile organic compounds (VOCs like toluene, styrene, and pinene) require EBRTs of 20 to 60 seconds due to liquid-biofilm mass transfer limitations.'
+      },
+      {
+        q: 'How does biological oxidation of H2S impact recirculating liquid pH and nutrient demand?',
+        a: 'The autotrophic oxidation of hydrogen sulfide by Thiobacillus and Acidithiobacillus species follows: H2S + 2 O2 -> H2SO4 (sulfuric acid). This generates 2.88 grams of sulfuric acid per gram of H2S removed, which rapidly drives the recirculating liquid pH below 1.5. Fortunately, specialized acidophilic bacteria thrive at pH 1.5 to 2.5, allowing effective H2S removal without caustic addition. However, excessive salinity and sulfate accumulation inhibit microbial growth, requiring continuous blowdown (purge) of approximately 0.05 to 0.15 m3 per kg H2S removed, replenished with fresh water and trace macronutrients (N, P, K).'
+      },
+      {
+        q: 'What is Elimination Capacity (EC) and Critical Load in biological waste gas treatment?',
+        a: 'Elimination Capacity (EC) quantifies the mass of pollutant degraded per unit media volume per unit time: EC = Q * (C_in - C_out) / V_media, expressed in g/(m3*h). At low inlet pollutant loads, removal efficiency is nearly 100% (diffusion-limited regime). As inlet mass loading increases, the system approaches a maximum elimination capacity (EC_max, typically 80 to 200 g H2S / (m3*h) for modern structured packing). Operating beyond the critical load causes severe odor breakthrough and requires expansion of bed volume.'
+      },
+      {
+        q: 'How is trickling irrigation density and liquid-to-gas (L/G) ratio optimized to prevent dry zones or flooding?',
+        a: 'The trickling recirculation rate must ensure complete, uniform wetting of the packing without flooding the void spaces or stripping volatile organics into the clean exhaust. Industrial BTFs maintain an irrigation density of 2.0 to 6.0 m3 of liquid per m2 of column cross-section per hour. Intermittent trickling (e.g. 5 minutes on, 10 minutes off) is frequently used for hydrophobic VOCs to prevent excessive liquid film diffusion resistance, whereas continuous trickling is mandatory for heavy H2S loads to flush acidic metabolites away from the biofilm.'
+      }
+    ];
+
+    const content = `<style>
+      .btf-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .btf-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .btf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .btf-group { margin-bottom: 16px; }
+      .btf-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .btf-group select, .btf-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .btf-group select:focus, .btf-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .btf-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-green { background: #ecfdf5; color: #047857; }
+      .btf-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .btf-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .btf-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .btf-res-sub { font-size: 0.8rem; color: #64748b; }
+      .btf-btn { background: #059669; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .btf-btn:hover { background: #047857; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="btf-wrap">
+      <div class="btf-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">Bio-Trickling Filter (BTF) Odor & VOC Sizing Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Biotechnology engineering engine for H2S odor abatement, VOC biofiltration, and structured media column hydraulics.</p>
+          </div>
+          <span class="btf-badge badge-green">VDI 3477 & EPA Biofiltration</span>
+        </div>
+
+        <div class="btf-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Foul Gas & Target Contaminant</h3>
+            <div class="btf-group">
+              <label for="btf_pollutant">Primary Contaminant Profile</label>
+              <select id="btf_pollutant">
+                <option value="H2S_municipal" selected>H2S - Wastewater / Headworks (10 - 150 ppmv)</option>
+                <option value="H2S_biogas">H2S - Biogas / Sludge Digester (200 - 3,000 ppmv)</option>
+                <option value="NH3">Ammonia & Amines - Rendering / Composting (20 - 200 ppmv)</option>
+                <option value="VOC_polar">Water-Soluble VOCs - Ethanol / Acetone (50 - 500 ppmv)</option>
+                <option value="VOC_nonpolar">Hydrophobic VOCs - Toluene / BTEX (20 - 250 ppmv)</option>
+              </select>
+            </div>
+            <div class="btf-group">
+              <label for="btf_flow">Foul Air Flow Rate (Q_gas)</label>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="btf_flow" value="12000" min="100" step="500">
+                <select id="btf_flow_unit" style="width:130px;">
+                  <option value="m3h" selected>m3/h</option>
+                  <option value="CFM">CFM</option>
+                  <option value="m3s">m3/s</option>
+                </select>
+              </div>
+            </div>
+            <div class="btf-group">
+              <label for="btf_cin">Inlet Concentration (ppmv)</label>
+              <input type="number" id="btf_cin" value="45.0" min="0.5" max="5000.0" step="1.0">
+            </div>
+            <div class="btf-group">
+              <label for="btf_removal_req">Target Removal Efficiency (%)</label>
+              <input type="number" id="btf_removal_req" value="99.0" min="70.0" max="99.9" step="0.1">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Media Packing & Hydraulics</h3>
+            <div class="btf-group">
+              <label for="btf_media">Structured Synthetic Packing Media</label>
+              <select id="btf_media">
+                <option value="structured_pp" selected>Structured Polypropylene Grid (Void ~95%, 250 m2/m3)</option>
+                <option value="pu_foam">Open-Cell Polyurethane Foam Cubes (Void ~92%, 450 m2/m3)</option>
+                <option value="random_rings">HDPE Pall Rings / Biomedia (Void ~90%, 320 m2/m3)</option>
+                <option value="lava_rock">Inert Lava Rock / Basalt (Void ~45%, 180 m2/m3)</option>
+              </select>
+            </div>
+            <div class="btf-group">
+              <label for="btf_sup_vel">Design Superficial Gas Velocity (m/s)</label>
+              <input type="number" id="btf_sup_vel" value="0.9" min="0.2" max="2.2" step="0.1">
+            </div>
+            <div class="btf-group">
+              <label for="btf_irrigation">Liquid Trickling Irrigation Density (m3 / (m2*h))</label>
+              <input type="number" id="btf_irrigation" value="3.5" min="1.0" max="10.0" step="0.5">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Operational Kinetics & Biology</h3>
+            <div class="btf-group">
+              <label for="btf_temp">Gas Operating Temperature (deg C)</label>
+              <input type="number" id="btf_temp" value="22" min="5" max="45" step="1">
+            </div>
+            <div class="btf-group">
+              <label for="btf_ebrt_override">Target Empty Bed Residence Time (EBRT, seconds)</label>
+              <input type="number" id="btf_ebrt_override" value="3.5" min="1.0" max="60.0" step="0.5">
+              <small style="color:#64748b;">Auto-calculated or override based on kinetics.</small>
+            </div>
+            <div class="btf-group">
+              <label for="btf_elec_cost">Electricity Rate ($/kWh)</label>
+              <input type="number" id="btf_elec_cost" value="0.12" min="0.01" max="0.50" step="0.01">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="btf-btn" id="btf_calc_btn">Calculate Bio-Trickling Filter Column Sizing</button>
+        </div>
+      </div>
+
+      <div class="btf-card" id="btf_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">BTF Column Architecture & Performance Output</h2>
+          <button class="copy-btn" id="btf_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="btf_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="btf-res-grid">
+          <div class="btf-res-card">
+            <div class="btf-res-sub">Packing Media Volume</div>
+            <div class="btf-res-val" id="res_media_vol">0 m3</div>
+            <div class="btf-res-sub" id="res_media_ft3">0 ft3</div>
+          </div>
+          <div class="btf-res-card">
+            <div class="btf-res-sub">Empty Bed Residence Time</div>
+            <div class="btf-res-val" id="res_ebrt">0 s</div>
+            <div class="btf-res-sub" id="res_true_res">True Gas Contact: 0 s</div>
+          </div>
+          <div class="btf-res-card">
+            <div class="btf-res-sub">Elimination Capacity (EC)</div>
+            <div class="btf-res-val" id="res_ec">0 g/(m3*h)</div>
+            <div class="btf-res-sub" id="res_ec_max">Capacity Margin: 0%</div>
+          </div>
+          <div class="btf-res-card">
+            <div class="btf-res-sub">Tower Geometry (ID x Height)</div>
+            <div class="btf-res-val" id="res_tower_dim">0 x 0 m</div>
+            <div class="btf-res-sub" id="res_cross_area">Bed Area: 0 m2</div>
+          </div>
+          <div class="btf-res-card">
+            <div class="btf-res-sub">Recirculation Pump Flow</div>
+            <div class="btf-res-val" id="res_pump_flow">0 m3/h</div>
+            <div class="btf-res-sub" id="res_pump_gpm">0 GPM</div>
+          </div>
+          <div class="btf-res-card">
+            <div class="btf-res-sub">System Static Pressure Drop</div>
+            <div class="btf-res-val" id="res_dp">0 Pa</div>
+            <div class="btf-res-sub" id="res_dp_inwg">0 in. w.g.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Byproduct Acid Generation & Fan Power</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>H2SO4 Acid Generation: <strong id="res_acid_prod">0.0 kg/day</strong></div>
+            <div>Bleed / Purge Rate: <strong id="res_bleed_rate">0.0 m3/day</strong></div>
+            <div>Blower & Pump Power: <strong id="res_total_power">0.0 kW</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Real-Time BTF Column & Biofilm Concentration Profile</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Visualizing countercurrent trickling spray, synthetic packed bed, sump recirculation, and pollutant exponential decay C(z).</p>
+          <div class="anim-box">
+            <canvas id="btf_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="btf-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Biomass Clogging & Excessive Pressure Drop Blowout</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">When treating high H2S or readily biodegradable VOC concentrations, microbial biomass doubles rapidly. In packing media with narrow channels or void fractions under 85%, excess exopolysaccharide (EPS) sludge clogs the interstitial gaps within 6 to 12 months. Static pressure drop escalates from 250 Pa to over 2,500 Pa, forcing the ventilation fan to stall or overheat. Systems must incorporate media with at least 90% void fraction and provide periodic automated high-flow water washing or enzyme sloughing protocols.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. Acid Accumulation & Autotrophic Microbial Toxicity</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">Every kilogram of H2S removed biologically produces 2.88 kg of sulfuric acid. If the recirculation liquid bleed (purge) rate is throttled to conserve water, sulfate salts (SO4^2-) accumulate above 40,000 mg/L and pH plummets below 0.8. Even robust acidophilic Thiobacillus species suffer severe osmotic shock and cytoplasmic acidification at these extreme conditions, collapsing H2S removal efficiency from 99% to zero within 24 hours.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Liquid Maldistribution & Dry Channeling Breakthrough</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Bio-trickling filters depend on continuous hydration to sustain the microbial biofilm. If spray nozzles clog with biological slime or are spaced with insufficient spray overlap, dry vertical channels form through the packing. Foul air preferentially streams through these dry channels of least hydraulic resistance, bypassing the wet biofilm entirely. The scrubber fails odor emission tests even though the overall recirculating pump flow rate appears completely normal on SCADA.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Starvation of Hydrophobic VOCs Due to Thick Water Films</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">For hydrophobic pollutants such as toluene, alpha-pinene, and hexane (Henry law constant H > 0.15), the rate-limiting step is gas-to-liquid mass transfer. Operating with continuous, heavy liquid trickling creates a thick boundary water layer over the biofilm, drastically impeding diffusion of insoluble VOC molecules into the cells. For hydrophobic VOC abatement, systems must utilize intermittent trickling regimes (e.g. 2 minutes every 15 minutes) or surfactant-amended liquid phases.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Anaerobic Zone Formation & Secondary Odor Synthesis</h4>
+          <p style="margin:0; font-size:0.9rem; color:#5b21b6;">If thick biofilm layers (>1.5 mm) develop on the packing without sufficient aeration, oxygen cannot diffuse to the inner biofilm. Anaerobic, sulfate-reducing bacteria proliferate inside the basal biofilm, consuming organic matter and generating volatile fatty acids, dimethyl sulfide (DMS), and carbon disulfide (CS2). The biofilter becomes a net producer of noxious secondary odors, emitting a pungent sewage odor far worse than the incoming foul air stream.</p>
+        </div>
+      </div>
+
+      <div class="btf-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Biochemical Engineering Derivations & Sizing Kinetics</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The biological degradation of odor compounds in a Bio-Trickling Filter is described by the <strong>Ottengraf-van den Oever biofilm model</strong>. In the diffusion-controlled, zero-order reaction regime:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\frac{C(z)}{C_{in}} = \left( 1 - \frac{z}{H} \cdot \sqrt{\frac{k_0 \cdot D_e \cdot a_v}{2 \cdot v_g \cdot C_{in}}} \right)^2$$
+          </div>
+          <p>Where $k_0$ is the zero-order biological reaction rate, $D_e$ is effective diffusivity in the biofilm, $a_v$ is specific media surface area, and $v_g$ is superficial gas velocity.</p>
+          <p>The overall <strong>Elimination Capacity (EC)</strong> and <strong>Empty Bed Residence Time (EBRT)</strong> are defined by:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\text{EC} = \frac{Q_{gas} \cdot (C_{in} - C_{out})}{V_{media}} \quad \left[ \frac{\text{g}}{\text{m}^3 \cdot \text{h}} \right], \qquad \text{EBRT} = \frac{V_{media}}{Q_{gas}} \cdot 3600 \quad [\text{s}]$$
+          </div>
+          <p>The packing pressure drop $\Delta P$ is modeled via the modified <strong>Ergun/Leva equation</strong> for wet, irrigated packing:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\frac{\Delta P}{H} = \left( 150 \frac{(1 - \epsilon)^2}{\epsilon^3} \frac{\mu_g v_g}{d_p^2} + 1.75 \frac{1 - \epsilon}{\epsilon^3} \frac{\rho_g v_g^2}{d_p} \right) \cdot \Phi_{wet}$$
+          </div>
+          <p>Where $\Phi_{wet} \approx 1.3 - 1.8$ accounts for liquid holdup and biofilm obstruction under irrigation.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var pollutantSel = document.getElementById('btf_pollutant');
+        var flowInput = document.getElementById('btf_flow');
+        var flowUnit = document.getElementById('btf_flow_unit');
+        var cinInput = document.getElementById('btf_cin');
+        var removalInput = document.getElementById('btf_removal_req');
+        var mediaSel = document.getElementById('btf_media');
+        var supVelInput = document.getElementById('btf_sup_vel');
+        var irrigationInput = document.getElementById('btf_irrigation');
+        var tempInput = document.getElementById('btf_temp');
+        var ebrtInput = document.getElementById('btf_ebrt_override');
+        var elecCostInput = document.getElementById('btf_elec_cost');
+        var calcBtn = document.getElementById('btf_calc_btn');
+        var copyBtn = document.getElementById('btf_copy_btn');
+        var copyMsg = document.getElementById('btf_copy_msg');
+
+        var resMediaVol = document.getElementById('res_media_vol');
+        var resMediaFt3 = document.getElementById('res_media_ft3');
+        var resEbrt = document.getElementById('res_ebrt');
+        var resTrueRes = document.getElementById('res_true_res');
+        var resEc = document.getElementById('res_ec');
+        var resEcMax = document.getElementById('res_ec_max');
+        var resTowerDim = document.getElementById('res_tower_dim');
+        var resCrossArea = document.getElementById('res_cross_area');
+        var resPumpFlow = document.getElementById('res_pump_flow');
+        var resPumpGpm = document.getElementById('res_pump_gpm');
+        var resDp = document.getElementById('res_dp');
+        var resDpInwg = document.getElementById('res_dp_inwg');
+        var resAcidProd = document.getElementById('res_acid_prod');
+        var resBleedRate = document.getElementById('res_bleed_rate');
+        var resTotalPower = document.getElementById('res_total_power');
+
+        var canvas = document.getElementById('btf_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+        var lastCalc = null;
+
+        function updatePollutantDefaults() {
+          var p = pollutantSel.value;
+          if (p === 'H2S_municipal') {
+            cinInput.value = 45;
+            ebrtInput.value = 3.5;
+            removalInput.value = 99.0;
+          } else if (p === 'H2S_biogas') {
+            cinInput.value = 800;
+            ebrtInput.value = 12.0;
+            removalInput.value = 98.5;
+          } else if (p === 'NH3') {
+            cinInput.value = 60;
+            ebrtInput.value = 6.0;
+            removalInput.value = 95.0;
+          } else if (p === 'VOC_polar') {
+            cinInput.value = 150;
+            ebrtInput.value = 18.0;
+            removalInput.value = 92.0;
+          } else { // VOC_nonpolar
+            cinInput.value = 80;
+            ebrtInput.value = 35.0;
+            removalInput.value = 85.0;
+          }
+          calculate();
+        }
+
+        function calculate() {
+          var pType = pollutantSel.value;
+          var rawFlow = parseFloat(flowInput.value) || 12000;
+          var unit = flowUnit.value;
+          var cinPpm = parseFloat(cinInput.value) || 45;
+          var remPct = parseFloat(removalInput.value) || 99.0;
+          var media = mediaSel.value;
+          var supVel = parseFloat(supVelInput.value) || 0.9;
+          var irrig = parseFloat(irrigationInput.value) || 3.5;
+          var temp = parseFloat(tempInput.value) || 22;
+          var ebrtDesign = parseFloat(ebrtInput.value) || 3.5;
+          var tariff = parseFloat(elecCostInput.value) || 0.12;
+
+          // Normalize flow to m3/h
+          var flowM3h = rawFlow;
+          if (unit === 'CFM') flowM3h = rawFlow * 1.69901;
+          else if (unit === 'm3s') flowM3h = rawFlow * 3600;
+
+          var flowM3s = flowM3h / 3600;
+
+          // Molecular weight & mass conversion
+          // mg/m3 = ppm * (MW / 24.45) at 25C approx
+          var mw = 34.08; // default H2S
+          var isH2S = pType.startsWith('H2S');
+          if (pType === 'NH3') mw = 17.03;
+          else if (pType === 'VOC_polar') mw = 46.07; // Ethanol
+          else if (pType === 'VOC_nonpolar') mw = 92.14; // Toluene
+
+          var tempK = temp + 273.15;
+          var molarVol = 22.414 * (tempK / 273.15);
+          var cinMgM3 = cinPpm * (mw / molarVol);
+          var coutMgM3 = cinMgM3 * (1 - remPct / 100);
+
+          // Packing media void fraction and properties
+          var voidFrac = 0.95;
+          var dpFactor = 120; // Pa/m per m/s
+          if (media === 'pu_foam') { voidFrac = 0.92; dpFactor = 160; }
+          else if (media === 'random_rings') { voidFrac = 0.90; dpFactor = 190; }
+          else if (media === 'lava_rock') { voidFrac = 0.45; dpFactor = 480; }
+
+          // Media volume based on design EBRT
+          var mediaVolM3 = flowM3s * ebrtDesign;
+          var mediaVolFt3 = mediaVolM3 * 35.3147;
+          var trueResTime = ebrtDesign * voidFrac;
+
+          // Mass loading & Elimination capacity
+          var massInGhr = (flowM3h * cinMgM3) / 1000; // g/h
+          var massOutGhr = (flowM3h * coutMgM3) / 1000;
+          var massRemGhr = massInGhr - massOutGhr;
+          var ec = massRemGhr / mediaVolM3; // g/(m3 * h)
+
+          // Benchmark EC_max
+          var ecMax = 120;
+          if (pType === 'H2S_biogas') ecMax = 220;
+          else if (pType === 'NH3') ecMax = 70;
+          else if (pType === 'VOC_polar') ecMax = 55;
+          else if (pType === 'VOC_nonpolar') ecMax = 25;
+
+          var capacityMargin = Math.max(0, (1 - ec / ecMax) * 100);
+
+          // Tower Dimensions
+          var crossArea = flowM3s / supVel;
+          var towerDiam = Math.sqrt((4 * crossArea) / Math.PI);
+          var bedHeight = mediaVolM3 / crossArea;
+
+          // Irrigation Recirculation Flow
+          var pumpFlowM3h = crossArea * irrig;
+          var pumpGpm = pumpFlowM3h * 4.40287;
+
+          // Pressure Drop Calculation (Modified Leva/Ergun)
+          var wetMultiplier = 1.4;
+          var deltaPa = bedHeight * dpFactor * supVel * wetMultiplier;
+          var deltaInWg = deltaPa * 0.00401865;
+
+          // Acid Generation (H2S -> H2SO4)
+          var acidKgDay = 0;
+          var bleedM3Day = 0;
+          if (isH2S) {
+            acidKgDay = (massRemGhr * 24 / 1000) * (98.08 / 34.08); // 2.88 ratio
+            // Maintain sulfate < 25 g/L -> bleed = kg acid / 0.025 m3
+            bleedM3Day = acidKgDay / 25;
+          } else {
+            bleedM3Day = (pumpFlowM3h * 24) * 0.02; // 2% evaporative/drift bleed
+          }
+
+          // Fan & Pump Power
+          // Fan power: (Q_m3s * deltaP) / (eta_fan * 1000)
+          var fanPowerKw = (flowM3s * deltaPa) / (0.65 * 1000);
+          // Pump power: (Q_m3s * rho * g * H) / (eta_pump * 1000), head ~ 12 m
+          var pumpM3s = pumpFlowM3h / 3600;
+          var pumpPowerKw = (pumpM3s * 1000 * 9.81 * 12) / (0.70 * 1000);
+          var totalPowerKw = fanPowerKw + pumpPowerKw;
+
+          // Update DOM
+          resMediaVol.innerText = mediaVolM3.toFixed(1) + ' m3';
+          resMediaFt3.innerText = Math.round(mediaVolFt3).toLocaleString() + ' ft3';
+          resEbrt.innerText = ebrtDesign.toFixed(1) + ' s';
+          resTrueRes.innerText = 'True Gas Contact: ' + trueResTime.toFixed(1) + ' s';
+          resEc.innerText = ec.toFixed(1) + ' g/(m3*h)';
+          resEcMax.innerText = 'Safe Margin vs EC_max: ' + capacityMargin.toFixed(0) + '%';
+          resTowerDim.innerText = towerDiam.toFixed(2) + ' m ID x ' + bedHeight.toFixed(2) + ' m Bed';
+          resCrossArea.innerText = 'Bed Area: ' + crossArea.toFixed(2) + ' m2';
+          resPumpFlow.innerText = pumpFlowM3h.toFixed(1) + ' m3/h';
+          resPumpGpm.innerText = Math.round(pumpGpm) + ' GPM';
+          resDp.innerText = Math.round(deltaPa) + ' Pa';
+          resDpInwg.innerText = deltaInWg.toFixed(2) + ' in. w.g.';
+          resAcidProd.innerText = isH2S ? acidKgDay.toFixed(1) + ' kg/day' : 'N/A (Non-Sulfur)';
+          resBleedRate.innerText = bleedM3Day.toFixed(2) + ' m3/day Blowdown';
+          resTotalPower.innerText = totalPowerKw.toFixed(1) + ' kW (Blower + Pump)';
+
+          lastCalc = {
+            diam: towerDiam,
+            height: bedHeight,
+            ebrt: ebrtDesign,
+            remPct: remPct,
+            cin: cinPpm,
+            cout: cinPpm * (1 - remPct / 100)
+          };
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 400;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Left: Vertical BTF Column Cutaway
+          var colX = 140;
+          var colY = 30;
+          var colW = 160;
+          var colH = 260;
+
+          // Column Vessel Shell
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#059669';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(colX, colY, colW, colH, 16);
+          ctx.fill();
+          ctx.stroke();
+
+          // Sump Liquid Reservoir at Bottom
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(colX + 4, colY + colH - 35, colW - 8, 30);
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = '10px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('LIQUID SUMP', colX + colW / 2, colY + colH - 15);
+
+          // Packed Media Bed
+          var bedY = colY + 60;
+          var bedH = colH - 120;
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.18)';
+          ctx.fillRect(colX + 6, bedY, colW - 12, bedH);
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 1;
+          // Structured grid lines inside bed
+          for (var by = bedY; by < bedY + bedH; by += 16) {
+            ctx.beginPath(); ctx.moveTo(colX + 6, by); ctx.lineTo(colX + colW - 6, by); ctx.stroke();
+          }
+          for (var bx = colX + 16; bx < colX + colW - 6; bx += 20) {
+            ctx.beginPath(); ctx.moveTo(bx, bedY); ctx.lineTo(bx, bedY + bedH); ctx.stroke();
+          }
+
+          // Spray Nozzles at Top
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(colX + 30, colY + 45, 100, 6);
+          ctx.beginPath();
+          ctx.arc(colX + 50, colY + 53, 4, 0, Math.PI * 2);
+          ctx.arc(colX + 80, colY + 53, 4, 0, Math.PI * 2);
+          ctx.arc(colX + 110, colY + 53, 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Animated Trickling Liquid Droplets
+          ctx.fillStyle = '#38bdf8';
+          for (var i = 0; i < 18; i++) {
+            var dropX = colX + 25 + ((i * 37 + animStep * 3) % (colW - 50));
+            var dropY = bedY + ((i * 29 + animStep * 4) % bedH);
+            ctx.beginPath();
+            ctx.arc(dropX, dropY, 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Gas Flow In (Bottom) and Out (Top)
+          ctx.fillStyle = '#f87171';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('FOUL GAS IN ->', colX - 50, colY + colH - 55);
+          ctx.fillStyle = '#34d399';
+          ctx.fillText('CLEAN EXHAUST ^', colX + colW / 2, colY + 18);
+
+          // Right: Concentration Decay Plot C(z)
+          var plotX = 460;
+          var plotY = 50;
+          var plotW = 540;
+          var plotH = 210;
+
+          ctx.strokeStyle = '#475569';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(plotX, plotY);
+          ctx.lineTo(plotX, plotY + plotH);
+          ctx.lineTo(plotX + plotW, plotY + plotH);
+          ctx.stroke();
+
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '11px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Normalized Bed Height (z / H)', plotX + plotW / 2, plotY + plotH + 32);
+          ctx.save();
+          ctx.translate(plotX - 35, plotY + plotH / 2);
+          ctx.rotate(-Math.PI / 2);
+          ctx.fillText('Contaminant Concentration (ppmv)', 0, 0);
+          ctx.restore();
+
+          // Exponential concentration decay curve
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          var cinVal = lastCalc ? lastCalc.cin : 45;
+          var coutVal = lastCalc ? lastCalc.cout : 0.45;
+          for (var step = 0; step <= 100; step++) {
+            var frac = step / 100;
+            // Ottengraf zero-order / exponential profile
+            var cVal = cinVal * Math.exp(-3.2 * frac);
+            var px = plotX + frac * plotW;
+            var py = plotY + plotH - (cVal / cinVal) * plotH * 0.9 - 10;
+            if (step === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+
+          // Title & telemetry overlay
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = 'bold 13px sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText('OTTENGRAF BIOFILM DECAY KINETICS', plotX, plotY - 14);
+          ctx.fillStyle = '#10b981';
+          ctx.fillText('Inlet: ' + cinVal.toFixed(1) + ' ppm -> Outlet: ' + coutVal.toFixed(2) + ' ppm (Bio-Oxidized)', plotX + 230, plotY - 14);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== BIO-TRICKLING FILTER (BTF) SIZING REPORT ===',
+            'Pollutant Profile: ' + pollutantSel.value,
+            'Foul Gas Flow: ' + flowInput.value + ' ' + flowUnit.value,
+            'Inlet / Target Removal: ' + cinInput.value + ' ppmv @ ' + removalInput.value + '%',
+            'Packing Media Selected: ' + mediaSel.value,
+            'Packing Media Volume: ' + resMediaVol.innerText + ' (' + resMediaFt3.innerText + ')',
+            'Empty Bed Residence Time (EBRT): ' + resEbrt.innerText + ' (' + resTrueRes.innerText + ')',
+            'Elimination Capacity (EC): ' + resEc.innerText + ' (' + resEcMax.innerText + ')',
+            'Tower Dimensions: ' + resTowerDim.innerText + ' (' + resCrossArea.innerText + ')',
+            'Trickling Recirculation Flow: ' + resPumpFlow.innerText + ' (' + resPumpGpm.innerText + ')',
+            'Bed Static Pressure Drop: ' + resDp.innerText + ' (' + resDpInwg.innerText + ')',
+            'Byproduct Acid / Purge: ' + resAcidProd.innerText + ' / ' + resBleedRate.innerText,
+            'Total Fan + Pump Power: ' + resTotalPower.innerText,
+            'Standards: VDI 3477 (Biofilters) & EPA Clean Air Technology'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        pollutantSel.addEventListener('change', updatePollutantDefaults);
+        [flowInput, flowUnit, cinInput, removalInput, mediaSel, supVelInput, irrigationInput, tempInput, ebrtInput, elecCostInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  // ─── TOOL CB4: HIGH-PRESSURE ENTRAINED-FLOW GASIFIER SIZING & SYNGAS YIELD CALCULATOR ───
+  (() => {
+    const slug = 'entrained-flow-gasifier-syngas-yield-calculator';
+    const title = 'High-Pressure Entrained-Flow Gasifier Sizing & Syngas Yield Calculator | Slagging Gasification Engine';
+    const desc = 'Industrial entrained-flow gasifier sizing and syngas yield calculator for coal, petroleum coke, and biomass feedstocks. Calculate oxygen-to-carbon ratio, syngas composition, Cold Gas Efficiency (CGE), chamber volume, slagging temperature, and ASU oxygen demand.';
+
+    const faqs = [
+      {
+        q: 'What is an entrained-flow gasifier and why does it operate at high temperatures (1,300 to 1,600 deg C)?',
+        a: 'An entrained-flow gasifier is a high-throughput, high-pressure partial oxidation reactor where pulverized solid carbonaceous fuel (coal, petcoke, or torrefied biomass) is co-injected with high-purity oxygen (95%+) and steam into a refractory-lined or membrane-wall vessel. The residence time of particles is ultra-short (typically 2 to 5 seconds). To achieve complete carbon conversion (>98.5%) and crack all heavy tars and methane into pure synthesis gas (CO and H2) in such a brief window, operating temperatures must exceed 1,300 to 1,500 deg C. At these elevated temperatures, the coal mineral matter melts into molten liquid slag that drains continuously down the reactor walls.'
+      },
+      {
+        q: 'What is the operational difference between slurry feed (GE/Texaco) and dry feed (Shell/Siemens) gasifiers?',
+        a: 'Slurry-fed gasifiers mix pulverized coal with water to form a pumpable suspension containing 60% to 68% solids by weight. While slurry pumping is mechanically simple and reliable at 40 to 65 barg, vaporizing the slurry carrier water consumes considerable thermal energy, requiring higher oxygen consumption (O/C ratio ~1.05 to 1.15) and yielding syngas with a higher H2/CO ratio and lower Cold Gas Efficiency (~74% to 78%). In contrast, dry-fed gasifiers transport dense-phase pulverized coal using pressurized nitrogen or CO2. Without excess water vaporization, dry gasifiers achieve Cold Gas Efficiencies of 80% to 83% and consume 15% to 20% less oxygen.'
+      },
+      {
+        q: 'What is Cold Gas Efficiency (CGE) and why is it the primary benchmark of gasification performance?',
+        a: 'Cold Gas Efficiency (CGE) measures the percentage of raw chemical energy in the solid feedstock that is successfully converted into chemical energy in the cooled, clean synthesis gas: CGE = (V_syngas * LHV_syngas) / (m_feed * LHV_feed) * 100%. Commercial entrained gasifiers operate with CGEs between 75% and 83%. The remaining 17% to 25% of the fuel energy is converted into sensible heat recovered via radiant syngas coolers or water quenches, high-pressure steam generation, and unavoidable refractory heat losses.'
+      },
+      {
+        q: 'What is the Temperature of Critical Viscosity (T_cv) for liquid ash slag tapping?',
+        a: 'In slagging gasifiers, inorganic mineral matter melts into a liquid slag film that coats the refractory wall and drains through a bottom tap hole into a water quench bath. For continuous, reliable slag flow without freezing or bridging the tap hole, the liquid slag dynamic viscosity must remain below 25 Pa*s (250 Poise). The Temperature of Critical Viscosity (T_cv) is the threshold temperature below which crystalline phases precipitate from the molten slag, causing viscosity to skyrocket exponentially. Gasifier operating temperature is deliberately controlled 50 to 100 deg C above T_cv, often adjusted by blending fluxing agents like limestone (CaCO3).'
+      },
+      {
+        q: 'How is the reaction chamber volume and gasifier diameter sized?',
+        a: 'The chamber volume is determined by the volumetric syngas generation rate at operating pressure and temperature multiplied by the required particle gasification residence time: V_chamber = Q_actual * tau, where tau is typically 2.5 to 4.0 seconds. The inner chamber diameter is sized to maintain a superficial gas velocity of 0.8 to 1.8 m/s, preventing slag entrainment into the overhead or downstream quench throat while providing adequate aerodynamic flame clearance to protect the refractory brick from direct flame impingement.'
+      }
+    ];
+
+    const content = `<style>
+      .gas-wrap { max-width: 1140px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif; color: #1e293b; line-height: 1.5; }
+      .gas-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-bottom: 24px; }
+      .gas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+      .gas-group { margin-bottom: 16px; }
+      .gas-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+      .gas-group select, .gas-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+      .gas-group select:focus, .gas-group input:focus { border-color: #2563eb; outline: none; ring: 2px ring #93c5fd; }
+      .gas-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .badge-amber { background: #fffbeb; color: #b45309; }
+      .gas-res-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+      .gas-res-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; text-align: center; }
+      .gas-res-val { font-size: 1.7rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+      .gas-res-sub { font-size: 0.8rem; color: #64748b; }
+      .gas-btn { background: #d97706; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .gas-btn:hover { background: #b45309; }
+      .trap-card { border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+      .anim-box { width: 100%; height: 320px; background: #0f172a; border-radius: 10px; margin-top: 16px; position: relative; }
+      .copy-btn { background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+      .copy-btn:hover { background: #334155; }
+    </style>
+
+    <div class="gas-wrap">
+      <div class="gas-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div>
+            <h1 style="font-size:1.8rem; font-weight:800; margin:0 0 6px 0; color:#0f172a;">High-Pressure Entrained-Flow Gasifier Sizing & Syngas Yield Calculator</h1>
+            <p style="margin:0; color:#64748b; font-size:0.95rem;">Thermodynamic partial oxidation modeling, Cold Gas Efficiency (CGE), slagging kinetics, and refractory reactor chamber sizing.</p>
+          </div>
+          <span class="gas-badge badge-amber">ASME Sec VIII & Syngas Clean Tech</span>
+        </div>
+
+        <div class="gas-grid">
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">1. Feedstock & Slurry Parameters</h3>
+            <div class="gas-group">
+              <label for="gas_feed_type">Solid Feedstock Type</label>
+              <select id="gas_feed_type">
+                <option value="bituminous" selected>Bituminous Coal (C: 72%, H: 5.0%, Ash: 10%, LHV: 27.5 MJ/kg)</option>
+                <option value="petcoke">Petroleum Coke (C: 86%, H: 3.5%, Ash: 1.5%, LHV: 32.5 MJ/kg)</option>
+                <option value="subbituminous">Sub-Bituminous / Lignite (C: 58%, H: 4.5%, Ash: 14%, LHV: 21.0 MJ/kg)</option>
+                <option value="biomass">Torrefied Biomass / Wood (C: 52%, H: 6.0%, Ash: 2.5%, LHV: 19.5 MJ/kg)</option>
+              </select>
+            </div>
+            <div class="gas-group">
+              <label for="gas_feed_mode">Feed Injection System</label>
+              <select id="gas_feed_mode">
+                <option value="slurry" selected>Water Slurry Feed (65 wt% solids, GE/Texaco style)</option>
+                <option value="dry_n2">Pressurized Dry Feed (N2 carrier, Shell/Siemens style)</option>
+                <option value="dry_co2">Pressurized Dry Feed (CO2 carrier, High efficiency)</option>
+              </select>
+            </div>
+            <div class="gas-group">
+              <label for="gas_feed_rate">Solid Fuel Feed Rate (Dry Tonnes / Day)</label>
+              <input type="number" id="gas_feed_rate" value="2000" min="50" step="50">
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">2. Operating Temperature & Pressure</h3>
+            <div class="gas-group">
+              <label for="gas_temp">Gasifier Chamber Temperature (deg C)</label>
+              <input type="number" id="gas_temp" value="1420" min="1250" max="1650" step="10">
+            </div>
+            <div class="gas-group">
+              <label for="gas_press">Operating Pressure (barg)</label>
+              <input type="number" id="gas_press" value="40.0" min="15.0" max="75.0" step="1.0">
+            </div>
+            <div class="gas-group">
+              <label for="gas_o_c">Oxygen-to-Carbon Ratio (mol O2 / mol C)</label>
+              <input type="number" id="gas_o_c" value="0.48" min="0.38" max="0.65" step="0.01">
+              <small style="color:#64748b;">Typically 0.45 - 0.52 for slurry, 0.40 - 0.46 for dry feed.</small>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:1.1rem; color:#1e293b; margin-top:0;">3. Kinetics & Reactor Geometry</h3>
+            <div class="gas-group">
+              <label for="gas_res_time">Design Gas Residence Time (tau, seconds)</label>
+              <input type="number" id="gas_res_time" value="3.2" min="1.5" max="6.0" step="0.1">
+            </div>
+            <div class="gas-group">
+              <label for="gas_c_conv">Target Carbon Conversion (%)</label>
+              <input type="number" id="gas_c_conv" value="99.2" min="95.0" max="99.9" step="0.1">
+            </div>
+            <div class="gas-group">
+              <label for="gas_o2_purity">ASU Oxygen Purity (vol % O2)</label>
+              <input type="number" id="gas_o2_purity" value="95.5" min="90.0" max="99.8" step="0.5">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button class="gas-btn" id="gas_calc_btn">Compute Gasifier Sizing, Syngas Yield & CGE</button>
+        </div>
+      </div>
+
+      <div class="gas-card" id="gas_results_section">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <h2 style="font-size:1.4rem; font-weight:800; margin:0; color:#0f172a;">Engineering Output & Syngas Breakdown</h2>
+          <button class="copy-btn" id="gas_copy_btn">Copy Diagnostic Summary</button>
+        </div>
+        <div id="gas_copy_msg" style="display:none; color:#16a34a; font-weight:700; font-size:0.9rem; margin-bottom:12px;">✓ Diagnostic Summary Copied!</div>
+
+        <div class="gas-res-grid">
+          <div class="gas-res-card">
+            <div class="gas-res-sub">Raw Dry Syngas Flow Rate</div>
+            <div class="gas-res-val" id="res_syngas_flow">0 Nm3/h</div>
+            <div class="gas-res-sub" id="res_syngas_yield">0 Nm3 / kg dry fuel</div>
+          </div>
+          <div class="gas-res-card">
+            <div class="gas-res-sub">Cold Gas Efficiency (CGE)</div>
+            <div class="gas-res-val" id="res_cge">0%</div>
+            <div class="gas-res-sub" id="res_cge_rating">Thermal Yield: Excellent</div>
+          </div>
+          <div class="gas-res-card">
+            <div class="gas-res-sub">Syngas Composition (CO + H2)</div>
+            <div class="gas-res-val" id="res_co_h2">0%</div>
+            <div class="gas-res-sub" id="res_syngas_spec">CO: 0%, H2: 0%, CO2: 0%</div>
+          </div>
+          <div class="gas-res-card">
+            <div class="gas-res-sub">Reaction Chamber Volume</div>
+            <div class="gas-res-val" id="res_chamber_vol">0 m3</div>
+            <div class="gas-res-sub" id="res_chamber_dim">0 m ID x 0 m H</div>
+          </div>
+          <div class="gas-res-card">
+            <div class="gas-res-sub">High-Purity O2 Demand (ASU)</div>
+            <div class="gas-res-val" id="res_o2_tpd">0 TPD</div>
+            <div class="gas-res-sub" id="res_o2_nm3h">0 Nm3/h (95.5% O2)</div>
+          </div>
+          <div class="gas-res-card">
+            <div class="gas-res-sub">Molten Slag Production</div>
+            <div class="gas-res-val" id="res_slag_tpd">0 TPD</div>
+            <div class="gas-res-sub" id="res_slag_flow">T_tap: 0 deg C (Fluid)</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; background:#f1f5f9; padding:16px; border-radius:8px;">
+          <h4 style="margin:0 0 8px 0; color:#1e293b;">Syngas Energy & Thermal Balances</h4>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:0.95rem;">
+            <div>Syngas Lower Heating Value: <strong id="res_lhv">0.0 MJ/Nm3</strong></div>
+            <div>Syngas Chemical Power: <strong id="res_thermal_power">0 MW thermal</strong></div>
+            <div>H2 to CO Ratio: <strong id="res_h2_co_ratio">0.00 mol/mol</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="font-size:1.1rem; color:#1e293b; margin-bottom:8px;">Entrained-Flow Gasifier Chamber & Flame Aerodynamics Visualizer</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-top:0;">Cutaway view of top coaxial burner, 1,400+ deg C fireball, descending liquid slag layer, bottom tap hole, and quench zone.</p>
+          <div class="anim-box">
+            <canvas id="gas_canvas" width="1090" height="320" style="width:100%; height:100%; display:block;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="gas-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">5 Fatal Traps & Industrial Engineering Pitfalls</h2>
+
+        <div class="trap-card" style="border-left:4px solid #ef4444; background:#fef2f2;">
+          <h4 style="margin:0 0 6px 0; color:#991b1b;">1. Slag Tap Freeze-Up & Catastrophic Bath Overflow</h4>
+          <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">If gasifier temperature drops below the Temperature of Critical Viscosity (T_cv) by even 25 deg C, liquid ash viscosity increases exponentially past 25 Pa*s. The molten slag rapidly vitrifies and freezes inside the bottom tap hole (typically 200 to 300 mm diameter). Molten slag pools across the refractory hearth, rising into the syngas exit ducts or drowning the burner. Unclogging a frozen slag tap requires hazardous oxygen lance burner burning or complete emergency shutdown costing millions in lost production.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+          <h4 style="margin:0 0 6px 0; color:#92400e;">2. High-Chromia Refractory Spalling & Slag Dissolution</h4>
+          <p style="margin:0; font-size:0.9rem; color:#78350f;">Molten coal slag is an aggressive chemical solvent consisting of SiO2, Al2O3, FeO, and CaO. At 1,450 deg C, liquid FeO penetrates the pores of dense chromia-alumina refractory bricks (typically 85% Cr2O3), forming low-melting spinel phases and causing catastrophic structural spalling. A single rapid thermal shutdown or operating with excessive oxidizing flame atmosphere can strip 30 to 50 mm of refractory brick within hours, risking vessel shell burn-through.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #10b981; background:#ecfdf5;">
+          <h4 style="margin:0 0 6px 0; color:#065f46;">3. Burner Tip Recirculation Flame Impingement</h4>
+          <p style="margin:0; font-size:0.9rem; color:#064e3b;">Top-mounted feed injector burners co-inject solid slurry/powder and high-velocity pure O2. If the feed momentum ratio or atomization angle is miscalculated, a toroidal recirculation eddy develops immediately below the burner face. Slurry droplets ignite directly against the water-cooled burner nozzle face, eroding the nickel-alloy burner tip in under 1,000 hours and causing explosive internal water leaks into the 1,400 deg C chamber.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #3b82f6; background:#eff6ff;">
+          <h4 style="margin:0 0 6px 0; color:#1e40af;">4. Flyash Sticky Zone Fouling in Syngas Coolers</h4>
+          <p style="margin:0; font-size:0.9rem; color:#1e3a8a;">Approximately 15% to 30% of coal ash does not drain as liquid slag and is entrained overhead as sub-micron molten flyash. As syngas enters the radiant syngas cooler or convective boiler, the gas cools from 1,400 deg C to 800 deg C. In the "sticky zone" between 950 deg C and 1,150 deg C, partially molten silicate droplets adhere to heat transfer tubes like concrete, creating an insulating sinter layer that reduces heat transfer by 70% and plugs gas passages.</p>
+        </div>
+
+        <div class="trap-card" style="border-left:4px solid #8b5cf6; background:#f5f3ff;">
+          <h4 style="margin:0 0 6px 0; color:#5b21b6;">5. Syngas Quench Ring Starvation & Thermal Shock Cracking</h4>
+          <p style="margin:0; font-size:0.9rem; color:#4c1d95;">In water-quench gasifier configurations, a continuous water film is pumped over a circular quench ring to cool hot syngas from 1,400 deg C to 230 deg C saturation. If particulate matter clogs part of the quench water distribution slots, an un-wetted dry strip forms on the dip tube. The naked alloy is exposed simultaneously to 1,400 deg C reducing gas on one side and boiling water on the other; the severe thermal gradient causes instantaneous cyclic fatigue cracking and dip tube failure.</p>
+        </div>
+      </div>
+
+      <div class="psa-card">
+        <h2 style="font-size:1.4rem; font-weight:800; color:#0f172a; margin-top:0;">Gasification Thermochemistry Derivations & Mass Balance Equations</h2>
+        <div style="font-size:0.95rem; color:#334155; line-height:1.7;">
+          <p>The entrained-flow gasification of carbonaceous solid fuels is governed by <strong>high-temperature partial oxidation and steam gasification equilibria</strong>:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\text{C} + \frac{1}{2}\text{O}_2 \rightarrow \text{CO} \quad (\Delta H = -110.5 \text{ kJ/mol}), \qquad \text{C} + \text{H}_2\text{O} \rightleftharpoons \text{CO} + \text{H}_2 \quad (\Delta H = +131.3 \text{ kJ/mol})$$
+          </div>
+          <p>The <strong>Cold Gas Efficiency (CGE)</strong> is defined on a Lower Heating Value (LHV) basis:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\text{CGE} = \frac{\dot{V}_{syngas,std} \cdot \text{LHV}_{syngas}}{\dot{m}_{feed,dry} \cdot \text{LHV}_{feed,dry}} \times 100\%$$
+          </div>
+          <p>The syngas LHV is determined by the combustible components ($CO, H_2, CH_4$):</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$\text{LHV}_{syngas} = 12.63 \cdot y_{CO} + 10.78 \cdot y_{H2} + 35.88 \cdot y_{CH4} \quad [\text{MJ/Nm}^3]$$
+          </div>
+          <p>The reaction chamber volume $V_{ch}$ is sized based on actual volumetric syngas flow rate at operating conditions and required residence time $\tau$:</p>
+          <div style="background:#f8fafc; padding:12px; border-radius:6px; font-family:monospace; margin:12px 0;">
+            $$V_{ch} = \dot{V}_{actual} \cdot \tau = \left[ \dot{V}_{syngas,std} \cdot \frac{T_{op} + 273.15}{273.15} \cdot \frac{1.013}{P_{op,bar}} \cdot \frac{1}{3600} \right] \cdot \tau \quad [\text{m}^3]$$
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var feedTypeSel = document.getElementById('gas_feed_type');
+        var feedModeSel = document.getElementById('gas_feed_mode');
+        var feedRateInput = document.getElementById('gas_feed_rate');
+        var tempInput = document.getElementById('gas_temp');
+        var pressInput = document.getElementById('gas_press');
+        var ocInput = document.getElementById('gas_o_c');
+        var resTimeInput = document.getElementById('gas_res_time');
+        var cConvInput = document.getElementById('gas_c_conv');
+        var o2PurityInput = document.getElementById('gas_o2_purity');
+        var calcBtn = document.getElementById('gas_calc_btn');
+        var copyBtn = document.getElementById('gas_copy_btn');
+        var copyMsg = document.getElementById('gas_copy_msg');
+
+        var resSyngasFlow = document.getElementById('res_syngas_flow');
+        var resSyngasYield = document.getElementById('res_syngas_yield');
+        var resCge = document.getElementById('res_cge');
+        var resCgeRating = document.getElementById('res_cge_rating');
+        var resCoH2 = document.getElementById('res_co_h2');
+        var resSyngasSpec = document.getElementById('res_syngas_spec');
+        var resChamberVol = document.getElementById('res_chamber_vol');
+        var resChamberDim = document.getElementById('res_chamber_dim');
+        var resO2Tpd = document.getElementById('res_o2_tpd');
+        var resO2Nm3h = document.getElementById('res_o2_nm3h');
+        var resSlagTpd = document.getElementById('res_slag_tpd');
+        var resSlagFlow = document.getElementById('res_slag_flow');
+        var resLhv = document.getElementById('res_lhv');
+        var resThermalPower = document.getElementById('res_thermal_power');
+        var resH2CoRatio = document.getElementById('res_h2_co_ratio');
+
+        var canvas = document.getElementById('gas_canvas');
+        var ctx = canvas.getContext('2d');
+        var animStep = 0;
+
+        function updateDefaults() {
+          var mode = feedModeSel.value;
+          if (mode === 'slurry') {
+            ocInput.value = 0.49;
+          } else if (mode === 'dry_n2') {
+            ocInput.value = 0.43;
+          } else {
+            ocInput.value = 0.42;
+          }
+          calculate();
+        }
+
+        function calculate() {
+          var fType = feedTypeSel.value;
+          var fMode = feedModeSel.value;
+          var feedTpd = parseFloat(feedRateInput.value) || 2000;
+          var tempC = parseFloat(tempInput.value) || 1420;
+          var pBarg = parseFloat(pressInput.value) || 40.0;
+          var ocRatio = parseFloat(ocInput.value) || 0.48;
+          var tau = parseFloat(resTimeInput.value) || 3.2;
+          var cConv = (parseFloat(cConvInput.value) || 99.2) / 100;
+          var o2Purity = (parseFloat(o2PurityInput.value) || 95.5) / 100;
+
+          // Fuel parameters: C, H, O, Ash, LHV (MJ/kg dry)
+          var cPct = 0.72, hPct = 0.05, ashPct = 0.10, fuelLhv = 27.5;
+          if (fType === 'petcoke') { cPct = 0.86; hPct = 0.035; ashPct = 0.015; fuelLhv = 32.5; }
+          else if (fType === 'subbituminous') { cPct = 0.58; hPct = 0.045; ashPct = 0.14; fuelLhv = 21.0; }
+          else if (fType === 'biomass') { cPct = 0.52; hPct = 0.06; ashPct = 0.025; fuelLhv = 19.5; }
+
+          var feedKgHr = (feedTpd * 1000) / 24;
+          var cMolHr = (feedKgHr * cPct / 12.011) * 1000; // mol C/hr
+          var cConvertedMol = cMolHr * cConv;
+
+          // Oxygen demand: mol O2 / hr
+          var o2PureMolHr = cMolHr * ocRatio;
+          var asuO2MolHr = o2PureMolHr / o2Purity;
+          var o2Tpd = (asuO2MolHr * 32.0 / 1000 / 1000) * 24;
+          var o2Nm3h = (asuO2MolHr * 22.414) / 1000;
+
+          // Syngas generation & composition modeling based on partial oxidation equilibrium
+          // Slurry feed has higher H2O -> higher H2 and CO2
+          var coPct = 0, h2Pct = 0, co2Pct = 0, n2ArPct = 0;
+          if (fMode === 'slurry') {
+            coPct = 48.5 - (ocRatio - 0.45) * 40;
+            h2Pct = 36.5 - (ocRatio - 0.45) * 10;
+            co2Pct = 12.5 + (ocRatio - 0.45) * 50;
+            n2ArPct = 2.5;
+          } else if (fMode === 'dry_n2') {
+            coPct = 62.0 - (ocRatio - 0.40) * 45;
+            h2Pct = 28.0 - (ocRatio - 0.40) * 15;
+            co2Pct = 4.5 + (ocRatio - 0.40) * 55;
+            n2ArPct = 5.5; // N2 carrier gas dilution
+          } else { // dry_co2
+            coPct = 65.5 - (ocRatio - 0.40) * 45;
+            h2Pct = 26.5 - (ocRatio - 0.40) * 15;
+            co2Pct = 6.0 + (ocRatio - 0.40) * 55;
+            n2ArPct = 2.0;
+          }
+
+          var sumMol = coPct + h2Pct + co2Pct + n2ArPct;
+          coPct = (coPct / sumMol) * 100;
+          h2Pct = (h2Pct / sumMol) * 100;
+          co2Pct = (co2Pct / sumMol) * 100;
+          n2ArPct = (n2ArPct / sumMol) * 100;
+
+          // Carbon balance: (CO + CO2)% contains converted carbon
+          var syngasTotalMolHr = cConvertedMol / ((coPct + co2Pct) / 100);
+          var syngasNm3h = (syngasTotalMolHr * 22.414) / 1000;
+          var syngasYieldPerKg = syngasNm3h / feedKgHr;
+
+          // LHV calculation
+          var syngasLhv = (12.63 * (coPct / 100)) + (10.78 * (h2Pct / 100)); // MJ/Nm3
+          var syngasThermalMw = (syngasNm3h * syngasLhv) / 3600; // MW_th
+          var feedThermalMw = (feedKgHr * fuelLhv) / 3600; // MW_th
+          var cgePct = (syngasThermalMw / feedThermalMw) * 100;
+
+          var h2CoRatio = h2Pct / coPct;
+
+          // Slag production: 75% tapped as slag, 25% entrained flyash
+          var ashTpd = feedTpd * ashPct;
+          var slagTpd = ashTpd * 0.78;
+
+          // Reaction Chamber Sizing
+          var pTotalBar = pBarg + 1.013;
+          var tGasK = tempC + 273.15;
+          // Actual m3/s at operating conditions:
+          var qActualM3s = (syngasNm3h / 3600) * (tGasK / 273.15) * (1.013 / pTotalBar);
+          var chamberVolM3 = qActualM3s * tau;
+
+          // Geometry: L/D aspect ratio typically 2.8 to 3.5
+          var aspect = 3.0;
+          var innerDiam = Math.pow((chamberVolM3 * 4) / (Math.PI * aspect), 1 / 3);
+          var chamberHeight = innerDiam * aspect;
+
+          // Update DOM
+          resSyngasFlow.innerText = Math.round(syngasNm3h).toLocaleString() + ' Nm3/h';
+          resSyngasYield.innerText = syngasYieldPerKg.toFixed(2) + ' Nm3 / kg dry fuel';
+          resCge.innerText = cgePct.toFixed(1) + '%';
+          resCgeRating.innerText = cgePct >= 78 ? 'Thermal Yield: High Efficiency' : 'Thermal Yield: Moderate Slurry';
+          resCoH2.innerText = (coPct + h2Pct).toFixed(1) + '% (CO + H2)';
+          resSyngasSpec.innerText = 'CO: ' + coPct.toFixed(1) + '%, H2: ' + h2Pct.toFixed(1) + '%, CO2: ' + co2Pct.toFixed(1) + '%';
+          resChamberVol.innerText = chamberVolM3.toFixed(1) + ' m3';
+          resChamberDim.innerText = innerDiam.toFixed(2) + ' m ID x ' + chamberHeight.toFixed(2) + ' m H';
+          resO2Tpd.innerText = Math.round(o2Tpd).toLocaleString() + ' TPD';
+          resO2Nm3h.innerText = Math.round(o2Nm3h).toLocaleString() + ' Nm3/h (ASU)';
+          resSlagTpd.innerText = Math.round(slagTpd).toLocaleString() + ' TPD Slag';
+          resSlagFlow.innerText = 'T_tap: ' + (tempC - 40) + ' deg C (Viscosity <25 Pa*s)';
+          resLhv.innerText = syngasLhv.toFixed(2) + ' MJ/Nm3';
+          resThermalPower.innerText = syngasThermalMw.toFixed(1) + ' MWth (' + feedThermalMw.toFixed(1) + ' MW Fuel)';
+          resH2CoRatio.innerText = h2CoRatio.toFixed(2) + ' mol H2 / mol CO';
+        }
+
+        function drawSimulator() {
+          animStep = (animStep + 1) % 360;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          // Grid
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1;
+          for (var x = 0; x < w; x += 40) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+          }
+          for (var y = 0; y < h; y += 40) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+          }
+
+          // Left/Center: Entrained-Flow Gasifier Vessel Cutaway
+          var vX = 180;
+          var vY = 25;
+          var vW = 160;
+          var vH = 270;
+
+          // Outer Steel Pressure Shell
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(vX, vY, vW, vH - 50, 20);
+          ctx.fill();
+          ctx.stroke();
+
+          // Refractory Lining (High Chromia)
+          ctx.fillStyle = '#451a03';
+          ctx.fillRect(vX + 6, vY + 20, vW - 12, vH - 75);
+
+          // Reaction Fireball Core
+          var fX = vX + 20;
+          var fY = vY + 30;
+          var fW = vW - 40;
+          var fH = vH - 95;
+
+          var fireGrad = ctx.createRadialGradient(fX + fW/2, fY + 40, 10, fX + fW/2, fY + 70, fW);
+          fireGrad.addColorStop(0, '#ffffff');
+          fireGrad.addColorStop(0.25, '#fbbf24');
+          fireGrad.addColorStop(0.65, '#ea580c');
+          fireGrad.addColorStop(1, '#7f1d1d');
+          ctx.fillStyle = fireGrad;
+          ctx.fillRect(fX, fY, fW, fH);
+
+          // Top Injector Burner
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(vX + vW/2 - 18, vY - 10, 36, 32);
+          ctx.fillStyle = '#38bdf8';
+          ctx.font = 'bold 9px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('BURNER', vX + vW/2, vY + 6);
+
+          // Molten Slag Film running down walls
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(fX + 2, fY + 10);
+          ctx.lineTo(fX + 2, fY + fH);
+          ctx.lineTo(vX + vW/2 - 12, vY + vH - 55);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(fX + fW - 2, fY + 10);
+          ctx.lineTo(fX + fW - 2, fY + fH);
+          ctx.lineTo(vX + vW/2 + 12, vY + vH - 55);
+          ctx.stroke();
+
+          // Bottom Slag Tap Hole & Quench Pool
+          var qY = vY + vH - 50;
+          ctx.fillStyle = '#0369a1';
+          ctx.fillRect(vX + 20, qY, vW - 40, 45);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 10px sans-serif';
+          ctx.fillText('WATER QUENCH', vX + vW/2, qY + 26);
+
+          // Slag Droplets Falling into Water
+          ctx.fillStyle = '#f59e0b';
+          var dropY = qY - 15 + ((animStep * 4) % 30);
+          ctx.beginPath();
+          ctx.arc(vX + vW/2, dropY, 3, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Syngas Exit (Side takeoff above quench)
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(vX + vW - 6, qY - 15);
+          ctx.lineTo(vX + vW + 40, qY - 15);
+          ctx.stroke();
+          ctx.fillStyle = '#38bdf8';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText('HOT SYNGAS OUT ->', vX + vW + 45, qY - 11);
+
+          // Right: Syngas & Reaction Kinetics Telemetry Panel
+          var pX = 520;
+          var pY = 40;
+          var pW = 500;
+          var pH = 230;
+
+          ctx.fillStyle = '#1e293b';
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.roundRect(pX, pY, pW, pH, 12);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = 'bold 13px sans-serif';
+          ctx.fillText('GASIFICATION REACTOR PROFILE', pX + 20, pY + 25);
+
+          ctx.font = '12px sans-serif';
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('Reaction Flame Zone: ~1,550 deg C (Ultra-rapid POX)', pX + 20, pY + 55);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText('Bulk Exit Temperature: ' + tempInput.value + ' deg C', pX + 20, pY + 75);
+          ctx.fillText('Chamber Operating Pressure: ' + pressInput.value + ' barg', pX + 20, pY + 95);
+          ctx.fillText('Slag Dynamic Viscosity: < 20 Pa*s (Continuous Free Drain)', pX + 20, pY + 115);
+          ctx.fillText('Carbon Conversion Rate: ' + cConvInput.value + '% (Residual char <0.8%)', pX + 20, pY + 135);
+          ctx.fillText('Quench Bath Water Saturation: ~235 deg C', pX + 20, pY + 155);
+
+          // Syngas Composition Bar
+          var barY = pY + 185;
+          var barW = pW - 40;
+          ctx.fillStyle = '#cbd5e1';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText('Syngas Dry Composition Bar (CO / H2 / CO2 / Inerts):', pX + 20, barY - 8);
+
+          // Draw stacked bar
+          var coW = barW * 0.55;
+          var h2W = barW * 0.32;
+          var co2W = barW * 0.09;
+          var inW = barW - (coW + h2W + co2W);
+
+          ctx.fillStyle = '#3b82f6';
+          ctx.fillRect(pX + 20, barY, coW, 18);
+          ctx.fillStyle = '#10b981';
+          ctx.fillRect(pX + 20 + coW, barY, h2W, 18);
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(pX + 20 + coW + h2W, barY, co2W, 18);
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(pX + 20 + coW + h2W + co2W, barY, inW, 18);
+
+          requestAnimationFrame(drawSimulator);
+        }
+
+        copyBtn.addEventListener('click', function() {
+          var summary = [
+            '=== ENTRAINED-FLOW GASIFIER SIZING REPORT ===',
+            'Feedstock Type: ' + feedTypeSel.value,
+            'Injection Mode: ' + feedModeSel.value,
+            'Solid Feed Rate: ' + feedRateInput.value + ' Dry TPD',
+            'Operating Conditions: ' + tempInput.value + ' deg C @ ' + pressInput.value + ' barg',
+            'Oxygen-to-Carbon Ratio: ' + ocInput.value + ' mol O2 / mol C',
+            'Raw Dry Syngas Flow: ' + resSyngasFlow.innerText + ' (' + resSyngasYield.innerText + ')',
+            'Cold Gas Efficiency (CGE): ' + resCge.innerText,
+            'Syngas Combustible Content: ' + resCoH2.innerText,
+            'Detailed Composition: ' + resSyngasSpec.innerText,
+            'Syngas Lower Heating Value: ' + resLhv.innerText + ' (' + resThermalPower.innerText + ')',
+            'ASU Oxygen Demand: ' + resO2Tpd.innerText + ' (' + resO2Nm3h.innerText + ')',
+            'Reaction Chamber Sizing: ' + resChamberVol.innerText + ' (' + resChamberDim.innerText + ')',
+            'Slag Drainage: ' + resSlagTpd.innerText + ' (' + resSlagFlow.innerText + ')',
+            'Compliance: ASME Boiler & Pressure Vessel Code Sec VIII Div 2'
+          ].join('\n');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            copyMsg.style.display = 'block';
+            setTimeout(function() { copyMsg.style.display = 'none'; }, 3000);
+          });
+        });
+
+        calcBtn.addEventListener('click', calculate);
+        feedModeSel.addEventListener('change', updateDefaults);
+        [feedTypeSel, feedRateInput, tempInput, pressInput, ocInput, resTimeInput, cConvInput, o2PurityInput].forEach(function(el) {
+          el.addEventListener('input', calculate);
+          el.addEventListener('change', calculate);
+        });
+
+        calculate();
+        drawSimulator();
+      })();
+    </script>`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription: desc,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content,
+      bodyContent: content,
+      faq: faqs
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (263 calculators in /calc/)');
 }
 
