@@ -1031,41 +1031,255 @@
           
 
           
-      <div class="article-container" style="max-width: 900px;">
+      <div class="article-container" style="max-width: 900px; margin: 0 auto; padding: 2rem 1rem;">
         <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
           <a href="/">Home</a> &gt; <a href="/learn/">Learn Hub</a> &gt; <a href="/learn/python/">Python</a> &gt; Python If, Elif, Else Conditions
         </nav>
-        <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Python If, Elif, Else Conditions</h1>
-        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Python If, Elif, Else Conditions</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
           Conditional execution flow, nested if statements, and inline ternary expressions.
         </p>
 
-        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.5rem; margin: 1.5rem 0;">
-          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0;">Overview & Core Concepts</h2>
+        
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 2rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold; color: var(--fg);">📋 Copy Python Conditionals & Ternary Operator Snippet</span>
+          <button id="btnCopy_conditionals" class="btn-copy" onclick="copySnippet('btnCopy_conditionals', `status_code = 404
+
+# Multi-branch decision ladder
+if 200 <= status_code < 300:
+    category = "Success"
+elif 400 <= status_code < 500:
+    category = "Client Error"
+elif 500 <= status_code < 600:
+    category = "Server Error"
+else:
+    category = "Unknown"
+
+# Inline Ternary Expression
+mode = "production" if is_live else "development"`)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; cursor: pointer; border-radius: 4px; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg);">📋 Copy</button>
+        </div>
+        <pre style="margin: 0; background: var(--surface-alt); padding: 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; color: var(--fg);"><code>status_code = 404
+
+# Multi-branch decision ladder
+if 200 &lt;= status_code &lt; 300:
+    category = "Success"
+elif 400 &lt;= status_code &lt; 500:
+    category = "Client Error"
+elif 500 &lt;= status_code &lt; 600:
+    category = "Server Error"
+else:
+    category = "Unknown"
+
+# Inline Ternary Expression
+mode = "production" if is_live else "development"</code></pre>
+      </div>
+    
+
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0;">Interactive Sandbox & Core Concepts</h2>
           <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg);">
-            Python is renowned for its readability, clean syntax, and expressive standard library. Understanding <strong>Python If, Elif, Else Conditions</strong> is foundational for backend engineering, automation scripts, and data science workflows.
+            Python is celebrated for its clean syntax, high readability, and expressive standard library. Understanding <strong>Python If, Elif, Else Conditions</strong> is essential for backend engineering, high-throughput automation, and data pipelines.
           </p>
 
-          <h3 style="font-family: var(--serif); font-size: 1.1rem; margin-top: 1.5rem;">Interactive Code Example</h3>
-          <pre style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; padding: 1rem; font-family: var(--mono); font-size: 0.9rem; overflow-x: auto; color: var(--fg);"><code># Python 3 example: Python If, Elif, Else Conditions
-def demonstrate_concept():
-    print("Executing Python concept: Python If, Elif, Else Conditions")
-    # Example logic demonstrating standard Pythonic best practices
-    items = ["python", "clean-code", "developer-tools"]
-    result = [item.upper() for item in items]
-    return result
+          
+    <div style="margin: 1.75rem 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface);">
+      <div style="background: var(--surface-alt); padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);">
+        <span>🐍 PYTHON INTERACTIVE RUNTIME & SIMULATOR</span>
+        <span style="font-size: 0.7rem; background: rgba(59,130,246,0.15); color: #3b82f6; padding: 0.15rem 0.4rem; border-radius: 3px; font-weight: bold;">Python 3.12 Ready</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; min-height: 200px; background: var(--bg);" id="py-pg-conditionals">
+        <textarea id="py-code-conditionals" style="width: 100%; height: 100%; min-height: 200px; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.88rem; line-height: 1.5; resize: vertical; outline: none; box-sizing: border-box;" spellcheck="false">status_code = 404
 
-if __name__ == "__main__":
-    output = demonstrate_concept()
-    print("Output:", output)</code></pre>
+# Multi-branch decision ladder
+if 200 &lt;= status_code &lt; 300:
+    category = "Success"
+elif 400 &lt;= status_code &lt; 500:
+    category = "Client Error"
+elif 500 &lt;= status_code &lt; 600:
+    category = "Server Error"
+else:
+    category = "Unknown"
 
-          <h3 style="font-family: var(--serif); font-size: 1.1rem; margin-top: 1.5rem;">Best Practices & Tips</h3>
-          <ul style="font-size: 0.95rem; line-height: 1.7; color: var(--text-muted); padding-left: 1.25rem;">
-            <li>Follow PEP 8 naming conventions and style guides.</li>
-            <li>Use descriptive variable names and explicit type hinting where applicable.</li>
-            <li>Leverage Python's built-in functions and standard libraries for optimal performance.</li>
-          </ul>
+# Inline Ternary Expression
+mode = "production" if is_live else "development"</textarea>
+        <div style="display: flex; flex-direction: column; background: #0a0e17; color: #38bdf8; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.4rem 0.8rem; background: #111827; color: #94a3b8; font-size: 0.7rem; border-bottom: 1px solid #1e293b;">TERMINAL OUTPUT (stdout)</div>
+          <pre id="py-out-conditionals" style="flex: 1; padding: 1rem; margin: 0; overflow: auto; white-space: pre-wrap; word-break: break-all; color: #a5f3fc;"></pre>
         </div>
+      </div>
+      <div style="background: var(--surface-alt); padding: 0.6rem 1rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border);">
+        <div style="display: flex; gap: 0.5rem;">
+          <button onclick="runPyPlayground('conditionals')" class="btn-primary" style="padding: 0.4rem 1rem; font-size: 0.85rem; cursor: pointer;">&#x25B6; Run Code</button>
+          <button onclick="resetPyPlayground('conditionals')" class="btn-sec" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; cursor: pointer;">&#x21BA; Reset</button>
+        </div>
+        <span style="font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">Client-side Python 3 execution</span>
+      </div>
+    </div>
+  
+        </div>
+
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">⚠️ 5 Fatal Traps & Python Pitfalls</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          
+            <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 0.25rem;">Trap #1: Assignment in Conditional Without Walrus Operator</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Writing <code>if x = 5:</code> is a syntax error in Python. To assign and evaluate within a conditional, you must use the walrus operator introduced in Python 3.8: <code>if (x := get_value()) is not None:</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #f59e0b; font-weight: bold; margin-bottom: 0.25rem;">Trap #2: Comparing with None Using == Instead of is</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Always write <code>if val is None:</code> instead of <code>if val == None:</code>. A custom class can override <code>__eq__</code> to return True for anything, while <code>is</code> directly verifies singleton identity.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; font-weight: bold; margin-bottom: 0.25rem;">Trap #3: TabError from Inconsistent Whitespace Indentation</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Mixing tabs and spaces within if/else blocks triggers a <code>TabError: inconsistent use of tabs and spaces in indentation</code>. Configure your editor to convert tabs to 4 spaces.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; font-weight: bold; margin-bottom: 0.25rem;">Trap #4: Overly Deep If-Else Nesting (Arrow Anti-Pattern)</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Nesting if statements 4 or 5 levels deep degrades readability. Use guard clauses with early returns to flatten conditional code paths.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #8b5cf6; font-weight: bold; margin-bottom: 0.25rem;">Trap #5: First-Match Short-Circuiting in Elif Ladders</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">An <code>elif</code> ladder stops checking conditions as soon as the first branch evaluates to True. Placing broad conditions before specific ones blocks the specific branches from ever executing.</div>
+            </div>
+          
+        </div>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">💬 Frequently Asked Questions</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the syntax for a ternary conditional expression in Python?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">The syntax is: x if condition else y. It evaluates and returns x if condition is truthy, otherwise it evaluates and returns y.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the Walrus Operator (:=) and how is it used in if statements?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">The walrus operator := assigns values to variables as part of a larger expression. Example: if (n := len(data)) > 10: allows you to use n inside the block without calling len() twice.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Does Python have a switch/case statement?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Yes! Python 3.10 introduced structural pattern matching using match and case statements, supporting value checks, sequence unpacking, and type guards.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How do guard clauses simplify conditional logic?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Guard clauses check error conditions or edge cases at the top of a function and return or raise immediately, eliminating nested if/else blocks for the happy path.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">Can multiple conditions be combined in a single if statement without parentheses?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Yes, using and / or operators. However, parentheses are recommended when mixing and and or to enforce explicit precedence and improve readability.</div>
+            </details>
+          
+        </div>
+      </div>
+    
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","name":"Python If, Elif, Else Conditions FAQs","url":"https://digitaltoolsshed.com/learn/python/conditionals","mainEntity":[{"@type":"Question","name":"What is the syntax for a ternary conditional expression in Python?","acceptedAnswer":{"@type":"Answer","text":"The syntax is: x if condition else y. It evaluates and returns x if condition is truthy, otherwise it evaluates and returns y."}},{"@type":"Question","name":"What is the Walrus Operator (:=) and how is it used in if statements?","acceptedAnswer":{"@type":"Answer","text":"The walrus operator := assigns values to variables as part of a larger expression. Example: if (n := len(data)) > 10: allows you to use n inside the block without calling len() twice."}},{"@type":"Question","name":"Does Python have a switch/case statement?","acceptedAnswer":{"@type":"Answer","text":"Yes! Python 3.10 introduced structural pattern matching using match and case statements, supporting value checks, sequence unpacking, and type guards."}},{"@type":"Question","name":"How do guard clauses simplify conditional logic?","acceptedAnswer":{"@type":"Answer","text":"Guard clauses check error conditions or edge cases at the top of a function and return or raise immediately, eliminating nested if/else blocks for the happy path."}},{"@type":"Question","name":"Can multiple conditions be combined in a single if statement without parentheses?","acceptedAnswer":{"@type":"Answer","text":"Yes, using and / or operators. However, parentheses are recommended when mixing and and or to enforce explicit precedence and improve readability."}}]}</script>
+
+        <div style="border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <a href="/learn/python/" class="btn-sec" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">&larr; Python Hub</a>
+          <a href="/learn/" class="btn-primary" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">All Learn Tracks &rarr;</a>
+        </div>
+
+        
+    <script>
+      function runPyPlayground(id) {
+        var code = document.getElementById('py-code-' + id).value;
+        var out = document.getElementById('py-out-' + id);
+        out.textContent = '';
+        out.style.color = '#a5f3fc';
+        var stdout = [];
+        var print = function() {
+          var args = Array.prototype.slice.call(arguments);
+          stdout.push(args.map(function(a) { return typeof a === 'object' ? JSON.stringify(a) : String(a); }).join(' '));
+        };
+        var len = function(obj) { return obj ? (obj.length !== undefined ? obj.length : Object.keys(obj).length) : 0; };
+        var range = function(start, stop, step) {
+          if (stop === undefined) { stop = start; start = 0; }
+          step = step || 1;
+          var res = [];
+          for (var i = start; i < stop; i += step) res.push(i);
+          return res;
+        };
+        var str = String;
+        var int = function(x) { return parseInt(x, 10); };
+        var float = parseFloat;
+        var bool = Boolean;
+
+        try {
+          // Transform lightweight Python constructs to JS for instant simulation
+          var js = code
+            .replace(/^#.*$/gm, '')
+            .replace(/print\((.*)\)/g, 'print($1)')
+            .replace(/True/g, 'true')
+            .replace(/False/g, 'false')
+            .replace(/None/g, 'null')
+            .replace(/def\s+(\w+)\s*\(([^)]*)\):/g, 'function $1($2) {')
+            .replace(/for\s+(\w+)\s+in\s+range\(([^)]+)\):/g, 'for (let $1 of range($2)) {')
+            .replace(/for\s+(\w+)\s+in\s+([^\s:]+):/g, 'for (let $1 of $2) {')
+            .replace(/if\s+__name__\s*==\s*['"]__main__['"]:/g, 'if (true) {')
+            .replace(/if\s+(.+):/g, 'if ($1) {')
+            .replace(/elif\s+(.+):/g, '} else if ($1) {')
+            .replace(/else:/g, '} else {');
+
+          var openCount = (js.match(/{/g) || []).length;
+          var closeCount = (js.match(/}/g) || []).length;
+          for (var k = closeCount; k < openCount; k++) js += '\n}';
+
+          var runner = new Function('print', 'len', 'range', 'str', 'int', 'float', 'bool', js);
+          runner(print, len, range, str, int, float, bool);
+
+          if (stdout.length === 0) {
+            out.textContent = '[Process finished with exit code 0 (No output)]';
+            out.style.color = '#94a3b8';
+          } else {
+            out.textContent = stdout.join('\n');
+          }
+        } catch(e) {
+          out.textContent = 'Traceback (most recent call last):\n  Error: ' + e.message;
+          out.style.color = '#f87171';
+        }
+      }
+
+      function resetPyPlayground(id) {
+        var ta = document.getElementById('py-code-' + id);
+        ta.value = ta.getAttribute('data-original');
+        var out = document.getElementById('py-out-' + id);
+        out.textContent = '';
+      }
+
+      function copySnippet(btnId, text) {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById(btnId);
+            if (btn) {
+              var orig = btn.innerHTML;
+              btn.innerHTML = '✓ Copied!';
+              btn.style.color = '#10b981';
+              setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+            }
+          });
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('textarea[id^="py-code-"]').forEach(function(ta) {
+          ta.setAttribute('data-original', ta.value);
+        });
+      });
+    </script>
+  
       </div>
     
 

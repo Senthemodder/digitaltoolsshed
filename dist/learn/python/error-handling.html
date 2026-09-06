@@ -1031,41 +1031,267 @@
           
 
           
-      <div class="article-container" style="max-width: 900px;">
+      <div class="article-container" style="max-width: 900px; margin: 0 auto; padding: 2rem 1rem;">
         <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
           <a href="/">Home</a> &gt; <a href="/learn/">Learn Hub</a> &gt; <a href="/learn/python/">Python</a> &gt; Python Error Handling (Try / Except)
         </nav>
-        <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Python Error Handling (Try / Except)</h1>
-        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Python Error Handling (Try / Except)</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
           Handling runtime errors with try, except, else, finally, and raising custom exceptions.
         </p>
 
-        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.5rem; margin: 1.5rem 0;">
-          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0;">Overview & Core Concepts</h2>
+        
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 2rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold; color: var(--fg);">📋 Copy Python Robust Exception Handling Snippet</span>
+          <button id="btnCopy_error_handling" class="btn-copy" onclick="copySnippet('btnCopy_error_handling', `import logging
+logger = logging.getLogger(__name__)
+
+def parse_config(raw_input: str) -> int:
+    try:
+        val = int(raw_input)
+        if val <= 0:
+            raise ValueError("Value must be strictly positive")
+        return val
+    except ValueError as err:
+        logger.warning("Validation failure: %s", err)
+        raise
+    except Exception as err:
+        logger.error("Unexpected error: %s", err, exc_info=True)
+        raise RuntimeError("Configuration processing failed") from err
+    finally:
+        # Guaranteed cleanup hook
+        pass`)" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; cursor: pointer; border-radius: 4px; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg);">📋 Copy</button>
+        </div>
+        <pre style="margin: 0; background: var(--surface-alt); padding: 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; color: var(--fg);"><code>import logging
+logger = logging.getLogger(__name__)
+
+def parse_config(raw_input: str) -&gt; int:
+    try:
+        val = int(raw_input)
+        if val &lt;= 0:
+            raise ValueError("Value must be strictly positive")
+        return val
+    except ValueError as err:
+        logger.warning("Validation failure: %s", err)
+        raise
+    except Exception as err:
+        logger.error("Unexpected error: %s", err, exc_info=True)
+        raise RuntimeError("Configuration processing failed") from err
+    finally:
+        # Guaranteed cleanup hook
+        pass</code></pre>
+      </div>
+    
+
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0;">Interactive Sandbox & Core Concepts</h2>
           <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg);">
-            Python is renowned for its readability, clean syntax, and expressive standard library. Understanding <strong>Python Error Handling (Try / Except)</strong> is foundational for backend engineering, automation scripts, and data science workflows.
+            Python is celebrated for its clean syntax, high readability, and expressive standard library. Understanding <strong>Python Error Handling (Try / Except)</strong> is essential for backend engineering, high-throughput automation, and data pipelines.
           </p>
 
-          <h3 style="font-family: var(--serif); font-size: 1.1rem; margin-top: 1.5rem;">Interactive Code Example</h3>
-          <pre style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; padding: 1rem; font-family: var(--mono); font-size: 0.9rem; overflow-x: auto; color: var(--fg);"><code># Python 3 example: Python Error Handling (Try / Except)
-def demonstrate_concept():
-    print("Executing Python concept: Python Error Handling (Try / Except)")
-    # Example logic demonstrating standard Pythonic best practices
-    items = ["python", "clean-code", "developer-tools"]
-    result = [item.upper() for item in items]
-    return result
+          
+    <div style="margin: 1.75rem 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface);">
+      <div style="background: var(--surface-alt); padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);">
+        <span>🐍 PYTHON INTERACTIVE RUNTIME & SIMULATOR</span>
+        <span style="font-size: 0.7rem; background: rgba(59,130,246,0.15); color: #3b82f6; padding: 0.15rem 0.4rem; border-radius: 3px; font-weight: bold;">Python 3.12 Ready</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; min-height: 200px; background: var(--bg);" id="py-pg-error-handling">
+        <textarea id="py-code-error-handling" style="width: 100%; height: 100%; min-height: 200px; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.88rem; line-height: 1.5; resize: vertical; outline: none; box-sizing: border-box;" spellcheck="false">import logging
+logger = logging.getLogger(__name__)
 
-if __name__ == "__main__":
-    output = demonstrate_concept()
-    print("Output:", output)</code></pre>
-
-          <h3 style="font-family: var(--serif); font-size: 1.1rem; margin-top: 1.5rem;">Best Practices & Tips</h3>
-          <ul style="font-size: 0.95rem; line-height: 1.7; color: var(--text-muted); padding-left: 1.25rem;">
-            <li>Follow PEP 8 naming conventions and style guides.</li>
-            <li>Use descriptive variable names and explicit type hinting where applicable.</li>
-            <li>Leverage Python's built-in functions and standard libraries for optimal performance.</li>
-          </ul>
+def parse_config(raw_input: str) -&gt; int:
+    try:
+        val = int(raw_input)
+        if val &lt;= 0:
+            raise ValueError("Value must be strictly positive")
+        return val
+    except ValueError as err:
+        logger.warning("Validation failure: %s", err)
+        raise
+    except Exception as err:
+        logger.error("Unexpected error: %s", err, exc_info=True)
+        raise RuntimeError("Configuration processing failed") from err
+    finally:
+        # Guaranteed cleanup hook
+        pass</textarea>
+        <div style="display: flex; flex-direction: column; background: #0a0e17; color: #38bdf8; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.4rem 0.8rem; background: #111827; color: #94a3b8; font-size: 0.7rem; border-bottom: 1px solid #1e293b;">TERMINAL OUTPUT (stdout)</div>
+          <pre id="py-out-error-handling" style="flex: 1; padding: 1rem; margin: 0; overflow: auto; white-space: pre-wrap; word-break: break-all; color: #a5f3fc;"></pre>
         </div>
+      </div>
+      <div style="background: var(--surface-alt); padding: 0.6rem 1rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border);">
+        <div style="display: flex; gap: 0.5rem;">
+          <button onclick="runPyPlayground('error-handling')" class="btn-primary" style="padding: 0.4rem 1rem; font-size: 0.85rem; cursor: pointer;">&#x25B6; Run Code</button>
+          <button onclick="resetPyPlayground('error-handling')" class="btn-sec" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; cursor: pointer;">&#x21BA; Reset</button>
+        </div>
+        <span style="font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">Client-side Python 3 execution</span>
+      </div>
+    </div>
+  
+        </div>
+
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">⚠️ 5 Fatal Traps & Python Pitfalls</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          
+            <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #ef4444; font-weight: bold; margin-bottom: 0.25rem;">Trap #1: Naked Except Clauses (except:)</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Writing <code>except:</code> catches <code>KeyboardInterrupt</code> and <code>SystemExit</code>, preventing users from stopping the script with Ctrl+C. Always catch specific exceptions or at least <code>except Exception:</code>.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #f59e0b; font-weight: bold; margin-bottom: 0.25rem;">Trap #2: Silently Swallowing Exceptions (except Exception: pass)</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Silencing exceptions with <code>pass</code> hides fatal runtime failures, leaving zero diagnostic logs and causing corruption down the pipeline. Always log or re-raise.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; font-weight: bold; margin-bottom: 0.25rem;">Trap #3: Suppressing Root Causes with Unlinked Re-raises</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Raising a new exception inside an except block without linking loses the original traceback. Use <code>raise CustomError() from err</code> to preserve exception chaining.</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; font-weight: bold; margin-bottom: 0.25rem;">Trap #4: Returning Inside finally Blocks</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Placing a <code>return</code> statement inside a <code>finally</code> block silently cancels and suppresses any exception raised inside the <code>try</code> block!</div>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; border-radius: 0 6px 6px 0; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #8b5cf6; font-weight: bold; margin-bottom: 0.25rem;">Trap #5: Catching Exceptions That Should Crash Fast</div>
+              <div style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);">Catching developer bugs like <code>TypeError</code> or <code>NameError</code> masks typos and syntax flaws that should fail fast during testing.</div>
+            </div>
+          
+        </div>
+      </div>
+    
+        
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">💬 Frequently Asked Questions</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the purpose of the else block in a try-except statement?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">The else block executes only if the try block completes successfully without raising any exceptions, keeping happy-path logic separate from protected try code.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">How do custom exceptions improve code architecture?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Creating domain-specific exceptions (e.g. class PaymentFailedError(Exception): pass) allows callers to handle specific business failures cleanly without parsing error strings.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What does raise ... from err (exception chaining) do?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">It sets the __cause__ attribute on the new exception, displaying both tracebacks in terminal logs so developers can see the root underlying error.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the difference between BaseException and Exception?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">BaseException is the root of all exceptions, including system-exiting signals like KeyboardInterrupt and SystemExit. Exception is the base for all non-fatal application exceptions.</div>
+            </details>
+          
+            <details class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden;">
+              <summary style="padding: 1rem; font-weight: 600; cursor: pointer; color: var(--fg); font-size: 0.95rem;">What is the EAFP principle in Python?</summary>
+              <div style="padding: 0 1rem 1rem; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">EAFP stands for 'Easier to Ask for Forgiveness than Permission.' Python encourages trying an operation and catching exceptions rather than running defensive pre-checks.</div>
+            </details>
+          
+        </div>
+      </div>
+    
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","name":"Python Error Handling (Try / Except) FAQs","url":"https://digitaltoolsshed.com/learn/python/error-handling","mainEntity":[{"@type":"Question","name":"What is the purpose of the else block in a try-except statement?","acceptedAnswer":{"@type":"Answer","text":"The else block executes only if the try block completes successfully without raising any exceptions, keeping happy-path logic separate from protected try code."}},{"@type":"Question","name":"How do custom exceptions improve code architecture?","acceptedAnswer":{"@type":"Answer","text":"Creating domain-specific exceptions (e.g. class PaymentFailedError(Exception): pass) allows callers to handle specific business failures cleanly without parsing error strings."}},{"@type":"Question","name":"What does raise ... from err (exception chaining) do?","acceptedAnswer":{"@type":"Answer","text":"It sets the __cause__ attribute on the new exception, displaying both tracebacks in terminal logs so developers can see the root underlying error."}},{"@type":"Question","name":"What is the difference between BaseException and Exception?","acceptedAnswer":{"@type":"Answer","text":"BaseException is the root of all exceptions, including system-exiting signals like KeyboardInterrupt and SystemExit. Exception is the base for all non-fatal application exceptions."}},{"@type":"Question","name":"What is the EAFP principle in Python?","acceptedAnswer":{"@type":"Answer","text":"EAFP stands for 'Easier to Ask for Forgiveness than Permission.' Python encourages trying an operation and catching exceptions rather than running defensive pre-checks."}}]}</script>
+
+        <div style="border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <a href="/learn/python/" class="btn-sec" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">&larr; Python Hub</a>
+          <a href="/learn/" class="btn-primary" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">All Learn Tracks &rarr;</a>
+        </div>
+
+        
+    <script>
+      function runPyPlayground(id) {
+        var code = document.getElementById('py-code-' + id).value;
+        var out = document.getElementById('py-out-' + id);
+        out.textContent = '';
+        out.style.color = '#a5f3fc';
+        var stdout = [];
+        var print = function() {
+          var args = Array.prototype.slice.call(arguments);
+          stdout.push(args.map(function(a) { return typeof a === 'object' ? JSON.stringify(a) : String(a); }).join(' '));
+        };
+        var len = function(obj) { return obj ? (obj.length !== undefined ? obj.length : Object.keys(obj).length) : 0; };
+        var range = function(start, stop, step) {
+          if (stop === undefined) { stop = start; start = 0; }
+          step = step || 1;
+          var res = [];
+          for (var i = start; i < stop; i += step) res.push(i);
+          return res;
+        };
+        var str = String;
+        var int = function(x) { return parseInt(x, 10); };
+        var float = parseFloat;
+        var bool = Boolean;
+
+        try {
+          // Transform lightweight Python constructs to JS for instant simulation
+          var js = code
+            .replace(/^#.*$/gm, '')
+            .replace(/print\((.*)\)/g, 'print($1)')
+            .replace(/True/g, 'true')
+            .replace(/False/g, 'false')
+            .replace(/None/g, 'null')
+            .replace(/def\s+(\w+)\s*\(([^)]*)\):/g, 'function $1($2) {')
+            .replace(/for\s+(\w+)\s+in\s+range\(([^)]+)\):/g, 'for (let $1 of range($2)) {')
+            .replace(/for\s+(\w+)\s+in\s+([^\s:]+):/g, 'for (let $1 of $2) {')
+            .replace(/if\s+__name__\s*==\s*['"]__main__['"]:/g, 'if (true) {')
+            .replace(/if\s+(.+):/g, 'if ($1) {')
+            .replace(/elif\s+(.+):/g, '} else if ($1) {')
+            .replace(/else:/g, '} else {');
+
+          var openCount = (js.match(/{/g) || []).length;
+          var closeCount = (js.match(/}/g) || []).length;
+          for (var k = closeCount; k < openCount; k++) js += '\n}';
+
+          var runner = new Function('print', 'len', 'range', 'str', 'int', 'float', 'bool', js);
+          runner(print, len, range, str, int, float, bool);
+
+          if (stdout.length === 0) {
+            out.textContent = '[Process finished with exit code 0 (No output)]';
+            out.style.color = '#94a3b8';
+          } else {
+            out.textContent = stdout.join('\n');
+          }
+        } catch(e) {
+          out.textContent = 'Traceback (most recent call last):\n  Error: ' + e.message;
+          out.style.color = '#f87171';
+        }
+      }
+
+      function resetPyPlayground(id) {
+        var ta = document.getElementById('py-code-' + id);
+        ta.value = ta.getAttribute('data-original');
+        var out = document.getElementById('py-out-' + id);
+        out.textContent = '';
+      }
+
+      function copySnippet(btnId, text) {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById(btnId);
+            if (btn) {
+              var orig = btn.innerHTML;
+              btn.innerHTML = '✓ Copied!';
+              btn.style.color = '#10b981';
+              setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+            }
+          });
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('textarea[id^="py-code-"]').forEach(function(ta) {
+          ta.setAttribute('data-original', ta.value);
+        });
+      });
+    </script>
+  
       </div>
     
 
