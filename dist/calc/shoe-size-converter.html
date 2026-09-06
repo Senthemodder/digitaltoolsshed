@@ -1215,35 +1215,35 @@
         </p>
 
         <div style="display: grid; gap: 1rem;">
-          <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
             <strong style="color: var(--fg); font-size: 0.95rem;">1. The Afternoon Foot Swelling Expansion Trap</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Due to gravity and continuous hydrostatic pressure while standing, blood and lymphatic fluid pool in the lower extremities. Your feet expand by <strong>4% to 8% in total volume</strong> and up to a half-size in width by 4:00 PM to 6:00 PM. Measuring shoes in the morning almost guarantees buying footwear that pinches by dinner time.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
             <strong style="color: var(--fg); font-size: 0.95rem;">2. The Linear EU Paris Point vs UK Barleycorn Non-Integer Mismatch</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               European sizes are derived from the <em>Paris Point</em> (exactly 2/3 cm or 6.67 mm). US and UK systems derive from the British <em>Barleycorn</em> (1/3 inch or 8.47 mm, with half-sizes of 4.23 mm). Because 6.67 mm and 8.47 mm share no common integer factor, exact 1:1 conversions are mathematically impossible. An EU 43 (286.7 mm last) sits right between a US 9.5 and US 10.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
             <strong style="color: var(--fg); font-size: 0.95rem;">3. The US Men to Women Direct 1.5 Offset Width Fallacy</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               While a Men's US 8 is roughly equivalent in length to a Women's US 9.5, shoe lasts differ fundamentally in width. Standard Men's shoes are built on a <strong>D-width last</strong>, while standard Women's shoes are built on a <strong>B-width last</strong>. A woman buying a Men's size 8 is actually purchasing a Men's Wide shoe, causing heel slippage and ankle instability.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
             <strong style="color: var(--fg); font-size: 0.95rem;">4. The Running Shoe Dynamic Foot Elongation Rule</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               During walking and running, the medial longitudinal arch flattens under 2.5× to 3.0× body weight impact force, driving the toes forward by 5 mm to 8 mm on every stride. If running shoes lack a <strong>full thumb's width (12 mm to 15 mm)</strong> of clearance beyond the longest toe, repetitive micro-trauma crushes the nail bed, resulting in painful subungual hematomas ("black toenail").
             </p>
           </div>
 
-          <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
             <strong style="color: var(--fg); font-size: 0.95rem;">5. The Longest Toe Assumption (Morton's Toe Anomaly)</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Roughly 20% to 30% of the population has <em>Morton's Toe</em>, where the second toe is longer than the hallux (big toe). Always measure from the posterior point of the heel to the tip of your <strong>longest toe</strong>, regardless of whether it is the first or second digit. Furthermore, always fit the shoe to your larger foot—over 70% of people have asymmetrical feet differing by 1/4 to 1/2 size.
@@ -1550,6 +1550,80 @@
       recalculateShoe();
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is a US Men's 10 shoe size in European (EU), UK, and cm?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                A US Men's size 10 is equal to European size EU 44 (or UK size 9.5), corresponding to approximately 28.0 cm Mondopoint / foot length (with a 27.5 cm to 28.0 cm foot length).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How do you convert Men's shoe sizes to Women's in the US?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                In the US, Men's sizes are generally 1.5 sizes smaller in numerical designation than Women's sizes (e.g. Men's 8.5 = Women's 10.0). However, Men's shoes are manufactured on a wider standard 'D' last, whereas Women's shoes are on a narrower 'B' last. Women wearing men's sizes should expect a noticeably wider forefoot fit.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the Mondopoint shoe sizing system and how do you calculate it?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Mondopoint (governed by ISO 9407) is the only international standard defined by the true anatomical dimensions of the foot in millimeters (mm) rather than arbitrary shoe last numbers. A Mondopoint 270 corresponds to a foot length of 270 mm (27.0 cm) and is the gold standard for ski boots, military combat boots, and technical hiking footwear.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How much toe room or clearance should you have in front of your toes?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Functional footwear requires 10 mm to 15 mm (roughly 0.4 to 0.6 inches, or about one thumb's width) of empty space between your longest toe and the tip of the shoe. This accommodates natural foot elongation and arch depression under dynamic body weight during walking and running.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What do shoe width letters (Narrow B, Standard D, Wide 2E, Extra Wide 4E) mean?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Shoe widths denote the circumference around the ball of the foot (metatarsal heads). For Men: B is Narrow, D is Standard / Medium, 2E (EE) is Wide, and 4E is Extra Wide. For Women: 2A is Narrow, B is Standard / Medium, D is Wide, and 2E is Extra Wide. Each width step adds approximately 4.7 mm (3/16 inch) of forefoot circumference.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
