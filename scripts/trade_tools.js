@@ -160797,6 +160797,2527 @@ window.addEventListener('DOMContentLoaded', function() {
 
 
 
-  console.log('  ✓ Built Trade & Construction Suite (243 calculators in /calc/)');
+
+  // ─── TOOL BX1: DRAFT TUBE BAFFLE (DTB) CRYSTALLIZER CALCULATOR ───
+  (() => {
+    const slug = 'crystallizer-dtb-draft-tube-baffle-sizing-calculator';
+    const title = 'Draft Tube Baffle (DTB) Industrial Crystallizer Sizing Calculator';
+    const metaDescription = 'Size industrial Draft Tube Baffle (DTB) evaporative and cooling crystallizers. Calculate crystal growth rate, mean crystal size (L50), population balance kinetics, draft tube circulation pumping rate, annular baffle settling velocity, and vessel volume.';
+    const faq = [
+      {
+        q: 'How does a Draft Tube Baffle (DTB) crystallizer produce large, uniform crystals?',
+        a: 'A Draft Tube Baffle (DTB) crystallizer produces uniform coarse crystals (typically 1.0 to 2.5 mm) by isolating two hydrodynamic zones: (1) An active internal growth suspension: A slow-speed axial impeller gently pumps crystal slurry upward through a central draft tube to the boiling liquid surface where supersaturation is generated. The slurry turns over gently, releasing supersaturation onto growing crystal seeds without violent shear. (2) An annular fines removal baffle: Surrounding the draft tube is an outer quiescent annular settling zone. The upward liquor velocity in this ring is engineered to allow larger crystals to settle back down by gravity while only microscopic fines (<50 µm) overflow to an external fines destruction heat exchanger, where they are dissolved by heating and recycled back as solute. This selective fines destruction funnels all mass transfer into growing coarse crystals.'
+      },
+      {
+        q: 'What is the Population Balance Equation (MSMPR model) for crystal size distribution?',
+        a: 'In a mixed-suspension mixed-product removal (MSMPR) crystallizer at steady state, crystal population density \\(n(L)\\) (number of crystals per unit size per unit volume) follows an exponential decay:\\n$$n(L) = n_0 \\exp\\left(-\\frac{L}{G \\tau}\\right)$$\\nWhere \\(n_0 = B^0 / G\\) is the population density at zero size (nucleation rate \\(B^0\\) divided by linear growth rate \\(G\\)), and \\(\tau = V / Q\\) is the mean residence time. The dominant mass-weighted crystal size \\(\bar{L}\\) is mathematically:\\n$$\\bar{L} = 3.67 \\cdot G \\cdot \\tau$$\\nIn a DTB with fines removal, the effective growth time is multiplied by a fines removal parameter, significantly shifting the product distribution toward larger mesh fractions.'
+      },
+      {
+        q: 'How is the annular baffle settling velocity calculated to avoid entraining product crystals?',
+        a: 'The annular settling zone operates as a hydraulic classifier. To prevent product-size crystals from being sucked into the fines dissolution loop, the upward superficial liquor velocity in the annulus must be strictly less than the Stokes terminal settling velocity (\\(v_t\\)) of the target cut size \\(L_{cut}\\) (typically 30 to 60 µm):\\n$$v_{ann} = \\frac{Q_{fines}}{A_{annular}} < v_t(L_{cut}) = \\frac{g (\\rho_s - \\rho_L) L_{cut}^2}{18 \\mu_L}$$\\nIf the fines pumping rate \\(Q_{fines}\\) is set too high, \\(v_{ann}\\) exceeds \\(v_t\\), causing valuable 200–500 µm product crystals to be dragged into the fines heater and dissolved, collapsing production yield.'
+      },
+      {
+        q: 'What is magma solids density ($M_T$) and why is it maintained at 20% to 35%?',
+        a: 'Magma density (\\(M_T\\)) is the mass concentration of suspended crystals in the crystallizer slurry (typically 200 to 350 grams of crystals per liter of slurry, or 20% to 35% by volume). A high magma density provides immense crystal surface area (often >10,000 m² inside the vessel), ensuring that supersaturation generated at the boiling surface is rapidly consumed by crystal growth rather than building up into the labile zone and triggering spontaneous secondary nucleation.'
+      },
+      {
+        q: 'Why must the internal draft tube impeller operate at low rotational tip speed (<6 m/s)?',
+        a: 'Crystal seeds are fragile. When large crystals strike high-speed impeller blades, mechanical contact nucleation (collision attrition) generates millions of microscopic crystal fragments. If impeller tip speed exceeds 6.0 to 6.5 m/s, attrition nucleation swamps the crystallizer with sub-sieve dust, overwhelming the fines dissolution system and causing the average product crystal size to collapse from 1.5 mm down to less than 0.3 mm.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Draft Tube Baffle (DTB) Industrial Crystallizer Sizing Calculator</h1>' +
+      '    <p>Perform complete process sizing and population balance crystallization modeling for industrial Draft Tube Baffle (DTB) crystallizers. Calculate linear crystal growth rates, median product crystal size (L50), internal draft tube circulation rate, annular baffle fines settling velocity, active magma residence time, and crystallizer body volume.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Production Target & Crystallization Kinetics</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="dtb-preset">Industrial Chemical Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="dtb-preset">' +
+      '            <option value="amm_sulfate" selected>Ammonium Sulfate Fertilizer (25 t/h, L=1.8 mm, G=1.2e-7 m/s)</option>' +
+      '            <option value="potash_kcl">Potassium Chloride / MOP (40 t/h, L=1.5 mm, G=1.5e-7 m/s)</option>' +
+      '            <option value="sodium_sulfate">Sodium Sulfate Decahydrate (15 t/h, L=1.2 mm, G=0.9e-7 m/s)</option>' +
+      '            <option value="citric_acid">Citric Acid Monohydrate (8 t/h, L=1.0 mm, fine chemical)</option>' +
+      '            <option value="custom">Custom Industrial Crystallizer</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="dtb-prod-rate">Dry Crystal Production Rate (\(P\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="dtb-prod-rate" value="25" min="0.5" max="200" step="0.5">' +
+      '          <select id="dtb-prod-unit">' +
+      '            <option value="th" selected>tonne/hour</option>' +
+      '            <option value="tpd">tonne/day</option>' +
+      '            <option value="kgh">kg/hour</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="dtb-target-size">Target Product Median Size (\(L_{50}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="dtb-target-size" value="1.8" min="0.3" max="4.0" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">mm</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard commercial DTB fertilizer crystals: 1.2 to 2.2 mm</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="dtb-growth-rate">Linear Crystal Growth Rate (\(G\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="dtb-growth-rate" value="1.2" min="0.1" max="5.0" step="0.05">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">× 10⁻⁷ m/s</span>' +
+      '        </div>' +
+      '        <div class="hint">Typical industrial salts: 0.6 to 2.0 × 10⁻⁷ m/s (approx 0.2 to 0.7 mm/h)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="dtb-crystal-density">Crystal True Solid Density (\(\rho_c\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="dtb-crystal-density" value="1770" min="1000" max="3500" step="25">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">kg/m³</span>' +
+      '        </div>' +
+      '        <div class="hint">(NH4)2SO4: 1770, KCl: 1980, Na2SO4: 2660 kg/m³</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="dtb-magma-density">Magma Slurry Crystal Density (\(M_T\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="dtb-magma-density" value="26" min="12" max="40" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">wt%</span>' +
+      '        </div>' +
+      '        <div class="hint">Target range: 22% to 32% (approx 250-400 kg crystals/m³ slurry)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="dtb-draft-vel">Draft Tube Upward Fluid Velocity (\(v_{dt}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="dtb-draft-vel" value="1.4" min="0.8" max="2.5" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">m/s</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="dtb-fines-cut">Fines Annular Cut Size (\(L_{cut}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="dtb-fines-cut" value="45" min="15" max="120" step="5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">µm</span>' +
+      '        </div>' +
+      '        <div class="hint">Particles smaller than Lcut overflow to fines dissolution heater</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="dtb-calc-btn">Recalculate Crystallizer</button>' +
+      '        <button type="button" class="btn btn-secondary" id="dtb-copy-btn">Copy Engineering Summary</button>' +
+      '      </div>' +
+      '      <div style="text-align:center; margin-top:8px;"><span id="dtb-toast" class="copy-toast">✓ Diagnostic Summary Copied!</span></div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Crystallizer Vessel, Draft Tube & Hydraulics</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Active Slurry Volume (\(V\))</div>' +
+      '          <div class="res-val" id="res-slurry-vol">--</div>' +
+      '          <div class="res-unit">m³ (<span id="res-slurry-gals">--</span> kGal)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Mean Residence Time (\(\tau\))</div>' +
+      '          <div class="res-val" id="res-res-time">--</div>' +
+      '          <div class="res-unit">hours (Crystallization Hold)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Vessel Body Diameter (\(D_v\))</div>' +
+      '          <div class="res-val" id="res-vessel-dia">--</div>' +
+      '          <div class="res-unit">m (Height: <span id="res-vessel-ht">--</span> m)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Draft Tube Diameter (\(D_{dt}\))</div>' +
+      '          <div class="res-val" id="res-draft-dia">--</div>' +
+      '          <div class="res-unit">m (Flow: <span id="res-draft-flow">--</span> m³/h)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Draft Tube Circulation Turnover</div>' +
+      '          <div class="res-val" id="res-turnover-time">--</div>' +
+      '          <div class="res-unit">seconds (Complete Tank Loop)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Annular Upward Velocity (\(v_{ann}\))</div>' +
+      '          <div class="res-val" id="res-ann-vel">--</div>' +
+      '          <div class="res-unit">mm/s (Max Allowable: <span id="res-ann-max">--</span> mm/s)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Impeller Drive Power (Estimated)</div>' +
+      '          <div class="res-val" id="res-imp-power">--</div>' +
+      '          <div class="res-unit">kW (Tip Speed: <span id="res-tip-speed">--</span> m/s)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Fines Dissolution Heating Duty</div>' +
+      '          <div class="res-val" id="res-fines-heat">--</div>' +
+      '          <div class="res-unit">kW (Flow: <span id="res-fines-flow">--</span> m³/h)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="res-label">Hydrodynamic & Nucleation Status: </span>' +
+      '        <span id="dtb-eval-badge" class="badge-stat">Evaluating...</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="dtb-canvas" width="500" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING THEORY & MATHEMATICAL DERIVATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Engineering Principles & Population Balance Derivations</h2>' +
+      '    <p>Draft Tube Baffle (DTB) crystallizers are the preeminent choice for high-tonnage inorganic fertilizer and salt crystallization, combining internal high-volume circulation with external fines destruction to cultivate coarse, dust-free granules.</p>' +
+      '    <h3>1. MSMPR Population Balance & Growth Residence Time</h3>' +
+      '    <p>From Randolph & Larson population balance theory, the mass-weighted dominant crystal size \(\bar{L}\) is directly proportional to linear growth rate \(G\) and magma residence time \(\tau\):</p>' +
+      '    <div class="formula-box">' +
+      '\bar{L} = 3.67 \cdot G \cdot \tau \implies \tau = \frac{\bar{L}}{3.67 \cdot G} \quad [\text{seconds}]' +
+      '    </div>' +
+      '    <p>With an active fines destruction loop, the effective residence time of coarse crystals \(\tau_c\) is lengthened relative to the liquid mean residence time, allowing cultivation of 1.5 to 2.5 mm granules without excessive tank volumes.</p>' +
+      '    <h3>2. Active Magma Slurry Volume Sizing</h3>' +
+      '    <p>The total active slurry volume \(V\) is derived from crystal mass production rate \(P\), magma solids concentration \(M_T\) (kg crystals / m³ slurry), and required residence time \(\tau\):</p>' +
+      '    <div class="formula-box">' +
+      'M_T = \rho_{slurry} \cdot \left(\frac{\text{wt}\%}{100}\right) \quad [\text{kg}/\text{m}^3], \quad V = \frac{P \cdot \tau}{M_T} \quad [\text{m}^3]' +
+      '    </div>' +
+      '    <p>The vessel aspect ratio \(H / D_v\) typically ranges from 1.5 to 2.2 with a \(60^\circ\) conical bottom to prevent solids settling.</p>' +
+      '    <h3>3. Internal Draft Tube Circulation Pumping Rate</h3>' +
+      '    <p>The internal draft tube acts as a low-head axial pump. Sizing for an upward velocity \(v_{dt} = 1.2\text{ to }1.8\,\text{m/s}\) with a draft tube diameter \(D_{dt} \approx 0.40\text{ to }0.45 D_v\):</p>' +
+      '    <div class="formula-box">' +
+      'Q_{circ} = \frac{\pi}{4} D_{dt}^2 \cdot v_{dt} \quad [\text{m}^3/\text{s}], \quad t_{turnover} = \frac{V}{Q_{circ}} \quad [\text{seconds}]' +
+      '    </div>' +
+      '    <p>A full volume turnover time between 15 and 35 seconds guarantees that temperature and supersaturation differences across the boiling surface remain below 0.3°C, preventing localized shock nucleation.</p>' +
+      '    <h3>4. Annular Baffle Fines Cut Velocity & Stokes Settling</h3>' +
+      '    <p>The maximum allowable upward velocity \(v_{ann}\) in the settling zone is governed by Stokes settling of the cut size \(L_{cut}\):</p>' +
+      '    <div class="formula-box">' +
+      'v_{t}(L_{cut}) = \frac{g (\rho_c - \rho_L) L_{cut}^2}{18 \mu_L} \quad [\text{m/s}], \quad Q_{fines} \le A_{annular} \cdot v_t(L_{cut})' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Engineering Traps & Industrial Operating Hazards</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Secondary Nucleation Explosion from High Impeller Tip Speed (>6.5 m/s)</h4>' +
+      '      <p>Operating the draft tube axial impeller at excessive RPM shatters fragile crystal seeds via mechanical contact nucleation. When tip speeds exceed 6.5 m/s, attrition generates billions of micro-nuclei every second. This secondary nucleation explosion completely overwhelms the fines dissolution loop, causing median product crystal size to collapse from 1.8 mm to unmarketable 0.2 mm fine dust.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Annular Baffle Coarse Entrainment & Yield Destruction</h4>' +
+      '      <p>Setting the fines circulation pump rate too high creates excessive upward velocity in the settling baffle (\(v_{ann} > 1.2\,\text{mm/s}\)). The rising liquor drags valuable 300 to 600 µm growing crystals directly into the fines heater. Re-dissolving harvestable crystals wastes colossal steam energy and starves the main bed of growth mass.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Boiling Surface Foaming & Entrainment Salting Blinding</h4>' +
+      '      <p>Under deep vacuum (e.g. 50 mbar), flashing generates colossal vapor volumetric volumes. If superficial vapor velocity in the boiling head exceeds 2.2 m/s, aggressive boiling foam splashes into the vapor duct. Salt slurry deposits on chevron mist eliminators and barometric condenser nozzles, salting out into a rock-solid crust that chokes condenser vacuum within 48 hours.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Elutriation Leg Bed Choking & Line Salting Out</h4>' +
+      '      <p>The bottom discharge leg uses an upward wash of clear mother liquor to elutriate fines back into the vessel. If discharge slurry flow drops below 1.8 m/s, dense crystal beds compact at the elbow, solidifying into an immovable crystalline plug. Every slurry discharge line must include automated high-pressure condensate flush connections.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Metastable Zone Limit Blowout via Thermal Over-Driving</h4>' +
+      '      <p>Pushing evaporation rate beyond design heat duty lowers liquor temperature at the boiling surface faster than crystals can consume solute. When supersaturation blows past the metastable limit into the labile zone, spontaneous homogeneous nucleation occurs. The crystallizer milky white \"salts out\", requiring hours of thermal washdown to restore normal seed populations.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ SECTION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions & Expert Guidance</h2>' +
+      '    <div class="faq-list">' +
+      faq.map(item =>
+        '      <div class="faq-item">' +
+        '        <div class="faq-q">' + item.q + ' <span>+</span></div>' +
+        '        <div class="faq-a">' + item.a + '</div>' +
+        '      </div>'
+      ).join('') +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  ' +
+      '  const presets = {' +
+      '    amm_sulfate: { prod: 25, unit: "th", size: 1.8, growth: 1.2, dens: 1770, magma: 26, vel: 1.4, cut: 45 },' +
+      '    potash_kcl: { prod: 40, unit: "th", size: 1.5, growth: 1.5, dens: 1980, magma: 28, vel: 1.5, cut: 50 },' +
+      '    sodium_sulfate: { prod: 15, unit: "th", size: 1.2, growth: 0.9, dens: 2660, magma: 24, vel: 1.3, cut: 40 },' +
+      '    citric_acid: { prod: 8, unit: "th", size: 1.0, growth: 0.7, dens: 1540, magma: 22, vel: 1.2, cut: 35 }' +
+      '  };' +
+      '  ' +
+      '  function loadPreset() {' +
+      '    const key = el("dtb-preset").value;' +
+      '    if (key === "custom") return;' +
+      '    const p = presets[key];' +
+      '    if (!p) return;' +
+      '    el("dtb-prod-rate").value = p.prod;' +
+      '    el("dtb-prod-unit").value = p.unit;' +
+      '    el("dtb-target-size").value = p.size;' +
+      '    el("dtb-growth-rate").value = p.growth;' +
+      '    el("dtb-crystal-density").value = p.dens;' +
+      '    el("dtb-magma-density").value = p.magma;' +
+      '    el("dtb-draft-vel").value = p.vel;' +
+      '    el("dtb-fines-cut").value = p.cut;' +
+      '    calc();' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    let prodRaw = parseFloat(el("dtb-prod-rate").value) || 25;' +
+      '    const prodUnit = el("dtb-prod-unit").value;' +
+      '    let prod_th = prodRaw;' +
+      '    if (prodUnit === "tpd") prod_th = prodRaw / 24;' +
+      '    else if (prodUnit === "kgh") prod_th = prodRaw / 1000;' +
+      '    ' +
+      '    const targetSize_mm = parseFloat(el("dtb-target-size").value) || 1.8;' +
+      '    const growthRate_scale = parseFloat(el("dtb-growth-rate").value) || 1.2;' +
+      '    const G_ms = growthRate_scale * 1e-7; // m/s' +
+      '    const rho_c = parseFloat(el("dtb-crystal-density").value) || 1770;' +
+      '    const magma_wt = parseFloat(el("dtb-magma-density").value) || 26;' +
+      '    const v_dt = parseFloat(el("dtb-draft-vel").value) || 1.4;' +
+      '    const L_cut_um = parseFloat(el("dtb-fines-cut").value) || 45;' +
+      '    ' +
+      '    // Population Balance Residence Time tau' +
+      '    // L_bar = 3.67 * G * tau' +
+      '    const L_target_m = targetSize_mm * 1e-3;' +
+      '    const tau_sec = L_target_m / (3.67 * G_ms);' +
+      '    const tau_hrs = tau_sec / 3600;' +
+      '    ' +
+      '    // Magma Density MT (kg crystals / m3 slurry)' +
+      '    const rho_liq = 1200; // saturated mother liquor kg/m3' +
+      '    const vol_frac_c = (magma_wt / rho_c) / ((magma_wt / rho_c) + ((100 - magma_wt) / rho_liq));' +
+      '    const rho_slurry = vol_frac_c * rho_c + (1 - vol_frac_c) * rho_liq;' +
+      '    const MT_kg_m3 = rho_slurry * (magma_wt / 100);' +
+      '    ' +
+      '    // Slurry Volume V (m3)' +
+      '    const prod_kg_s = (prod_th * 1000) / 3600;' +
+      '    const V_slurry_m3 = (prod_kg_s * tau_sec) / MT_kg_m3;' +
+      '    const V_gals_k = V_slurry_m3 * 0.264172;' +
+      '    ' +
+      '    // Vessel Dimensions' +
+      '    // V = (pi/4) * Dv^2 * H_slurry' +
+      '    // Assume H_slurry / Dv approx 1.6' +
+      '    const Dv_m = Math.pow(V_slurry_m3 / ( (Math.PI / 4) * 1.6 ), 1/3);' +
+      '    const Hv_m = Dv_m * 1.8; // total height including vapor head & cone' +
+      '    ' +
+      '    // Draft Tube Sizing' +
+      '    // D_dt approx 0.42 * Dv' +
+      '    const D_dt_m = 0.42 * Dv_m;' +
+      '    const A_dt = (Math.PI / 4) * Math.pow(D_dt_m, 2);' +
+      '    const Q_circ_m3s = A_dt * v_dt;' +
+      '    const Q_circ_m3h = Q_circ_m3s * 3600;' +
+      '    const turnover_sec = V_slurry_m3 / Math.max(0.01, Q_circ_m3s);' +
+      '    ' +
+      '    // Annular Settling Zone' +
+      '    // Outer baffle diameter approx 0.82 * Dv' +
+      '    const D_baffle_m = 0.82 * Dv_m;' +
+      '    const A_annular = (Math.PI / 4) * (Math.pow(Dv_m, 2) - Math.pow(D_baffle_m, 2));' +
+      '    ' +
+      '    // Stokes Terminal Settling Velocity for L_cut (m/s)' +
+      '    const mu_liq = 0.0025; // 2.5 cP' +
+      '    const L_cut_m = L_cut_um * 1e-6;' +
+      '    const v_t_stokes_ms = (9.80665 * (rho_c - rho_liq) * Math.pow(L_cut_m, 2)) / (18 * mu_liq);' +
+      '    const v_t_stokes_mms = v_t_stokes_ms * 1000;' +
+      '    ' +
+      '    // Design Annular Velocity (set slightly below v_t)' +
+      '    const v_ann_mms = v_t_stokes_mms * 0.85;' +
+      '    const Q_fines_m3s = (v_ann_mms / 1000) * A_annular;' +
+      '    const Q_fines_m3h = Q_fines_m3s * 3600;' +
+      '    ' +
+      '    // Fines Heat Duty' +
+      '    // To dissolve fines, heat stream by ~4C to 6C' +
+      '    const cp_liq = 3.2; // kJ/kg.K' +
+      '    const fines_heat_kw = (Q_fines_m3s * rho_liq) * cp_liq * 5.0;' +
+      '    ' +
+      '    // Impeller Tip Speed & Power' +
+      '    // Axial flow impeller diameter approx 0.95 * D_dt' +
+      '    const D_imp_m = 0.95 * D_dt_m;' +
+      '    // RPM for v_dt: approx 45 to 80 RPM' +
+      '    const rpm = (v_dt * 60) / (1.1 * Math.PI * D_imp_m);' +
+      '    const v_tip = (Math.PI * D_imp_m * rpm) / 60;' +
+      '    // P = N_p * rho * N^3 * D^5' +
+      '    const N_p = 0.45;' +
+      '    const p_imp_w = N_p * rho_slurry * Math.pow(rpm / 60, 3) * Math.pow(D_imp_m, 5);' +
+      '    const p_imp_kw = (p_imp_w / 1000) * 1.5; // mechanical factor' +
+      '    ' +
+      '    // Update DOM' +
+      '    el("res-slurry-vol").textContent = Math.round(V_slurry_m3).toLocaleString();' +
+      '    el("res-slurry-gals").textContent = Math.round(V_gals_k).toLocaleString();' +
+      '    el("res-res-time").textContent = tau_hrs.toFixed(1);' +
+      '    el("res-vessel-dia").textContent = Dv_m.toFixed(2);' +
+      '    el("res-vessel-ht").textContent = Hv_m.toFixed(1);' +
+      '    el("res-draft-dia").textContent = D_dt_m.toFixed(2);' +
+      '    el("res-draft-flow").textContent = Math.round(Q_circ_m3h).toLocaleString();' +
+      '    el("res-turnover-time").textContent = Math.round(turnover_sec);' +
+      '    el("res-ann-vel").textContent = v_ann_mms.toFixed(2);' +
+      '    el("res-ann-max").textContent = v_t_stokes_mms.toFixed(2);' +
+      '    el("res-imp-power").textContent = Math.round(p_imp_kw);' +
+      '    el("res-tip-speed").textContent = v_tip.toFixed(1);' +
+      '    el("res-fines-heat").textContent = Math.round(fines_heat_kw);' +
+      '    el("res-fines-flow").textContent = Math.round(Q_fines_m3h);' +
+      '    ' +
+      '    // Evaluation Badge' +
+      '    const badge = el("dtb-eval-badge");' +
+      '    if (v_tip <= 6.0 && turnover_sec >= 12 && turnover_sec <= 35 && tau_hrs >= 2.5) {' +
+      '      badge.textContent = "Optimal Hydrodynamics & Low Attrition Coarse Growth";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#15803d";' +
+      '    } else if (v_tip > 6.0) {' +
+      '      badge.textContent = "High Impeller Tip Speed: Risk of Secondary Contact Nucleation";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#b91c1c";' +
+      '    } else if (turnover_sec > 40) {' +
+      '      badge.textContent = "Sluggish Circulation Turnover: Risk of Local Supersaturation Shock";' +
+      '      badge.style.background = "#fef3c7";' +
+      '      badge.style.color = "#b45309";' +
+      '    } else {' +
+      '      badge.textContent = "Standard DTB Operating Suspension Parameters";' +
+      '      badge.style.background = "#e0f2fe";' +
+      '      badge.style.color = "#0369a1";' +
+      '    }' +
+      '    ' +
+      '    drawDTB(Dv_m, D_dt_m, v_tip, Math.round(V_slurry_m3));' +
+      '  }' +
+      '  ' +
+      '  function drawDTB(dv, d_dt, tip_speed, vol) {' +
+      '    const canvas = el("dtb-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width;' +
+      '    const h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background' +
+      '    const bg = ctx.createLinearGradient(0, 0, w, 0);' +
+      '    bg.addColorStop(0, "#0b1329");' +
+      '    bg.addColorStop(1, "#1e293b");' +
+      '    ctx.fillStyle = bg;' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ' +
+      '    const cx = 150;' +
+      '    const cy_top = 35;' +
+      '    const cy_bot = 200;' +
+      '    const tank_w = 120;' +
+      '    ' +
+      '    // Vessel outline: cylindrical with conical bottom' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - tank_w / 2, cy_top);' +
+      '    ctx.lineTo(cx + tank_w / 2, cy_top);' +
+      '    ctx.lineTo(cx + tank_w / 2, cy_bot);' +
+      '    ctx.lineTo(cx + 12, cy_bot + 45);' +
+      '    ctx.lineTo(cx - 12, cy_bot + 45);' +
+      '    ctx.lineTo(cx - tank_w / 2, cy_bot);' +
+      '    ctx.closePath();' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.fill();' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Liquid fill' +
+      '    const liqGrad = ctx.createLinearGradient(cx, cy_top + 15, cx, cy_bot + 45);' +
+      '    liqGrad.addColorStop(0, "rgba(2, 132, 199, 0.45)");' +
+      '    liqGrad.addColorStop(1, "rgba(14, 116, 144, 0.7)");' +
+      '    ctx.fillStyle = liqGrad;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - tank_w / 2 + 1, cy_top + 20);' +
+      '    ctx.lineTo(cx + tank_w / 2 - 1, cy_top + 20);' +
+      '    ctx.lineTo(cx + tank_w / 2 - 1, cy_bot);' +
+      '    ctx.lineTo(cx + 11, cy_bot + 44);' +
+      '    ctx.lineTo(cx - 11, cy_bot + 44);' +
+      '    ctx.lineTo(cx - tank_w / 2 + 1, cy_bot);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ' +
+      '    // Outer Annular Settling Baffle Skirt' +
+      '    const baf_w = 98;' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - baf_w / 2, cy_top + 25);' +
+      '    ctx.lineTo(cx - baf_w / 2, cy_bot - 20);' +
+      '    ctx.moveTo(cx + baf_w / 2, cy_top + 25);' +
+      '    ctx.lineTo(cx + baf_w / 2, cy_bot - 20);' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Central Draft Tube' +
+      '    const dt_w = 46;' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.fillRect(cx - dt_w / 2, cy_top + 45, dt_w, cy_bot - cy_top - 55);' +
+      '    ctx.strokeStyle = "#e2e8f0";' +
+      '    ctx.lineWidth = 1.5;' +
+      '    ctx.strokeRect(cx - dt_w / 2, cy_top + 45, dt_w, cy_bot - cy_top - 55);' +
+      '    ' +
+      '    // Bottom axial impeller' +
+      '    ctx.fillStyle = "#fbbf24";' +
+      '    ctx.fillRect(cx - 18, cy_bot - 25, 36, 8);' +
+      '    // Drive shaft' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.fillRect(cx - 2.5, cy_top - 15, 5, cy_bot - cy_top - 5);' +
+      '    ' +
+      '    // Circulation arrows: Up in draft tube, down outside' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    // Up arrow in draft tube' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx, cy_bot - 45);' +
+      '    ctx.lineTo(cx, cy_top + 55);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx, cy_top + 48);' +
+      '    ctx.lineTo(cx - 5, cy_top + 58);' +
+      '    ctx.lineTo(cx + 5, cy_top + 58);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ' +
+      '    // Down arrows outside draft tube' +
+      '    ctx.strokeStyle = "#f59e0b";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - 32, cy_top + 65);' +
+      '    ctx.lineTo(cx - 32, cy_bot - 35);' +
+      '    ctx.moveTo(cx + 32, cy_top + 65);' +
+      '    ctx.lineTo(cx + 32, cy_bot - 35);' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Crystals suspended in active zone' +
+      '    ctx.fillStyle = "#ffffff";' +
+      '    for (let i = 0; i < 30; i++) {' +
+      '      const gx = cx - 40 + ((i * 17) % 80);' +
+      '      const gy = cy_top + 50 + ((i * 29) % 125);' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(gx, gy, (i % 3 === 0 ? 2.5 : 1.8), 0, Math.PI * 2);' +
+      '      ctx.fill();' +
+      '    }' +
+      '    ' +
+      '    // Fines overflow line (top of annulus)' +
+      '    ctx.fillStyle = "#ef4444";' +
+      '    ctx.fillRect(cx - tank_w / 2 - 15, cy_top + 30, 16, 6);' +
+      '    ctx.fillText("Fines Out", cx - tank_w / 2 - 58, cy_top + 36);' +
+      '    ' +
+      '    // Vapor discharge' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 11px sans-serif";' +
+      '    ctx.fillText("Vapor to Condenser ↑", cx - 60, cy_top - 5);' +
+      '    ' +
+      '    // Slurry product discharge' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.fillText("Coarse Slurry ↓", cx - 42, cy_bot + 62);' +
+      '    ' +
+      '    // Info card on right' +
+      '    ctx.fillStyle = "rgba(15, 23, 42, 0.85)";' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 1;' +
+      '    ctx.fillRect(290, 40, 195, 200);' +
+      '    ctx.strokeRect(290, 40, 195, 200);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("SLURRY VOLUME (V)", 305, 65);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(vol.toLocaleString() + " m³", 305, 87);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("PRODUCT SIZE (L50)", 305, 115);' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(el("dtb-target-size").value + " mm Coarse", 305, 137);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("IMPELLER TIP SPEED", 305, 165);' +
+      '    ctx.fillStyle = tip_speed <= 6.0 ? "#10b981" : "#ef4444";' +
+      '    ctx.font = "bold 15px sans-serif";' +
+      '    ctx.fillText(tip_speed.toFixed(1) + " m/s", 305, 187);' +
+      '    ' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Draft Tube Baffle (DTB)", 305, 218);' +
+      '  }' +
+      '  ' +
+      '  const inputs = [' +
+      '    "dtb-preset", "dtb-prod-rate", "dtb-prod-unit", "dtb-target-size",' +
+      '    "dtb-growth-rate", "dtb-crystal-density", "dtb-magma-density",' +
+      '    "dtb-draft-vel", "dtb-fines-cut"' +
+      '  ];' +
+      '  ' +
+      '  inputs.forEach(id => {' +
+      '    const element = el(id);' +
+      '    if (element) {' +
+      '      element.addEventListener("input", () => {' +
+      '        if (id === "dtb-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '      element.addEventListener("change", () => {' +
+      '        if (id === "dtb-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const calcBtn = el("dtb-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("dtb-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== DRAFT TUBE BAFFLE (DTB) CRYSTALLIZER SIZING REPORT ===",' +
+      '        "Crystal Production Rate: " + el("dtb-prod-rate").value + " " + el("dtb-prod-unit").value,' +
+      '        "Median Crystal Size (L50): " + el("dtb-target-size").value + " mm (Linear Growth: " + el("dtb-growth-rate").value + "e-7 m/s)",' +
+      '        "Crystallizer Slurry Volume: " + el("res-slurry-vol").textContent + " m³ (" + el("res-slurry-gals").textContent + " kGal)",' +
+      '        "Active Magma Residence Time: " + el("res-res-time").textContent + " hours",' +
+      '        "Vessel Dimensions: Dia " + el("res-vessel-dia").textContent + " m x Height " + el("res-vessel-ht").textContent + " m",' +
+      '        "Draft Tube: Dia " + el("res-draft-dia").textContent + " m (Circulation: " + el("res-draft-flow").textContent + " m³/h, Turnover: " + el("res-turnover-time").textContent + " s)",' +
+      '        "Annular Settling Velocity: " + el("res-ann-vel").textContent + " mm/s (Cut: " + el("dtb-fines-cut").value + " µm)",' +
+      '        "Impeller Tip Speed: " + el("res-tip-speed").textContent + " m/s (Drive: " + el("res-imp-power").textContent + " kW)",' +
+      '        "Fines Heating Duty: " + el("res-fines-heat").textContent + " kW (" + el("res-fines-flow").textContent + " m³/h)",' +
+      '        "Operational Evaluation: " + el("dtb-eval-badge").textContent,' +
+      '        "Design Standards: Industrial Draft Tube Baffle (DTB) / Randolph & Larson MSMPR Model"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("dtb-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+
+  // ─── TOOL BX2: SPRAY DRYER & ROTARY ATOMIZER CALCULATOR ───
+  (() => {
+    const slug = 'spray-dryer-rotary-atomizer-sizing-calculator';
+    const title = 'Industrial Spray Dryer & High-Speed Rotary Atomizer Sizing Calculator';
+    const metaDescription = 'Size industrial co-current spray drying chambers and high-speed rotary disc atomizers. Calculate wheel tip speed, Sauter mean droplet diameter (d32), water evaporation capacity, drying air mass flow, chamber dimensions, and thermal efficiency.';
+    const faq = [
+      {
+        q: 'How does an industrial spray dryer convert liquid slurry into free-flowing dry powder in seconds?',
+        a: 'Spray drying is a single-step continuous drying process that transforms a liquid solution, emulsion, or pumpable slurry into spherical powder particles within 5 to 30 seconds. Feed liquid is pumped to a high-speed rotary wheel atomizer (spinning at 10,000 to 25,000 RPM) or high-pressure nozzles located at the top of a drying chamber. The atomizer atomizes the liquid into billions of microscopic droplets (typically 30 to 120 µm), creating an immense surface area (often >1,000 m² per liter of liquid). Heated process air (160°C to 350°C) introduced through an overhead air disperser intimately contacts the droplet cloud. Water or solvent flashes into vapor almost instantaneously, maintaining droplet temperature near the wet-bulb temperature (45°C to 65°C) and protecting heat-sensitive products (like dairy proteins, coffee, or pharmaceutical APIs) from thermal damage.'
+      },
+      {
+        q: 'What governs droplet size ($d_{32}$) produced by a high-speed rotary disc atomizer?',
+        a: 'In a rotary wheel atomizer, liquid enters the center of a spinning disc and accelerates outward through radial channels or vanes under extreme centrifugal force. At the wheel rim, the liquid sheet disintegrates into fine droplets. The Sauter Mean Diameter (\\(d_{32}\\)) is primarily dictated by wheel peripheral rim speed \\(v_{rim} = \\pi d_w N / 60\\) (typically 120 to 200 m/s) and liquid viscosity, described by the Masters/Friedman equation:\\n$$d_{32} \\propto \\frac{\\dot{M}_L^{0.24}}{(N \\cdot d_w)^{0.6} \\cdot \\rho_L^{0.2} \\cdot \\mu_L^{0.08}}$$\\nIncreasing rotational speed (RPM) or wheel diameter dramatically refines droplet size, producing finer powders with faster drying kinetics.'
+      },
+      {
+        q: 'How is the drying air mass flow rate and thermal efficiency calculated?',
+        a: 'The required drying air mass flow \\(\dot{M}_{air}\\) is governed by simultaneous heat and mass balances across the chamber:\\n$$\\dot{M}_w = \\dot{M}_{feed} \\cdot \\frac{X_{in} - X_{out}}{1 - X_{out}}, \\quad \\dot{M}_{air} = \\frac{\\dot{M}_w \\cdot \\Delta H_{vap} + Q_{loss}}{c_{p,air} \\cdot (T_{in} - T_{out})}$$\\nWhere \\(\dot{M}_w\\) is water evaporation rate (kg/h), \\(T_{in}\\) is hot inlet air temperature (typically 180°C to 280°C), and \\(T_{out}\\) is exhaust air temperature (typically 80°C to 100°C). Thermal efficiency is given by \\(\eta_{th} = (T_{in} - T_{out}) / (T_{in} - T_{ambient})\\). Raising \\(T_{in}\\) significantly reduces air volume and utility fuel consumption.'
+      },
+      {
+        q: 'What dictates the diameter ($D$) and cylindrical height ($H$) of the spray drying chamber?',
+        a: 'Chamber geometry is designed around two physical criteria: (1) Droplet horizontal flight trajectory: Droplets discharged from a rotary wheel fly radially outward while evaporating. The chamber diameter \\(D\\) must be wide enough (typically 3.0 to 10.0 meters) so that droplets reach their critical \"dry surface\" state before touching the wall, preventing sticky caking. (2) Airborne residence time: The vertical cylindrical height and \(60^\\circ\) conical cone must provide sufficient air residence time (typically 15 to 35 seconds, volumetric ratio \\(H/D \\approx 1.2\\text{ to }2.0\\)) to allow complete core moisture diffusion out of larger particles.'
+      },
+      {
+        q: 'Why must exhaust air temperature ($T_{out}$) be kept well above the dewpoint temperature?',
+        a: 'Exhaust air leaving the chamber carries all evaporated water vapor and fine powder toward cyclones and baghouse dust collectors. If \\(T_{out}\\) is operated too low (e.g. <75°C), the relative humidity of the exhaust gas rises past 50% to 60%, dangerously approaching the acid/water dewpoint (typically 50°C to 58°C). Any localized cold spot on ductwork or filter fabric triggers condensation, turning dry powder into a sticky paste that blinds filter bags, stalls exhaust fans, and causes severe microbial growth in food plants.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Industrial Spray Dryer & Rotary Atomizer Sizing Calculator</h1>' +
+      '    <p>Perform complete process engineering sizing for co-current industrial spray dryers and high-speed rotary disc atomizers. Calculate wheel tip speed, Sauter droplet diameter (d32), water evaporation capacity, drying air mass flow, chamber diameter and height, and thermal efficiency.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Process Feed & Thermal Air Inputs</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="sd-preset">Industrial Spray Drying Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="sd-preset">' +
+      '            <option value="dairy_milk" selected>Dairy Milk Powder (Tin=205°C, Tout=85°C, 50% solids, 4,500 kg/h)</option>' +
+      '            <option value="ceramic_tile">Ceramic Tile Slurry (Tin=340°C, Tout=110°C, 65% solids, 8,000 kg/h)</option>' +
+      '            <option value="battery_pcam">Lithium Battery Cathode Slurry (Tin=260°C, Tout=95°C, 2,500 kg/h)</option>' +
+      '            <option value="instant_coffee">Instant Coffee Extract (Tin=215°C, Tout=90°C, 45% solids, 1,200 kg/h)</option>' +
+      '            <option value="custom">Custom Spray Dryer</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sd-feed-rate">Liquid Slurry Feed Rate (\(\dot{M}_{feed}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sd-feed-rate" value="4500" min="50" max="100000" step="250">' +
+      '          <select id="sd-feed-unit">' +
+      '            <option value="kgh" selected>kg/h</option>' +
+      '            <option value="th">tonne/h</option>' +
+      '            <option value="lbh">lb/h</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sd-solids-in">Feed Total Solids Concentration (\(TS_{in}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sd-solids-in" value="50" min="5" max="75" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">wt%</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sd-moist-out">Final Powder Target Moisture (\(X_{out}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sd-moist-out" value="3.5" min="0.5" max="10.0" step="0.1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">wt%</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sd-temp-in">Inlet Hot Air Temperature (\(T_{in}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sd-temp-in" value="205" min="120" max="500" step="5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">°C</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sd-temp-out">Exhaust Air Temperature (\(T_{out}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sd-temp-out" value="85" min="60" max="140" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">°C</span>' +
+      '        </div>' +
+      '        <div class="hint">Must remain 25°C to 35°C above water dewpoint</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="sd-wheel-dia">Atomizer Wheel Diameter (\(d_w\)) & Speed</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="sd-wheel-dia" value="210" min="80" max="450" step="10" placeholder="Wheel mm">' +
+      '          <input type="number" id="sd-wheel-rpm" value="16000" min="5000" max="30000" step="500" placeholder="RPM">' +
+      '        </div>' +
+      '        <div class="hint">Target peripheral tip speed: 130 to 190 m/s</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="sd-calc-btn">Recalculate Dryer</button>' +
+      '        <button type="button" class="btn btn-secondary" id="sd-copy-btn">Copy Engineering Summary</button>' +
+      '      </div>' +
+      '      <div style="text-align:center; margin-top:8px;"><span id="sd-toast" class="copy-toast">✓ Diagnostic Summary Copied!</span></div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Evaporation, Atomization & Chamber Sizing</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Water Evaporation Rate (\(\dot{M}_w\))</div>' +
+      '          <div class="res-val" id="res-evap-rate">--</div>' +
+      '          <div class="res-unit">kg/h (<span id="res-powder-rate">--</span> kg/h powder)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Atomizer Wheel Tip Speed (\(v_{tip}\))</div>' +
+      '          <div class="res-val" id="res-tip-speed">--</div>' +
+      '          <div class="res-unit">m/s (Rim Velocity)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Sauter Droplet Diameter (\(d_{32}\))</div>' +
+      '          <div class="res-val" id="res-droplet-d32">--</div>' +
+      '          <div class="res-unit">µm (Masters Model)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Drying Air Mass Flow Rate</div>' +
+      '          <div class="res-val" id="res-air-mass">--</div>' +
+      '          <div class="res-unit">kg/h (<span id="res-air-vol">--</span> Am³/h)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Chamber Inside Diameter (\(D\))</div>' +
+      '          <div class="res-val" id="res-chamber-dia">--</div>' +
+      '          <div class="res-unit">m (Wall Clearance)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Chamber Cylindrical Height (\(H_{cyl}\))</div>' +
+      '          <div class="res-val" id="res-chamber-ht">--</div>' +
+      '          <div class="res-unit">m (Total H: <span id="res-total-ht">--</span> m)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Air Residence Time (\(\tau\))</div>' +
+      '          <div class="res-val" id="res-res-time">--</div>' +
+      '          <div class="res-unit">seconds (Chamber Volume)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Thermal Energy Consumption & Eff</div>' +
+      '          <div class="res-val" id="res-thermal-kw">--</div>' +
+      '          <div class="res-unit">kW (\(\eta_{th}\): <span id="res-thermal-eff">--</span>%)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="res-label">Atomization & Chamber Operation Status: </span>' +
+      '        <span id="sd-eval-badge" class="badge-stat">Evaluating...</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="sd-canvas" width="500" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING THEORY & MATHEMATICAL DERIVATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Engineering Principles & Spray Drying Mathematical Derivations</h2>' +
+      '    <p>Spray dryers are thermal thermodynamic systems designed to flash water from droplet clouds within milliseconds, yielding free-flowing powders with controlled bulk density and particle size distributions.</p>' +
+      '    <h3>1. Water Evaporation & Dry Powder Mass Balance</h3>' +
+      '    <p>From total solids fraction in the liquid feed \(TS_{in} = X_{s,in}\) and final target product moisture fraction \(X_{m,out}\):</p>' +
+      '    <div class="formula-box">' +
+      '\dot{M}_{powder} = \frac{\dot{M}_{feed} \cdot (X_{s,in} / 100)}{1 - (X_{m,out} / 100)} \quad [\text{kg}/\text{h}], \quad \dot{M}_w = \dot{M}_{feed} - \dot{M}_{powder} \quad [\text{kg}/\text{h}]' +
+      '    </div>' +
+      '    <h3>2. Rotary Atomizer Kinematics & Droplet Size ($d_{32}$)</h3>' +
+      '    <p>Peripheral wheel tip velocity \(v_{tip}\) and droplet Sauter mean diameter \(d_{32}\) are calculated via the centrifugal wheel formulation:</p>' +
+      '    <div class="formula-box">' +
+      'v_{tip} = \frac{\pi \cdot (d_w / 1000) \cdot N}{60} \quad [\text{m/s}] \\' +
+      'd_{32} = \frac{1.45 \times 10^4 \cdot \dot{M}_{feed}^{0.20}}{(N \cdot d_w / 1000)^{0.65} \cdot \rho_L^{0.20}} \quad [\mu\text{m}]' +
+      '    </div>' +
+      '    <p>Where \(d_w\) is in millimeters and \(N\) is in RPM. Higher tip speeds (>150 m/s) produce finer droplets below 50 µm for fast evaporation.</p>' +
+      '    <h3>3. Thermal Energy Balance & Air Mass Flow Rate</h3>' +
+      '    <p>Equating heat delivered by hot air to latent heat of vaporization (\(\Delta H_{vap} \approx 2350\,\text{kJ/kg}\)) plus sensible heat and 8% wall losses:</p>' +
+      '    <div class="formula-box">' +
+      'Q_{th} = \frac{\dot{M}_w \cdot 2350 + \dot{M}_{feed} \cdot 3.8 \cdot (T_{out} - 20)}{3600 \times 0.92} \quad [\text{kW}] \\' +
+      '\dot{M}_{air} = \frac{Q_{th} \times 3600}{c_{p,air} \cdot (T_{in} - T_{out})} \quad [\text{kg}/\text{h}], \quad \eta_{th} = \frac{T_{in} - T_{out}}{T_{in} - 20} \times 100\%' +
+      '    </div>' +
+      '    <h3>4. Chamber Aerodynamic Sizing & Droplet Trajectory</h3>' +
+      '    <p>The minimum chamber diameter \(D\) is sized to prevent unevaporated droplets from impinging on the wall:</p>' +
+      '    <div class="formula-box">' +
+      'D = 1.35 \cdot \dot{M}_w^{0.36} \quad [\text{m}], \quad H_{cyl} = 1.25 \cdot D \quad [\text{m}]' +
+      '    </div>' +
+      '    <p>A \(60^\circ\) conical bottom provides gravity discharge for collected dry powder.</p>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Engineering Traps & Industrial Operating Hazards</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Droplet Wall Impingement & Sticky Paste Caking</h4>' +
+      '      <p>Undersizing chamber diameter relative to rotary atomizer horizontal throw causes wet droplets to strike vertical walls while still in their sticky phase. Paste accumulates, charring into an insulating burnt layer that ruins heat transfer, causes bacterial contamination in food plants, and poses severe auto-ignition smoldering fire risks.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Combustible Dust Deflagration Explosion Hazard</h4>' +
+      '      <p>Finely dispersed organic powders (milk, whey, starch, polymer resins, battery chemicals) create explosive dust clouds with Kst values up to 150 bar·m/s. Operating without ATEX/NFPA explosion venting panels, flameless vents, or nitrogen closed-loop inerting transforms a minor electrostatic spark into a catastrophic facility destruction event.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Air Disperser Recirculation Eddies & Powder Scorching</h4>' +
+      '      <p>Improper setting of the overhead swirl vanes in the hot air ceiling disperser generates massive upward recirculating eddies. Fine dried powder is sucked back into the 200°C+ hot air entry zone, where heat scorches particles into black insoluble specs that contaminate the entire finished product lot.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Exhaust Ductwork Dewpoint Condensation & Filter Mudding</h4>' +
+      '      <p>Lowering exhaust air temperature to boost thermal efficiency dangerously elevates relative humidity. If \(T_{out}\) drops within 15°C of water dewpoint, condensation forms on uninsulated duct walls and baghouse filter fabric. Dry powder turns into cement-like mud, permanently blinding bags and tripping ID fan motors.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. High-Speed Atomizer Spindle Vibration Failure (18,000 RPM)</h4>' +
+      '      <p>Rotary atomizers spin at extreme speeds with tip speeds approaching 200 m/s. Feed slurry containing abrasive grit, or uneven cake deposition inside wheel vanes, induces dynamic rotor unbalance. Operating past 4.5 mm/s RMS vibration causes catastrophic ceramic spindle bearing seizure within hours, ejecting the spinning wheel into the chamber.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ SECTION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions & Expert Guidance</h2>' +
+      '    <div class="faq-list">' +
+      faq.map(item =>
+        '      <div class="faq-item">' +
+        '        <div class="faq-q">' + item.q + ' <span>+</span></div>' +
+        '        <div class="faq-a">' + item.a + '</div>' +
+        '      </div>'
+      ).join('') +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  ' +
+      '  const presets = {' +
+      '    dairy_milk: { feed: 4500, unit: "kgh", solids: 50, moist: 3.5, tin: 205, tout: 85, dia: 210, rpm: 16000 },' +
+      '    ceramic_tile: { feed: 8000, unit: "kgh", solids: 65, moist: 1.5, tin: 340, tout: 110, dia: 240, rpm: 12000 },' +
+      '    battery_pcam: { feed: 2500, unit: "kgh", solids: 52, moist: 1.0, tin: 260, tout: 95, dia: 180, rpm: 18000 },' +
+      '    instant_coffee: { feed: 1200, unit: "kgh", solids: 45, moist: 3.0, tin: 215, tout: 90, dia: 150, rpm: 15000 }' +
+      '  };' +
+      '  ' +
+      '  function loadPreset() {' +
+      '    const key = el("sd-preset").value;' +
+      '    if (key === "custom") return;' +
+      '    const p = presets[key];' +
+      '    if (!p) return;' +
+      '    el("sd-feed-rate").value = p.feed;' +
+      '    el("sd-feed-unit").value = p.unit;' +
+      '    el("sd-solids-in").value = p.solids;' +
+      '    el("sd-moist-out").value = p.moist;' +
+      '    el("sd-temp-in").value = p.tin;' +
+      '    el("sd-temp-out").value = p.tout;' +
+      '    el("sd-wheel-dia").value = p.dia;' +
+      '    el("sd-wheel-rpm").value = p.rpm;' +
+      '    calc();' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    let feedRaw = parseFloat(el("sd-feed-rate").value) || 4500;' +
+      '    const feedUnit = el("sd-feed-unit").value;' +
+      '    let feed_kgh = feedRaw;' +
+      '    if (feedUnit === "th") feed_kgh = feedRaw * 1000;' +
+      '    else if (feedUnit === "lbh") feed_kgh = feedRaw * 0.453592;' +
+      '    ' +
+      '    const solids_in = parseFloat(el("sd-solids-in").value) || 50;' +
+      '    const moist_out = parseFloat(el("sd-moist-out").value) || 3.5;' +
+      '    const T_in = parseFloat(el("sd-temp-in").value) || 205;' +
+      '    const T_out = parseFloat(el("sd-temp-out").value) || 85;' +
+      '    const wheel_dia_mm = parseFloat(el("sd-wheel-dia").value) || 210;' +
+      '    const wheel_rpm = parseFloat(el("sd-wheel-rpm").value) || 16000;' +
+      '    ' +
+      '    // Mass Balances' +
+      '    const dry_solids_kgh = feed_kgh * (solids_in / 100);' +
+      '    const powder_kgh = dry_solids_kgh / (1 - moist_out / 100);' +
+      '    const evap_kgh = Math.max(10, feed_kgh - powder_kgh);' +
+      '    ' +
+      '    // Wheel Atomizer Tip Speed (m/s)' +
+      '    const wheel_dia_m = wheel_dia_mm / 1000;' +
+      '    const v_tip = (Math.PI * wheel_dia_m * wheel_rpm) / 60;' +
+      '    ' +
+      '    // Droplet size d32 (um) - Masters model' +
+      '    const rho_L = 1050 + solids_in * 3; // kg/m3' +
+      '    const num_d32 = 1.45e4 * Math.pow(Math.max(100, feed_kgh), 0.20);' +
+      '    const den_d32 = Math.pow(v_tip, 0.65) * Math.pow(rho_L / 1000, 0.20);' +
+      '    const d32_um = Math.max(18, Math.min(220, num_d32 / Math.max(1, den_d32) * 0.12));' +
+      '    ' +
+      '    // Thermal Energy Balance' +
+      '    // Latent heat 2350 kJ/kg, sensible 3.8 kJ/kg.K' +
+      '    const cp_air = 1.02; // kJ/kg.K' +
+      '    const q_latent_kw = (evap_kgh * 2350) / 3600;' +
+      '    const q_sensible_kw = (feed_kgh * 3.8 * (T_out - 20)) / 3600;' +
+      '    const q_loss_kw = (q_latent_kw + q_sensible_kw) * 0.08;' +
+      '    const q_total_kw = q_latent_kw + q_sensible_kw + q_loss_kw;' +
+      '    ' +
+      '    // Air Mass Flow (kg/h)' +
+      '    const deltaT_air = Math.max(20, T_in - T_out);' +
+      '    const m_air_kgh = (q_total_kw * 3600) / (cp_air * deltaT_air);' +
+      '    // Density air at T_out' +
+      '    const rho_air_out = 1.293 * (273.15 / (T_out + 273.15));' +
+      '    const q_air_m3h = m_air_kgh / rho_air_out;' +
+      '    ' +
+      '    // Thermal Efficiency' +
+      '    const eta_th = ((T_in - T_out) / Math.max(10, T_in - 20)) * 100;' +
+      '    ' +
+      '    // Chamber Sizing' +
+      '    // Empirical diameter from water evaporation capacity' +
+      '    const D_chamber_m = Math.max(2.5, Math.min(14.0, 1.35 * Math.pow(evap_kgh, 0.36)));' +
+      '    const H_cyl_m = D_chamber_m * 1.25;' +
+      '    const H_cone_m = (D_chamber_m / 2) * Math.tan(60 * Math.PI / 180);' +
+      '    const H_total_m = H_cyl_m + H_cone_m;' +
+      '    ' +
+      '    // Chamber Volume (m3)' +
+      '    const V_cyl = (Math.PI / 4) * Math.pow(D_chamber_m, 2) * H_cyl_m;' +
+      '    const V_cone = (1/3) * (Math.PI / 4) * Math.pow(D_chamber_m, 2) * H_cone_m;' +
+      '    const V_total = V_cyl + V_cone;' +
+      '    ' +
+      '    // Residence Time (seconds)' +
+      '    const q_air_m3s = q_air_m3h / 3600;' +
+      '    const res_time_sec = V_total / Math.max(0.1, q_air_m3s);' +
+      '    ' +
+      '    // Update DOM' +
+      '    el("res-evap-rate").textContent = Math.round(evap_kgh).toLocaleString();' +
+      '    el("res-powder-rate").textContent = Math.round(powder_kgh).toLocaleString();' +
+      '    el("res-tip-speed").textContent = Math.round(v_tip);' +
+      '    el("res-droplet-d32").textContent = d32_um.toFixed(1);' +
+      '    el("res-air-mass").textContent = Math.round(m_air_kgh).toLocaleString();' +
+      '    el("res-air-vol").textContent = Math.round(q_air_m3h).toLocaleString();' +
+      '    el("res-chamber-dia").textContent = D_chamber_m.toFixed(2);' +
+      '    el("res-chamber-ht").textContent = H_cyl_m.toFixed(2);' +
+      '    el("res-total-ht").textContent = H_total_m.toFixed(2);' +
+      '    el("res-res-time").textContent = res_time_sec.toFixed(1);' +
+      '    el("res-thermal-kw").textContent = Math.round(q_total_kw).toLocaleString();' +
+      '    el("res-thermal-eff").textContent = eta_th.toFixed(1);' +
+      '    ' +
+      '    // Evaluation Badge' +
+      '    const badge = el("sd-eval-badge");' +
+      '    if (v_tip >= 120 && v_tip <= 210 && res_time_sec >= 14 && res_time_sec <= 35 && T_out >= 75) {' +
+      '      badge.textContent = "Optimal Co-Current Spray Drying & Atomizer Velocity";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#15803d";' +
+      '    } else if (v_tip < 120) {' +
+      '      badge.textContent = "Low Tip Speed: Coarse Droplets Risk Wet Wall Deposition";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#b91c1c";' +
+      '    } else if (T_out < 75) {' +
+      '      badge.textContent = "Low Exhaust Temp: Danger of Dewpoint Baghouse Mudding";' +
+      '      badge.style.background = "#fef3c7";' +
+      '      badge.style.color = "#b45309";' +
+      '    } else {' +
+      '      badge.textContent = "Standard Spray Dryer Aerodynamic Parameters";' +
+      '      badge.style.background = "#e0f2fe";' +
+      '      badge.style.color = "#0369a1";' +
+      '    }' +
+      '    ' +
+      '    drawDryer(D_chamber_m, H_total_m, v_tip, Math.round(evap_kgh));' +
+      '  }' +
+      '  ' +
+      '  function drawDryer(dia, ht, tip_speed, evap) {' +
+      '    const canvas = el("sd-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width;' +
+      '    const h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background' +
+      '    const bg = ctx.createLinearGradient(0, 0, w, 0);' +
+      '    bg.addColorStop(0, "#0b1329");' +
+      '    bg.addColorStop(1, "#1e293b");' +
+      '    ctx.fillStyle = bg;' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ' +
+      '    const cx = 150;' +
+      '    const cy_top = 35;' +
+      '    const cyl_h = 100;' +
+      '    const cone_h = 80;' +
+      '    const cw = 110;' +
+      '    ' +
+      '    // Dryer Chamber Outline: Cylindrical + 60 deg cone' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - cw / 2, cy_top);' +
+      '    ctx.lineTo(cx + cw / 2, cy_top);' +
+      '    ctx.lineTo(cx + cw / 2, cy_top + cyl_h);' +
+      '    ctx.lineTo(cx + 10, cy_top + cyl_h + cone_h);' +
+      '    ctx.lineTo(cx - 10, cy_top + cyl_h + cone_h);' +
+      '    ctx.lineTo(cx - cw / 2, cy_top + cyl_h);' +
+      '    ctx.closePath();' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.fill();' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Hot air roof disperser' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillRect(cx - 35, cy_top - 12, 70, 12);' +
+      '    ctx.fillStyle = "#fbbf24";' +
+      '    ctx.font = "bold 10px sans-serif";' +
+      '    ctx.fillText("Hot Air In ↓", cx - 26, cy_top - 16);' +
+      '    ' +
+      '    // Rotary Wheel Atomizer' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillRect(cx - 12, cy_top + 8, 24, 8);' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.fillRect(cx - 2, cy_top - 18, 4, 26);' +
+      '    ' +
+      '    // Atomized Droplet Umbrella Spray Cloud' +
+      '    const sprayGrad = ctx.createRadialGradient(cx, cy_top + 12, 6, cx, cy_top + 50, 48);' +
+      '    sprayGrad.addColorStop(0, "rgba(56, 189, 248, 0.85)");' +
+      '    sprayGrad.addColorStop(1, "rgba(245, 158, 11, 0.15)");' +
+      '    ctx.fillStyle = sprayGrad;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - 10, cy_top + 12);' +
+      '    ctx.lineTo(cx + 10, cy_top + 12);' +
+      '    ctx.lineTo(cx + 46, cy_top + 55);' +
+      '    ctx.lineTo(cx - 46, cy_top + 55);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ' +
+      '    // Descending dry powder particles in chamber' +
+      '    ctx.fillStyle = "#fef08a";' +
+      '    for (let i = 0; i < 45; i++) {' +
+      '      const px = cx - 35 + ((i * 13) % 70);' +
+      '      const py = cy_top + 45 + ((i * 27) % 115);' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(px, py, (i % 4 === 0 ? 2.5 : 1.5), 0, Math.PI * 2);' +
+      '      ctx.fill();' +
+      '    }' +
+      '    ' +
+      '    // Side exhaust duct (to cyclone)' +
+      '    ctx.fillStyle = "#475569";' +
+      '    ctx.fillRect(cx + cw / 2 - 2, cy_top + cyl_h - 25, 25, 20);' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.strokeRect(cx + cw / 2 - 2, cy_top + cyl_h - 25, 25, 20);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Exhaust →", cx + cw / 2 + 28, cy_top + cyl_h - 11);' +
+      '    ' +
+      '    // Powder discharge rotary valve at cone bottom' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.beginPath();' +
+      '    ctx.arc(cx, cy_top + cyl_h + cone_h + 14, 8, 0, Math.PI * 2);' +
+      '    ctx.fill();' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.font = "bold 10px sans-serif";' +
+      '    ctx.fillText("Dry Powder ↓", cx - 28, cy_top + cyl_h + cone_h + 34);' +
+      '    ' +
+      '    // Info card on right' +
+      '    ctx.fillStyle = "rgba(15, 23, 42, 0.85)";' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 1;' +
+      '    ctx.fillRect(290, 40, 195, 200);' +
+      '    ctx.strokeRect(290, 40, 195, 200);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("WATER EVAPORATION", 305, 65);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(evap.toLocaleString() + " kg/h", 305, 87);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("ATOMIZER TIP SPEED", 305, 115);' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(Math.round(tip_speed) + " m/s", 305, 137);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("CHAMBER DIMENSIONS", 305, 165);' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.font = "bold 15px sans-serif";' +
+      '    ctx.fillText("Ø " + dia.toFixed(1) + "m x " + ht.toFixed(1) + "m", 305, 187);' +
+      '    ' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Rotary Disc Spray Dryer", 305, 218);' +
+      '  }' +
+      '  ' +
+      '  const inputs = [' +
+      '    "sd-preset", "sd-feed-rate", "sd-feed-unit", "sd-solids-in",' +
+      '    "sd-moist-out", "sd-temp-in", "sd-temp-out", "sd-wheel-dia",' +
+      '    "sd-wheel-rpm"' +
+      '  ];' +
+      '  ' +
+      '  inputs.forEach(id => {' +
+      '    const element = el(id);' +
+      '    if (element) {' +
+      '      element.addEventListener("input", () => {' +
+      '        if (id === "sd-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '      element.addEventListener("change", () => {' +
+      '        if (id === "sd-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const calcBtn = el("sd-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("sd-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== INDUSTRIAL SPRAY DRYER SIZING REPORT ===",' +
+      '        "Liquid Feed Rate: " + el("sd-feed-rate").value + " " + el("sd-feed-unit").value,' +
+      '        "Feed Solids / Final Moisture: " + el("sd-solids-in").value + " wt% TS -> " + el("sd-moist-out").value + " wt% Moisture",' +
+      '        "Water Evaporation Rate: " + el("res-evap-rate").textContent + " kg/h (Powder: " + el("res-powder-rate").textContent + " kg/h)",' +
+      '        "Inlet / Exhaust Air Temp: " + el("sd-temp-in").value + " °C / " + el("sd-temp-out").value + " °C (Thermal Eff: " + el("res-thermal-eff").textContent + " %)",' +
+      '        "Drying Air Flow: " + el("res-air-mass").textContent + " kg/h (" + el("res-air-vol").textContent + " Am³/h)",' +
+      '        "Atomizer Wheel: Dia " + el("sd-wheel-dia").value + " mm @ " + el("sd-wheel-rpm").value + " RPM (Tip Speed: " + el("res-tip-speed").textContent + " m/s)",' +
+      '        "Sauter Droplet Dia (d32): " + el("res-droplet-d32").textContent + " µm",' +
+      '        "Chamber Dimensions: Dia " + el("res-chamber-dia").textContent + " m x Cyl H " + el("res-chamber-ht").textContent + " m (Total H: " + el("res-total-ht").textContent + " m)",' +
+      '        "Air Residence Time: " + el("res-res-time").textContent + " seconds",' +
+      '        "Thermal Power Demand: " + el("res-thermal-kw").textContent + " kW",' +
+      '        "Operational Evaluation: " + el("sd-eval-badge").textContent,' +
+      '        "Design Standards: Industrial Co-Current Spray Drying / Masters Atomization Model"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("sd-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+
+  // ─── TOOL BX3: INDUSTRIAL GRAVITY THICKENER CALCULATOR ───
+  (() => {
+    const slug = 'thickener-clarifier-coe-clevenger-talmage-fitch-calculator';
+    const title = 'Industrial Gravity Thickener & Clarifier Sizing Calculator';
+    const metaDescription = 'Size industrial gravity thickeners and clarifiers using Coe-Clevenger and Talmage-Fitch settling methods. Calculate Unit Area (UA), basin diameter, solids loading flux, hydraulic rise rate (SOR), rake drive torque, and underflow density.';
+    const faq = [
+      {
+        q: 'How does an industrial gravity thickener dewater slurries and clarify process water?',
+        a: 'A gravity thickener is a continuous sedimentation basin that separates a solid-liquid suspension into a clarified liquid overflow and a concentrated slurry underflow. Dilute feed slurry enters through a central feedwell where it is gently blended with diluted polymeric flocculant (polyacrylamide). The polymer binds microscopic mineral or biological particles into large, rapidly settling \"flocs\". These flocs settle by gravity through hindered, transition, and compression zones toward the tank floor. Slowly rotating rake arms (turning at 0.02 to 0.1 RPM) fitted with angled blades continuously convey the compacted sludge bed toward a central discharge hopper, where positive displacement pumps remove the thickened paste.'
+      },
+      {
+        q: 'What is the Talmage & Fitch method for determining thickener Unit Area ($UA$)?',
+        a: 'The Talmage-Fitch graphical construction analyzes a single batch cylinder settling curve (suspension height \\(H\\) vs time \\(t\\)). A tangent line is drawn at the inflection point (transition to compression zone), intersecting a horizontal line representing the target underflow height \\(H_u = H_0 \cdot C_0 / C_u\\) at time \\(t_u\\). The required Unit Area (\\(UA\\))—the surface area required per unit dry solids mass rate—is given by:\\n$$UA = \\frac{t_u}{C_0 \\cdot H_0} \\quad [\\text{m}^2 / (\\text{tonne solids / day})]$$\\nTotal thickener area is simply \\(A = \\dot{M}_{solids} \\cdot UA\\). This accounts for both hindered sedimentation and slow sludge compaction.'
+      },
+      {
+        q: 'What is the Surface Overflow Rate (SOR) and why is it critical for clarification?',
+        a: 'The Surface Overflow Rate (\\(SOR\\), also called hydraulic rise rate) is the volumetric overflow water rate divided by total settling area:\\n$$SOR = \\frac{Q_{overflow}}{A_{basin}} \\quad [\\text{m}^3/(\\text{m}^2\\cdot\\text{h}) \\text{ or m/h}]$$\\nTo produce crystal-clear supernatant (typically <50 to 100 NTU turbidity or <20 ppm TSS), the upward velocity of the water rising toward peripheral launder weirs must be strictly less than the settling velocity of un-flocculated fines. For mineral tailings thickeners, \\(SOR\\) is typically maintained between 1.0 and 3.0 m/h.'
+      },
+      {
+        q: 'How is rake mechanism drive operating torque ($T$) calculated?',
+        a: 'The rake mechanism must overcome immense yield stress and frictional resistance dragging blades through a dense compacted bed of solids. Drive torque is sized using the standardized AGMA diameter-scaling relationship:\\n$$T = k_{torque} \\cdot D^2 \\quad [\\text{ft}\\cdot\\text{lb}] \\quad \\text{or} \\quad T_{SI} = K_{SI} \\cdot D^2 \\quad [\\text{kN}\\cdot\\text{m}]$$\\nWhere \\(k_{torque}\\) ranges from 20 to 35 for light municipal sludges, 40 to 60 for standard mineral tailings, and 80 to 140 for ultra-high-density paste thickeners. Modern units incorporate hydraulic rake lift mechanisms that automatically elevate the rake arms by 300 to 1000 mm when drive torque exceeds 70% of design rating.'
+      },
+      {
+        q: 'What is the consequence of overdosing or underdosing polymeric flocculant?',
+        a: 'Polymeric flocculant dosing must be precisely controlled (typically 15 to 60 g active polymer per dry tonne of solids): (1) Underdosing: Inadequate bridging fails to capture fine slimes, causing high overflow turbidity and poor settling rates that require colossal thickener basins; and (2) Overdosing: Excessive polymer chains cover all particle surfaces without bridging (steric stabilization), while excess polymer dissolved in water creates severe uncoiled viscous drag that actually hinders bed compaction, producing low underflow densities and blinding downstream filter presses.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Industrial Gravity Thickener & Clarifier Sizing Calculator</h1>' +
+      '    <p>Perform industrial process sizing for gravity thickeners and clarifiers using Coe-Clevenger and Talmage-Fitch settling methods. Calculate Unit Area (UA), basin diameter, solids loading flux, hydraulic rise rate (SOR), rake drive torque, and water recovery.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Slurry Feed & Settling Parameters</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="gt-preset">Industrial Thickening Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="gt-preset">' +
+      '            <option value="copper_tailings" selected>Copper Flotation Tailings (12,000 t/d dry, 25 wt% -> 58 wt%, HRT)</option>' +
+      '            <option value="gold_ccd">Gold Leach CCD Thickener (4,500 t/d, 30 wt% -> 55 wt%, High Torque)</option>' +
+      '            <option value="coal_refuse">Coal Washery Refuse (3,000 t/d, 12 wt% -> 45 wt%, Flocculated)</option>' +
+      '            <option value="iron_ore_conc">Iron Ore Concentrate Thickener (8,000 t/d, 35 wt% -> 68 wt%)</option>' +
+      '            <option value="custom">Custom Gravity Thickener</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="gt-solids-rate">Dry Solids Feed Throughput (\(\dot{M}_s\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="gt-solids-rate" value="12000" min="10" max="150000" step="250">' +
+      '          <select id="gt-solids-unit">' +
+      '            <option value="tpd" selected>tonne/day</option>' +
+      '            <option value="tph">tonne/hour</option>' +
+      '            <option value="std">short ton/d</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="gt-solids-feed-wt">Feed Slurry Solids Concentration (\(C_{feed}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="gt-solids-feed-wt" value="25" min="2" max="55" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">wt%</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="gt-solids-uf-wt">Target Underflow Solids Density (\(C_{uf}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="gt-solids-uf-wt" value="58" min="25" max="78" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">wt%</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard high-rate: 52-62 wt%; Paste thickeners: 65-72 wt%</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="gt-settling-rate">Initial Free Settling Velocity (\(v_i\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="gt-settling-rate" value="8.5" min="0.5" max="35.0" step="0.5">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">m/hour</span>' +
+      '        </div>' +
+      '        <div class="hint">With polymeric flocculation: typically 5 to 15 m/h</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="gt-solids-density">Mineral Solids True Density (\(\rho_s\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="gt-solids-density" value="2750" min="1200" max="5200" step="50">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">kg/m³</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="gt-torque-k">Rake Duty Factor (\(k_{torque}\) AGMA)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="gt-torque-k" value="48" min="15" max="130" step="2">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">ft·lb / ft²</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard: 35-50; Heavy CCD: 55-75; High-Density Paste: 85-125</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="gt-calc-btn">Recalculate Thickener</button>' +
+      '        <button type="button" class="btn btn-secondary" id="gt-copy-btn">Copy Engineering Summary</button>' +
+      '      </div>' +
+      '      <div style="text-align:center; margin-top:8px;"><span id="gt-toast" class="copy-toast">✓ Diagnostic Summary Copied!</span></div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Basin Geometry, Hydraulics & Rake Drive</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Thickener Basin Diameter (\(D\))</div>' +
+      '          <div class="res-val" id="res-thickener-dia">--</div>' +
+      '          <div class="res-unit">m (<span id="res-thickener-ft">--</span> ft)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Settling Area Required (\(A\))</div>' +
+      '          <div class="res-val" id="res-settling-area">--</div>' +
+      '          <div class="res-unit">m² (Unit Area: <span id="res-unit-area">--</span> m²/t·d)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Solids Loading Flux (\(G_s\))</div>' +
+      '          <div class="res-val" id="res-solids-flux">--</div>' +
+      '          <div class="res-unit">t/(m²·d) (<span id="res-flux-kg">--</span> kg/m²·h)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Surface Overflow Rate (SOR)</div>' +
+      '          <div class="res-val" id="res-sor-rate">--</div>' +
+      '          <div class="res-unit">m/h (<span id="res-sor-gpm">--</span> gpm/ft²)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Clarified Water Overflow Flow</div>' +
+      '          <div class="res-val" id="res-overflow-rate">--</div>' +
+      '          <div class="res-unit">m³/h (Recovery: <span id="res-water-rec">--</span> %)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Underflow Slurry Flow</div>' +
+      '          <div class="res-val" id="res-underflow-rate">--</div>' +
+      '          <div class="res-unit">m³/h (Dens: <span id="res-uf-dens">--</span> kg/m³)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Rake Operating Torque</div>' +
+      '          <div class="res-val" id="res-rake-torque">--</div>' +
+      '          <div class="res-unit">kN·m (<span id="res-torque-ftlb">--</span> k ft·lb)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Rake Drive Motor Power</div>' +
+      '          <div class="res-val" id="res-motor-kw">--</div>' +
+      '          <div class="res-unit">kW (Rake: <span id="res-rake-rpm">--</span> RPM)</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="res-label">Thickening Regime & Structural Status: </span>' +
+      '        <span id="gt-eval-badge" class="badge-stat">Evaluating...</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="gt-canvas" width="500" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING THEORY & MATHEMATICAL DERIVATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Engineering Principles & Continuous Thickener Derivations</h2>' +
+      '    <p>Gravity thickeners rely on hindered settling and compressive consolidation to concentrate mineral slurries and reclaim process water for closed-loop plant recycling.</p>' +
+      '    <h3>1. Coe & Clevenger / Talmage-Fitch Unit Area</h3>' +
+      '    <p>From sedimentation continuity, the required thickener Unit Area \(UA\) accounts for the limiting solids settling flux:</p>' +
+      '    <div class="formula-box">' +
+      'UA = \frac{1}{24} \left(\frac{1}{C_i} - \frac{1}{C_{uf}}\right) \frac{1}{v_i} \quad [\text{m}^2 / (\text{t/d})]' +
+      '    </div>' +
+      '    <p>Where \(C_i\) and \(C_{uf}\) are solids volume fractions and \(v_i\) is initial settling velocity. Total required settling area \(A = \dot{M}_s \cdot UA\). Basin diameter is \(D = \sqrt{4 A / \pi}\).</p>' +
+      '    <h3>2. Slurry Volumetric Balance & Water Recovery</h3>' +
+      '    <p>The total feed volumetric flow \(Q_{feed}\) and underflow volumetric flow \(Q_{uf}\) are calculated from component mass balances:</p>' +
+      '    <div class="formula-box">' +
+      'Q_{feed} = \frac{\dot{M}_s / 24}{\rho_s (C_{feed}/100)} + \frac{(\dot{M}_s / 24)(1 - C_{feed}/100)}{\rho_L} \quad [\text{m}^3/\text{h}] \\' +
+      'Q_{uf} = \frac{\dot{M}_s / 24}{\rho_s (C_{uf}/100)} + \frac{(\dot{M}_s / 24)(1 - C_{uf}/100)}{\rho_L} \quad [\text{m}^3/\text{h}] \\' +
+      'Q_{overflow} = Q_{feed} - Q_{uf} \quad [\text{m}^3/\text{h}], \quad SOR = \frac{Q_{overflow}}{A} \quad [\text{m/h}]' +
+      '    </div>' +
+      '    <h3>3. AGMA Rake Drive Torque Sizing</h3>' +
+      '    <p>Rake drive running torque \(T\) is scaled quadratically with tank diameter in feet (\(D_{ft} = D_m \times 3.28084\)):</p>' +
+      '    <div class="formula-box">' +
+      'T_{ft\cdot lb} = k_{torque} \cdot D_{ft}^2, \quad T_{kN\cdot m} = T_{ft\cdot lb} \times 0.00135582' +
+      '    </div>' +
+      '    <p>Rake tip speed is limited to \(v_{rake} \approx 10\text{ to }15\,\text{m/min}\) to prevent shear re-suspension.</p>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Engineering Traps & Industrial Operating Hazards</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Rake Stalling & Center Drive Pinion Shearing</h4>' +
+      '      <p>Allowing thickener inventory to build up past maximum compression height creates an immovable high-yield-stress sludge bed. Without an automated hydraulic rake lift mechanism, drive torque spikes to 150% of rating within minutes, snapping drive gear pinion teeth or twisting the main center shaft.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Feedwell Polymer Shear Degradation</h4>' +
+      '      <p>High-molecular-weight polyacrylamide flocculant consists of delicate ultra-long polymer chains. Dosing polymer into high-velocity turbulent feed pipes (>1.5 m/s) violently shears the chains in half. Flocculation efficiency drops by 80%, requiring 4x flocculant dosing and causing severe un-flocculated fines carryover into the overflow.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Underflow Bed "Doughnut" Island Formation</h4>' +
+      '      <p>Operating with slow rake rotation or excessive underflow pump throttling allows dense paste to compact into an immovable ring (\"doughnut\") surrounding the center cone. The rotating rake blades ride over the top of the island without clearing it, eventually overloading rake arms and halting bed transport.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Thermal Density Plunge & Launder Scouring</h4>' +
+      '      <p>Introducing feed slurry that is significantly colder (or denser) than the tank liquor creates a downward density current. The heavy stream plunges down the centerwell, scours across the compacted bed surface, and shoots upward along the perimeter wall, dumping clouds of slime directly over the overflow weirs.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. Clay Slime Viscosity Choking in CCD Circuits</h4>' +
+      '      <p>In counter-current decantation (CCD) gold/copper leach circuits, processing ores with high smectite or illite clay content creates high non-Newtonian yield stress in the thickener underflow. Underflow paste cannot flow into the center discharge cone, causing pump cavitation and requiring costly chemical viscosity modifiers.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ SECTION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions & Expert Guidance</h2>' +
+      '    <div class="faq-list">' +
+      faq.map(item =>
+        '      <div class="faq-item">' +
+        '        <div class="faq-q">' + item.q + ' <span>+</span></div>' +
+        '        <div class="faq-a">' + item.a + '</div>' +
+        '      </div>'
+      ).join('') +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  ' +
+      '  const presets = {' +
+      '    copper_tailings: { solids: 12000, unit: "tpd", feedWt: 25, ufWt: 58, v_i: 8.5, rhoS: 2750, torqueK: 48 },' +
+      '    gold_ccd: { solids: 4500, unit: "tpd", feedWt: 30, ufWt: 55, v_i: 6.5, rhoS: 2800, torqueK: 60 },' +
+      '    coal_refuse: { solids: 3000, unit: "tpd", feedWt: 12, ufWt: 45, v_i: 12.0, rhoS: 1850, torqueK: 38 },' +
+      '    iron_ore_conc: { solids: 8000, unit: "tpd", feedWt: 35, ufWt: 68, v_i: 9.0, rhoS: 4900, torqueK: 75 }' +
+      '  };' +
+      '  ' +
+      '  function loadPreset() {' +
+      '    const key = el("gt-preset").value;' +
+      '    if (key === "custom") return;' +
+      '    const p = presets[key];' +
+      '    if (!p) return;' +
+      '    el("gt-solids-rate").value = p.solids;' +
+      '    el("gt-solids-unit").value = p.unit;' +
+      '    el("gt-solids-feed-wt").value = p.feedWt;' +
+      '    el("gt-solids-uf-wt").value = p.ufWt;' +
+      '    el("gt-settling-rate").value = p.v_i;' +
+      '    el("gt-solids-density").value = p.rhoS;' +
+      '    el("gt-torque-k").value = p.torqueK;' +
+      '    calc();' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    let solidsRaw = parseFloat(el("gt-solids-rate").value) || 12000;' +
+      '    const solidsUnit = el("gt-solids-unit").value;' +
+      '    let solids_tpd = solidsRaw;' +
+      '    if (solidsUnit === "tph") solids_tpd = solidsRaw * 24;' +
+      '    else if (solidsUnit === "std") solids_tpd = solidsRaw * 0.907185;' +
+      '    ' +
+      '    const C_feed = parseFloat(el("gt-solids-feed-wt").value) || 25;' +
+      '    const C_uf = parseFloat(el("gt-solids-uf-wt").value) || 58;' +
+      '    const v_i = parseFloat(el("gt-settling-rate").value) || 8.5;' +
+      '    const rho_s = parseFloat(el("gt-solids-density").value) || 2750;' +
+      '    const torque_k = parseFloat(el("gt-torque-k").value) || 48;' +
+      '    const rho_L = 1000; // water kg/m3' +
+      '    ' +
+      '    // Volume fractions' +
+      '    const vf_feed = (C_feed / rho_s) / ((C_feed / rho_s) + ((100 - C_feed) / rho_L));' +
+      '    const vf_uf = (C_uf / rho_s) / ((C_uf / rho_s) + ((100 - C_uf) / rho_L));' +
+      '    ' +
+      '    // Coe-Clevenger Unit Area UA (m2 / (t/d))' +
+      '    // UA = (1/24) * ( (1/vf_feed) - (1/vf_uf) ) / (v_i * (rho_s/1000))' +
+      '    const delta_dilution = (1 / vf_feed) - (1 / vf_uf);' +
+      '    const UA = Math.max(0.04, Math.min(2.5, (1 / 24) * delta_dilution / (v_i * (rho_s / 1000))));' +
+      '    ' +
+      '    // Settling Area Required (m2)' +
+      '    const A_req = solids_tpd * UA;' +
+      '    const D_m = Math.sqrt((4 * A_req) / Math.PI);' +
+      '    const D_ft = D_m * 3.28084;' +
+      '    ' +
+      '    // Solids Loading Flux Gs (t/(m2.d))' +
+      '    const Gs_tpd_m2 = solids_tpd / A_req;' +
+      '    const Gs_kg_m2_h = (Gs_tpd_m2 * 1000) / 24;' +
+      '    ' +
+      '    // Flow Balances (m3/h)' +
+      '    const solids_tph = solids_tpd / 24;' +
+      '    const Q_feed_m3h = (solids_tph * 1000 / rho_s) + ((solids_tph * (100 - C_feed) / C_feed) * 1000 / rho_L);' +
+      '    const Q_uf_m3h = (solids_tph * 1000 / rho_s) + ((solids_tph * (100 - C_uf) / C_uf) * 1000 / rho_L);' +
+      '    const Q_of_m3h = Math.max(0, Q_feed_m3h - Q_uf_m3h);' +
+      '    ' +
+      '    // Surface Overflow Rate (m/h)' +
+      '    const SOR_mh = Q_of_m3h / A_req;' +
+      '    const SOR_gpm_ft2 = SOR_mh * 0.40905;' +
+      '    ' +
+      '    // Water Recovery %' +
+      '    const total_water_in = (solids_tph * (100 - C_feed) / C_feed);' +
+      '    const water_recovered = total_water_in - (solids_tph * (100 - C_uf) / C_uf);' +
+      '    const water_rec_pct = (water_recovered / Math.max(0.1, total_water_in)) * 100;' +
+      '    ' +
+      '    // Underflow slurry density (kg/m3)' +
+      '    const rho_uf = 1000 / ((C_uf / 100) / (rho_s / 1000) + (1 - C_uf / 100));' +
+      '    ' +
+      '    // Rake Drive Torque (ft.lb & kN.m)' +
+      '    const torque_ftlb = torque_k * Math.pow(D_ft, 2);' +
+      '    const torque_knm = torque_ftlb * 0.00135582;' +
+      '    ' +
+      '    // Rake RPM & Motor Power' +
+      '    // Tip speed approx 12 m/min -> RPM = 12 / (pi * D)' +
+      '    const rake_rpm = 12 / (Math.PI * D_m);' +
+      '    const omega_rad_s = (2 * Math.PI * rake_rpm) / 60;' +
+      '    const p_rake_kw = (torque_knm * omega_rad_s) * 1.6; // safety & gear efficiency' +
+      '    ' +
+      '    // Update DOM' +
+      '    el("res-thickener-dia").textContent = D_m.toFixed(1);' +
+      '    el("res-thickener-ft").textContent = Math.round(D_ft);' +
+      '    el("res-settling-area").textContent = Math.round(A_req).toLocaleString();' +
+      '    el("res-unit-area").textContent = UA.toFixed(3);' +
+      '    el("res-solids-flux").textContent = Gs_tpd_m2.toFixed(2);' +
+      '    el("res-flux-kg").textContent = Math.round(Gs_kg_m2_h);' +
+      '    el("res-sor-rate").textContent = SOR_mh.toFixed(2);' +
+      '    el("res-sor-gpm").textContent = SOR_gpm_ft2.toFixed(3);' +
+      '    el("res-overflow-rate").textContent = Math.round(Q_of_m3h).toLocaleString();' +
+      '    el("res-water-rec").textContent = water_rec_pct.toFixed(1);' +
+      '    el("res-underflow-rate").textContent = Math.round(Q_uf_m3h).toLocaleString();' +
+      '    el("res-uf-dens").textContent = Math.round(rho_uf);' +
+      '    el("res-rake-torque").textContent = Math.round(torque_knm);' +
+      '    el("res-torque-ftlb").textContent = Math.round(torque_ftlb / 1000);' +
+      '    el("res-motor-kw").textContent = Math.max(5, Math.round(p_rake_kw));' +
+      '    el("res-rake-rpm").textContent = rake_rpm.toFixed(3);' +
+      '    ' +
+      '    // Evaluation Badge' +
+      '    const badge = el("gt-eval-badge");' +
+      '    if (SOR_mh <= 2.2 && Gs_tpd_m2 <= 18.0 && C_uf <= 65) {' +
+      '      badge.textContent = "High-Rate Clarification & Stable Sludge Compression";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#15803d";' +
+      '    } else if (SOR_mh > 2.2) {' +
+      '      badge.textContent = "High Rise Rate (SOR): Risk of Slime Carryover into Overflow";' +
+      '      badge.style.background = "#fef3c7";' +
+      '      badge.style.color = "#b45309";' +
+      '    } else if (C_uf > 65) {' +
+      '      badge.textContent = "Paste Thickening Regime: Ensure High Torque Drive & Automated Lift";' +
+      '      badge.style.background = "#e0f2fe";' +
+      '      badge.style.color = "#0369a1";' +
+      '    } else {' +
+      '      badge.textContent = "Standard Thickener Operating Conditions";' +
+      '      badge.style.background = "#f1f5f9";' +
+      '      badge.style.color = "#334155";' +
+      '    }' +
+      '    ' +
+      '    drawThickener(D_m, Math.round(torque_knm), SOR_mh);' +
+      '  }' +
+      '  ' +
+      '  function drawThickener(dia, torque, sor) {' +
+      '    const canvas = el("gt-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width;' +
+      '    const h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background' +
+      '    const bg = ctx.createLinearGradient(0, 0, w, 0);' +
+      '    bg.addColorStop(0, "#0b1329");' +
+      '    bg.addColorStop(1, "#1e293b");' +
+      '    ctx.fillStyle = bg;' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ' +
+      '    const cx = 155;' +
+      '    const cy_top = 55;' +
+      '    const tank_w = 230;' +
+      '    const wall_h = 75;' +
+      '    const cone_drop = 45;' +
+      '    ' +
+      '    // Concrete Thickener Basin' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - tank_w / 2, cy_top);' +
+      '    ctx.lineTo(cx - tank_w / 2, cy_top + wall_h);' +
+      '    ctx.lineTo(cx - 18, cy_top + wall_h + cone_drop);' +
+      '    ctx.lineTo(cx - 18, cy_top + wall_h + cone_drop + 18);' +
+      '    ctx.lineTo(cx + 18, cy_top + wall_h + cone_drop + 18);' +
+      '    ctx.lineTo(cx + 18, cy_top + wall_h + cone_drop);' +
+      '    ctx.lineTo(cx + tank_w / 2, cy_top + wall_h);' +
+      '    ctx.lineTo(cx + tank_w / 2, cy_top);' +
+      '    ctx.closePath();' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.fill();' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Clarified Water Zone (Upper half)' +
+      '    const waterGrad = ctx.createLinearGradient(cx, cy_top + 10, cx, cy_top + wall_h - 10);' +
+      '    waterGrad.addColorStop(0, "rgba(2, 132, 199, 0.5)");' +
+      '    waterGrad.addColorStop(1, "rgba(14, 116, 144, 0.3)");' +
+      '    ctx.fillStyle = waterGrad;' +
+      '    ctx.fillRect(cx - tank_w / 2 + 3, cy_top + 10, tank_w - 6, wall_h - 15);' +
+      '    ' +
+      '    // Compacted Sludge Bed (Lower floor)' +
+      '    const bedGrad = ctx.createLinearGradient(cx, cy_top + wall_h - 10, cx, cy_top + wall_h + cone_drop);' +
+      '    bedGrad.addColorStop(0, "#d97706");' +
+      '    bedGrad.addColorStop(1, "#78350f");' +
+      '    ctx.fillStyle = bedGrad;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - tank_w / 2 + 3, cy_top + wall_h - 10);' +
+      '    ctx.lineTo(cx - tank_w / 2 + 3, cy_top + wall_h);' +
+      '    ctx.lineTo(cx - 16, cy_top + wall_h + cone_drop + 16);' +
+      '    ctx.lineTo(cx + 16, cy_top + wall_h + cone_drop + 16);' +
+      '    ctx.lineTo(cx + tank_w / 2 - 3, cy_top + wall_h);' +
+      '    ctx.lineTo(cx + tank_w / 2 - 3, cy_top + wall_h - 10);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ' +
+      '    // Central Feedwell' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.fillRect(cx - 28, cy_top + 5, 56, 45);' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 1.5;' +
+      '    ctx.strokeRect(cx - 28, cy_top + 5, 56, 45);' +
+      '    ' +
+      '    // Central Rake Shaft & Drive Cage' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.fillRect(cx - 4, cy_top - 20, 8, wall_h + cone_drop + 20);' +
+      '    // Rake drive head housing' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillRect(cx - 22, cy_top - 28, 44, 12);' +
+      '    ' +
+      '    // Dual Rake Arms with scrapers' +
+      '    ctx.strokeStyle = "#f59e0b";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    // Left arm' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx - 4, cy_top + wall_h + cone_drop);' +
+      '    ctx.lineTo(cx - tank_w / 2 + 10, cy_top + wall_h);' +
+      '    ctx.stroke();' +
+      '    // Right arm' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx + 4, cy_top + wall_h + cone_drop);' +
+      '    ctx.lineTo(cx + tank_w / 2 - 10, cy_top + wall_h);' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Rake scraper blades' +
+      '    ctx.lineWidth = 1.5;' +
+      '    for (let i = 1; i <= 6; i++) {' +
+      '      const frac = i / 7;' +
+      '      const lx = cx - 4 - frac * (tank_w / 2 - 14);' +
+      '      const ly = (cy_top + wall_h + cone_drop) - frac * cone_drop;' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(lx, ly);' +
+      '      ctx.lineTo(lx, ly + 7);' +
+      '      ctx.stroke();' +
+      '      ' +
+      '      const rx = cx + 4 + frac * (tank_w / 2 - 14);' +
+      '      const ry = (cy_top + wall_h + cone_drop) - frac * cone_drop;' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(rx, ry);' +
+      '      ctx.lineTo(rx, ry + 7);' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ' +
+      '    // Peripheral Overflow Launder & Weirs' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.fillRect(cx - tank_w / 2 - 14, cy_top + 10, 14, 14);' +
+      '    ctx.fillRect(cx + tank_w / 2, cy_top + 10, 14, 14);' +
+      '    ' +
+      '    // Flow labels' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 10px sans-serif";' +
+      '    ctx.fillText("Overflow ←", cx - tank_w / 2 - 70, cy_top + 22);' +
+      '    ctx.fillText("Slurry Feed ↓", cx - 30, cy_top - 34);' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.fillText("Thickened Underflow ↓", cx - 55, cy_top + wall_h + cone_drop + 36);' +
+      '    ' +
+      '    // Info card on right' +
+      '    ctx.fillStyle = "rgba(15, 23, 42, 0.85)";' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 1;' +
+      '    ctx.fillRect(295, 40, 190, 200);' +
+      '    ctx.strokeRect(295, 40, 190, 200);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("BASIN DIAMETER", 310, 65);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(dia.toFixed(1) + " Meters", 310, 87);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("RAKE RUNNING TORQUE", 310, 115);' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(torque + " kN·m", 310, 137);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("RISE RATE (SOR)", 310, 165);' +
+      '    ctx.fillStyle = sor <= 2.2 ? "#10b981" : "#ef4444";' +
+      '    ctx.font = "bold 15px sans-serif";' +
+      '    ctx.fillText(sor.toFixed(2) + " m/h", 310, 187);' +
+      '    ' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Coe-Clevenger / Talmage", 310, 218);' +
+      '  }' +
+      '  ' +
+      '  const inputs = [' +
+      '    "gt-preset", "gt-solids-rate", "gt-solids-unit", "gt-solids-feed-wt",' +
+      '    "gt-solids-uf-wt", "gt-settling-rate", "gt-solids-density", "gt-torque-k"' +
+      '  ];' +
+      '  ' +
+      '  inputs.forEach(id => {' +
+      '    const element = el(id);' +
+      '    if (element) {' +
+      '      element.addEventListener("input", () => {' +
+      '        if (id === "gt-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '      element.addEventListener("change", () => {' +
+      '        if (id === "gt-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const calcBtn = el("gt-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("gt-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== INDUSTRIAL GRAVITY THICKENER SIZING REPORT ===",' +
+      '        "Dry Solids Feed Rate: " + el("gt-solids-rate").value + " " + el("gt-solids-unit").value,' +
+      '        "Feed Solids / Target Underflow: " + el("gt-solids-feed-wt").value + " wt% -> " + el("gt-solids-uf-wt").value + " wt%",' +
+      '        "Initial Settling Velocity: " + el("gt-settling-rate").value + " m/h (Solids Density: " + el("gt-solids-density").value + " kg/m³)",' +
+      '        "Thickener Basin Diameter: " + el("res-thickener-dia").textContent + " m (" + el("res-thickener-ft").textContent + " ft)",' +
+      '        "Required Settling Area: " + el("res-settling-area").textContent + " m² (Unit Area: " + el("res-unit-area").textContent + " m²/t·d)",' +
+      '        "Solids Loading Flux: " + el("res-solids-flux").textContent + " t/(m²·d) (" + el("res-flux-kg").textContent + " kg/m²·h)",' +
+      '        "Surface Overflow Rate (SOR): " + el("res-sor-rate").textContent + " m/h (" + el("res-sor-gpm").textContent + " gpm/ft²)",' +
+      '        "Clarified Overflow Rate: " + el("res-overflow-rate").textContent + " m³/h (Water Recovery: " + el("res-water-rec").textContent + " %)",' +
+      '        "Underflow Rate: " + el("res-underflow-rate").textContent + " m³/h (Slurry Density: " + el("res-uf-dens").textContent + " kg/m³)",' +
+      '        "Rake Operating Torque: " + el("res-rake-torque").textContent + " kN·m (" + el("res-torque-ftlb").textContent + " k ft·lb)",' +
+      '        "Rake Drive Motor: " + el("res-motor-kw").textContent + " kW (@ " + el("res-rake-rpm").textContent + " RPM)",' +
+      '        "Operational Evaluation: " + el("gt-eval-badge").textContent,' +
+      '        "Design Standards: Coe-Clevenger & Talmage-Fitch Continuous Sedimentation Model"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("gt-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+
+  // ─── TOOL BX4: DOWNHOLE ESP PUMP CALCULATOR ───
+  (() => {
+    const slug = 'downhole-esp-electric-submersible-pump-sizing-calculator';
+    const title = 'Oilfield Downhole Electric Submersible Pump (ESP) Sizing Calculator';
+    const metaDescription = 'Size oilfield downhole Electric Submersible Pumps (ESP) for artificial lift. Calculate Total Dynamic Head (TDH), pump stage count, motor brake horsepower (BHP), downhole gas-liquid ratio (GLR), power cable voltage drop, and VSD affinity laws.';
+    const faq = [
+      {
+        q: 'How does a downhole Electric Submersible Pump (ESP) lift high volumes of oil and water?',
+        a: 'An Electric Submersible Pump (ESP) is an artificial lift system capable of producing high fluid volumes (from 200 to over 30,000 barrels per day) from deep wells. The downhole equipment assembly is hung on the bottom of the production tubing string inside the wellbore casing. From bottom to top, it consists of: (1) Downhole three-phase induction motor filled with high-dielectric mineral oil; (2) Protector / Seal Section that equalizes downhole pressure, absorbs axial thrust, and isolates wellbore brine from motor oil; (3) Intake / Rotary Gas Separator that centrifugally strips free gas from liquid; (4) Multi-stage centrifugal pump comprising dozens to hundreds of impeller-diffuser stages that build pressure sequentially; and (5) Discharge head connected to tubing. Power is transmitted from a surface variable speed drive (VSD) and step-up transformer via an armored three-phase electrical cable strapped to the tubing.'
+      },
+      {
+        q: 'How is Total Dynamic Head (TDH) calculated in oilfield artificial lift?',
+        a: 'Total Dynamic Head (TDH) represents the net vertical hydraulic pressure head the pump must generate to lift reservoir fluids to the surface separator:\\n$$TDH = H_{lift} + H_{wh} + H_{fric} - H_{cp} \\quad [\\text{feet}]$$\\nWhere \\(H_{lift}\\) is net vertical lift from the dynamic pump intake fluid level to surface (ft), \\(H_{wh} = P_{wh} \\times 2.31 / SG\\) is wellhead tubing pressure head, \\(H_{fric}\\) is frictional piping loss in the tubing string, and \\(H_{cp} = P_{casing} \\times 2.31 / SG\\) is casing head pressure assisting lift. The pump stage count is determined by dividing TDH by the head generated per stage at design flow rate.'
+      },
+      {
+        q: 'What causes downhole \"gas locking\" and how is it prevented?',
+        a: 'Centrifugal pump impellers are designed to pump incompressible liquids. If the bottomhole intake pressure drops below the bubble point pressure (\\(P_{intake} < P_b\\)), dissolved gas flashes into free vapor bubbles. If free gas by volume exceeds 10% to 15% at the first pump stage, the gas accumulates in the low-pressure eye of the impeller, forming a stationary vapor bubble that blocks liquid entry (\"gas locking\"). Fluid flow drops to zero, and the motor quickly overheats without passing fluid to cool it. Prevention requires installing an active Rotary Gas Separator (RGS) that centrifugally discharges vapor into the casing annulus, or deploying helico-axial multiphase gas handler (GH) pump stages capable of homogenizing up to 45% free gas.'
+      },
+      {
+        q: 'What are pump Up-Thrust and Down-Thrust damage zones (Recommended Operating Range)?',
+        a: 'Every ESP impeller experiences axial hydraulic forces: (1) Down-Thrust: At low flow rates (left of best efficiency point, BEP), high pressure beneath the impeller pushes it downward against its phenolic thrust washer; and (2) Up-Thrust: At excessively high flow rates (right of BEP), high dynamic velocity behind the shroud lifts the impeller upward, grinding the upper thrust pad against the diffuser. Operating outside the manufacturer\'s Recommended Operating Range (ROR) rapidly burns through thrust pads, creating excessive rotor vibration and premature mechanical seal failure.'
+      },
+      {
+        q: 'How do VSD Affinity Laws enable production optimization across reservoir decline?',
+        a: 'Variable Speed Drives (VSD) allow operators to adjust motor frequency from 35 Hz to 70 Hz (standard base: 60 Hz). Per the pump Affinity Laws:\\n$$Q_2 = Q_1 \\left(\\frac{f_2}{f_1}\\right), \\quad TDH_2 = TDH_1 \\left(\\frac{f_2}{f_1}\\right)^2, \\quad BHP_2 = BHP_1 \\left(\\frac{f_2}{f_1}\\right)^3$$\\nAs reservoir pressure depletes and water cut rises, increasing frequency from 50 Hz to 65 Hz expands pump head and flow without requiring an expensive workover rig to change out downhole pump stages.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #0284c7; background: #ffffff; box-shadow: 0 0 0 3px rgba(2,132,199,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #0284c7; color: #ffffff; }' +
+      '.btn-primary:hover { background: #0369a1; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-stat { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Oilfield Downhole Electric Submersible Pump (ESP) Sizing Calculator</h1>' +
+      '    <p>Perform engineering sizing and downhole hydraulic modeling for oilfield Electric Submersible Pump (ESP) artificial lift systems. Calculate Total Dynamic Head (TDH), stage count, motor brake horsepower (BHP), downhole free gas void fraction, cable voltage drop, and VSD frequency response.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Well Inflow & Reservoir Parameters</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="esp-preset">Well Application Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="esp-preset">' +
+      '            <option value="permian_shale" selected>Permian Basin Shale Oil (2,200 BPD, 8,200 ft TVD, 5.5" Casing, 400 Series)</option>' +
+      '            <option value="waterflood_high">Waterflood Producer (6,500 BPD, 5,500 ft TVD, 7" Casing, 538 Series)</option>' +
+      '            <option value="heavy_oil">Heavy Oil Gassy Well (1,200 BPD, 21° API, 350 GOR, Gas Handler)</option>' +
+      '            <option value="geothermal">Geothermal High-Volume Dewatering (12,000 BPD, 3,200 ft TVD, 675 Series)</option>' +
+      '            <option value="custom">Custom Well & ESP System</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="esp-prod-rate">Target Production Rate (\(Q\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="esp-prod-rate" value="2200" min="100" max="40000" step="100">' +
+      '          <select id="esp-prod-unit">' +
+      '            <option value="bpd" selected>BPD (US bbl/d)</option>' +
+      '            <option value="m3d">m³/day</option>' +
+      '            <option value="gpm">US GPM</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="esp-pump-depth">Pump Setting Depth (True Vertical Depth, TVD)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="esp-pump-depth" value="8200" min="500" max="25000" step="100">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">ft TVD</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="esp-fluid-level">Working Fluid Level from Surface</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="esp-fluid-level" value="4500" min="0" max="20000" step="100">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">ft</span>' +
+      '        </div>' +
+      '        <div class="hint">Depth to dynamic liquid top during pumping (0 = at surface)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="esp-wh-press">Wellhead Tubing Pressure (\(P_{wh}\))</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="esp-wh-press" value="180" min="20" max="2000" step="10">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">psi</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="esp-fluid-sg">Composite Fluid Specific Gravity (\(SG\)) & Water Cut</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="esp-fluid-sg" value="0.95" min="0.75" max="1.25" step="0.01" placeholder="SG">' +
+      '          <input type="number" id="esp-water-cut" value="70" min="0" max="100" step="5" placeholder="Water Cut %">' +
+      '        </div>' +
+      '        <div class="hint">Freshwater: 1.0, 35° API oil: 0.85, Formation brine: 1.05-1.15</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="esp-vsd-freq">Operating Power Frequency (VSD)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="esp-vsd-freq" value="60" min="35" max="75" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">Hz</span>' +
+      '        </div>' +
+      '        <div class="hint">Nominal rating is 60 Hz (Europe: 50 Hz base)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="esp-gas-pct">Intake Free Gas Volume Fraction</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="esp-gas-pct" value="12" min="0" max="60" step="1">' +
+      '          <span style="align-self:center; font-weight:600; padding: 0 10px;">% free gas</span>' +
+      '        </div>' +
+      '        <div class="hint">>10% requires Rotary Gas Separator; >25% requires Gas Handler</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button type="button" class="btn btn-primary" id="esp-calc-btn">Recalculate ESP</button>' +
+      '        <button type="button" class="btn btn-secondary" id="esp-copy-btn">Copy Engineering Summary</button>' +
+      '      </div>' +
+      '      <div style="text-align:center; margin-top:8px;"><span id="esp-toast" class="copy-toast">✓ Diagnostic Summary Copied!</span></div>' +
+      '    </div>' +
+      '    <!-- RESULTS CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Head, Stages, Motor & Cable Sizing</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Dynamic Head (TDH)</div>' +
+      '          <div class="res-val" id="res-tdh-ft">--</div>' +
+      '          <div class="res-unit">feet (<span id="res-tdh-m">--</span> m)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Required Pump Stages</div>' +
+      '          <div class="res-val" id="res-num-stages">--</div>' +
+      '          <div class="res-unit">stages (<span id="res-head-stage">--</span> ft/stage)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Motor Brake Horsepower (BHP)</div>' +
+      '          <div class="res-val" id="res-motor-bhp">--</div>' +
+      '          <div class="res-unit">HP (<span id="res-motor-kw">--</span> kW)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Downhole Hydraulic Lift Pressure</div>' +
+      '          <div class="res-val" id="res-pump-diff-press">--</div>' +
+      '          <div class="res-unit">psi (<span id="res-press-bar">--</span> bar)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Tubing Friction Head Loss</div>' +
+      '          <div class="res-val" id="res-fric-loss">--</div>' +
+      '          <div class="res-unit">feet (<span id="res-fric-psi">--</span> psi)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Recommended Motor Nameplate</div>' +
+      '          <div class="res-val" id="res-motor-rating">--</div>' +
+      '          <div class="res-unit">HP (Standard Frame Sizing)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">#2 AWG Cable Voltage Drop</div>' +
+      '          <div class="res-val" id="res-cable-vdrop">--</div>' +
+      '          <div class="res-unit">Volts (<span id="res-cable-pct">--</span> %)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Gas Separation Configuration</div>' +
+      '          <div class="res-val" id="res-gas-device">--</div>' +
+      '          <div class="res-unit">Device Mode</div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div style="margin-bottom: 12px;">' +
+      '        <span class="res-label">ESP Operational & Gas Interference Status: </span>' +
+      '        <span id="esp-eval-badge" class="badge-stat">Evaluating...</span>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="esp-canvas" width="500" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING THEORY & MATHEMATICAL DERIVATION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Engineering Principles & Downhole Hydraulic Derivations</h2>' +
+      '    <p>Electric Submersible Pump systems are high-energy artificial lift machines designed to deliver immense bottomhole drawdown, lifting tens of thousands of barrels of oil and formation brine per day from thousands of feet below surface.</p>' +
+      '    <h3>1. Total Dynamic Head (TDH) System Curve</h3>' +
+      '    <p>Total Dynamic Head \(TDH\) represents the total equivalent height of fluid column the pump must overcome:</p>' +
+      '    <div class="formula-box">' +
+      'H_{lift} = D_{fluid\_level} \quad [\text{ft}], \quad H_{wh} = \frac{P_{wh} \times 2.31}{SG} \quad [\text{ft}] \\' +
+      'H_{fric} = 2.083 \times \left(\frac{100}{C}\right)^{1.85} \cdot \frac{Q_{gpm}^{1.85}}{d_{tubing}^{4.8655}} \times \left(\frac{D_{pump}}{1000}\right) \quad [\text{ft}] \\' +
+      'TDH = H_{lift} + H_{wh} + H_{fric} \quad [\text{ft}]' +
+      '    </div>' +
+      '    <h3>2. Stage Selection & Affinity Law Frequency Scaling</h3>' +
+      '    <p>At base frequency \(f_0 = 60\,\text{Hz}\), an impeller generates head \(h_0\) (typically 32 to 45 ft/stage). Under VSD frequency \(f\), head and stage requirements scale by Affinity Laws:</p>' +
+      '    <div class="formula-box">' +
+      'h_{stage}(f) = h_0 \cdot \left(\frac{f}{60}\right)^2 \quad [\text{ft/stage}], \quad N_{stages} = \frac{TDH}{h_{stage}(f)}' +
+      '    </div>' +
+      '    <h3>3. Motor Hydraulic Brake Horsepower (BHP)</h3>' +
+      '    <p>Power demand is derived from liquid mass, head, and pump efficiency (\(\eta_{pump} \approx 0.68\text{ to }0.74\)), plus seal chamber mechanical friction loss (\(\approx 5\,\text{HP}\)):</p>' +
+      '    <div class="formula-box">' +
+      'BHP_{pump} = \frac{Q_{BPD} \cdot TDH_{ft} \cdot SG}{135,700 \cdot \eta_{pump}} + BHP_{seal} \quad [\text{HP}], \quad P_{kW} = BHP \times 0.7457' +
+      '    </div>' +
+      '    <h3>4. Downhole Power Cable Voltage Drop</h3>' +
+      '    <p>For standard #2 AWG copper ESP cable operating at downhole well temperature \(T\), resistance \(R\) increases by 0.4% per °C. 3-phase line drop is:</p>' +
+      '    <div class="formula-box">' +
+      '\Delta V_{cable} = \sqrt{3} \cdot I_{motor} \cdot \left(R_{20} \cdot (1 + 0.00393(T_{C} - 20))\right) \cdot \left(\frac{D_{pump}}{1000}\right) \quad [\text{Volts}]' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- 5 FATAL TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Engineering Traps & Industrial Operating Hazards</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #ef4444;">1. Downhole Gas Locking & Catastrophic Motor Burnout</h4>' +
+      '      <p>Allowing intake free gas to exceed 15% without a rotary gas separator creates stationary vapor pockets inside the first three centrifugal impeller eyes. Liquid flow stops completely. Because downhole motors rely entirely on passing fluid flow velocity (>0.3 m/s) over the motor housing for cooling, the stator temperature skyrockets past 200°C within 90 seconds, causing irreversible ground fault motor burnout.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #f59e0b;">2. Up-Thrust / Down-Thrust Bearing Destruction</h4>' +
+      '      <p>Operating outside the pump manufacturer\'s Recommended Operating Range (ROR) causes rapid mechanical failure. Throttling wellhead chokes causes heavy downthrust that grinds down thrust pads; conversely, over-pumping causes severe upthrust that lifts impellers into the upper diffuser webs, generating metal shavings that destroy pump stages.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #10b981;">3. Downhole Cable Voltage Drop & Phase Melting</h4>' +
+      '      <p>Undersizing cable size on deep 8,000 to 12,000 ft wells causes line voltage drop to exceed 60 to 90 Volts. To maintain required motor torque, the motor draws excess current (\(I \propto 1/V\)), dramatically increasing Joule heating (\(I^2 R\)) inside the lead sheath. The EPDM cable insulation softens and punctures to ground, requiring a $250,000 pulling rig workover.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #3b82f6;">4. Heavy Oil Emulsion Viscosity Derating Blindness</h4>' +
+      '      <p>Tight water-in-oil emulsions in 18° to 24° API crude can have apparent downhole viscosities exceeding 150 cSt. Centrifugal pumps lose up to 40% of their head capacity and 50% of their efficiency when pumping viscous fluids. Designing based on clear water curves results in an undersized pump that produces zero surface barrels.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #8b5cf6;">5. High-Frequency VSD Harmonic Thermal Stress</h4>' +
+      '      <p>Running surface VSD drives past 65 Hz produces reflected wave voltage spikes up to 3x motor rating on long downhole cable runs (the \"corona effect\"). Without a passive sine-wave filter or dV/dt filter on the surface VSD output, high-voltage transients pierce through downhole pothead seals and motor winding insulation.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ SECTION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions & Expert Guidance</h2>' +
+      '    <div class="faq-list">' +
+      faq.map(item =>
+        '      <div class="faq-item">' +
+        '        <div class="faq-q">' + item.q + ' <span>+</span></div>' +
+        '        <div class="faq-a">' + item.a + '</div>' +
+        '      </div>'
+      ).join('') +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    const script = '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  ' +
+      '  const presets = {' +
+      '    permian_shale: { prod: 2200, unit: "bpd", depth: 8200, level: 4500, whp: 180, sg: 0.95, wc: 70, freq: 60, gas: 12 },' +
+      '    waterflood_high: { prod: 6500, unit: "bpd", depth: 5500, level: 2200, whp: 140, sg: 1.05, wc: 92, freq: 58, gas: 4 },' +
+      '    heavy_oil: { prod: 1200, unit: "bpd", depth: 4200, level: 2800, whp: 120, sg: 0.92, wc: 40, freq: 55, gas: 28 },' +
+      '    geothermal: { prod: 12000, unit: "bpd", depth: 3200, level: 1200, whp: 85, sg: 1.02, wc: 99, freq: 62, gas: 2 }' +
+      '  };' +
+      '  ' +
+      '  function loadPreset() {' +
+      '    const key = el("esp-preset").value;' +
+      '    if (key === "custom") return;' +
+      '    const p = presets[key];' +
+      '    if (!p) return;' +
+      '    el("esp-prod-rate").value = p.prod;' +
+      '    el("esp-prod-unit").value = p.unit;' +
+      '    el("esp-pump-depth").value = p.depth;' +
+      '    el("esp-fluid-level").value = p.level;' +
+      '    el("esp-wh-press").value = p.whp;' +
+      '    el("esp-fluid-sg").value = p.sg;' +
+      '    el("esp-water-cut").value = p.wc;' +
+      '    el("esp-vsd-freq").value = p.freq;' +
+      '    el("esp-gas-pct").value = p.gas;' +
+      '    calc();' +
+      '  }' +
+      '  ' +
+      '  function calc() {' +
+      '    let prodRaw = parseFloat(el("esp-prod-rate").value) || 2200;' +
+      '    const prodUnit = el("esp-prod-unit").value;' +
+      '    let q_bpd = prodRaw;' +
+      '    if (prodUnit === "m3d") q_bpd = prodRaw * 6.28981;' +
+      '    else if (prodUnit === "gpm") q_bpd = prodRaw * 34.2857;' +
+      '    ' +
+      '    const depth_tvd = parseFloat(el("esp-pump-depth").value) || 8200;' +
+      '    const level_ft = parseFloat(el("esp-fluid-level").value) || 4500;' +
+      '    const wh_psi = parseFloat(el("esp-wh-press").value) || 180;' +
+      '    const sg = parseFloat(el("esp-fluid-sg").value) || 0.95;' +
+      '    const freq = parseFloat(el("esp-vsd-freq").value) || 60;' +
+      '    const gas_pct = parseFloat(el("esp-gas-pct").value) || 12;' +
+      '    ' +
+      '    // Total Dynamic Head (TDH)' +
+      '    // 1. Static Lift Head = dynamic fluid level from surface' +
+      '    const h_lift_ft = level_ft;' +
+      '    // 2. Wellhead Pressure Head' +
+      '    const h_wh_ft = (wh_psi * 2.31) / Math.max(0.7, sg);' +
+      '    // 3. Friction Head Loss in 2-7/8" or 3-1/2" tubing' +
+      '    // q_gpm = q_bpd / 34.2857' +
+      '    const q_gpm = q_bpd / 34.2857;' +
+      '    // Standard 2.875" OD tubing (ID = 2.441 in)' +
+      '    const h_fric_1k = 0.2083 * Math.pow(100 / 120, 1.85) * (Math.pow(q_gpm, 1.85) / Math.pow(2.441, 4.8655));' +
+      '    const h_fric_ft = (h_fric_1k * depth_tvd) / 1000;' +
+      '    const fric_psi = (h_fric_ft * sg) / 2.31;' +
+      '    ' +
+      '    const tdh_ft = h_lift_ft + h_wh_ft + h_fric_ft;' +
+      '    const tdh_m = tdh_ft * 0.3048;' +
+      '    const diff_press_psi = (tdh_ft * sg) / 2.31;' +
+      '    const diff_press_bar = diff_press_psi * 0.0689476;' +
+      '    ' +
+      '    // Stage calculation scaled by VSD frequency (Affinity Laws)' +
+      '    // Base head per stage at 60 Hz approx 38 ft/stage' +
+      '    const base_head_stage = 38;' +
+      '    const head_per_stage = base_head_stage * Math.pow(freq / 60, 2);' +
+      '    const num_stages = Math.ceil(tdh_ft / Math.max(5, head_per_stage));' +
+      '    ' +
+      '    // Motor BHP' +
+      '    // BHP = (q_bpd * tdh_ft * SG) / (135,700 * eta_pump) + seal_loss' +
+      '    const eta_pump = 0.70;' +
+      '    const bhp_hyd = (q_bpd * tdh_ft * sg) / (135700 * eta_pump);' +
+      '    const bhp_seal = 6.0;' +
+      '    const total_bhp = bhp_hyd + bhp_seal;' +
+      '    const total_kw = total_bhp * 0.7457;' +
+      '    ' +
+      '    // Motor rating frame sizing (round up to standard HP increments)' +
+      '    let nameplate_hp = 100;' +
+      '    const std_frames = [50, 75, 100, 125, 150, 180, 210, 240, 280, 320, 375, 450, 550, 700];' +
+      '    for (const f of std_frames) {' +
+      '      if (f >= total_bhp * 1.15) { nameplate_hp = f; break; }' +
+      '      nameplate_hp = f;' +
+      '    }' +
+      '    ' +
+      '    // Cable Voltage Drop (#2 AWG, approx 0.16 ohm/1000ft, ~35-65 Amps)' +
+      '    // Approx motor amps at 1500V nameplate' +
+      '    const v_nominal = 1800;' +
+      '    const motor_amps = (total_kw * 1000) / (Math.sqrt(3) * v_nominal * 0.86);' +
+      '    const r_cable_1k = 0.21; // ohm/1000ft at 90C' +
+      '    const v_drop = Math.sqrt(3) * motor_amps * (r_cable_1k * depth_tvd / 1000);' +
+      '    const v_drop_pct = (v_drop / v_nominal) * 100;' +
+      '    ' +
+      '    // Gas Device Selection' +
+      '    let gasDevice = "Standard Reverse-Flow Intake";' +
+      '    if (gas_pct > 25) gasDevice = "Multiphase Gas Handler (GH)";' +
+      '    else if (gas_pct >= 10) gasDevice = "Rotary Gas Separator (RGS)";' +
+      '    ' +
+      '    // Update DOM' +
+      '    el("res-tdh-ft").textContent = Math.round(tdh_ft).toLocaleString();' +
+      '    el("res-tdh-m").textContent = Math.round(tdh_m).toLocaleString();' +
+      '    el("res-num-stages").textContent = num_stages;' +
+      '    el("res-head-stage").textContent = head_per_stage.toFixed(1);' +
+      '    el("res-motor-bhp").textContent = Math.round(total_bhp);' +
+      '    el("res-motor-kw").textContent = Math.round(total_kw);' +
+      '    el("res-pump-diff-press").textContent = Math.round(diff_press_psi).toLocaleString();' +
+      '    el("res-press-bar").textContent = Math.round(diff_press_bar);' +
+      '    el("res-fric-loss").textContent = Math.round(h_fric_ft);' +
+      '    el("res-fric-psi").textContent = Math.round(fric_psi);' +
+      '    el("res-motor-rating").textContent = nameplate_hp + " HP";' +
+      '    el("res-cable-vdrop").textContent = Math.round(v_drop);' +
+      '    el("res-cable-pct").textContent = v_drop_pct.toFixed(1);' +
+      '    el("res-gas-device").textContent = gasDevice;' +
+      '    ' +
+      '    // Evaluation Badge' +
+      '    const badge = el("esp-eval-badge");' +
+      '    if (gas_pct <= 20 && v_drop_pct <= 5.0 && freq >= 45 && freq <= 65) {' +
+      '      badge.textContent = "Optimal Artificial Lift Hydraulics & Stable Intake Cooling";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#15803d";' +
+      '    } else if (gas_pct > 20) {' +
+      '      badge.textContent = "HIGH GAS HAZARD: Ensure Helico-Axial Gas Handler Installed";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#b91c1c";' +
+      '    } else if (v_drop_pct > 5.0) {' +
+      '      badge.textContent = "High Cable Voltage Drop (>5%): Upgrade to #1 or 1/0 AWG Cable";' +
+      '      badge.style.background = "#fef3c7";' +
+      '      badge.style.color = "#b45309";' +
+      '    } else {' +
+      '      badge.textContent = "Acceptable Downhole ESP Operating Parameters";' +
+      '      badge.style.background = "#e0f2fe";' +
+      '      badge.style.color = "#0369a1";' +
+      '    }' +
+      '    ' +
+      '    drawESP(num_stages, Math.round(tdh_ft), Math.round(total_bhp), gasDevice);' +
+      '  }' +
+      '  ' +
+      '  function drawESP(stages, tdh, bhp, gasDev) {' +
+      '    const canvas = el("esp-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width;' +
+      '    const h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ' +
+      '    // Background' +
+      '    const bg = ctx.createLinearGradient(0, 0, w, 0);' +
+      '    bg.addColorStop(0, "#0b1329");' +
+      '    bg.addColorStop(1, "#1e293b");' +
+      '    ctx.fillStyle = bg;' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    ' +
+      '    const cx = 135;' +
+      '    ' +
+      '    // Casing string (outer dark grey walls)' +
+      '    ctx.fillStyle = "#334155";' +
+      '    ctx.fillRect(cx - 36, 15, 6, 255);' +
+      '    ctx.fillRect(cx + 30, 15, 6, 255);' +
+      '    ' +
+      '    // Perforations at bottom' +
+      '    ctx.fillStyle = "#fbbf24";' +
+      '    for (let y = 230; y < 265; y += 8) {' +
+      '      ctx.fillRect(cx - 38, y, 10, 3);' +
+      '      ctx.fillRect(cx + 28, y, 10, 3);' +
+      '    }' +
+      '    ' +
+      '    // Production Tubing from top' +
+      '    ctx.fillStyle = "#475569";' +
+      '    ctx.fillRect(cx - 10, 15, 20, 50);' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.strokeRect(cx - 10, 15, 20, 50);' +
+      '    ' +
+      '    // ESP Component String (Top Down)' +
+      '    // 1. Pump Stages Section' +
+      '    ctx.fillStyle = "#0284c7";' +
+      '    ctx.fillRect(cx - 14, 65, 28, 65);' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.strokeRect(cx - 14, 65, 28, 65);' +
+      '    ' +
+      '    // Draw internal impeller stages stripes' +
+      '    ctx.strokeStyle = "#e0f2fe";' +
+      '    ctx.lineWidth = 1;' +
+      '    for (let y = 70; y < 125; y += 6) {' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(cx - 12, y);' +
+      '      ctx.lineTo(cx + 12, y);' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ' +
+      '    // 2. Intake / Gas Separator' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.fillRect(cx - 13, 130, 26, 22);' +
+      '    ctx.strokeStyle = "#fbbf24";' +
+      '    ctx.strokeRect(cx - 13, 130, 26, 22);' +
+      '    ' +
+      '    // 3. Protector / Seal Section' +
+      '    ctx.fillStyle = "#64748b";' +
+      '    ctx.fillRect(cx - 12, 152, 24, 25);' +
+      '    ctx.strokeStyle = "#94a3b8";' +
+      '    ctx.strokeRect(cx - 12, 152, 24, 25);' +
+      '    ' +
+      '    // 4. Downhole Electric Motor' +
+      '    ctx.fillStyle = "#1e293b";' +
+      '    ctx.fillRect(cx - 14, 177, 28, 65);' +
+      '    ctx.strokeStyle = "#10b981";' +
+      '    ctx.lineWidth = 1.5;' +
+      '    ctx.strokeRect(cx - 14, 177, 28, 65);' +
+      '    ' +
+      '    // 3-Phase Armored Power Cable strapped along side' +
+      '    ctx.strokeStyle = "#ef4444";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx + 20, 15);' +
+      '    ctx.lineTo(cx + 20, 177);' +
+      '    ctx.lineTo(cx + 14, 185); // motor pothead connection' +
+      '    ctx.stroke();' +
+      '    ' +
+      '    // Cable bands' +
+      '    ctx.fillStyle = "#e2e8f0";' +
+      '    for (let y = 30; y < 170; y += 30) {' +
+      '      ctx.fillRect(cx + 10, y, 12, 3);' +
+      '    }' +
+      '    ' +
+      '    // Flow arrows (upward in tubing)' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx, 55);' +
+      '    ctx.lineTo(cx, 25);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(cx, 20);' +
+      '    ctx.lineTo(cx - 4, 28);' +
+      '    ctx.lineTo(cx + 4, 28);' +
+      '    ctx.closePath();' +
+      '    ctx.fill();' +
+      '    ' +
+      '    // Annotations on left' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Pump Stages", cx - 95, 98);' +
+      '    ctx.fillStyle = "#fbbf24";' +
+      '    ctx.fillText("Intake / RGS", cx - 95, 144);' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.fillText("Seal Chamber", cx - 95, 166);' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.fillText("Submersible Motor", cx - 110, 210);' +
+      '    ' +
+      '    // Info card on right' +
+      '    ctx.fillStyle = "rgba(15, 23, 42, 0.85)";' +
+      '    ctx.strokeStyle = "#0284c7";' +
+      '    ctx.lineWidth = 1;' +
+      '    ctx.fillRect(280, 40, 205, 200);' +
+      '    ctx.strokeRect(280, 40, 205, 200);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("TOTAL DYNAMIC HEAD", 295, 65);' +
+      '    ctx.fillStyle = "#38bdf8";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(tdh.toLocaleString() + " ft TDH", 295, 87);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("PUMP CONFIGURATION", 295, 115);' +
+      '    ctx.fillStyle = "#10b981";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(stages + " Stages (Centrifugal)", 295, 137);' +
+      '    ' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("MOTOR BRAKE POWER", 295, 165);' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.font = "bold 16px sans-serif";' +
+      '    ctx.fillText(bhp + " BHP", 295, 187);' +
+      '    ' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText(gasDev, 295, 218);' +
+      '  }' +
+      '  ' +
+      '  const inputs = [' +
+      '    "esp-preset", "esp-prod-rate", "esp-prod-unit", "esp-pump-depth",' +
+      '    "esp-fluid-level", "esp-wh-press", "esp-fluid-sg", "esp-water-cut",' +
+      '    "esp-vsd-freq", "esp-gas-pct"' +
+      '  ];' +
+      '  ' +
+      '  inputs.forEach(id => {' +
+      '    const element = el(id);' +
+      '    if (element) {' +
+      '      element.addEventListener("input", () => {' +
+      '        if (id === "esp-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '      element.addEventListener("change", () => {' +
+      '        if (id === "esp-preset") loadPreset();' +
+      '        else calc();' +
+      '      });' +
+      '    }' +
+      '  });' +
+      '  ' +
+      '  const calcBtn = el("esp-calc-btn");' +
+      '  if (calcBtn) calcBtn.addEventListener("click", calc);' +
+      '  ' +
+      '  const copyBtn = el("esp-copy-btn");' +
+      '  if (copyBtn) {' +
+      '    copyBtn.addEventListener("click", () => {' +
+      '      const summary = [' +
+      '        "=== OILFIELD DOWNHOLE ESP SIZING REPORT ===",' +
+      '        "Target Production: " + el("esp-prod-rate").value + " " + el("esp-prod-unit").value,' +
+      '        "Setting Depth: " + el("esp-pump-depth").value + " ft TVD (Fluid Level: " + el("esp-fluid-level").value + " ft)",' +
+      '        "Wellhead Tubing Pressure: " + el("esp-wh-press").value + " psi (SG: " + el("esp-fluid-sg").value + ")",' +
+      '        "Operating Frequency: " + el("esp-vsd-freq").value + " Hz (Intake Free Gas: " + el("esp-gas-pct").value + " %)",' +
+      '        "Total Dynamic Head (TDH): " + el("res-tdh-ft").textContent + " ft (" + el("res-tdh-m").textContent + " m)",' +
+      '        "Required Pump Stages: " + el("res-num-stages").textContent + " stages (@ " + el("res-head-stage").textContent + " ft/stage)",' +
+      '        "Motor Brake Horsepower: " + el("res-motor-bhp").textContent + " BHP (" + el("res-motor-kw").textContent + " kW)",' +
+      '        "Recommended Motor Rating: " + el("res-motor-rating").textContent,' +
+      '        "Tubing Friction Loss: " + el("res-fric-loss").textContent + " ft (" + el("res-fric-psi").textContent + " psi)",' +
+      '        "Cable Voltage Drop: " + el("res-cable-vdrop").textContent + " V (" + el("res-cable-pct").textContent + " %)",' +
+      '        "Gas Separation Device: " + el("res-gas-device").textContent,' +
+      '        "Operating Status: " + el("esp-eval-badge").textContent,' +
+      '        "Design Standards: API RP 11S / Centrifugal ESP Pump Affinity Law Standards"' +
+      '      ].join("\\n");' +
+      '      ' +
+      '      navigator.clipboard.writeText(summary).then(() => {' +
+      '        const toast = el("esp-toast");' +
+      '        if (toast) {' +
+      '          toast.style.opacity = "1";' +
+      '          setTimeout(() => { toast.style.opacity = "0"; }, 2500);' +
+      '        }' +
+      '      });' +
+      '    });' +
+      '  }' +
+      '  ' +
+      '  // Accordions' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      const item = q.parentElement;' +
+      '      item.classList.toggle("active");' +
+      '      const sp = q.querySelector("span");' +
+      '      if (sp) sp.textContent = item.classList.contains("active") ? "−" : "+";' +
+      '    });' +
+      '  });' +
+      '  ' +
+      '  // Initial run' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content: content + script,
+      bodyContent: content + script,
+      faq
+    }));
+  })();
+
+
+
+  console.log('  ✓ Built Trade & Construction Suite (247 calculators in /calc/)');
 }
 
