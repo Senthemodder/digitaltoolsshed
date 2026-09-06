@@ -213,7 +213,7 @@ export function buildMinecraftTools() {
           </div>
         </div>
       </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script src="/assets/pako.min.js"></script>
 
     <script>
       var parsedNBT = null;

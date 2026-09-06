@@ -92,66 +92,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://digitaltoolsshed.com/convert/site/converters/base64</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://digitaltoolsshed.com/convert/site/converters/image-resizer</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://digitaltoolsshed.com/convert/site/converters/jpg-to-png</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://digitaltoolsshed.com/convert/site/converters/json-formatter</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://digitaltoolsshed.com/convert/site/converters/json-to-yaml</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://digitaltoolsshed.com/convert/site/converters/png-to-jpg</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://digitaltoolsshed.com/convert/site/converters/png-to-webp</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://digitaltoolsshed.com/convert/site/converters/svg-to-png</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://digitaltoolsshed.com/convert/site/converters/webp-to-png</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://digitaltoolsshed.com/convert/site/converters/yaml-to-json</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://digitaltoolsshed.com/convert/svg-to-png</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>

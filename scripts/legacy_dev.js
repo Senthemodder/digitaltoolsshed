@@ -737,8 +737,8 @@ function buildDeveloperTools() {
       </div>
     </div>
 
-    <!-- JS-BEAUTIFY CDN FOR ROBUST AST FORMATTING -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify.min.js"></script>
+    <!-- JS-BEAUTIFY LOCAL VENDOR FOR ROBUST AST FORMATTING -->
+    <script src="/assets/beautify.min.js"></script>
     <script>
       const jsAlertMsg = document.getElementById('jsAlertMsg');
       const jsAlertText = document.getElementById('jsAlertText');

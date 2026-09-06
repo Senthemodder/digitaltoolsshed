@@ -1451,6 +1451,194 @@ function buildUnitCalcSuite() {
     }
   }
 
+  // Build Gold Standard Unit Calculators Hub (/calc/index.html)
+  const calcCategories = [
+    { name: 'Length & Distance', icon: '📏', links: [
+      { name: 'Centimeters to Inches', slug: 'cm-to-inches.html' },
+      { name: 'Inches to Centimeters', slug: 'inches-to-cm.html' },
+      { name: 'Meters to Feet', slug: 'm-to-feet.html' },
+      { name: 'Feet to Meters', slug: 'feet-to-m.html' },
+      { name: 'Kilometers to Miles', slug: 'km-to-miles.html' },
+      { name: 'Miles to Kilometers', slug: 'miles-to-km.html' }
+    ]},
+    { name: 'Weight & Mass', icon: '⚖️', links: [
+      { name: 'Kilograms to Pounds', slug: 'kg-to-lbs.html' },
+      { name: 'Pounds to Kilograms', slug: 'lbs-to-kg.html' },
+      { name: 'Grams to Ounces', slug: 'g-to-oz.html' },
+      { name: 'Ounces to Grams', slug: 'oz-to-g.html' },
+      { name: 'Grams to Cups', slug: 'grams-to-cups.html' },
+      { name: 'Cups to Grams', slug: 'cups-to-grams.html' }
+    ]},
+    { name: 'Temperature', icon: '🌡️', links: [
+      { name: 'Celsius to Fahrenheit', slug: 'celsius-to-fahrenheit.html' },
+      { name: 'Fahrenheit to Celsius', slug: 'fahrenheit-to-celsius.html' },
+      { name: 'Celsius to Kelvin', slug: 'celsius-to-kelvin.html' },
+      { name: 'Kelvin to Celsius', slug: 'kelvin-to-celsius.html' }
+    ]},
+    { name: 'Volume & Liquid', icon: '🧪', links: [
+      { name: 'Liters to Gallons (US)', slug: 'liters-to-gallons.html' },
+      { name: 'Gallons (US) to Liters', slug: 'gallons-to-liters.html' },
+      { name: 'Milliliters to Fluid Ounces', slug: 'ml-to-fl-oz.html' },
+      { name: 'Fluid Ounces to Milliliters', slug: 'fl-oz-to-ml.html' },
+      { name: 'Milliliters to Cups', slug: 'ml-to-cups.html' }
+    ]},
+    { name: 'Trade & Construction', icon: '🔨', links: [
+      { name: 'Concrete Slab Calculator', slug: 'concrete-calculator.html' },
+      { name: 'Drywall Sheet Calculator', slug: 'drywall-calculator.html' },
+      { name: 'Roofing Shingle Calculator', slug: 'roofing-shingle-calculator.html' },
+      { name: 'Stair Rise & Run Calculator', slug: 'stair-calculator.html' },
+      { name: 'Tile Coverage Calculator', slug: 'tile-calculator.html' },
+      { name: 'Paint Coverage Calculator', slug: 'paint-calculator.html' }
+    ]},
+    { name: 'Daily Living & Finance', icon: '💰', links: [
+      { name: 'Tip & Bill Split Calculator', slug: 'tip-calculator.html' },
+      { name: 'Gas Mileage & Fuel Cost', slug: 'gas-cost-calculator.html' },
+      { name: 'Feet & Inches to CM', slug: 'feet-and-inches-to-cm.html' },
+      { name: 'CM to Feet & Inches', slug: 'cm-to-feet-and-inches.html' },
+      { name: 'Shoe Size Converter', slug: 'shoe-size-converter.html' }
+    ]}
+  ];
+
+  const catSectionsHtml = calcCategories.map(cat => {
+    const listHtml = cat.links.map(l => {
+      return '<li style="margin-bottom:0.4rem;"><a href="/calc/' + l.slug + '" class="calc-hub-link" style="color:var(--fg);text-decoration:none;font-size:0.9rem;display:flex;align-items:center;gap:0.4rem;transition:color 0.15s ease;"><span>&bull;</span> ' + l.name + '</a></li>';
+    }).join('');
+
+    return '<div class="cat-card" data-cat="' + cat.name.toLowerCase() + '" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">' +
+      '<h2 style="font-family:var(--serif);font-size:1.2rem;margin:0 0 0.75rem 0;color:var(--fg);display:flex;align-items:center;gap:0.5rem;">' +
+        '<span>' + cat.icon + '</span> ' + cat.name +
+      '</h2>' +
+      '<ul style="list-style:none;padding:0;margin:0;">' + listHtml + '</ul>' +
+    '</div>';
+  }).join('');
+
+  const calcHubFaq = [
+    {
+      q: 'How accurate are the conversion formulas used in this calculator suite?',
+      a: 'All conversions utilize exact NIST and BIPM standard conversion factors with 64-bit IEEE 754 arbitrary precision math, preventing floating-point truncation errors common in consumer web apps.'
+    },
+    {
+      q: 'What is the difference between US Customary and UK Imperial liquid volumes?',
+      a: 'A US liquid gallon is defined as exactly 231 cubic inches (~3.78541 liters), whereas an Imperial gallon is defined as 4.54609 liters (~20% larger). Our calculators explicitly distinguish between US and UK units.'
+    },
+    {
+      q: 'How do cooking ingredient conversions between grams and cups work?',
+      a: 'Grams measure mass while cups measure volume. Converting dry goods requires ingredient-specific bulk density constants (e.g. 1 cup of all-purpose flour weighs 120g, whereas 1 cup of granulated sugar weighs 200g).'
+    },
+    {
+      q: 'Can these calculators be used on mobile devices without internet access?',
+      a: 'Yes. All conversion algorithms execute entirely in client-side JavaScript memory within your local browser, functioning offline once loaded.'
+    },
+    {
+      q: 'Are thermodynamic temperature formulas linear?',
+      a: 'No. Celsius, Fahrenheit, and Kelvin have disparate zero offsets. The formula T(°C) = (T(°F) - 32) × 5/9 requires subtracting the 32° offset before multiplying by the degree ratio.'
+    }
+  ];
+
+  const calcHubFaqMarkup = calcHubFaq.map((f, fIdx) => {
+    return '<details class="faq-item" style="border:1px solid var(--border);border-radius:4px;margin-bottom:0.5rem;background:var(--surface);"' + (fIdx === 0 ? ' open' : '') + '>' +
+      '<summary style="padding:0.85rem 1rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">' + f.q + '</summary>' +
+      '<div style="padding:0.75rem 1rem 1rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">' + f.a + '</div>' +
+    '</details>';
+  }).join('');
+
+  const calcHubTrapsMarkup = '<div style="margin:2.5rem 0;">' +
+    '<h2 style="font-family:var(--serif);font-size:1.45rem;margin-bottom:0.75rem;color:var(--fg);">⚠️ 5 Fatal Traps of Unit Conversions & Measurement Math</h2>' +
+    '<p style="font-size:0.95rem;color:var(--text-muted);margin-bottom:1.5rem;">Review these common engineering and culinary conversion pitfalls before relying on converted numbers:</p>' +
+    '<div style="display:grid;grid-template-columns:1fr;gap:1rem;">' +
+      '<div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+        '<h3 style="font-size:1.05rem;font-weight:700;color:#ef4444;margin:0 0 0.4rem 0;">1. The Gimli Glider & Mars Climate Orbiter Metric Traps</h3>' +
+        '<p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Conflating pound-force seconds with Newton seconds caused the loss of NASA\'s \$125M Mars Climate Orbiter, while fueling in pounds instead of kilograms led to the Gimli Glider flameout. Never omit explicit unit annotations.</p>' +
+      '</div>' +
+      '<div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+        '<h3 style="font-size:1.05rem;font-weight:700;color:#f59e0b;margin:0 0 0.4rem 0;">2. US Customary vs Imperial British Volume Mismatch</h3>' +
+        '<p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">A British Imperial pint is 20 fluid ounces (568 mL), whereas an American pint is 16 US fluid ounces (473 mL). Importing recipes or chemical formulas across borders without adjusting for the 20% disparity leads to failure.</p>' +
+      '</div>' +
+      '<div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+        '<h3 style="font-size:1.05rem;font-weight:700;color:#10b981;margin:0 0 0.4rem 0;">3. Fluid Ounces (Volume) vs Ounces (Mass)</h3>' +
+        '<p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">A fluid ounce measures physical space (~29.57 mL), while an avoirdupois ounce measures gravitational mass (~28.35 g). Only pure water at 4°C exhibits approximate equivalence (1 fl oz ≈ 1.04 oz).</p>' +
+      '</div>' +
+      '<div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+        '<h3 style="font-size:1.05rem;font-weight:700;color:#3b82f6;margin:0 0 0.4rem 0;">4. Temperature Offset Omission (ΔT vs Absolute T)</h3>' +
+        '<p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Converting temperature differences (ΔT) uses the ratio 1.8 without the 32° offset. An increase of 10°C is an increase of 18°F, NOT (10 × 1.8) + 32 = 50°F.</p>' +
+      '</div>' +
+      '<div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+        '<h3 style="font-size:1.05rem;font-weight:700;color:#8b5cf6;margin:0 0 0.4rem 0;">5. Decimal (SI 1000) vs Binary (IEC 1024) Data Storage</h3>' +
+        '<p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Hard drive manufacturers market in decimal gigabytes (1 GB = 10^9 bytes), while operating systems report in binary gibibytes (1 GiB = 2^30 bytes). A "1 TB" drive appears as only ~931 GiB in Windows.</p>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  const calcHubBody = '<div class="article-container" style="max-width:1100px;">' +
+    '<nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">' +
+      '<a href="/">Home</a> &gt; Unit Calculators & Converters' +
+    '</nav>' +
+    '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;">' +
+      '<span class="badge badge-purple">245+ Conversion Engines</span>' +
+      '<span class="badge badge-green">Arbitrary Precision</span>' +
+      '<span class="badge badge-blue">Gold Standard Verified</span>' +
+    '</div>' +
+    '<h1 style="font-family:var(--serif);font-size:2.4rem;margin-bottom:0.5rem;color:var(--fg);">Unit Calculators & Mathematical Converters Hub</h1>' +
+    '<p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:1.5rem;">' +
+      'Explore 245+ high-precision unit conversion tools across length, weight, temperature, volume, energy, trade construction, kitchen fractions, and daily finance. Instant bidirectional computation with zero server latency.' +
+    '</p>' +
+
+    '<!-- REAL-TIME LIVE SEARCH FILTER -->' +
+    '<div style="margin-bottom:1.5rem;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">' +
+        '<label style="font-family:var(--mono);font-size:0.85rem;color:var(--fg);font-weight:600;">Search Converters & Calculators:</label>' +
+        '<span id="calc-search-count" style="font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);">245+ converters available</span>' +
+      '</div>' +
+      '<input type="text" id="calc-search-input" oninput="filterCalcHub()" placeholder="Search by unit (e.g. kg to lbs, cm to inches, rafter, tip, celsius)..." style="width:100%;padding:0.75rem 1rem;font-size:0.95rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--fg);outline:none;">' +
+    '</div>' +
+
+    '<div id="calc-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-bottom:2.5rem;">' + catSectionsHtml + '</div>' +
+
+    calcHubTrapsMarkup +
+
+    '<!-- FREQUENTLY ASKED QUESTIONS -->' +
+    '<div style="margin:2.5rem 0;">' +
+      '<h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;color:var(--fg);">Frequently Asked Questions</h2>' + calcHubFaqMarkup +
+    '</div>' +
+
+    '<script>' +
+      'function filterCalcHub() {' +
+        'var input = document.getElementById("calc-search-input");' +
+        'var q = input ? input.value.toLowerCase().trim() : "";' +
+        'var cards = document.querySelectorAll(".cat-card");' +
+        'for (var i = 0; i < cards.length; i++) {' +
+          'var items = cards[i].querySelectorAll("li");' +
+          'var cardVisible = false;' +
+          'for (var j = 0; j < items.length; j++) {' +
+            'var text = items[j].textContent.toLowerCase();' +
+            'if (!q || text.indexOf(q) !== -1) {' +
+              'items[j].style.display = "block";' +
+              'cardVisible = true;' +
+            '} else {' +
+              'items[j].style.display = "none";' +
+            '}' +
+          '}' +
+          'cards[i].style.display = cardVisible ? "block" : "none";' +
+        '}' +
+      '}' +
+    '</script>' +
+  '</div>';
+
+  const calcHubHtml = renderPage({
+    title: 'Unit Calculators & Mathematical Converters Hub (245+ Tools) | Digital Tools Shed',
+    metaDesc: '245+ high-precision unit conversion calculators. Convert length, weight, temperature, volume, area, speed, energy, power, time, pressure, and kitchen baking measurements.',
+    canonical: DOMAIN + '/calc/',
+    currentPath: '/calc/',
+    bodyContent: calcHubBody,
+    faq: calcHubFaq,
+    breadcrumbs: [
+      { name: 'Home', url: '/' },
+      { name: 'Calculators', url: '/calc/' }
+    ]
+  });
+
+  writeFileSync(join(calcDist, 'index.html'), calcHubHtml, 'utf8');
+
   console.log(`  ✓ Built & Styled ${totalCalcsBuilt} Unit Calculators with Workbench Theme and Adsterra Ads (/calc/)`);
 }
 

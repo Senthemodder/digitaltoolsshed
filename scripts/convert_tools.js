@@ -659,13 +659,154 @@ export function buildConvertFastSuite() {
     writeFileSync(join(convertDist, file), pageHtml);
   }
 
-  // Sync ConvertFast Hub index.html to dist/convert/index.html with clean links
-  const cfIndexSrc = join(ROOT, 'src', 'convertfast', 'index.html');
-  if (existsSync(cfIndexSrc)) {
-    let indexHtml = readFileSync(cfIndexSrc, 'utf-8');
-    indexHtml = indexHtml.replace(/href=["']converters\/([^"']+)["']/g, 'href="/convert/$1"');
-    writeFileSync(join(convertDist, 'index.html'), indexHtml);
-  }
+  // Build Elevated ConvertFast Hub (/convert/index.html)
+  const converterList = [
+    { title: 'Base64 Encoder & Decoder', slug: 'base64.html', icon: '🔤', desc: 'Encode text or binary files into Base64 format, or decode Base64 back to original files.' },
+    { title: 'Batch Image Resizer', slug: 'image-resizer.html', icon: '📐', desc: 'Resize PNG, JPG, and WebP images by pixel or percentage with aspect ratio constraint.' },
+    { title: 'JPG to PNG Converter', slug: 'jpg-to-png.html', icon: '🖼️', desc: 'Convert compressed JPG/JPEG images into lossless PNG files directly in your browser.' },
+    { title: 'PNG to JPG Converter', slug: 'png-to-jpg.html', icon: '🎨', desc: 'Convert PNG graphics to optimized JPG photographs with adjustable compression quality.' },
+    { title: 'PNG to WebP Converter', slug: 'png-to-webp.html', icon: '⚡', desc: 'Convert PNG images to modern lightweight WebP format to save 30-70% bandwidth.' },
+    { title: 'WebP to PNG Converter', slug: 'webp-to-png.html', icon: '🔄', desc: 'Convert modern WebP images into universally compatible lossless PNG files.' },
+    { title: 'SVG to PNG Converter', slug: 'svg-to-png.html', icon: '📏', desc: 'Rasterize scalable vector graphics (SVG) into crisp, high-resolution PNG images.' },
+    { title: 'JSON Formatter & Validator', slug: 'json-formatter.html', icon: '📋', desc: 'Prettify, format, validate, and minify JSON data structures with syntax tree checking.' },
+    { title: 'JSON to YAML Converter', slug: 'json-to-yaml.html', icon: '📄', desc: 'Transform JSON configuration objects into clean, human-readable YAML syntax.' },
+    { title: 'YAML to JSON Converter', slug: 'yaml-to-json.html', icon: '⚙️', desc: 'Parse YAML configuration files and convert them into standard JSON data objects.' },
+    { title: 'JSON Obfuscator & Protector', slug: 'json-obfuscator.html', icon: '🔒', desc: 'Obfuscate and mangle JSON keys and structures for client-side distribution protection.' },
+    { title: 'ESBuild & JS Decompiler', slug: 'esbuild-decompiler.html', icon: '🔍', desc: 'Decompile, unminify, and reverse engineer bundled JavaScript source files.' }
+  ];
+
+  const convCardsHtml = converterList.map(c => {
+    return '<a href="/convert/' + c.slug + '" class="conv-card" data-search="' + (c.title + ' ' + c.desc).toLowerCase() + '" style="display:block;padding:1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;color:inherit;transition:border-color 0.15s ease;">' +
+      '<div style="font-size:1.5rem;margin-bottom:0.5rem;">' + c.icon + '</div>' +
+      '<div style="font-family:var(--serif);font-size:1.15rem;font-weight:600;margin-bottom:0.35rem;color:var(--fg);">' + c.title + '</div>' +
+      '<p style="font-size:0.85rem;color:var(--text-muted);margin:0;line-height:1.5;">' + c.desc + '</p>' +
+    '</a>';
+  }).join('');
+
+  const hubFaq = [
+    {
+      q: 'Do any files or data get uploaded to external servers when using these converters?',
+      a: 'No. All conversion operations execute 100% locally inside your browser memory using native HTML5 Canvas, TextEncoder/TextDecoder, and local JavaScript algorithms. Your files never touch a remote server.'
+    },
+    {
+      q: 'Can I convert large images or files without crashing my browser?',
+      a: 'Yes. Our tools utilize in-memory streaming and chunking to process high-resolution images (up to 4K and 8K) and multi-megabyte JSON/YAML documents without freezing the user interface thread.'
+    },
+    {
+      q: 'Is image quality preserved when converting between PNG, JPG, and WebP?',
+      a: 'PNG to WebP and WebP to PNG maintain exact visual fidelity. When converting to JPG, quality can be configured between 70% and 100% to balance file size against compression artifacts.'
+    },
+    {
+      q: 'Why should I convert images to WebP format for web publishing?',
+      a: 'WebP provides 25–35% smaller file sizes compared to JPEG at equivalent visual quality, and supports 24-bit transparent alpha channels, significantly reducing page load latency and mobile data usage.'
+    },
+    {
+      q: 'How does the JSON to YAML converter handle special characters and data types?',
+      a: 'The converter strictly respects standard YAML 1.2 schemas, preserving booleans, null values, integer precision, nested dictionaries, multi-line string indentation, and escaped Unicode characters.'
+    }
+  ];
+
+  const hubFaqMarkup = hubFaq.map((f, fIdx) => {
+    return '<details class="faq-item" style="border:1px solid var(--border);border-radius:4px;margin-bottom:0.5rem;background:var(--surface);"' + (fIdx === 0 ? ' open' : '') + '>' +
+      '<summary style="padding:0.85rem 1rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">' + f.q + '</summary>' +
+      '<div style="padding:0.75rem 1rem 1rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">' + f.a + '</div>' +
+    '</details>';
+  }).join('');
+
+  const hubTrapsMarkup = '<div style="margin:2.5rem 0;">' +
+    '<h2 style="font-family:var(--serif);font-size:1.45rem;margin-bottom:0.75rem;color:var(--fg);">⚠️ 5 Fatal Traps of Data & Media Format Conversions</h2>' +
+    '<p style="font-size:0.95rem;color:var(--text-muted);margin-bottom:1.5rem;">Review these critical conversion traps before processing production data and image assets:</p>' +
+    '<div style="display:grid;grid-template-columns:1fr;gap:1rem;">' +
+      '<div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+        '<h3 style="font-size:1.05rem;font-weight:700;color:#ef4444;margin:0 0 0.4rem 0;">1. Lossy-to-Lossy Generation Loss</h3>' +
+        '<p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Converting an already-compressed JPG into WebP or another lossy format reapplies discrete cosine transform (DCT) quantization, magnifying compression ringing and mosquito noise around high-contrast edges.</p>' +
+      '</div>' +
+      '<div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+        '<h3 style="font-size:1.05rem;font-weight:700;color:#f59e0b;margin:0 0 0.4rem 0;">2. Alpha Channel Blackout (Transparency Stripping)</h3>' +
+        '<p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">JPEG format does not support alpha transparency channels. Converting a transparent PNG logo directly to JPEG causes transparent areas to collapse into solid black or white pixels unless composited against a background color.</p>' +
+      '</div>' +
+      '<div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+        '<h3 style="font-size:1.05rem;font-weight:700;color:#10b981;margin:0 0 0.4rem 0;">3. Floating-Point Precision Truncation in JSON & YAML</h3>' +
+        '<p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">64-bit integer values exceeding 2^53 - 1 (e.g. database snowflake IDs or high-precision crypto balances) lose precision during JSON parsing unless formatted as text strings.</p>' +
+      '</div>' +
+      '<div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+        '<h3 style="font-size:1.05rem;font-weight:700;color:#3b82f6;margin:0 0 0.4rem 0;">4. Base64 33% Payload Expansion</h3>' +
+        '<p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Inlining large base64 strings into HTML or CSS balloons initial transfer sizes by one-third and defeats browser parallel asset caching. Use binary file references for assets over 10KB.</p>' +
+      '</div>' +
+      '<div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+        '<h3 style="font-size:1.05rem;font-weight:700;color:#8b5cf6;margin:0 0 0.4rem 0;">5. Mobile Hardware Canvas Resolution Limits</h3>' +
+        '<p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Attempting to resize or rasterize graphics exceeding mobile GPU texture limits (typically 4096x4096 on older smartphones) causes silent blank canvas output. Always check source dimensions before processing.</p>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  const hubBody = '<div class="article-container" style="max-width:1100px;">' +
+    '<nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">' +
+      '<a href="/">Home</a> &gt; Data & Media Converters' +
+    '</nav>' +
+    '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;">' +
+      '<span class="badge badge-purple">100% Client-Side</span>' +
+      '<span class="badge badge-green">Zero Server Uploads</span>' +
+      '<span class="badge badge-blue">Gold Standard Speed</span>' +
+    '</div>' +
+    '<h1 style="font-family:var(--serif);font-size:2.4rem;margin-bottom:0.5rem;color:var(--fg);">Data & Image Converters Hub</h1>' +
+    '<p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:1.5rem;">' +
+      'High-speed, privacy-first client-side data and image conversion utilities. Convert Base64 strings, resize photos, transcode PNG, JPG, WebP, SVG, validate JSON, and parse YAML with sub-50ms execution in your browser memory.' +
+    '</p>' +
+
+    '<!-- REAL-TIME LIVE SEARCH FILTER -->' +
+    '<div style="margin-bottom:1.5rem;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">' +
+        '<label style="font-family:var(--mono);font-size:0.85rem;color:var(--fg);font-weight:600;">Filter Converters:</label>' +
+        '<span id="conv-count" style="font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);">' + converterList.length + ' tools available</span>' +
+      '</div>' +
+      '<input type="text" id="conv-search-input" oninput="filterConvHub()" placeholder="Search converters (e.g. WebP, Base64, Resize, YAML, JSON)..." style="width:100%;padding:0.75rem 1rem;font-size:0.95rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--fg);outline:none;">' +
+    '</div>' +
+
+    '<div id="conv-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:2.5rem;">' + convCardsHtml + '</div>' +
+
+    hubTrapsMarkup +
+
+    '<!-- FREQUENTLY ASKED QUESTIONS -->' +
+    '<div style="margin:2.5rem 0;">' +
+      '<h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;color:var(--fg);">Frequently Asked Questions</h2>' + hubFaqMarkup +
+    '</div>' +
+
+    '<script>' +
+      'function filterConvHub() {' +
+        'var input = document.getElementById("conv-search-input");' +
+        'var q = input ? input.value.toLowerCase().trim() : "";' +
+        'var cards = document.querySelectorAll(".conv-card");' +
+        'var visible = 0;' +
+        'for (var i = 0; i < cards.length; i++) {' +
+          'var s = cards[i].getAttribute("data-search") || "";' +
+          'if (!q || s.indexOf(q) !== -1) {' +
+            'cards[i].style.display = "block";' +
+            'visible++;' +
+          '} else {' +
+            'cards[i].style.display = "none";' +
+          '}' +
+        '}' +
+        'var countEl = document.getElementById("conv-count");' +
+        'if (countEl) countEl.textContent = visible + " of " + cards.length + " tools shown";' +
+      '}' +
+    '</script>' +
+  '</div>';
+
+  const hubHtml = renderPage({
+    title: 'Data & Image Converters Hub — Free Client-Side Utilities | Digital Tools Shed',
+    metaDesc: 'Fast, private client-side data and image conversion tools. Convert Base64, resize images, transcode PNG, JPG, WebP, SVG, format JSON, and parse YAML with zero server latency.',
+    canonical: DOMAIN + '/convert/',
+    currentPath: '/convert/',
+    bodyContent: hubBody,
+    faq: hubFaq,
+    breadcrumbs: [
+      { name: 'Home', url: '/' },
+      { name: 'Converters', url: '/convert/' }
+    ]
+  });
+
+  writeFileSync(join(convertDist, 'index.html'), hubHtml, 'utf8');
 
   console.log(`  ✓ Ported & Styled ${files.length} ConvertFast converters with Vector Icons (/convert/)`);
 }

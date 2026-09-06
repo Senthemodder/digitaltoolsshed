@@ -215,9 +215,9 @@ function buildPdfTools() {
       </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="/assets/pdf.min.js"></script>
     <script>
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.js';
       const dropZone = document.getElementById('pdfDropZone');
       const fileInput = document.getElementById('pdfFileInput');
       const pdfErrorMsg = document.getElementById('pdfErrorMsg');
@@ -577,9 +577,9 @@ function buildPdfTools() {
       </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="/assets/pdf.min.js"></script>
     <script>
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.js';
       const inspectDrop = document.getElementById('pdfInspectorDrop');
       const inspectInput = document.getElementById('pdfInspectInput');
       const inspectErrorMsg = document.getElementById('inspectErrorMsg');

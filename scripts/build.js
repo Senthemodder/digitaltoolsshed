@@ -10,9 +10,9 @@ import { buildCuriosityNeuroSuite } from './curiosity_neuro_suite.js';
 import { buildWebSuite } from './web_suite.js';
 import { buildNeuroSuite } from './neuro_suite.js';
 // scripts/build.js — Master Static Site Generator for Digital Tools Shed
-import { writeFileSync } from 'fs';
+import { writeFileSync, copyFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
-import { DIST, DOMAIN, ensureDir, renderPage, MASTER_CSS } from './core.js';
+import { DIST, DOMAIN, ensureDir, renderPage, MASTER_CSS, ROOT } from './core.js';
 
 // Import all modular suite builders
 import { buildHomepage } from './home.js';
@@ -63,6 +63,15 @@ function main() {
   ensureDir(assetsDir);
   writeFileSync(join(assetsDir, 'style.css'), MASTER_CSS, 'utf8');
   console.log('  ✓ Generated Global Static Stylesheet (dist/assets/style.css)');
+
+  // Copy Local Vendor Libraries (100% Zero CDN)
+  const vendorDir = join(ROOT, 'src', 'vendor');
+  if (existsSync(vendorDir)) {
+    for (const f of readdirSync(vendorDir)) {
+      copyFileSync(join(vendorDir, f), join(assetsDir, f));
+    }
+    console.log('  ✓ Deployed Local Vendor Libraries (dist/assets/)');
+  }
 
   // Core & Legacy Suites
   buildHomepage();
