@@ -473,6 +473,932 @@ export function buildTradeTools() {
 ]
   }));
 
-  console.log('  ✓ Built Trade & Construction Suite (12 calculators in /calc/)');
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 15. FLOORING CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const flooringBody = `
+<div class="tool-container" style="max-width:1080px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-size:2.15rem;font-weight:800;margin-bottom:0.6rem;letter-spacing:-0.02em;">Flooring Calculator — Square Footage, Boxes &amp; Underlayment</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:760px;margin:0 auto;line-height:1.6;">
+      Calculate exact flooring takeoff, cartons to purchase, cut waste allowances (10% straight to 20% herringbone), vapor barrier underlayment rolls, transition T-moldings, and perimeter quarter-round shoe molding.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr;gap:2rem;margin-bottom:2.5rem;" class="calc-grid">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        Room Dimensions &amp; Flooring Material
+      </h2>
+
+      <!-- ROOM LENGTH & WIDTH -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="roomLength">Room Length (Feet)</label>
+          <input type="number" id="roomLength" value="20" min="1" max="200" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="roomWidth">Room Width (Feet)</label>
+          <input type="number" id="roomWidth" value="15" min="1" max="200" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+      </div>
+
+      <!-- ADDITIONAL AREA (CLOSETS / HALLS) -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="extraSqFt">Additional Closets / Alcoves (Sq Ft)</label>
+        <input type="number" id="extraSqFt" value="25" min="0" max="1000" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+      </div>
+
+      <!-- FLOORING TYPE & BOX COVERAGE -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="flooringType">Flooring Material</label>
+          <select id="flooringType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="lvp" selected>Luxury Vinyl Plank (LVP / SPC)</option>
+            <option value="engineered">Engineered Hardwood</option>
+            <option value="solid_hardwood">Solid Hardwood (Oak / Maple)</option>
+            <option value="laminate">Laminate Flooring</option>
+            <option value="tile">Porcelain / Ceramic Tile</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="sqftPerBox">Sq Ft Per Carton / Box</label>
+          <input type="number" id="sqftPerBox" value="23.8" min="5" max="50" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+      </div>
+
+      <!-- LAYOUT PATTERN & WASTE -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="layPattern">Installation Pattern</label>
+          <select id="layPattern" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="0.10" selected>Straight Lay (Standard 10% Waste)</option>
+            <option value="0.15">Diagonal / 45° Angle (15% Waste)</option>
+            <option value="0.20">Herringbone / Chevron (20% Waste)</option>
+            <option value="0.08">Simple Rectangular Room (8% Waste)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="doorwayCount">Doorway Openings (Transitions)</label>
+          <input type="number" id="doorwayCount" value="2" min="0" max="20" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+      </div>
+
+      <!-- PRICE PER SQ FT -->
+      <div>
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pricePerSqFt">Material Cost per Sq Ft ($ USD)</label>
+        <input type="number" id="pricePerSqFt" value="3.79" min="0" max="100" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+      </div>
+    </div>
+
+    <!-- SUMMARY & OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Flooring Order Takeoff
+          </h2>
+          <button id="copyFlooringBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Order Takeoff</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Total Boxes to Order</span>
+            <span id="totalBoxesCount" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#3b82f6;display:block;">16 Boxes</span>
+            <span id="boxesSubtext" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">380.8 Total Sq Ft</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Estimated Material Cost</span>
+            <span id="totalFlooringCost" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#10b981;display:block;">$1,443.23</span>
+            <span id="costPerSqFtLabel" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">@ $3.79 / sq ft</span>
+          </div>
+        </div>
+
+        <!-- ACCESSORIES & HARDWARE LEDGER -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Accessories &amp; Underlayment Takeoff</div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>True Net Room Area:</span>
+            <strong id="netSqFtVal" style="font-family:var(--mono);">325.0 sq ft</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Waste Allowance Added:</span>
+            <strong id="wasteSqFtVal" style="font-family:var(--mono);color:#f59e0b;">+32.5 sq ft (10%)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Underlayment Vapor Barrier:</span>
+            <strong id="underlaymentRollsVal" style="font-family:var(--mono);color:#3b82f6;">4 Rolls (100 sq ft ea)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Baseboard / Quarter Round:</span>
+            <strong id="baseboardFtVal" style="font-family:var(--mono);">77 Lin Ft (incl 10% waste)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span>Doorway Transition T-Moldings:</span>
+            <strong id="transitionVal" style="font-family:var(--mono);">2 Strips (72" ea)</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG FLOOR PLAN SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+      Plank Stagger Layout &amp; Perimeter Expansion Gap
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Stagger visualizer demonstrating minimum 8-inch end-joint stagger, expansion space (1/4" to 3/8" perimeter gap), and doorway threshold transitions.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="flooringLayoutSvg" viewBox="0 0 800 260" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ESTIMATING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Mathematical Takeoff &amp; Box Rounding Derivations</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Flooring material estimation requires discrete ceiling integer math. Manufacturers do not sell partial cartons; rounding down guarantees running short on the final rows when end-cuts cannot be recycled:
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Net Room Square Footage:</strong><br>
+      A_{\\text{net}} = (L_{\\text{room}} \\times W_{\\text{room}}) + A_{\\text{extra (closets)}}<br><br>
+      <strong>2. Gross Area with Cut Waste Factor:</strong><br>
+      A_{\\text{gross}} = A_{\\text{net}} \\times (1 + \\text{Waste Factor})<br>
+      \\text{Where: Straight Lay = 10\\%, Diagonal = 15\\%, Herringbone = 20\\%}<br><br>
+      <strong>3. Cartons / Boxes to Order (Ceiling Quantization):</strong><br>
+      N_{\\text{boxes}} = \\left\\lceil \\frac{A_{\\text{gross}}}{\\text{Sq Ft per Box}} \\right\\rceil<br>
+      A_{\\text{purchased}} = N_{\\text{boxes}} \\times \\text{Sq Ft per Box}<br><br>
+      <strong>4. Perimeter Shoe Molding / Quarter Round:</strong><br>
+      P_{\\text{room}} = 2 \\times (L_{\\text{room}} + W_{\\text{room}})<br>
+      \\text{Linear Feet to Buy} = \\left\\lceil P_{\\text{room}} \\times 1.10 \\text{ (cutting waste)} \\right\\rceil<br><br>
+      <strong>5. Vapor Barrier Underlayment:</strong><br>
+      N_{\\text{rolls}} = \\left\\lceil \\frac{A_{\\text{net}}}{100 \\text{ sq ft per roll}} \\right\\rceil
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL FLOORING TRAPS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Flooring Installation &amp; Failure Pitfalls</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+      <div class="trap-card" style="border-left: 4px solid #ef4444;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. Skipping Material Acclimation</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Installing solid hardwood, laminate, or vinyl plank immediately after delivery from a cold truck causes severe buckling or joint separation. Hardwood requires 3 to 7 days inside the climate-controlled living space (65°F–75°F, 35%–55% relative humidity) to equilibrate moisture content before installation.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Neglecting Subfloor Flatness Tolerance</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          All floating vinyl and laminate systems mandate that subfloors be flat to within <strong>3/16 inch across a 10-foot radius</strong> (or 1/8" over 6 feet). Installing over dips causes vertical deflection, hollow footfall sounds, and broken click-lock tongue-and-groove joints within months. Grind down high spots and use self-leveling underlayment.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #10b981;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. Pinched Expansion Gaps &amp; Heavy Cabinets</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Floating floors expand and contract as humidity shifts across seasons. A 1/4" to 3/8" perimeter gap must be maintained along all walls and door jambs. Nailing baseboards directly into the flooring or placing 1,000-lb kitchen island cabinets on top of floating planks locks them in place, forcing the floor to tent and peak in the center.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. The "H-Joint" &amp; "Stair-Step" Pattern Error</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Novice installers cut identical starter pieces, creating an artificial repeating "staircase" or "H-joint" pattern where seams on alternating rows line up exactly. This looks visually amateurish and compromises structural interlocking. End joints between adjacent rows must be staggered by at least 8 to 12 inches in a random, organic stagger.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Concrete Slab Moisture Vapor Emissions (MVER)</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Installing vinyl or wood over a concrete slab without a 6-mil polyethylene vapor barrier allows invisible hydrostatic moisture vapor to migrate upward into the planks. This traps moisture beneath the vinyl, breeding black mold, destroying adhesive bonds, and causing cupping. Always conduct a calcium chloride moisture test.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      function calcFlooring() {
+        var l = parseFloat(document.getElementById('roomLength').value) || 0;
+        var w = parseFloat(document.getElementById('roomWidth').value) || 0;
+        var extra = parseFloat(document.getElementById('extraSqFt').value) || 0;
+        var boxSqFt = parseFloat(document.getElementById('sqftPerBox').value) || 20;
+        var wastePct = parseFloat(document.getElementById('layPattern').value) || 0.10;
+        var doors = parseInt(document.getElementById('doorwayCount').value) || 0;
+        var price = parseFloat(document.getElementById('pricePerSqFt').value) || 0;
+
+        var netSqFt = (l * w) + extra;
+        var wasteSqFt = netSqFt * wastePct;
+        var grossSqFt = netSqFt + wasteSqFt;
+
+        var boxes = Math.max(1, Math.ceil(grossSqFt / boxSqFt));
+        var totalPurchasedSqFt = boxes * boxSqFt;
+        var totalCost = totalPurchasedSqFt * price;
+
+        var underlaymentRolls = Math.max(1, Math.ceil(netSqFt / 100));
+        var perimeterFt = (2 * (l + w));
+        var baseboardFt = Math.ceil(perimeterFt * 1.10);
+
+        // Update DOM
+        document.getElementById('totalBoxesCount').textContent = boxes + ' Boxes';
+        document.getElementById('boxesSubtext').textContent = totalPurchasedSqFt.toFixed(1) + ' Total Sq Ft';
+        document.getElementById('totalFlooringCost').textContent = '
+}
+
+ + totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('costPerSqFtLabel').textContent = '@ 
+}
+
+ + price.toFixed(2) + ' / sq ft';
+
+        document.getElementById('netSqFtVal').textContent = netSqFt.toFixed(1) + ' sq ft';
+        document.getElementById('wasteSqFtVal').textContent = '+' + wasteSqFt.toFixed(1) + ' sq ft (' + Math.round(wastePct * 100) + '%)';
+        document.getElementById('underlaymentRollsVal').textContent = underlaymentRolls + ' Rolls (100 sq ft ea)';
+        document.getElementById('baseboardFtVal').textContent = baseboardFt + ' Lin Ft (incl 10% waste)';
+        document.getElementById('transitionVal').textContent = doors + ' Strips (72" ea)';
+
+        renderFlooringSvg();
+      }
+
+      function renderFlooringSvg() {
+        var svg = document.getElementById('flooringLayoutSvg');
+        if (!svg) return;
+
+        var svgHtml = '';
+        var svgW = 800;
+        var svgH = 260;
+
+        // Room boundary box
+        var startX = 60;
+        var startY = 30;
+        var roomW = 680;
+        var roomH = 190;
+
+        // Wall perimeter
+        svgHtml += '<rect x="' + (startX - 6) + '" y="' + (startY - 6) + '" width="' + (roomW + 12) + '" height="' + (roomH + 12) + '" fill="none" stroke="#475569" stroke-width="6" rx="2"/>';
+        // Expansion gap indicator
+        svgHtml += '<rect x="' + startX + '" y="' + startY + '" width="' + roomW + '" height="' + roomH + '" fill="var(--bg)" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,3"/>';
+
+        // Staggered planks (4 rows)
+        var rowH = 42;
+        var rowStarts = [0, 80, 160, 40]; // Stagger offsets
+        var plankLen = 190;
+
+        for (var r = 0; r < 4; r++) {
+          var y = startY + 6 + (r * rowH);
+          var offset = rowStarts[r];
+          var x = startX + 6;
+
+          // First partial plank if offset
+          if (offset > 0) {
+            svgHtml += '<rect x="' + x + '" y="' + y + '" width="' + (offset - 3) + '" height="' + (rowH - 6) + '" fill="#d97706" stroke="#78350f" stroke-width="1.5" rx="2"/>';
+            x += offset;
+          }
+
+          while (x + plankLen < startX + roomW - 6) {
+            svgHtml += '<rect x="' + x + '" y="' + y + '" width="' + (plankLen - 3) + '" height="' + (rowH - 6) + '" fill="#f59e0b" stroke="#78350f" stroke-width="1.5" rx="2"/>';
+            x += plankLen;
+          }
+
+          // Final end piece
+          var remaining = (startX + roomW - 6) - x;
+          if (remaining > 5) {
+            svgHtml += '<rect x="' + x + '" y="' + y + '" width="' + (remaining - 2) + '" height="' + (rowH - 6) + '" fill="#d97706" stroke="#78350f" stroke-width="1.5" rx="2"/>';
+          }
+        }
+
+        // Callout Annotations
+        svgHtml += '<text x="' + (startX + 15) + '" y="' + (startY + roomH + 22) + '" fill="#ef4444" font-size="11" font-weight="bold">1/4" Perimeter Expansion Gap</text>';
+        svgHtml += '<text x="' + (startX + roomW / 2) + '" y="' + (startY + 26) + '" fill="#3b82f6" font-size="11" font-weight="bold" text-anchor="middle">Minimum 8" Stagger Between Row End-Joints</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyFlooringTakeoff() {
+        var boxes = document.getElementById('totalBoxesCount').textContent;
+        var totalSqFt = document.getElementById('boxesSubtext').textContent;
+        var cost = document.getElementById('totalFlooringCost').textContent;
+        var netArea = document.getElementById('netSqFtVal').textContent;
+        var waste = document.getElementById('wasteSqFtVal').textContent;
+        var underlay = document.getElementById('underlaymentRollsVal').textContent;
+        var baseboard = document.getElementById('baseboardFtVal').textContent;
+        var transitions = document.getElementById('transitionVal').textContent;
+        var material = document.getElementById('flooringType').options[document.getElementById('flooringType').selectedIndex].text;
+
+        var text = '📦 Flooring Order Takeoff & Bill of Materials\n' +
+          '• Material: ' + material + '\n' +
+          '• Net Room Area: ' + netArea + '\n' +
+          '• Waste Factor: ' + waste + '\n' +
+          '• Cartons / Boxes to Order: ' + boxes + ' (' + totalSqFt + ')\n' +
+          '• Total Estimated Cost: ' + cost + '\n\n' +
+          'Accessories Takeoff:\n' +
+          '• Underlayment Vapor Barrier: ' + underlay + '\n' +
+          '• Quarter-Round / Shoe Molding: ' + baseboard + '\n' +
+          '• Doorway T-Moldings: ' + transitions + '\n\n' +
+          'Calculated at digitaltoolsshed.com/calc/flooring-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyFlooringBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Order Takeoff!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['roomLength', 'roomWidth', 'extraSqFt', 'flooringType', 'sqftPerBox', 'layPattern', 'doorwayCount', 'pricePerSqFt'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcFlooring);
+          el.addEventListener('change', calcFlooring);
+        }
+      });
+
+      document.getElementById('copyFlooringBtn').addEventListener('click', copyFlooringTakeoff);
+
+      calcFlooring();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'flooring-calculator.html'), renderTradePage({
+    title: "Flooring Calculator — Square Footage, Boxes & Underlayment | Digital Tools Shed",
+    metaDesc: "Free flooring calculator. Estimates square footage, boxes of vinyl plank (LVP), laminate, hardwood, or tile, cut waste factor, underlayment rolls, and baseboard trim.",
+    canonical: `${DOMAIN}/calc/flooring-calculator`,
+    bodyContent: flooringBody,
+    currentPath: '/calc/flooring-calculator',
+    faq: [
+      {
+        "q": "How much extra flooring should I order for waste?",
+        "a": "For a standard straight plank installation in square or rectangular rooms, add 10% for cutting waste and box defects. For diagonal installations (45°), add 15%. For herringbone or chevron patterns, add 20% due to extensive angle trimming along walls."
+      },
+      {
+        "q": "How do I calculate how many boxes of flooring I need?",
+        "a": "Multiply room length by width to find net square footage, add closets or hallways, multiply by your waste factor (e.g. 1.10 for 10%), and divide by the square footage per box listed on the manufacturer packaging. Always round up to the nearest whole integer box."
+      },
+      {
+        "q": "Why is an expansion gap required for floating floors?",
+        "a": "Floating floors (luxury vinyl plank, laminate, and engineered click-lock) expand and contract with seasonal indoor temperature and humidity changes. A 1/4-inch to 3/8-inch gap must be maintained around all perimeter walls, pipes, and fixed vertical cabinetry to prevent the floor from tenting and buckling."
+      },
+      {
+        "q": "What subfloor flatness tolerance is required for LVP?",
+        "a": "Most luxury vinyl plank manufacturers mandate subfloor flatness within 3/16 inch across a 10-foot radius (or 1/8 inch over 6 feet). Failure to level low spots or grind high spots causes hollow footstep sounds and eventually fractures the brittle click-lock tongues."
+      },
+      {
+        "q": "Do I need an underlayment moisture barrier over concrete?",
+        "a": "Yes. Concrete emits moisture vapor via hydrostatic capillary action. When installing floating floors over concrete slabs (even in basements or upper floors), you must install a 6-mil polyethylene vapor barrier beneath the flooring to prevent mold and adhesive decomposition."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 16. DECK MATERIALS & FRAMING CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const deckBody = `
+<div class="tool-container" style="max-width:1080px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-size:2.15rem;font-weight:800;margin-bottom:0.6rem;letter-spacing:-0.02em;">Deck Calculator — Framing, Decking Boards &amp; Hardware</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:760px;margin:0 auto;line-height:1.6;">
+      Calculate complete deck lumber takeoff, 5/4x6 decking boards, 2x8 / 2x10 joists (12" vs 16" OC), dropped beams, sonotube concrete pier footings, and structural ledger fasteners per IRC DCA6 standards.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr;gap:2rem;margin-bottom:2.5rem;" class="calc-grid">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Deck Dimensions &amp; Structural Specs
+      </h2>
+
+      <!-- LENGTH & PROJECTION -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="deckLength">Length Along House (Feet)</label>
+          <input type="number" id="deckLength" value="20" min="4" max="80" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="deckWidth">Projection / Width (Feet)</label>
+          <input type="number" id="deckWidth" value="12" min="4" max="40" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+      </div>
+
+      <!-- DECKING MATERIAL & JOIST SPACING -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="deckingMaterial">Deck Surface Material</label>
+          <select id="deckingMaterial" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="treated" selected>5/4x6 Pressure Treated Pine (16" OC)</option>
+            <option value="composite">Capped Composite (Trex / TimberTech — 12" OC)</option>
+            <option value="cedar">2x6 Western Red Cedar / Redwood (16" OC)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="joistSpacing">Joist Spacing On-Center</label>
+          <select id="joistSpacing" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="16" selected>16 Inches On-Center (Standard Wood)</option>
+            <option value="12">12 Inches On-Center (Composite / Stiff)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- HEIGHT ABOVE GRADE & BEAM CONFIG -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="deckHeight">Height Above Grade (Feet)</label>
+          <input type="number" id="deckHeight" value="4" min="1" max="15" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="joistLumber">Joist Lumber Size</label>
+          <select id="joistLumber" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="2x8" selected>2x8 Treated Joists (Spans up to 12')</option>
+            <option value="2x10">2x10 Treated Joists (Spans up to 15')</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY & OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Deck Lumber &amp; Hardware Takeoff
+          </h2>
+          <button id="copyDeckBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Takeoff</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Surface Deck Boards</span>
+            <span id="deckBoardsCount" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#3b82f6;display:block;">29 Boards</span>
+            <span id="deckBoardsDetail" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">5/4x6 x 20-Ft (incl. 10% waste)</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Framing Joists (PT)</span>
+            <span id="joistCount" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:var(--fg);display:block;">16 Joists</span>
+            <span id="joistDetail" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">2x8 x 12-Ft @ 16" OC</span>
+          </div>
+        </div>
+
+        <!-- FRAMING & HARDWARE LEDGER -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Structural Framing &amp; Fastener Schedule</div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Ledger Board (Bolted to House):</span>
+            <strong id="ledgerTakeoffVal" style="font-family:var(--mono);color:#10b981;">1 Board (2x8 x 20-Ft)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Support Beam (Double PT 2x10):</span>
+            <strong id="beamTakeoffVal" style="font-family:var(--mono);color:#f59e0b;">2 Boards (2x10 x 20-Ft)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Concrete Pier Footings (Sonotube):</span>
+            <strong id="piersCountVal" style="font-family:var(--mono);">3 Piers (12" Sonotube + 6x6 Posts)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span>Deck Fasteners / Screws:</span>
+            <strong id="fastenersVal" style="font-family:var(--mono);">~950 Screws (2 × 5-lb boxes)</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DECK FRAMING PLAN -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      Deck Framing Plan &amp; Structural Bearings
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Framing schematic illustrating bolted house ledger, joist bays, dropped beam cantilever, and 6x6 concrete pier posts.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="deckFramingSvg" viewBox="0 0 800 280" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      function calcDeck() {
+        var len = parseFloat(document.getElementById('deckLength').value) || 20;
+        var width = parseFloat(document.getElementById('deckWidth').value) || 12;
+        var spacing = parseInt(document.getElementById('joistSpacing').value) || 16;
+        var mat = document.getElementById('deckingMaterial').value;
+        var joistLumber = document.getElementById('joistLumber').value;
+
+        // Joist count: (Length_inches / spacing) + 1 + rim joist
+        var lenInches = len * 12;
+        var joists = Math.ceil(lenInches / spacing) + 1;
+
+        // Deck boards: Width_inches / 5.5 (standard 5/4x6 board) + 10% waste
+        var widthInches = width * 12;
+        var rawBoards = Math.ceil(widthInches / 5.5);
+        var deckBoards = Math.ceil(rawBoards * 1.10);
+
+        // Beam & Piers (standard post spacing: max 8ft on center)
+        var piers = Math.max(2, Math.ceil(len / 8) + 1);
+
+        // Screws: 2 screws per board per joist
+        var totalScrews = Math.ceil(rawBoards * joists * 2);
+        var screwBoxes = Math.max(1, Math.ceil(totalScrews / 500));
+
+        // Update DOM
+        document.getElementById('deckBoardsCount').textContent = deckBoards + ' Boards';
+        document.getElementById('deckBoardsDetail').textContent = '5/4x6 x ' + len + '-Ft (incl. 10% waste)';
+
+        document.getElementById('joistCount').textContent = joists + ' Joists';
+        document.getElementById('joistDetail').textContent = joistLumber + ' x ' + width + '-Ft @ ' + spacing + '" OC';
+
+        document.getElementById('ledgerTakeoffVal').textContent = '1 Board (' + joistLumber + ' x ' + len + '-Ft)';
+        document.getElementById('beamTakeoffVal').textContent = '2 Boards (2x10 x ' + len + '-Ft)';
+        document.getElementById('piersCountVal').textContent = piers + ' Piers (12" Sonotube + 6x6 Posts)';
+        document.getElementById('fastenersVal').textContent = '~' + totalScrews.toLocaleString() + ' Screws (' + screwBoxes + ' × 5-lb boxes)';
+
+        renderDeckSvg(joists, piers, spacing);
+      }
+
+      function renderDeckSvg(numJoists, numPiers, sp) {
+        var svg = document.getElementById('deckFramingSvg');
+        if (!svg) return;
+
+        var svgHtml = '';
+        var startX = 60;
+        var startY = 40;
+        var frameW = 680;
+        var frameH = 180;
+
+        // House Ledger Board (Top)
+        svgHtml += '<rect x="' + startX + '" y="' + startY + '" width="' + frameW + '" height="12" fill="#10b981" stroke="#065f46" stroke-width="1.5"/>';
+        svgHtml += '<text x="' + (startX + frameW/2) + '" y="' + (startY - 10) + '" fill="#10b981" font-size="12" font-weight="bold" text-anchor="middle">House Ledger Board (1/2" Bolted to Band Joist)</text>';
+
+        // Rim Joists (Left, Right, Front)
+        svgHtml += '<rect x="' + startX + '" y="' + startY + '" width="10" height="' + frameH + '" fill="#3b82f6"/>';
+        svgHtml += '<rect x="' + (startX + frameW - 10) + '" y="' + startY + '" width="10" height="' + frameH + '" fill="#3b82f6"/>';
+        svgHtml += '<rect x="' + startX + '" y="' + (startY + frameH - 12) + '" width="' + frameW + '" height="12" fill="#3b82f6" stroke="#1e40af" stroke-width="1.5"/>';
+
+        // Intermediate Joists
+        var displayJoists = Math.min(numJoists, 18);
+        for (var j = 1; j < displayJoists - 1; j++) {
+          var jx = startX + (j * (frameW / (displayJoists - 1)));
+          svgHtml += '<line x1="' + jx + '" y1="' + (startY + 12) + '" x2="' + jx + '" y2="' + (startY + frameH - 12) + '" stroke="#60a5fa" stroke-width="2"/>';
+        }
+
+        // Dropped Beam Line (cantilevered 2ft back from edge)
+        var beamY = startY + frameH - 45;
+        svgHtml += '<line x1="' + (startX - 15) + '" y1="' + beamY + '" x2="' + (startX + frameW + 15) + '" y2="' + beamY + '" stroke="#f59e0b" stroke-width="6"/>';
+        svgHtml += '<text x="' + (startX + frameW + 25) + '" y="' + (beamY + 4) + '" fill="#f59e0b" font-size="11" font-weight="bold">Double 2x10 Drop Beam</text>';
+
+        // Pier Footings under beam
+        for (var p = 0; p < numPiers; p++) {
+          var px = startX + (p * (frameW / (numPiers - 1)));
+          svgHtml += '<circle cx="' + px + '" cy="' + beamY + '" r="10" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>';
+        }
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyDeckTakeoff() {
+        var boards = document.getElementById('deckBoardsCount').textContent;
+        var bDetail = document.getElementById('deckBoardsDetail').textContent;
+        var joists = document.getElementById('joistCount').textContent;
+        var jDetail = document.getElementById('joistDetail').textContent;
+        var ledger = document.getElementById('ledgerTakeoffVal').textContent;
+        var beam = document.getElementById('beamTakeoffVal').textContent;
+        var piers = document.getElementById('piersCountVal').textContent;
+        var fasteners = document.getElementById('fastenersVal').textContent;
+
+        var text = '🔨 Deck Framing & Lumber Takeoff\n' +
+          '• Surface Decking: ' + boards + ' (' + bDetail + ')\n' +
+          '• Framing Joists: ' + joists + ' (' + jDetail + ')\n' +
+          '• Ledger Board: ' + ledger + '\n' +
+          '• Support Beam: ' + beam + '\n' +
+          '• Footing Piers: ' + piers + '\n' +
+          '• Screws / Fasteners: ' + fasteners + '\n\n' +
+          'Calculated at digitaltoolsshed.com/calc/deck-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyDeckBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Takeoff!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['deckLength', 'deckWidth', 'deckingMaterial', 'joistSpacing', 'deckHeight', 'joistLumber'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcDeck);
+          el.addEventListener('change', calcDeck);
+        }
+      });
+
+      document.getElementById('copyDeckBtn').addEventListener('click', copyDeckTakeoff);
+
+      calcDeck();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'deck-calculator.html'), renderTradePage({
+    title: "Deck Calculator — Framing, Decking Boards & Hardware Takeoff | Digital Tools Shed",
+    metaDesc: "Free deck materials calculator. Calculates 5/4x6 treated or composite decking boards, 2x8/2x10 joists (12-inch vs 16-inch OC), beams, sonotube concrete piers, and ledger bolts.",
+    canonical: `${DOMAIN}/calc/deck-calculator`,
+    bodyContent: deckBody,
+    currentPath: '/calc/deck-calculator',
+    faq: [
+      {
+        "q": "What joist spacing is required for composite decking?",
+        "a": "Composite decking boards (such as Trex or TimberTech) require 12-inch on-center joist spacing for diagonal layouts and commercial applications, or a maximum of 16-inch on-center spacing for standard perpendicular residential layouts. Using 16-inch spacing on diagonal composite boards will cause uncomfortable bouncy foot sag."
+      },
+      {
+        "q": "How many decking boards do I need for a 12x20 deck?",
+        "a": "A standard 5/4x6 nominal deck board measures 5.5 inches wide. For a 12-foot projection (144 inches), you need approximately 26 rows of boards. Adding 10% for end-trimming and defects yields 29 boards of 20-foot length."
+      },
+      {
+        "q": "How deep should deck footings be poured?",
+        "a": "Deck footings must extend at least 6 inches below the local frost line (typically 36 to 48 inches deep in northern climate zones) to prevent winter frost heaving. Footings should terminate in a flared bell base on undisturbed virgin soil."
+      },
+      {
+        "q": "Can I attach a deck ledger board to a house cantilever or brick veneer?",
+        "a": "No. International Residential Code (IRC DCA6) strictly forbids attaching a structural deck ledger to brick veneer, stone facade, or overhanging cantilevered floor joists. Brick veneer lacks shear bearing strength. In these situations, the deck must be designed as a self-supporting, freestanding structure with its own support beam and footings near the house."
+      },
+      {
+        "q": "What size bolts should be used to fasten a deck ledger board?",
+        "a": "IRC code specifies minimum 1/2-inch hot-dipped galvanized (HDG) thru-bolts with washers, or code-approved structural ledger lag screws (such as Simpson Strong-Tie SDWS or FastenMaster LedgerLOK), staggered in alternating high/low pairs spaced 10 to 16 inches apart."
+      }
+    ]
+  }));
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 17. PAVER & PATIO BASE CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const paverBody = `
+<div class="tool-container" style="max-width:1080px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-size:2.15rem;font-weight:800;margin-bottom:0.6rem;letter-spacing:-0.02em;">Paver Calculator — Patio Base Gravel, Sand &amp; Polymeric Joint Bags</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:760px;margin:0 auto;line-height:1.6;">
+      Calculate brick and patio stone takeoff, compacted crushed stone road base (tons / cubic yards), screeded bedding sand, polymeric joint locking sand, and perimeter spiked edge restraints.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr;gap:2rem;margin-bottom:2.5rem;" class="calc-grid">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="9" height="9" rx="1"/><rect x="13" y="2" width="9" height="9" rx="1"/><rect x="2" y="13" width="9" height="9" rx="1"/><rect x="13" y="13" width="9" height="9" rx="1"/></svg>
+        Patio Dimensions &amp; Base Specs
+      </h2>
+
+      <!-- LENGTH & WIDTH -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="paverLength">Patio Length (Feet)</label>
+          <input type="number" id="paverLength" value="20" min="2" max="200" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="paverWidth">Patio Width (Feet)</label>
+          <input type="number" id="paverWidth" value="15" min="2" max="200" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+      </div>
+
+      <!-- PAVER SIZE & TYPE -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="paverSize">Paver Dimensions</label>
+          <select id="paverSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="4x8" selected>Standard Brick Paver (4" x 8" — 4.5/sq ft)</option>
+            <option value="6x6">Square Paver (6" x 6" — 4.0/sq ft)</option>
+            <option value="6x9">Cobblestone (6" x 9" — 2.67/sq ft)</option>
+            <option value="12x12">Large Slab (12" x 12" — 1.0/sq ft)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="paverBaseDepth">Crushed Stone Base Depth</label>
+          <select id="paverBaseDepth" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="4" selected>4 Inches (Pedestrian Patio / Walkway)</option>
+            <option value="6">6 Inches (Heavy Traffic / Poor Soil)</option>
+            <option value="8">8–10 Inches (Driveway / Vehicle Rated)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- PATTERN WASTE -->
+      <div>
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="paverWastePct">Cutting Waste Allowance</label>
+        <select id="paverWastePct" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+          <option value="0.10" selected>Standard Running Bond / Basketweave (10% Waste)</option>
+          <option value="0.15">45° Diagonal Herringbone (15% Waste)</option>
+          <option value="0.08">Simple Rectangular Grid (8% Waste)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- SUMMARY & OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Paver &amp; Base Materials Takeoff
+          </h2>
+          <button id="copyPaverBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Estimate</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Pavers to Order</span>
+            <span id="paverCountVal" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#3b82f6;display:block;">1,485 Pavers</span>
+            <span id="paverSqFtVal" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">330 Total Sq Ft (incl 10% waste)</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Gravel Base (#57 Stone)</span>
+            <span id="gravelTonsVal" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#10b981;display:block;">5.7 Tons</span>
+            <span id="gravelYardsVal" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">4.1 Cu Yds @ 4" Depth</span>
+          </div>
+        </div>
+
+        <!-- AGGREGATE & SAND LEDGER -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Sub-Base, Bedding &amp; Sand Schedule</div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Bedding Sand (1" screed layer):</span>
+            <strong id="beddingSandVal" style="font-family:var(--mono);color:#f59e0b;">1.3 Cu Yds (1.8 Tons)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Polymeric Joint Sand (50-lb bags):</span>
+            <strong id="polySandBagsVal" style="font-family:var(--mono);color:var(--fg);">5 Bags (250 lbs)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Plastic Paver Edge Restraint:</span>
+            <strong id="edgeRestraintVal" style="font-family:var(--mono);">70 Lin Ft (12 strips)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span>10" Steel Edge Spikes:</span>
+            <strong id="spikesCountVal" style="font-family:var(--mono);">~47 Spikes (every 18")</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      function calcPaver() {
+        var l = parseFloat(document.getElementById('paverLength').value) || 20;
+        var w = parseFloat(document.getElementById('paverWidth').value) || 15;
+        var pSize = document.getElementById('paverSize').value;
+        var baseDepth = parseFloat(document.getElementById('paverBaseDepth').value) || 4;
+        var wastePct = parseFloat(document.getElementById('paverWastePct').value) || 0.10;
+
+        var netSqFt = l * w;
+        var grossSqFt = netSqFt * (1 + wastePct);
+
+        var paversPerSqFt = 4.5;
+        if (pSize === '6x6') paversPerSqFt = 4.0;
+        else if (pSize === '6x9') paversPerSqFt = 2.67;
+        else if (pSize === '12x12') paversPerSqFt = 1.0;
+
+        var totalPavers = Math.ceil(grossSqFt * paversPerSqFt);
+
+        // Crushed stone base: add 6" on all sides for edge stability
+        var baseAreaSqFt = (l + 1.0) * (w + 1.0);
+        var baseCuYd = (baseAreaSqFt * (baseDepth / 12)) / 27;
+        // Compaction factor + 15%
+        baseCuYd = baseCuYd * 1.15;
+        var baseTons = baseCuYd * 1.4; // ~1.4 tons per cu yd crushed stone
+
+        // Bedding sand: 1 inch depth over net area
+        var sandCuYd = (netSqFt * (1.0 / 12)) / 27;
+        var sandTons = sandCuYd * 1.35;
+
+        // Polymeric sand: approx 1 bag (50 lb) per 60–75 sq ft for standard 4x8 pavers
+        var polyBags = Math.max(1, Math.ceil(netSqFt / 65));
+
+        // Edge restraint: perimeter
+        var perimeterFt = 2 * (l + w);
+        var edgeStrips = Math.ceil(perimeterFt / 6); // 6ft per strip
+        var spikes = Math.ceil(perimeterFt / 1.5); // spike every 1.5 ft
+
+        // DOM update
+        document.getElementById('paverCountVal').textContent = totalPavers.toLocaleString() + ' Pavers';
+        document.getElementById('paverSqFtVal').textContent = Math.round(grossSqFt) + ' Total Sq Ft (incl ' + Math.round(wastePct*100) + '% waste)';
+        document.getElementById('gravelTonsVal').textContent = baseTons.toFixed(1) + ' Tons';
+        document.getElementById('gravelYardsVal').textContent = baseCuYd.toFixed(1) + ' Cu Yds @ ' + baseDepth + '" Depth';
+        document.getElementById('beddingSandVal').textContent = sandCuYd.toFixed(1) + ' Cu Yds (' + sandTons.toFixed(1) + ' Tons)';
+        document.getElementById('polySandBagsVal').textContent = polyBags + ' Bags (' + (polyBags * 50) + ' lbs)';
+        document.getElementById('edgeRestraintVal').textContent = perimeterFt + ' Lin Ft (' + edgeStrips + ' strips)';
+        document.getElementById('spikesCountVal').textContent = '~' + spikes + ' Spikes (every 18")';
+      }
+
+      function copyPaverEstimate() {
+        var pavers = document.getElementById('paverCountVal').textContent;
+        var pSqFt = document.getElementById('paverSqFtVal').textContent;
+        var gravel = document.getElementById('gravelTonsVal').textContent;
+        var gYards = document.getElementById('gravelYardsVal').textContent;
+        var sand = document.getElementById('beddingSandVal').textContent;
+        var poly = document.getElementById('polySandBagsVal').textContent;
+        var edge = document.getElementById('edgeRestraintVal').textContent;
+        var spikes = document.getElementById('spikesCountVal').textContent;
+
+        var text = '🧱 Paver Patio Estimate & Takeoff\n' +
+          '• Total Pavers to Buy: ' + pavers + ' (' + pSqFt + ')\n' +
+          '• Crushed Stone Base (#57 / Road Base): ' + gravel + ' (' + gYards + ')\n' +
+          '• Bedding Sand (1" screed layer): ' + sand + '\n' +
+          '• Polymeric Joint Sand: ' + poly + '\n' +
+          '• Plastic Edge Restraint: ' + edge + '\n' +
+          '• 10" Steel Anchor Spikes: ' + spikes + '\n\n' +
+          'Calculated at digitaltoolsshed.com/calc/paver-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyPaverBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Estimate!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['paverLength', 'paverWidth', 'paverSize', 'paverBaseDepth', 'paverWastePct'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcPaver);
+          el.addEventListener('change', calcPaver);
+        }
+      });
+
+      document.getElementById('copyPaverBtn').addEventListener('click', copyPaverEstimate);
+
+      calcPaver();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'paver-calculator.html'), renderTradePage({
+    title: "Paver Calculator — Patio Base Gravel, Sand & Polymeric Joint Bags | Digital Tools Shed",
+    metaDesc: "Free patio paver calculator. Computes exact concrete/brick pavers, compacted crushed stone road base (tons & cubic yards), bedding sand, and polymeric joint sand.",
+    canonical: `${DOMAIN}/calc/paver-calculator`,
+    bodyContent: paverBody,
+    currentPath: '/calc/paver-calculator',
+    faq: [
+      {
+        "q": "How deep should the base be for a paver patio?",
+        "a": "For standard pedestrian walkways and residential patios, a minimum 4-inch layer of compacted crushed gravel (dense grade #57 or road base) topped with a 1-inch uncompacted layer of coarse concrete sand (C-33 sand) is required. For driveways supporting vehicle loads, the gravel base must be 8 to 10 inches deep."
+      },
+      {
+        "q": "Can I use stone dust instead of coarse sand for the bedding layer?",
+        "a": "No. Using stone dust or masonry sand for the bedding layer is one of the most common causes of paver failure. Stone dust traps water and turns into a soft paste when saturated, causing pavers to sink and develop uneven ruts. Coarse washed concrete sand (ASTM C-33) allows free drainage and maintains angular friction interlock."
+      },
+      {
+        "q": "What is polymeric sand and why is it necessary?",
+        "a": "Polymeric sand is a blend of fine quartz sand and polymeric binding agents that activate when misted with water. Once cured, it hardens into an elastic, flexible mortar that locks paver joints together, prevents weed growth between bricks, and stops ants from excavating sand."
+      },
+      {
+        "q": "How do I calculate how much crushed stone base to order?",
+        "a": "Multiply the patio length plus 1 foot by the width plus 1 foot (to account for the 6-inch base shoulder extension on all sides). Multiply by depth in feet (e.g. 4 inches = 0.333 ft) and divide by 27 to get cubic yards. Multiply by 1.15 to account for 15% compaction loss."
+      },
+      {
+        "q": "Why do paver patios need a rigid edge restraint?",
+        "a": "Without a heavy-duty plastic or aluminum edge restraint pinned into the gravel base with 10-inch steel spikes, walking and freeze-thaw cycles cause the outer perimeter pavers to creep outward, destroying joint interlock and causing the entire patio to spread."
+      }
+    ]
+  }));
+
+  console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 
