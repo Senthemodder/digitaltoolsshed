@@ -1030,7 +1030,7 @@
       <p>Record your screen, webcam, and microphone directly in your browser with zero uploads, no watermarks, and unlimited recording time.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 880px; margin: 1.5rem 0;">
+    <div class="tool-workspace" style="max-width: 880px; margin: 1.5rem auto;">
       <!-- Mode Selection Tabs -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
         <button id="modeScreen" class="btn-primary mode-tab" style="padding: 0.85rem; font-size: 0.95rem; justify-content: center; display: flex; align-items: center; gap: 0.5rem;">
@@ -1045,6 +1045,12 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
           <span>Voice / Mic Only</span>
         </button>
+      </div>
+
+      <!-- Inline Recording Error Banner (Replaces alert) -->
+      <div id="recErrorBanner" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 0.75rem 1.25rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 1.25rem; align-items: center; justify-content: space-between;">
+        <span id="recErrorText">Could not start recording: Permission denied or device unavailable.</span>
+        <button type="button" onclick="document.getElementById('recErrorBanner').style.display='none'" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; line-height: 1;">&times;</button>
       </div>
 
       <!-- Studio Stage -->
@@ -1121,6 +1127,169 @@
         </div>
       </div>
 
+      <!-- Studio Technical Specs & Bitrate Derivations -->
+      <div style="border: 1px solid var(--border); background: var(--surface); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 0;">MediaRecorder Engineering & Bitrate Derivations</h2>
+          <button id="copyRecSpecsBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.35rem 0.75rem; font-family: var(--mono); font-size: 0.75rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            <span id="copyRecSpecsText">Copy Studio Specs</span>
+          </button>
+        </div>
+
+        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1.25rem;">
+          <p>The MediaStream Recording API records raw video and audio frames in real time without external encoding daemons. System audio and microphone tracks are dynamically mixed in browser memory via <code>AudioContext.createMediaStreamDestination()</code>.</p>
+        </div>
+
+        <!-- Bitrate & RAM Formulas -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">File Size Derivation Formula</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              Size (MB) = [(R<sub>video</sub> + R<sub>audio</sub>) &times; t] / (8 &times; 1024<sup>2</sup>)<br>
+              1080p @ 60fps &approx; 7.5 Mbps &rarr; 56 MB/min<br>
+              720p @ 30fps &approx; 2.5 Mbps &rarr; 18.7 MB/min<br>
+              Opus Audio Only &approx; 128 kbps &rarr; 0.96 MB/min
+            </div>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Audio Graph Spectral Math</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              FFT Size: N = 256 &rarr; 128 Frequency Bins<br>
+              Bin Resolution: &Delta;f = 48,000 / 256 = 187.5 Hz<br>
+              VU Meter Normalization: &mu; = (&sum; amp<sub>i</sub>) / 128<br>
+              Dynamic Range: -100 dBFS to 0 dBFS
+            </div>
+          </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: var(--mono); text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted);">
+              <th style="padding: 0.5rem 0.75rem;">Recording Mode</th>
+              <th style="padding: 0.5rem 0.75rem;">MIME Encoding</th>
+              <th style="padding: 0.5rem 0.75rem;">Audio Source</th>
+              <th style="padding: 0.5rem 0.75rem;">Typical Size / 10 Min</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Screen & Audio</td>
+              <td style="padding: 0.5rem 0.75rem;">video/webm;codecs=vp9,opus</td>
+              <td style="padding: 0.5rem 0.75rem; color: #10b981;">Display + Mic (Mixed)</td>
+              <td style="padding: 0.5rem 0.75rem;">450 &ndash; 750 MB</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Webcam HD Video</td>
+              <td style="padding: 0.5rem 0.75rem;">video/webm;codecs=vp8,opus</td>
+              <td style="padding: 0.5rem 0.75rem; color: #3b82f6;">Microphone Input</td>
+              <td style="padding: 0.5rem 0.75rem;">250 &ndash; 400 MB</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Voice / Mic Only</td>
+              <td style="padding: 0.5rem 0.75rem;">audio/webm;codecs=opus</td>
+              <td style="padding: 0.5rem 0.75rem; color: #f59e0b;">Microphone Input</td>
+              <td style="padding: 0.5rem 0.75rem;">9.6 MB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 5 FATAL TRAPS & RECORDING PITFALLS -->
+      <div style="margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Screen & Voice Recording Traps</h2>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #ef4444; margin: 0 0 0.4rem 0;">1. System Audio vs Single Tab Permission Boundaries (macOS / Linux Limits)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            On Windows and ChromeOS, checking "Share system audio" captures the full computer soundcard output. However, macOS strictly restricts system audio loopback without third-party kernel audio extensions (such as BlackHole or Soundflower). On Mac, recording with audio is only natively possible when selecting a specific Chrome tab rather than the "Entire Screen".
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #f59e0b; margin: 0 0 0.4rem 0;">2. Browser Heap RAM Exhaustion on Long Unchunked Recordings</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            The MediaRecorder API stores captured blobs in JavaScript virtual machine heap memory. An unconstrained 2-hour 4K recording can consume 6 GB+ of RAM, causing the browser tab to crash with an "Aw, Snap! Out of Memory" error. We mitigate this by initializing MediaRecorder with <code>mediaRecorder.start(1000)</code> to emit discrete time-sliced 1-second chunks.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #10b981; margin: 0 0 0.4rem 0;">3. WebM VP9/Opus Codec Incompatibility in Apple QuickTime & Legacy Editors</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Browsers natively encode video into open-standard WebM containers using Google VP9 video and Xiph Opus audio. While WebM plays perfectly in Chrome, Firefox, Edge, VLC, and YouTube, Apple's native QuickTime player on macOS/iOS refuses to open WebM containers without converting to H.264 MP4.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #3b82f6; margin: 0 0 0.4rem 0;">4. Sample Rate Resampling Jitter (44.1 kHz vs 48 kHz Clock Drift)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Computer display streams typically output audio clocked at 48,000 Hz, while standard external USB microphones often default to 44,100 Hz. If both streams are simply multiplexed without resampled synchronization, the microphone audio gradually drifts out of sync by several frames after 15 minutes. Routing both through a unified <code>AudioContext</code> ensures synchronized hardware clock resampling.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #8b5cf6; margin: 0 0 0.4rem 0;">5. High-DPI Retina Scaling Blurring Text Captures</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            On high-DPI (2x or 3x device pixel ratio) laptops like MacBooks or Surface devices, capturing with fixed low-resolution constraints downsamples text rendering into fuzzy blur. Our studio requests unconstrained native display resolution with <code>cursor: 'always'</code> to preserve razor-sharp code and terminal typography.
+          </p>
+        </div>
+      </div>
+
+      <!-- VISIBLE INTERACTIVE FAQ ACCORDIONS -->
+      <div style="margin-bottom: 2.5rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Screen, Camera & Voice Recorder</h2>
+        
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Is there a recording time limit or watermark?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            No. There are zero watermarks, zero brand overlays, and no time limits. You can record as long as your computer has sufficient available RAM and storage.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can I record both my microphone and computer audio at the same time?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. In "Screen & Audio" mode, our tool initializes an AudioContext destination node that merges both your system playback track and your microphone input track into a single synchronized stereo audio stream.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Where is the recorded video saved?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            When you stop recording, the video file is generated directly in your browser's local sandbox memory as a downloadable WebM file and saved to your computer's local Downloads folder.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can I pause and resume during recording?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. You can click the "PAUSE" button at any time to temporarily suspend stream encoding, and click "RESUME" when ready. The elapsed timer accurately freezes during pauses.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Is my video recording private and secure?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            100% private. All video frames and audio samples are encoded purely client-side within your browser process. Nothing is uploaded to any remote server or third party.
+          </div>
+        </div>
+      </div>
+
       <!-- Privacy & Guarantee Card -->
       <div style="border: 1px solid var(--border); padding: 1.25rem 1.5rem; background: var(--surface-alt); font-size: 0.9rem; line-height: 1.6; margin-bottom: 2rem;">
         <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: bold; margin-bottom: 0.35rem; color: var(--fg);">
@@ -1165,6 +1334,8 @@
       const timerDisplay = document.getElementById('timerDisplay');
       const vuMeter = document.getElementById('vuMeter');
       const micStatusTag = document.getElementById('micStatusTag');
+      const recErrorBanner = document.getElementById('recErrorBanner');
+      const recErrorText = document.getElementById('recErrorText');
 
       const startRecBtn = document.getElementById('startRecBtn');
       const pauseRecBtn = document.getElementById('pauseRecBtn');
@@ -1178,6 +1349,11 @@
       const statFormat = document.getElementById('statFormat');
       const downloadRecLink = document.getElementById('downloadRecLink');
       const resetRecBtn = document.getElementById('resetRecBtn');
+
+      function showRecError(msg) {
+        recErrorText.innerText = msg;
+        recErrorBanner.style.display = 'flex';
+      }
 
       function setMode(mode) {
         currentMode = mode;
@@ -1256,6 +1432,7 @@
       }
 
       startRecBtn.addEventListener('click', async () => {
+        recErrorBanner.style.display = 'none';
         reviewSection.style.display = 'none';
         recordedChunks = [];
 
@@ -1336,7 +1513,7 @@
           modeMic.disabled = true;
 
         } catch(err) {
-          alert('Could not start recording: ' + (err.message || 'Permission denied'));
+          showRecError('Could not start recording: ' + (err.message || 'Permission denied or media hardware unavailable.'));
         }
       });
 
@@ -1416,6 +1593,26 @@
         playbackPlayer.src = '';
         livePreview.srcObject = null;
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // Copy Recording Specs Diagnostics
+      document.getElementById('copyRecSpecsBtn').addEventListener('click', () => {
+        const specs = [
+          '=== STUDIO RECORDER ENGINEERING SPECIFICATIONS ===',
+          'Supported Modes: Screen & Audio, Webcam HD Video, Voice / Mic Only',
+          'MIME Support: video/webm;codecs=vp9,opus (Fallback: vp8,opus)',
+          'Audio Mixing: AudioContext MediaStreamDestination (Sys + Mic)',
+          'Time Slicing: 1000ms chunk buffers (prevents RAM blowup)',
+          'High-DPI Support: Native unconstrained devicePixelRatio capture',
+          'Zero Uploads: 100% Client-Side In-Browser MediaStream API'
+        ].join('\n');
+
+        navigator.clipboard.writeText(specs).then(() => {
+          const txt = document.getElementById('copyRecSpecsText');
+          const orig = txt.innerText;
+          txt.innerText = '✓ Specs Copied!';
+          setTimeout(() => { txt.innerText = orig; }, 2000);
+        });
       });
     </script>
   

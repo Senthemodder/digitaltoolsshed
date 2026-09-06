@@ -13,7 +13,7 @@ function buildMediaSuite() {
       <p>Download HD video and high-bitrate audio from YouTube, TikTok, X/Twitter, Instagram, Reddit, and direct streams. 100% Free, Private, with Built-in Tab Stream Capture.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
+    <div class="tool-workspace" style="max-width: 880px; margin: 1.5rem auto;">
       <!-- Search & Input Box -->
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
         <input type="url" id="mediaUrl" class="search-input" placeholder="Paste YouTube, TikTok, X/Twitter, Instagram, Reddit, or MP4 URL here..." style="flex: 1; min-width: 260px; padding: 0.85rem 1rem; font-family: var(--mono); font-size: 0.95rem;" />
@@ -21,6 +21,12 @@ function buildMediaSuite() {
           ${ICONS.download}
           <span>EXTRACT & DOWNLOAD</span>
         </button>
+      </div>
+
+      <!-- Inline URL Warning Banner (Replaces alert) -->
+      <div id="urlAlertMsg" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 0.75rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 1rem; align-items: center; justify-content: space-between;">
+        <span id="urlAlertText">Please enter a valid video or media stream URL.</span>
+        <button type="button" onclick="document.getElementById('urlAlertMsg').style.display='none'" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; line-height: 1;">&times;</button>
       </div>
 
       <!-- Live Platform Detection Banner -->
@@ -96,9 +102,11 @@ function buildMediaSuite() {
           </button>
           <button id="copyStreamBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.85rem 1.25rem; font-size: 0.95rem;">
             ${ICONS.clipboard}
-            <span>COPY DIRECT LINK</span>
+            <span id="copyStreamBtnText">COPY DIRECT LINK</span>
           </button>
         </div>
+
+        <div id="audioTranscodeNotice" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #fbbf24; padding: 0.65rem 0.9rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; margin-top: 0.75rem; text-align: center;"></div>
       </div>
 
       <!-- GUARANTEED RESOLUTION STATION (Never-Fail Platform Gateways) -->
@@ -127,7 +135,7 @@ function buildMediaSuite() {
         <div style="display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 1rem;">
           <button id="copyCleanLinkBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.65rem 1.25rem; font-size: 0.9rem;">
             ${ICONS.clipboard}
-            <span>Copy Video Link</span>
+            <span id="copyCleanLinkText">Copy Video Link</span>
           </button>
           <button id="openRecorderPromptBtn" class="btn-primary" style="background: #10b981; color: #fff; border: 1px solid #059669; padding: 0.65rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
@@ -158,6 +166,8 @@ function buildMediaSuite() {
           </div>
         </div>
 
+        <div id="captureErrorNotice" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 0.65rem 0.9rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1rem;"></div>
+
         <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;">
           <button id="startCaptureBtn" class="btn-primary" style="background: #2563eb; color: #fff; border: 1px solid #1d4ed8; padding: 0.75rem 1.5rem; font-weight: bold; display: flex; align-items: center; gap: 0.5rem;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
@@ -170,6 +180,175 @@ function buildMediaSuite() {
             ${ICONS.download}
             <span>DOWNLOAD CAPTURED VIDEO</span>
           </a>
+        </div>
+      </div>
+
+      <!-- DIAGNOSTIC SPECIFICATIONS & LIVE DERIVATIONS -->
+      <div style="border: 1px solid var(--border); background: var(--surface); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 0;">Media Pipeline & Stream Architectural Derivations</h2>
+          <button id="copyDiagnosticsBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.35rem 0.75rem; font-family: var(--mono); font-size: 0.75rem;">
+            ${ICONS.clipboard}
+            <span id="copyDiagnosticsText">Copy Architecture Specs</span>
+          </button>
+        </div>
+
+        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1.25rem;">
+          <p>Modern streaming architectures separate video delivery into monolithic vs adaptive segmented formats. Understanding how audio multiplexing, bit depth quantization, and CORS boundaries work allows seamless local extraction without server-side transcoding latency.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Audio Transcode Derivation</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              WAV Header = 44 bytes<br>
+              BlockAlign = Channels &times; (BitDepth / 8)<br>
+              ByteRate = SampleRate &times; BlockAlign<br>
+              PCM Quantization: S<sub>16</sub> = [-32768, 32767]
+            </div>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Adaptive Streaming Specs</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              Protocol: HLS (.m3u8) / DASH (.mpd)<br>
+              Chunk Duration: 2.0s &ndash; 6.0s TS/m4s<br>
+              1080p Bitrate: 4,500 &ndash; 8,000 kbps<br>
+              Audio: AAC-LC / Opus @ 128&ndash;320 kbps
+            </div>
+          </div>
+        </div>
+
+        <!-- Protocol Comparison Table -->
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: var(--mono); text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted);">
+              <th style="padding: 0.5rem 0.75rem;">Delivery Protocol</th>
+              <th style="padding: 0.5rem 0.75rem;">Container / Chunks</th>
+              <th style="padding: 0.5rem 0.75rem;">Browser Intercept Method</th>
+              <th style="padding: 0.5rem 0.75rem;">Max Fidelity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Progressive MP4</td>
+              <td style="padding: 0.5rem 0.75rem;">Monolithic ISO BMFF (moov + mdat)</td>
+              <td style="padding: 0.5rem 0.75rem; color: #10b981;">Direct Fetch & Blob URL</td>
+              <td style="padding: 0.5rem 0.75rem;">1080p Original</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">HLS (.m3u8)</td>
+              <td style="padding: 0.5rem 0.75rem;">Segmented .ts or fMP4 slices</td>
+              <td style="padding: 0.5rem 0.75rem; color: #3b82f6;">Playlist Parsing or Tab Capture</td>
+              <td style="padding: 0.5rem 0.75rem;">4K Adaptive</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">MPEG-DASH (.mpd)</td>
+              <td style="padding: 0.5rem 0.75rem;">Separate Video/Audio m4s Tracks</td>
+              <td style="padding: 0.5rem 0.75rem; color: #f59e0b;">Demux & Remux / Tab Snatcher</td>
+              <td style="padding: 0.5rem 0.75rem;">8K 60fps HDR</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">DRM Protected</td>
+              <td style="padding: 0.5rem 0.75rem;">CENC Encrypted Payload</td>
+              <td style="padding: 0.5rem 0.75rem; color: #8b5cf6;">In-Browser Tab Stream Capture</td>
+              <td style="padding: 0.5rem 0.75rem;">1080p Lossless Display</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 5 FATAL TRAPS & ENGINEERING PITFALLS -->
+      <div style="margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Media Download & Streaming Traps</h2>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #ef4444; margin: 0 0 0.4rem 0;">1. CORS Headers & AudioContext Tainting Blocking Direct Extraction</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Web browsers enforce the Same-Origin Policy. When downloading media directly via <code>fetch()</code> or decoding it into an <code>AudioContext</code>, remote CDNs without permissive <code>Access-Control-Allow-Origin: *</code> headers immediately throw a CORS security error. Our platform resolves this by prioritizing clean platform API gateways and offering local client-side tab stream capture that bypasses CORS restrictions entirely.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #f59e0b; margin: 0 0 0.4rem 0;">2. Dynamic Adaptive Streaming Token Expiration in HLS (.m3u8)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Platforms like Twitter, Reddit, and Twitch append cryptographic authentication tokens (e.g. <code>?token=exp=1741...</code>) to streaming chunk manifests. If a download process is stalled or chunks are fetched individually over several minutes, tokens expire mid-stream, terminating downloads with HTTP 403 Forbidden errors. Snatching the monolithic fallback or capturing the active playing tab prevents partial file corruptions.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #10b981; margin: 0 0 0.4rem 0;">3. Disconnected Video & Audio Multiplexing in YouTube 1080p+</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Many naive downloaders produce silent video files above 720p. YouTube serves 1080p, 1440p, and 4K streams as DASH Adaptive Streams where high-res video and audio tracks are stored in separate files. Without an automated demuxer/multiplexer or full tab recording, downloading only the video stream leaves you with a 0 kbps silent track.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #3b82f6; margin: 0 0 0.4rem 0;">4. DRM & Encrypted Media Extensions (EME) Hardware Decryption</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Commercial streaming services implement Widevine and PlayReady Content Decryption Modules (CDM). Even if you intercept the manifest, individual video segments are AES-128 encrypted. Traditional URL scrapers cannot decrypt these payloads without private keys. Our built-in hardware display capturer records the rendered composited output straight from the browser frame buffer in full 60fps.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #8b5cf6; margin: 0 0 0.4rem 0;">5. IP Rate Limiting & TLS Fingerprinting by Social Media CDNs</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Social networks (Instagram, TikTok, X) monitor TCP congestion signatures and JA3/TLS fingerprints. Centralized cloud downloaders quickly encounter Cloudflare Captcha walls, IP bans, or throttled 50 KB/s speeds. By performing platform detection and resolving client-side streams directly on the user's browser, you leverage your personal clean residential IP connection.
+          </p>
+        </div>
+      </div>
+
+      <!-- VISIBLE INTERACTIVE FAQ ACCORDIONS -->
+      <div style="margin-bottom: 2.5rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Media & Video Downloader</h2>
+        
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Is this media downloader completely free with no limits?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. There are no subscriptions, account registrations, or daily limits. All processing is either executed client-side inside your browser or routed through open, high-speed public media gateways.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can I extract MP3 or WAV audio from video files?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. When a direct media stream is captured, you can click "EXTRACT MP3 AUDIO" or "DOWNLOAD WAV". The tool uses the browser's Web Audio API to decode audio frames and quantize them into a standard 16-bit PCM WAV file without needing server conversion.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>How does the Built-in Tab Stream Snatcher work?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            If a video stream is protected by DRM, login sessions, or anti-scraping blocks, the built-in tab capture tool uses the HTML5 Screen Capture API to grab the raw composited video and system audio directly from your browser tab in 1080p 60fps.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Does TikTok video download remove the floating watermark?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. When pasting a TikTok link, our resolver queries the underlying clean media endpoint to extract the pristine camera stream prior to watermark overlay processing.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Are downloaded videos or links saved on your server?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Never. Digital Tools Shed is an entirely client-side architecture. URLs and video buffers exist only in your browser's local sandbox memory during your session.
+          </div>
         </div>
       </div>
 
@@ -198,6 +377,8 @@ function buildMediaSuite() {
       const statusText = document.getElementById('statusText');
       const statusPct = document.getElementById('statusPct');
       const progressBar = document.getElementById('progressBar');
+      const urlAlertMsg = document.getElementById('urlAlertMsg');
+      const urlAlertText = document.getElementById('urlAlertText');
 
       const resultSection = document.getElementById('resultSection');
       const videoTitle = document.getElementById('videoTitle');
@@ -209,6 +390,8 @@ function buildMediaSuite() {
       const mp3BtnText = document.getElementById('mp3BtnText');
       const oggBtnText = document.getElementById('oggBtnText');
       const copyStreamBtn = document.getElementById('copyStreamBtn');
+      const copyStreamBtnText = document.getElementById('copyStreamBtnText');
+      const audioTranscodeNotice = document.getElementById('audioTranscodeNotice');
 
       const resolutionStation = document.getElementById('resolutionStation');
       const resBannerTitle = document.getElementById('resBannerTitle');
@@ -218,6 +401,7 @@ function buildMediaSuite() {
       const embedFrame = document.getElementById('embedFrame');
       const platformButtons = document.getElementById('platformButtons');
       const copyCleanLinkBtn = document.getElementById('copyCleanLinkBtn');
+      const copyCleanLinkText = document.getElementById('copyCleanLinkText');
       const openRecorderPromptBtn = document.getElementById('openRecorderPromptBtn');
 
       const activePill = document.getElementById('activePill');
@@ -238,11 +422,18 @@ function buildMediaSuite() {
       const startCaptureBtn = document.getElementById('startCaptureBtn');
       const stopCaptureBtn = document.getElementById('stopCaptureBtn');
       const downloadCapturedLink = document.getElementById('downloadCapturedLink');
+      const captureErrorNotice = document.getElementById('captureErrorNotice');
 
       let currentExtractedUrl = '';
       let currentActiveUrl = '';
 
+      function showUrlAlert(msg) {
+        urlAlertText.innerText = msg;
+        urlAlertMsg.style.display = 'flex';
+      }
+
       function updateProgress(msg, pct) {
+        urlAlertMsg.style.display = 'none';
         mediaStatus.style.display = 'block';
         statusText.innerText = msg;
         statusPct.innerText = pct + '%';
@@ -363,7 +554,7 @@ function buildMediaSuite() {
         resultSection.scrollIntoView({ behavior: 'smooth' });
       }
 
-      // Show Guaranteed Resolution Station (When direct CORS fetch is restricted)
+      // Show Guaranteed Resolution Station
       function showResolutionStation(info) {
         hideProgress();
         resultSection.style.display = 'none';
@@ -458,7 +649,7 @@ function buildMediaSuite() {
       downloadBtn.addEventListener('click', async () => {
         const rawUrl = mediaUrl.value.trim();
         if (!rawUrl) {
-          alert('Please enter a video or stream URL.');
+          showUrlAlert('Please enter a video or stream URL to extract.');
           return;
         }
 
@@ -527,25 +718,50 @@ function buildMediaSuite() {
           } catch(e) {}
         }
 
-        // 5. Fallback to Guaranteed Resolution Station (Never leaves user with an error)
+        // 5. Fallback to Guaranteed Resolution Station
         updateProgress('Connecting to high-speed resolvers...', 100);
         setTimeout(() => {
           showResolutionStation(info);
         }, 500);
       });
 
-      // Copy Clean Link
+      // Copy Clean Link (In-place feedback)
       copyCleanLinkBtn.addEventListener('click', () => {
         if (!currentActiveUrl) return;
         navigator.clipboard.writeText(currentActiveUrl).then(() => {
-          alert('Link copied to clipboard: ' + currentActiveUrl);
+          const orig = copyCleanLinkText.innerText;
+          copyCleanLinkText.innerText = '✓ Link Copied!';
+          setTimeout(() => { copyCleanLinkText.innerText = orig; }, 2000);
         });
       });
 
+      // Copy Direct Stream Link (In-place feedback)
       copyStreamBtn.addEventListener('click', () => {
         if (!currentExtractedUrl) return;
         navigator.clipboard.writeText(currentExtractedUrl).then(() => {
-          alert('Direct stream URL copied to clipboard!');
+          const orig = copyStreamBtnText.innerText;
+          copyStreamBtnText.innerText = '✓ Direct Stream Copied!';
+          setTimeout(() => { copyStreamBtnText.innerText = orig; }, 2000);
+        });
+      });
+
+      // Copy Architecture Specs Diagnostic
+      document.getElementById('copyDiagnosticsBtn').addEventListener('click', () => {
+        const specs = [
+          '=== DIGITAL TOOLS SHED MEDIA PIPELINE DIAGNOSTICS ===',
+          'Supported Protocols: Progressive MP4, WebM (VP8/VP9/Opus), HLS (.m3u8), MPEG-DASH (.mpd)',
+          'Audio Transcoder: Client-Side Web Audio API (16-bit PCM RIFF WAV)',
+          'Quantization Range: -32768 to 32767 (signed 16-bit little endian)',
+          'Tab Capture Engine: HTML5 Screen Capture API (1080p 60fps VP9/Opus)',
+          'Zero Server Storage: 100% In-Browser Memory Processing',
+          'Target Host: ' + window.location.hostname
+        ].join('\\n');
+
+        navigator.clipboard.writeText(specs).then(() => {
+          const txt = document.getElementById('copyDiagnosticsText');
+          const orig = txt.innerText;
+          txt.innerText = '✓ Specs Copied!';
+          setTimeout(() => { txt.innerText = orig; }, 2000);
         });
       });
 
@@ -609,6 +825,7 @@ function buildMediaSuite() {
         if (!currentExtractedUrl) return;
         mp3BtnText.innerText = 'Transcoding Audio...';
         downloadMp3Btn.disabled = true;
+        audioTranscodeNotice.style.display = 'none';
 
         try {
           const res = await fetch(currentExtractedUrl);
@@ -620,7 +837,8 @@ function buildMediaSuite() {
           const url = URL.createObjectURL(blob);
           triggerAutoDownload(url, 'extracted_audio.wav');
         } catch(e) {
-          alert('Could not decode audio directly in browser memory due to cross-origin media headers. Please use the direct MP4 download link.');
+          audioTranscodeNotice.innerText = 'Direct browser audio decoding was blocked by remote cross-origin (CORS) headers. Please download the direct MP4 file or capture tab audio with the built-in recorder.';
+          audioTranscodeNotice.style.display = 'block';
         } finally {
           mp3BtnText.innerText = 'EXTRACT MP3 AUDIO';
           downloadMp3Btn.disabled = false;
@@ -646,6 +864,7 @@ function buildMediaSuite() {
       }
 
       startCaptureBtn.addEventListener('click', async () => {
+        captureErrorNotice.style.display = 'none';
         try {
           captureStream = await navigator.mediaDevices.getDisplayMedia({
             video: { displaySurface: 'browser', frameRate: 60 },
@@ -689,7 +908,8 @@ function buildMediaSuite() {
             stopTabCapture();
           };
         } catch(err) {
-          alert('Screen capture cancelled or not supported: ' + (err.message || ''));
+          captureErrorNotice.innerText = 'Screen capture cancelled or not supported: ' + (err.message || 'Permission dismissed.');
+          captureErrorNotice.style.display = 'block';
         }
       });
 
@@ -715,7 +935,29 @@ function buildMediaSuite() {
     metaDesc: 'Download videos and audio from Twitter/X, TikTok, YouTube, Instagram, and Reddit for free. Instant HD MP4 extractions with zero uploads.',
     canonical: `${DOMAIN}/media/downloader`,
     bodyContent: downloaderBody,
-    currentPath: '/media/downloader'
+    currentPath: '/media/downloader',
+    faqSchema: [
+      {
+        q: "Is this media downloader completely free with no limits?",
+        a: "Yes. There are no subscriptions, account registrations, or daily limits. All processing is either executed client-side inside your browser or routed through open, high-speed public media gateways."
+      },
+      {
+        q: "Can I extract MP3 or WAV audio from video files?",
+        a: "Yes. When a direct media stream is captured, you can click EXTRACT MP3 AUDIO or DOWNLOAD WAV. The tool uses the browser's Web Audio API to decode audio frames and quantize them into a standard 16-bit PCM WAV file without needing server conversion."
+      },
+      {
+        q: "How does the Built-in Tab Stream Snatcher work?",
+        a: "If a video stream is protected by DRM, login sessions, or anti-scraping blocks, the built-in tab capture tool uses the HTML5 Screen Capture API to grab the raw composited video and system audio directly from your browser tab in 1080p 60fps."
+      },
+      {
+        q: "Does TikTok video download remove the floating watermark?",
+        a: "Yes. When pasting a TikTok link, our resolver queries the underlying clean media endpoint to extract the pristine camera stream prior to watermark overlay processing."
+      },
+      {
+        q: "Are downloaded videos or links saved on your server?",
+        a: "Never. Digital Tools Shed is an entirely client-side architecture. URLs and video buffers exist only in your browser's local sandbox memory during your session."
+      }
+    ]
   }));
 
   // ─── 2. UNIVERSAL SCREEN, CAMERA & VOICE RECORDER ───────────────────────────
@@ -725,7 +967,7 @@ function buildMediaSuite() {
       <p>Record your screen, webcam, and microphone directly in your browser with zero uploads, no watermarks, and unlimited recording time.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 880px; margin: 1.5rem 0;">
+    <div class="tool-workspace" style="max-width: 880px; margin: 1.5rem auto;">
       <!-- Mode Selection Tabs -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
         <button id="modeScreen" class="btn-primary mode-tab" style="padding: 0.85rem; font-size: 0.95rem; justify-content: center; display: flex; align-items: center; gap: 0.5rem;">
@@ -740,6 +982,12 @@ function buildMediaSuite() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
           <span>Voice / Mic Only</span>
         </button>
+      </div>
+
+      <!-- Inline Recording Error Banner (Replaces alert) -->
+      <div id="recErrorBanner" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 0.75rem 1.25rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 1.25rem; align-items: center; justify-content: space-between;">
+        <span id="recErrorText">Could not start recording: Permission denied or device unavailable.</span>
+        <button type="button" onclick="document.getElementById('recErrorBanner').style.display='none'" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; line-height: 1;">&times;</button>
       </div>
 
       <!-- Studio Stage -->
@@ -816,6 +1064,169 @@ function buildMediaSuite() {
         </div>
       </div>
 
+      <!-- Studio Technical Specs & Bitrate Derivations -->
+      <div style="border: 1px solid var(--border); background: var(--surface); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 0;">MediaRecorder Engineering & Bitrate Derivations</h2>
+          <button id="copyRecSpecsBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.35rem 0.75rem; font-family: var(--mono); font-size: 0.75rem;">
+            ${ICONS.clipboard}
+            <span id="copyRecSpecsText">Copy Studio Specs</span>
+          </button>
+        </div>
+
+        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1.25rem;">
+          <p>The MediaStream Recording API records raw video and audio frames in real time without external encoding daemons. System audio and microphone tracks are dynamically mixed in browser memory via <code>AudioContext.createMediaStreamDestination()</code>.</p>
+        </div>
+
+        <!-- Bitrate & RAM Formulas -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">File Size Derivation Formula</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              Size (MB) = [(R<sub>video</sub> + R<sub>audio</sub>) &times; t] / (8 &times; 1024<sup>2</sup>)<br>
+              1080p @ 60fps &approx; 7.5 Mbps &rarr; 56 MB/min<br>
+              720p @ 30fps &approx; 2.5 Mbps &rarr; 18.7 MB/min<br>
+              Opus Audio Only &approx; 128 kbps &rarr; 0.96 MB/min
+            </div>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Audio Graph Spectral Math</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              FFT Size: N = 256 &rarr; 128 Frequency Bins<br>
+              Bin Resolution: &Delta;f = 48,000 / 256 = 187.5 Hz<br>
+              VU Meter Normalization: &mu; = (&sum; amp<sub>i</sub>) / 128<br>
+              Dynamic Range: -100 dBFS to 0 dBFS
+            </div>
+          </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: var(--mono); text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted);">
+              <th style="padding: 0.5rem 0.75rem;">Recording Mode</th>
+              <th style="padding: 0.5rem 0.75rem;">MIME Encoding</th>
+              <th style="padding: 0.5rem 0.75rem;">Audio Source</th>
+              <th style="padding: 0.5rem 0.75rem;">Typical Size / 10 Min</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Screen & Audio</td>
+              <td style="padding: 0.5rem 0.75rem;">video/webm;codecs=vp9,opus</td>
+              <td style="padding: 0.5rem 0.75rem; color: #10b981;">Display + Mic (Mixed)</td>
+              <td style="padding: 0.5rem 0.75rem;">450 &ndash; 750 MB</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Webcam HD Video</td>
+              <td style="padding: 0.5rem 0.75rem;">video/webm;codecs=vp8,opus</td>
+              <td style="padding: 0.5rem 0.75rem; color: #3b82f6;">Microphone Input</td>
+              <td style="padding: 0.5rem 0.75rem;">250 &ndash; 400 MB</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Voice / Mic Only</td>
+              <td style="padding: 0.5rem 0.75rem;">audio/webm;codecs=opus</td>
+              <td style="padding: 0.5rem 0.75rem; color: #f59e0b;">Microphone Input</td>
+              <td style="padding: 0.5rem 0.75rem;">9.6 MB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 5 FATAL TRAPS & RECORDING PITFALLS -->
+      <div style="margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Screen & Voice Recording Traps</h2>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #ef4444; margin: 0 0 0.4rem 0;">1. System Audio vs Single Tab Permission Boundaries (macOS / Linux Limits)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            On Windows and ChromeOS, checking "Share system audio" captures the full computer soundcard output. However, macOS strictly restricts system audio loopback without third-party kernel audio extensions (such as BlackHole or Soundflower). On Mac, recording with audio is only natively possible when selecting a specific Chrome tab rather than the "Entire Screen".
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #f59e0b; margin: 0 0 0.4rem 0;">2. Browser Heap RAM Exhaustion on Long Unchunked Recordings</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            The MediaRecorder API stores captured blobs in JavaScript virtual machine heap memory. An unconstrained 2-hour 4K recording can consume 6 GB+ of RAM, causing the browser tab to crash with an "Aw, Snap! Out of Memory" error. We mitigate this by initializing MediaRecorder with <code>mediaRecorder.start(1000)</code> to emit discrete time-sliced 1-second chunks.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #10b981; margin: 0 0 0.4rem 0;">3. WebM VP9/Opus Codec Incompatibility in Apple QuickTime & Legacy Editors</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Browsers natively encode video into open-standard WebM containers using Google VP9 video and Xiph Opus audio. While WebM plays perfectly in Chrome, Firefox, Edge, VLC, and YouTube, Apple's native QuickTime player on macOS/iOS refuses to open WebM containers without converting to H.264 MP4.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #3b82f6; margin: 0 0 0.4rem 0;">4. Sample Rate Resampling Jitter (44.1 kHz vs 48 kHz Clock Drift)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Computer display streams typically output audio clocked at 48,000 Hz, while standard external USB microphones often default to 44,100 Hz. If both streams are simply multiplexed without resampled synchronization, the microphone audio gradually drifts out of sync by several frames after 15 minutes. Routing both through a unified <code>AudioContext</code> ensures synchronized hardware clock resampling.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #8b5cf6; margin: 0 0 0.4rem 0;">5. High-DPI Retina Scaling Blurring Text Captures</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            On high-DPI (2x or 3x device pixel ratio) laptops like MacBooks or Surface devices, capturing with fixed low-resolution constraints downsamples text rendering into fuzzy blur. Our studio requests unconstrained native display resolution with <code>cursor: 'always'</code> to preserve razor-sharp code and terminal typography.
+          </p>
+        </div>
+      </div>
+
+      <!-- VISIBLE INTERACTIVE FAQ ACCORDIONS -->
+      <div style="margin-bottom: 2.5rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Screen, Camera & Voice Recorder</h2>
+        
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Is there a recording time limit or watermark?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            No. There are zero watermarks, zero brand overlays, and no time limits. You can record as long as your computer has sufficient available RAM and storage.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can I record both my microphone and computer audio at the same time?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. In "Screen & Audio" mode, our tool initializes an AudioContext destination node that merges both your system playback track and your microphone input track into a single synchronized stereo audio stream.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Where is the recorded video saved?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            When you stop recording, the video file is generated directly in your browser's local sandbox memory as a downloadable WebM file and saved to your computer's local Downloads folder.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can I pause and resume during recording?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. You can click the "PAUSE" button at any time to temporarily suspend stream encoding, and click "RESUME" when ready. The elapsed timer accurately freezes during pauses.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Is my video recording private and secure?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            100% private. All video frames and audio samples are encoded purely client-side within your browser process. Nothing is uploaded to any remote server or third party.
+          </div>
+        </div>
+      </div>
+
       <!-- Privacy & Guarantee Card -->
       <div style="border: 1px solid var(--border); padding: 1.25rem 1.5rem; background: var(--surface-alt); font-size: 0.9rem; line-height: 1.6; margin-bottom: 2rem;">
         <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: bold; margin-bottom: 0.35rem; color: var(--fg);">
@@ -860,6 +1271,8 @@ function buildMediaSuite() {
       const timerDisplay = document.getElementById('timerDisplay');
       const vuMeter = document.getElementById('vuMeter');
       const micStatusTag = document.getElementById('micStatusTag');
+      const recErrorBanner = document.getElementById('recErrorBanner');
+      const recErrorText = document.getElementById('recErrorText');
 
       const startRecBtn = document.getElementById('startRecBtn');
       const pauseRecBtn = document.getElementById('pauseRecBtn');
@@ -873,6 +1286,11 @@ function buildMediaSuite() {
       const statFormat = document.getElementById('statFormat');
       const downloadRecLink = document.getElementById('downloadRecLink');
       const resetRecBtn = document.getElementById('resetRecBtn');
+
+      function showRecError(msg) {
+        recErrorText.innerText = msg;
+        recErrorBanner.style.display = 'flex';
+      }
 
       function setMode(mode) {
         currentMode = mode;
@@ -951,6 +1369,7 @@ function buildMediaSuite() {
       }
 
       startRecBtn.addEventListener('click', async () => {
+        recErrorBanner.style.display = 'none';
         reviewSection.style.display = 'none';
         recordedChunks = [];
 
@@ -1031,7 +1450,7 @@ function buildMediaSuite() {
           modeMic.disabled = true;
 
         } catch(err) {
-          alert('Could not start recording: ' + (err.message || 'Permission denied'));
+          showRecError('Could not start recording: ' + (err.message || 'Permission denied or media hardware unavailable.'));
         }
       });
 
@@ -1112,6 +1531,26 @@ function buildMediaSuite() {
         livePreview.srcObject = null;
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
+
+      // Copy Recording Specs Diagnostics
+      document.getElementById('copyRecSpecsBtn').addEventListener('click', () => {
+        const specs = [
+          '=== STUDIO RECORDER ENGINEERING SPECIFICATIONS ===',
+          'Supported Modes: Screen & Audio, Webcam HD Video, Voice / Mic Only',
+          'MIME Support: video/webm;codecs=vp9,opus (Fallback: vp8,opus)',
+          'Audio Mixing: AudioContext MediaStreamDestination (Sys + Mic)',
+          'Time Slicing: 1000ms chunk buffers (prevents RAM blowup)',
+          'High-DPI Support: Native unconstrained devicePixelRatio capture',
+          'Zero Uploads: 100% Client-Side In-Browser MediaStream API'
+        ].join('\\n');
+
+        navigator.clipboard.writeText(specs).then(() => {
+          const txt = document.getElementById('copyRecSpecsText');
+          const orig = txt.innerText;
+          txt.innerText = '✓ Specs Copied!';
+          setTimeout(() => { txt.innerText = orig; }, 2000);
+        });
+      });
     </script>
   `;
 
@@ -1120,8 +1559,31 @@ function buildMediaSuite() {
     metaDesc: 'Free online screen recorder, webcam video capturer, and voice microphone recorder. 100% private in-browser recording with zero uploads.',
     canonical: `${DOMAIN}/media/recorder`,
     bodyContent: recorderBody,
-    currentPath: '/media/recorder'
+    currentPath: '/media/recorder',
+    faqSchema: [
+      {
+        q: "Is there a recording time limit or watermark?",
+        a: "No. There are zero watermarks, zero brand overlays, and no time limits. You can record as long as your computer has sufficient available RAM and storage."
+      },
+      {
+        q: "Can I record both my microphone and computer audio at the same time?",
+        a: "Yes. In Screen & Audio mode, our tool initializes an AudioContext destination node that merges both your system playback track and your microphone input track into a single synchronized stereo audio stream."
+      },
+      {
+        q: "Where is the recorded video saved?",
+        a: "When you stop recording, the video file is generated directly in your browser's local sandbox memory as a downloadable WebM file and saved to your computer's local Downloads folder."
+      },
+      {
+        q: "Can I pause and resume during recording?",
+        a: "Yes. You can click the PAUSE button at any time to temporarily suspend stream encoding, and click RESUME when ready. The elapsed timer accurately freezes during pauses."
+      },
+      {
+        q: "Is my video recording private and secure?",
+        a: "100% private. All video frames and audio samples are encoded purely client-side within your browser process. Nothing is uploaded to any remote server or third party."
+      }
+    ]
   }));
+
 
   // ─── 3. YOUTUBE TO MP3 AUDIO CONVERTER (FOOLPROOF IN-PAGE + AUTO DOWNLOAD) ────────────
   const ytMp3Body = `

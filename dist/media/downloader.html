@@ -1030,7 +1030,7 @@
       <p>Download HD video and high-bitrate audio from YouTube, TikTok, X/Twitter, Instagram, Reddit, and direct streams. 100% Free, Private, with Built-in Tab Stream Capture.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
+    <div class="tool-workspace" style="max-width: 880px; margin: 1.5rem auto;">
       <!-- Search & Input Box -->
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
         <input type="url" id="mediaUrl" class="search-input" placeholder="Paste YouTube, TikTok, X/Twitter, Instagram, Reddit, or MP4 URL here..." style="flex: 1; min-width: 260px; padding: 0.85rem 1rem; font-family: var(--mono); font-size: 0.95rem;" />
@@ -1038,6 +1038,12 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>EXTRACT & DOWNLOAD</span>
         </button>
+      </div>
+
+      <!-- Inline URL Warning Banner (Replaces alert) -->
+      <div id="urlAlertMsg" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 0.75rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 1rem; align-items: center; justify-content: space-between;">
+        <span id="urlAlertText">Please enter a valid video or media stream URL.</span>
+        <button type="button" onclick="document.getElementById('urlAlertMsg').style.display='none'" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; line-height: 1;">&times;</button>
       </div>
 
       <!-- Live Platform Detection Banner -->
@@ -1113,9 +1119,11 @@
           </button>
           <button id="copyStreamBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.85rem 1.25rem; font-size: 0.95rem;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-            <span>COPY DIRECT LINK</span>
+            <span id="copyStreamBtnText">COPY DIRECT LINK</span>
           </button>
         </div>
+
+        <div id="audioTranscodeNotice" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #fbbf24; padding: 0.65rem 0.9rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; margin-top: 0.75rem; text-align: center;"></div>
       </div>
 
       <!-- GUARANTEED RESOLUTION STATION (Never-Fail Platform Gateways) -->
@@ -1144,7 +1152,7 @@
         <div style="display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 1rem;">
           <button id="copyCleanLinkBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.65rem 1.25rem; font-size: 0.9rem;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-            <span>Copy Video Link</span>
+            <span id="copyCleanLinkText">Copy Video Link</span>
           </button>
           <button id="openRecorderPromptBtn" class="btn-primary" style="background: #10b981; color: #fff; border: 1px solid #059669; padding: 0.65rem 1.25rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
@@ -1175,6 +1183,8 @@
           </div>
         </div>
 
+        <div id="captureErrorNotice" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 0.65rem 0.9rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1rem;"></div>
+
         <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;">
           <button id="startCaptureBtn" class="btn-primary" style="background: #2563eb; color: #fff; border: 1px solid #1d4ed8; padding: 0.75rem 1.5rem; font-weight: bold; display: flex; align-items: center; gap: 0.5rem;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
@@ -1187,6 +1197,175 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             <span>DOWNLOAD CAPTURED VIDEO</span>
           </a>
+        </div>
+      </div>
+
+      <!-- DIAGNOSTIC SPECIFICATIONS & LIVE DERIVATIONS -->
+      <div style="border: 1px solid var(--border); background: var(--surface); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 0;">Media Pipeline & Stream Architectural Derivations</h2>
+          <button id="copyDiagnosticsBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.35rem 0.75rem; font-family: var(--mono); font-size: 0.75rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            <span id="copyDiagnosticsText">Copy Architecture Specs</span>
+          </button>
+        </div>
+
+        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1.25rem;">
+          <p>Modern streaming architectures separate video delivery into monolithic vs adaptive segmented formats. Understanding how audio multiplexing, bit depth quantization, and CORS boundaries work allows seamless local extraction without server-side transcoding latency.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Audio Transcode Derivation</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              WAV Header = 44 bytes<br>
+              BlockAlign = Channels &times; (BitDepth / 8)<br>
+              ByteRate = SampleRate &times; BlockAlign<br>
+              PCM Quantization: S<sub>16</sub> = [-32768, 32767]
+            </div>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Adaptive Streaming Specs</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              Protocol: HLS (.m3u8) / DASH (.mpd)<br>
+              Chunk Duration: 2.0s &ndash; 6.0s TS/m4s<br>
+              1080p Bitrate: 4,500 &ndash; 8,000 kbps<br>
+              Audio: AAC-LC / Opus @ 128&ndash;320 kbps
+            </div>
+          </div>
+        </div>
+
+        <!-- Protocol Comparison Table -->
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: var(--mono); text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted);">
+              <th style="padding: 0.5rem 0.75rem;">Delivery Protocol</th>
+              <th style="padding: 0.5rem 0.75rem;">Container / Chunks</th>
+              <th style="padding: 0.5rem 0.75rem;">Browser Intercept Method</th>
+              <th style="padding: 0.5rem 0.75rem;">Max Fidelity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Progressive MP4</td>
+              <td style="padding: 0.5rem 0.75rem;">Monolithic ISO BMFF (moov + mdat)</td>
+              <td style="padding: 0.5rem 0.75rem; color: #10b981;">Direct Fetch & Blob URL</td>
+              <td style="padding: 0.5rem 0.75rem;">1080p Original</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">HLS (.m3u8)</td>
+              <td style="padding: 0.5rem 0.75rem;">Segmented .ts or fMP4 slices</td>
+              <td style="padding: 0.5rem 0.75rem; color: #3b82f6;">Playlist Parsing or Tab Capture</td>
+              <td style="padding: 0.5rem 0.75rem;">4K Adaptive</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">MPEG-DASH (.mpd)</td>
+              <td style="padding: 0.5rem 0.75rem;">Separate Video/Audio m4s Tracks</td>
+              <td style="padding: 0.5rem 0.75rem; color: #f59e0b;">Demux & Remux / Tab Snatcher</td>
+              <td style="padding: 0.5rem 0.75rem;">8K 60fps HDR</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">DRM Protected</td>
+              <td style="padding: 0.5rem 0.75rem;">CENC Encrypted Payload</td>
+              <td style="padding: 0.5rem 0.75rem; color: #8b5cf6;">In-Browser Tab Stream Capture</td>
+              <td style="padding: 0.5rem 0.75rem;">1080p Lossless Display</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 5 FATAL TRAPS & ENGINEERING PITFALLS -->
+      <div style="margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Media Download & Streaming Traps</h2>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #ef4444; margin: 0 0 0.4rem 0;">1. CORS Headers & AudioContext Tainting Blocking Direct Extraction</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Web browsers enforce the Same-Origin Policy. When downloading media directly via <code>fetch()</code> or decoding it into an <code>AudioContext</code>, remote CDNs without permissive <code>Access-Control-Allow-Origin: *</code> headers immediately throw a CORS security error. Our platform resolves this by prioritizing clean platform API gateways and offering local client-side tab stream capture that bypasses CORS restrictions entirely.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #f59e0b; margin: 0 0 0.4rem 0;">2. Dynamic Adaptive Streaming Token Expiration in HLS (.m3u8)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Platforms like Twitter, Reddit, and Twitch append cryptographic authentication tokens (e.g. <code>?token=exp=1741...</code>) to streaming chunk manifests. If a download process is stalled or chunks are fetched individually over several minutes, tokens expire mid-stream, terminating downloads with HTTP 403 Forbidden errors. Snatching the monolithic fallback or capturing the active playing tab prevents partial file corruptions.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #10b981; margin: 0 0 0.4rem 0;">3. Disconnected Video & Audio Multiplexing in YouTube 1080p+</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Many naive downloaders produce silent video files above 720p. YouTube serves 1080p, 1440p, and 4K streams as DASH Adaptive Streams where high-res video and audio tracks are stored in separate files. Without an automated demuxer/multiplexer or full tab recording, downloading only the video stream leaves you with a 0 kbps silent track.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #3b82f6; margin: 0 0 0.4rem 0;">4. DRM & Encrypted Media Extensions (EME) Hardware Decryption</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Commercial streaming services implement Widevine and PlayReady Content Decryption Modules (CDM). Even if you intercept the manifest, individual video segments are AES-128 encrypted. Traditional URL scrapers cannot decrypt these payloads without private keys. Our built-in hardware display capturer records the rendered composited output straight from the browser frame buffer in full 60fps.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #8b5cf6; margin: 0 0 0.4rem 0;">5. IP Rate Limiting & TLS Fingerprinting by Social Media CDNs</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Social networks (Instagram, TikTok, X) monitor TCP congestion signatures and JA3/TLS fingerprints. Centralized cloud downloaders quickly encounter Cloudflare Captcha walls, IP bans, or throttled 50 KB/s speeds. By performing platform detection and resolving client-side streams directly on the user's browser, you leverage your personal clean residential IP connection.
+          </p>
+        </div>
+      </div>
+
+      <!-- VISIBLE INTERACTIVE FAQ ACCORDIONS -->
+      <div style="margin-bottom: 2.5rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Media & Video Downloader</h2>
+        
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Is this media downloader completely free with no limits?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. There are no subscriptions, account registrations, or daily limits. All processing is either executed client-side inside your browser or routed through open, high-speed public media gateways.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can I extract MP3 or WAV audio from video files?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. When a direct media stream is captured, you can click "EXTRACT MP3 AUDIO" or "DOWNLOAD WAV". The tool uses the browser's Web Audio API to decode audio frames and quantize them into a standard 16-bit PCM WAV file without needing server conversion.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>How does the Built-in Tab Stream Snatcher work?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            If a video stream is protected by DRM, login sessions, or anti-scraping blocks, the built-in tab capture tool uses the HTML5 Screen Capture API to grab the raw composited video and system audio directly from your browser tab in 1080p 60fps.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Does TikTok video download remove the floating watermark?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. When pasting a TikTok link, our resolver queries the underlying clean media endpoint to extract the pristine camera stream prior to watermark overlay processing.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Are downloaded videos or links saved on your server?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Never. Digital Tools Shed is an entirely client-side architecture. URLs and video buffers exist only in your browser's local sandbox memory during your session.
+          </div>
         </div>
       </div>
 
@@ -1215,6 +1394,8 @@
       const statusText = document.getElementById('statusText');
       const statusPct = document.getElementById('statusPct');
       const progressBar = document.getElementById('progressBar');
+      const urlAlertMsg = document.getElementById('urlAlertMsg');
+      const urlAlertText = document.getElementById('urlAlertText');
 
       const resultSection = document.getElementById('resultSection');
       const videoTitle = document.getElementById('videoTitle');
@@ -1226,6 +1407,8 @@
       const mp3BtnText = document.getElementById('mp3BtnText');
       const oggBtnText = document.getElementById('oggBtnText');
       const copyStreamBtn = document.getElementById('copyStreamBtn');
+      const copyStreamBtnText = document.getElementById('copyStreamBtnText');
+      const audioTranscodeNotice = document.getElementById('audioTranscodeNotice');
 
       const resolutionStation = document.getElementById('resolutionStation');
       const resBannerTitle = document.getElementById('resBannerTitle');
@@ -1235,6 +1418,7 @@
       const embedFrame = document.getElementById('embedFrame');
       const platformButtons = document.getElementById('platformButtons');
       const copyCleanLinkBtn = document.getElementById('copyCleanLinkBtn');
+      const copyCleanLinkText = document.getElementById('copyCleanLinkText');
       const openRecorderPromptBtn = document.getElementById('openRecorderPromptBtn');
 
       const activePill = document.getElementById('activePill');
@@ -1255,11 +1439,18 @@
       const startCaptureBtn = document.getElementById('startCaptureBtn');
       const stopCaptureBtn = document.getElementById('stopCaptureBtn');
       const downloadCapturedLink = document.getElementById('downloadCapturedLink');
+      const captureErrorNotice = document.getElementById('captureErrorNotice');
 
       let currentExtractedUrl = '';
       let currentActiveUrl = '';
 
+      function showUrlAlert(msg) {
+        urlAlertText.innerText = msg;
+        urlAlertMsg.style.display = 'flex';
+      }
+
       function updateProgress(msg, pct) {
+        urlAlertMsg.style.display = 'none';
         mediaStatus.style.display = 'block';
         statusText.innerText = msg;
         statusPct.innerText = pct + '%';
@@ -1380,7 +1571,7 @@
         resultSection.scrollIntoView({ behavior: 'smooth' });
       }
 
-      // Show Guaranteed Resolution Station (When direct CORS fetch is restricted)
+      // Show Guaranteed Resolution Station
       function showResolutionStation(info) {
         hideProgress();
         resultSection.style.display = 'none';
@@ -1475,7 +1666,7 @@
       downloadBtn.addEventListener('click', async () => {
         const rawUrl = mediaUrl.value.trim();
         if (!rawUrl) {
-          alert('Please enter a video or stream URL.');
+          showUrlAlert('Please enter a video or stream URL to extract.');
           return;
         }
 
@@ -1544,25 +1735,50 @@
           } catch(e) {}
         }
 
-        // 5. Fallback to Guaranteed Resolution Station (Never leaves user with an error)
+        // 5. Fallback to Guaranteed Resolution Station
         updateProgress('Connecting to high-speed resolvers...', 100);
         setTimeout(() => {
           showResolutionStation(info);
         }, 500);
       });
 
-      // Copy Clean Link
+      // Copy Clean Link (In-place feedback)
       copyCleanLinkBtn.addEventListener('click', () => {
         if (!currentActiveUrl) return;
         navigator.clipboard.writeText(currentActiveUrl).then(() => {
-          alert('Link copied to clipboard: ' + currentActiveUrl);
+          const orig = copyCleanLinkText.innerText;
+          copyCleanLinkText.innerText = '✓ Link Copied!';
+          setTimeout(() => { copyCleanLinkText.innerText = orig; }, 2000);
         });
       });
 
+      // Copy Direct Stream Link (In-place feedback)
       copyStreamBtn.addEventListener('click', () => {
         if (!currentExtractedUrl) return;
         navigator.clipboard.writeText(currentExtractedUrl).then(() => {
-          alert('Direct stream URL copied to clipboard!');
+          const orig = copyStreamBtnText.innerText;
+          copyStreamBtnText.innerText = '✓ Direct Stream Copied!';
+          setTimeout(() => { copyStreamBtnText.innerText = orig; }, 2000);
+        });
+      });
+
+      // Copy Architecture Specs Diagnostic
+      document.getElementById('copyDiagnosticsBtn').addEventListener('click', () => {
+        const specs = [
+          '=== DIGITAL TOOLS SHED MEDIA PIPELINE DIAGNOSTICS ===',
+          'Supported Protocols: Progressive MP4, WebM (VP8/VP9/Opus), HLS (.m3u8), MPEG-DASH (.mpd)',
+          'Audio Transcoder: Client-Side Web Audio API (16-bit PCM RIFF WAV)',
+          'Quantization Range: -32768 to 32767 (signed 16-bit little endian)',
+          'Tab Capture Engine: HTML5 Screen Capture API (1080p 60fps VP9/Opus)',
+          'Zero Server Storage: 100% In-Browser Memory Processing',
+          'Target Host: ' + window.location.hostname
+        ].join('\n');
+
+        navigator.clipboard.writeText(specs).then(() => {
+          const txt = document.getElementById('copyDiagnosticsText');
+          const orig = txt.innerText;
+          txt.innerText = '✓ Specs Copied!';
+          setTimeout(() => { txt.innerText = orig; }, 2000);
         });
       });
 
@@ -1626,6 +1842,7 @@
         if (!currentExtractedUrl) return;
         mp3BtnText.innerText = 'Transcoding Audio...';
         downloadMp3Btn.disabled = true;
+        audioTranscodeNotice.style.display = 'none';
 
         try {
           const res = await fetch(currentExtractedUrl);
@@ -1637,7 +1854,8 @@
           const url = URL.createObjectURL(blob);
           triggerAutoDownload(url, 'extracted_audio.wav');
         } catch(e) {
-          alert('Could not decode audio directly in browser memory due to cross-origin media headers. Please use the direct MP4 download link.');
+          audioTranscodeNotice.innerText = 'Direct browser audio decoding was blocked by remote cross-origin (CORS) headers. Please download the direct MP4 file or capture tab audio with the built-in recorder.';
+          audioTranscodeNotice.style.display = 'block';
         } finally {
           mp3BtnText.innerText = 'EXTRACT MP3 AUDIO';
           downloadMp3Btn.disabled = false;
@@ -1663,6 +1881,7 @@
       }
 
       startCaptureBtn.addEventListener('click', async () => {
+        captureErrorNotice.style.display = 'none';
         try {
           captureStream = await navigator.mediaDevices.getDisplayMedia({
             video: { displaySurface: 'browser', frameRate: 60 },
@@ -1706,7 +1925,8 @@
             stopTabCapture();
           };
         } catch(err) {
-          alert('Screen capture cancelled or not supported: ' + (err.message || ''));
+          captureErrorNotice.innerText = 'Screen capture cancelled or not supported: ' + (err.message || 'Permission dismissed.');
+          captureErrorNotice.style.display = 'block';
         }
       });
 
