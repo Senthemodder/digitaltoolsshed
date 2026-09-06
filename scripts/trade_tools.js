@@ -115784,6 +115784,2824 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
   })();
 
 
-console.log('  ✓ Built Trade & Construction Suite (175 calculators in /calc/)');
+  // ==========================================
+  // Tool BG1: API 520 / API 526 Pressure Relief Valve (PRV) Sizing Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-520-pressure-relief-valve-sizing-calculator';
+    const title = 'API 520 / API 526 Pressure Relief Valve (PRV) Sizing Calculator';
+    const metaDescription = 'Size safety relief valves (PRVs) for gas, vapor, and liquid overpressure per API RP 520 Parts I & II and API 526 standard orifice designations (D through T). Calculates required discharge area, critical flow regime, backpressure derating, and reaction thrust.';
+
+    const faq = [
+      {
+        q: 'What is the difference between API 520 and API 526 in relief valve sizing?',
+        a: 'API RP 520 (Parts I and II) provides the recommended engineering practices and mathematical procedures for sizing and selecting pressure relief devices, including gas, vapor, steam, and liquid flow equations, backpressure correction factors, and inlet/outlet piping hydraulics. API Standard 526 defines the standardized physical purchase specifications for flanged steel safety relief valves, including standard effective orifice letter designations (D through T with corresponding nominal areas from 0.110 to 26.000 sq in), flange center-to-face dimensions, and pressure-temperature body ratings.'
+      },
+      {
+        q: 'How do you determine if gas or vapor flow through a PRV is critical (choked) or subcritical?',
+        a: 'Critical flow occurs when the absolute pressure ratio across the valve nozzle (absolute downstream backpressure divided by absolute upstream relieving pressure, Pb / P1) is less than or equal to the critical pressure ratio: rcrit = [2 / (k + 1)]^[k / (k - 1)], where k is the ideal gas ratio of specific heats (Cp / Cv). For standard air with k = 1.40, rcrit is 0.528. For natural gas with k = 1.28, rcrit is 0.549. When Pb / P1 <= rcrit, sonic velocity is reached at the nozzle throat, mass flow is independent of downstream pressure, and the critical flow equation governs. When Pb / P1 > rcrit, flow is subcritical and the subcritical equation must be used.'
+      },
+      {
+        q: 'What are the maximum allowable overpressures (accumulations) under ASME Section VIII?',
+        a: 'Under ASME Boiler and Pressure Vessel Code Section VIII, Division 1 (UG-125 through UG-136): standard operational upsets on a single valve permit 10% overpressure (or 3 psi, whichever is greater) above the Maximum Allowable Working Pressure (MAWP); multiple valve installations permit 16% overpressure (with the first valve set at <=100% MAWP and secondary valves set at <=105% MAWP); and external fire exposure contingency scenarios permit up to 21% accumulation above MAWP.'
+      },
+      {
+        q: 'When must a balanced bellows or pilot-operated PRV be selected instead of a conventional valve?',
+        a: 'A conventional spring-loaded PRV is only suitable when total backpressure (superimposed plus built-up backpressure during relief) does not exceed 10% of the set pressure (at 10% overpressure accumulation). If variable backpressure exceeds 10% of set pressure, backpressure acts on the top of the disc holder, increasing the set pressure and causing severe chattering and reduced lift. A balanced bellows PRV isolates the disc guide from backpressure and maintains constant set point and full capacity up to approximately 30% to 50% backpressure (with derating factor Kb). Above 50% backpressure, pilot-operated relief valves (which are completely immune to backpressure up to the pilot limit) are required.'
+      },
+      {
+        q: 'What is the API 520 Part II 3% inlet piping pressure drop rule?',
+        a: 'API RP 520 Part II mandates that the total non-recoverable frictional pressure loss between the protected pressure vessel nozzle and the PRV inlet flange must not exceed 3% of the valve set pressure when flowing at certified rated capacity. If inlet line friction exceeds 3%, the pressure at the valve nozzle drops below the reseating (blowdown) pressure immediately upon opening, causing rapid high-frequency chattering, seat deformation, mechanical fatigue, and catastrophic piping failure.'
+      }
+    ];
+
+    const content = `
+<style>
+.prv-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.prv-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.prv-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.prv-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .prv-grid-2, .prv-grid-3, .prv-grid-4 { grid-template-columns: 1fr; }
+}
+.prv-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.prv-input, .prv-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.prv-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.1rem;
+  text-align: center;
+}
+.prv-kpi-val {
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.prv-kpi-lbl {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.prv-orifice-ladder {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.prv-orifice-badge {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  text-align: center;
+  flex: 1 1 calc(14% - 0.5rem);
+  min-width: 65px;
+}
+.prv-orifice-badge.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+.prv-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.prv-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+</style>
+
+<div class="prv-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">API 520 / API 526 Pressure Relief Valve Sizing Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">ASME Section VIII Div 1 & API RP 520 Orifice Sizing (Gases, Vapors & Liquids)</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="prv-btn" id="btn_prv_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="prv-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="prv-label">Fluid Phase Service</label>
+      <select id="prv_phase" class="prv-select">
+        <option value="gas" selected>Gas / Vapor (API 520 Critical/Subcritical)</option>
+        <option value="liquid">Liquid (API 520 Incompressible Flow)</option>
+      </select>
+    </div>
+    <div>
+      <label class="prv-label">Relief Valve Construction Type</label>
+      <select id="prv_type" class="prv-select">
+        <option value="conv" selected>Conventional Spring-Loaded (Kb=1.0 or limit)</option>
+        <option value="bellows">Balanced Bellows (Kw/Kb Backpressure Protected)</option>
+        <option value="pilot">Pilot-Operated (High Backpressure Immune)</option>
+      </select>
+    </div>
+    <div>
+      <label class="prv-label">Overpressure Scenario (ASME VIII)</label>
+      <select id="prv_scenario" class="prv-select">
+        <option value="10" selected>Process Non-Fire Upset (10% Accumulation)</option>
+        <option value="16">Multiple Valve Installation (16% Accumulation)</option>
+        <option value="21">External Fire Exposure (21% Accumulation)</option>
+      </select>
+    </div>
+  </div>
+
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:0.75rem 1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+    <span style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">Quick Presets:</span>
+    <button type="button" class="prv-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_natgas">Natural Gas (M=18, k=1.28)</button>
+    <button type="button" class="prv-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_air">Compressed Air (M=28.97, k=1.40)</button>
+    <button type="button" class="prv-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_propane">Propane Vapor (M=44.1, k=1.13)</button>
+    <button type="button" class="prv-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_water">Water Liquid (SG=1.0, visc=1.0 cP)</button>
+    <button type="button" class="prv-select" style="width:auto; padding:0.3rem 0.65rem; font-size:0.85rem; cursor:pointer;" id="preset_oil">Crude / Gas Oil (SG=0.85, visc=10 cP)</button>
+  </div>
+
+  <div class="prv-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="prv-label">Set Pressure <span>psig</span></label>
+      <input type="number" id="prv_pset" class="prv-input" value="150" step="1" min="5">
+    </div>
+    <div>
+      <label class="prv-label">Total Backpressure <span>psig</span></label>
+      <input type="number" id="prv_pb" class="prv-input" value="15" step="0.5" min="0">
+    </div>
+    <div>
+      <label class="prv-label">Relieving Temperature <span>&deg;F</span></label>
+      <input type="number" id="prv_temp" class="prv-input" value="120" step="1">
+    </div>
+    <div>
+      <label class="prv-label">Atmospheric Pressure <span>psia</span></label>
+      <input type="number" id="prv_patm" class="prv-input" value="14.7" step="0.1" min="10">
+    </div>
+  </div>
+
+  <div id="prv_gas_inputs" class="prv-grid-4" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="prv-label">Required Flow (W) <span>lb/hr</span></label>
+      <input type="number" id="prv_w" class="prv-input" value="35000" step="100" min="1">
+    </div>
+    <div>
+      <label class="prv-label">Molecular Weight (M) <span>g/mol</span></label>
+      <input type="number" id="prv_mw" class="prv-input" value="18.0" step="0.1" min="1">
+    </div>
+    <div>
+      <label class="prv-label">Specific Heat Ratio (k = Cp/Cv) <span>-</span></label>
+      <input type="number" id="prv_k" class="prv-input" value="1.28" step="0.01" min="1.01" max="2.0">
+    </div>
+    <div>
+      <label class="prv-label">Compressibility Factor (Z) <span>-</span></label>
+      <input type="number" id="prv_z" class="prv-input" value="0.95" step="0.01" min="0.2" max="1.5">
+    </div>
+  </div>
+
+  <div id="prv_liq_inputs" class="prv-grid-3" style="display:none; margin-bottom:1.5rem;">
+    <div>
+      <label class="prv-label">Required Flow (Q) <span>US gpm</span></label>
+      <input type="number" id="prv_q" class="prv-input" value="250" step="5" min="1">
+    </div>
+    <div>
+      <label class="prv-label">Specific Gravity (G) <span>water = 1.0</span></label>
+      <input type="number" id="prv_sg" class="prv-input" value="0.85" step="0.01" min="0.2">
+    </div>
+    <div>
+      <label class="prv-label">Viscosity (&mu;) <span>cP (centipoise)</span></label>
+      <input type="number" id="prv_visc" class="prv-input" value="1.0" step="0.1" min="0.1">
+    </div>
+  </div>
+
+  <div class="prv-grid-4" style="margin-bottom:1.5rem;">
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Selected API 526 Orifice</div>
+      <div class="prv-kpi-val" id="res_prv_orifice" style="color:#2563eb;">Letter J</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_prv_ao_std">1.287 in&sup2; (830 mm&sup2;)</div>
+    </div>
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Required Discharge Area</div>
+      <div class="prv-kpi-val" id="res_prv_areq">0.942 in&sup2;</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_prv_areq_mm">608 mm&sup2;</div>
+    </div>
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Orifice Oversizing Margin</div>
+      <div class="prv-kpi-val" id="res_prv_margin" style="color:#10b981;">+36.6%</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_prv_margin_lbl">Acceptable Stable Sizing</div>
+    </div>
+    <div class="prv-kpi">
+      <div class="prv-kpi-lbl">Rated Relieving Capacity</div>
+      <div class="prv-kpi-val" id="res_prv_rated">47,812</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_prv_rated_unit">lb/hr</div>
+    </div>
+  </div>
+
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+    <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center;">
+      <span>API 526 Standardized Orifice Selection Spectrum (Letters D through T)</span>
+      <span style="font-size:0.8rem; color:var(--text-muted);">Highlighted: Selected Smallest Enclosing Orifice</span>
+    </div>
+    <div class="prv-orifice-ladder" id="prv_ladder">
+      <!-- Populated via JS -->
+    </div>
+  </div>
+
+  <div class="prv-grid-3">
+    <div class="prv-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Hydraulic & Flow Regimes</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Flow Regime:</strong> <span id="res_prv_flow_regime" style="color:#10b981; font-weight:600;">Critical Choked Flow</span></div>
+        <div><strong>Relieving Pressure (P1):</strong> <span id="res_prv_p1">179.7 psia</span></div>
+        <div><strong>Critical Pressure Ratio:</strong> <span id="res_prv_rcrit">0.549</span></div>
+        <div><strong>Actual Backpressure Ratio:</strong> <span id="res_prv_pb_ratio">0.165</span></div>
+      </div>
+    </div>
+    <div class="prv-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Correction & Derating Factors</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Discharge Coeff (Kd):</strong> <span id="res_prv_kd">0.975</span></div>
+        <div><strong>Gas Gas Expansion (C):</strong> <span id="res_prv_c">345.1</span></div>
+        <div><strong>Backpressure Factor (Kb/Kw):</strong> <span id="res_prv_kb">1.000</span></div>
+        <div><strong>Backpressure / Set Ratio:</strong> <span id="res_prv_bp_pct">10.0%</span></div>
+      </div>
+    </div>
+    <div class="prv-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Piping Reaction & Acoustics</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Discharge Reaction Thrust:</strong> <span id="res_prv_thrust">1,840 lbf (8.18 kN)</span></div>
+        <div><strong>Backpressure Warning:</strong> <span id="res_prv_bp_status" style="color:#10b981; font-weight:600;">OK for Conventional</span></div>
+        <div><strong>Inlet 3% Pressure Drop Limit:</strong> <span id="res_prv_dp_inlet">4.50 psi</span></div>
+        <div><strong>Sound Level @ 100 ft (est):</strong> <span id="res_prv_spl">98 dBA</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in PRV Sizing</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. The Overpressure Accumulation Assumption Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Assuming 10% overpressure for fire case or thermal expansion relief is a dangerous error. ASME Section VIII UG-125 explicitly authorizes up to <strong>21% accumulation for external fire contingencies</strong> and allows 16% for multiple-valve systems. Sizing a fire-case relief valve at 10% overpressure instead of 21% results in a significantly oversized valve (often 25% to 40% larger than required), leading to excessive discharge header costs, structural anchor overloading, and valve instability during minor upsets.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. The Conventional Valve Variable Backpressure Choke</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Conventional spring-loaded PRVs rely on atmospheric balance above the disc. When discharging into a common flare header or closed collection system where superimposed or built-up backpressure exceeds <strong>10% of set pressure</strong>, backpressure acts directly on the upper disc surface. This increases the opening pressure (set point shift), forces the disc toward the nozzle seat, causes violent chattering (10 to 40 cycles per second), and drops relieving capacity by up to 50%. A balanced bellows (operable up to 30-50% backpressure) or pilot-operated valve must be specified.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Violating the API 520 Part II 3% Inlet Pressure Drop Rule</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">The total non-recoverable frictional pressure loss in the piping between the protected vessel nozzle and the relief valve inlet flange must <strong>never exceed 3% of the set pressure</strong> at rated relieving capacity. Typical blowdown (reseat pressure) is 5% to 7% below set pressure. If inlet piping friction is 4%, the nozzle pressure immediately drops below reseat pressure upon opening. The valve snaps shut, pressure rebounds, the valve snaps open, and destructive acoustic chattering destroys seats, ruins bellows, and fractures flange welds.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. Two-Phase Flashing Liquid / Vapor Homogeneous Equilibrium (HEM) Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Applying pure vapor or pure liquid single-phase sizing equations to subcooled liquids that flash across the nozzle (e.g. LPG, hot water, light hydrocarbons, runaway polymerization reactors) is catastrophic. Flashing fluid undergoes extreme volume expansion, dropping the sonic speed in the two-phase mixture to under 100 ft/s (30 m/s). Single-phase equations will <strong>undersize the required orifice area by 200% to 500%</strong>. Sizing must follow the API 520 Appendix C Omega Method ($\omega$-method) or Leung HEM model.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. The Excessive Orifice Oversizing Stability Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Selecting a massively oversized orifice because "bigger is safer" is an operational disaster. If the selected API 526 orifice provides more than 100% to 150% excess capacity over the required relief rate, or if the relief event operates at <25% of the valve's rated capacity, the incoming flow cannot sustain full lift against the spring. The disc flutters, repeatedly slamming into the nozzle, causing seat galling, fatigue failure of the bellows, and premature seat leakage.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">API 520 First-Principles Mathematical Derivations</h2>
+  
+  <p style="font-size:0.9rem; line-height:1.6;">Under API RP 520 Part I, the required discharge area for gas or vapor in critical (choked) sonic flow is governed by the isentropic nozzle flow equation derived from thermodynamics:</p>
+
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$A_{req} = \frac{W}{C \cdot K_d \cdot P_1 \cdot K_b \cdot K_c} \sqrt{\frac{T \cdot Z}{M}}$$
+  </div>
+
+  <p style="font-size:0.9rem; line-height:1.6;">Where:</p>
+  <ul style="font-size:0.875rem; line-height:1.6; color:var(--text-muted);">
+    <li><strong>A<sub>req</sub></strong>: Required effective discharge area (in&sup2;).</li>
+    <li><strong>W</strong>: Required relieving mass flow rate (lb/hr).</li>
+    <li><strong>C</strong>: Gas constant based on specific heat ratio \(k = C_p / C_v\):
+      $$C = 520 \sqrt{k \left(\frac{2}{k+1}\right)^{\frac{k+1}{k-1}}}$$
+    </li>
+    <li><strong>K<sub>d</sub></strong>: Effective coefficient of discharge = <strong>0.975</strong> for gas/vapor certified safety relief valves (API 520 default), or <strong>0.65</strong> for liquids.</li>
+    <li><strong>P<sub>1</sub></strong>: Upstream relieving pressure in absolute units (psia):
+      $$P_1 = P_{set} \times (1 + \%\text{Accumulation}) + P_{atm}$$
+    </li>
+    <li><strong>K<sub>b</sub></strong>: Backpressure capacity correction factor. For conventional valves in critical flow, \(K_b = 1.0\). For balanced bellows valves, \(K_b\) decreases according to vendor-specific curves when gauge backpressure exceeds 30% of set pressure.</li>
+    <li><strong>K<sub>c</sub></strong>: Combination correction factor = <strong>1.0</strong> (or <strong>0.90</strong> when a rupture disc is installed upstream of the PRV).</li>
+    <li><strong>T</strong>: Absolute relieving temperature in Rankine: \(T_{^{\circ}\text{R}} = T_{^{\circ}\text{F}} + 459.67\).</li>
+    <li><strong>Z</strong>: Gas compressibility factor at relieving conditions.</li>
+    <li><strong>M</strong>: Gas molecular weight (lb/lbmol or g/mol).</li>
+  </ul>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">Critical Flow Ratio Determination</h3>
+  <p style="font-size:0.9rem; line-height:1.6;">Choked flow occurs at the nozzle throat when the absolute pressure ratio satisfies:</p>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$\frac{P_b}{P_1} \le r_{crit} = \left(\frac{2}{k+1}\right)^{\frac{k}{k-1}}$$
+  </div>
+  <p style="font-size:0.9rem; line-height:1.6;">If \(P_b / P_1 > r_{crit}\), flow is subcritical and the subcritical expansion equation with expansion factor \(F_2\) applies.</p>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">Liquid Sizing Equation (Incompressible Flow)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$A_{req} = \frac{Q}{38 \cdot K_d \cdot K_w \cdot K_c \cdot K_v} \sqrt{\frac{G}{P_1 - P_b}}$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">Discharge Reaction Thrust Force (API 520 Part II)</h3>
+  <p style="font-size:0.9rem; line-height:1.6;">For an open discharge elbow venting to atmosphere, the steady-state reactive thrust force \(F\) acting on the piping support is:</p>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$F = \frac{W_{rated} \cdot v_e}{3600 \cdot g_c} + (P_{exit} - P_{atm}) \cdot A_{exit}$$
+  </div>
+</div>
+
+<script>
+(() => {
+  const API_ORIFICES = [
+    { letter: 'D', areaIn2: 0.110, areaMm2: 71 },
+    { letter: 'E', areaIn2: 0.196, areaMm2: 126 },
+    { letter: 'F', areaIn2: 0.307, areaMm2: 198 },
+    { letter: 'G', areaIn2: 0.503, areaMm2: 325 },
+    { letter: 'H', areaIn2: 0.785, areaMm2: 506 },
+    { letter: 'J', areaIn2: 1.287, areaMm2: 830 },
+    { letter: 'K', areaIn2: 1.838, areaMm2: 1186 },
+    { letter: 'L', areaIn2: 2.853, areaMm2: 1841 },
+    { letter: 'M', areaIn2: 3.600, areaMm2: 2323 },
+    { letter: 'N', areaIn2: 4.340, areaMm2: 2800 },
+    { letter: 'P', areaIn2: 6.380, areaMm2: 4116 },
+    { letter: 'Q', areaIn2: 11.050, areaMm2: 7129 },
+    { letter: 'R', areaIn2: 16.000, areaMm2: 10323 },
+    { letter: 'T', areaIn2: 26.000, areaMm2: 16774 }
+  ];
+
+  const phaseSelect = document.getElementById('prv_phase');
+  const typeSelect = document.getElementById('prv_type');
+  const scenarioSelect = document.getElementById('prv_scenario');
+  const gasInputs = document.getElementById('prv_gas_inputs');
+  const liqInputs = document.getElementById('prv_liq_inputs');
+  const ladderEl = document.getElementById('prv_ladder');
+
+  function renderLadder(selectedLetter) {
+    ladderEl.innerHTML = API_ORIFICES.map(o => {
+      const cls = o.letter === selectedLetter ? 'prv-orifice-badge active' : 'prv-orifice-badge';
+      return '<div class="' + cls + '"><strong>' + o.letter + '</strong><br>' + o.areaIn2.toFixed(3) + ' in&sup2;</div>';
+    }).join('');
+  }
+
+  function calcPrv() {
+    const phase = phaseSelect.value;
+    const vType = typeSelect.value;
+    const accumPct = parseFloat(scenarioSelect.value) / 100.0;
+    const Pset = parseFloat(document.getElementById('prv_pset').value) || 150;
+    const Pb_gauge = parseFloat(document.getElementById('prv_pb').value) || 0;
+    const T_f = parseFloat(document.getElementById('prv_temp').value) || 100;
+    const Patm = parseFloat(document.getElementById('prv_patm').value) || 14.7;
+
+    const P1 = (Pset * (1 + accumPct)) + Patm; // psia
+    const Pb = Pb_gauge + Patm; // psia
+    const T_rankine = T_f + 459.67;
+
+    let A_req = 0;
+    let flowRegime = 'Critical Choked Flow';
+    let r_crit = 0.5;
+    let pb_p1_ratio = Pb / P1;
+    let Kd = 0.975;
+    let Kb = 1.0;
+    let C_gas = 345;
+    let W_rated = 0;
+
+    const bpRatioOfSet = (Pb_gauge / Pset) * 100;
+
+    if (phase === 'gas') {
+      gasInputs.style.display = 'grid';
+      liqInputs.style.display = 'none';
+
+      const W = parseFloat(document.getElementById('prv_w').value) || 35000;
+      const M = parseFloat(document.getElementById('prv_mw').value) || 18.0;
+      const k = parseFloat(document.getElementById('prv_k').value) || 1.28;
+      const Z = parseFloat(document.getElementById('prv_z').value) || 0.95;
+
+      r_crit = Math.pow(2 / (k + 1), k / (k - 1));
+      C_gas = 520 * Math.sqrt(k * Math.pow(2 / (k + 1), (k + 1) / (k - 1)));
+      Kd = 0.975;
+
+      if (vType === 'bellows') {
+        // Balanced bellows backpressure derating factor Kb
+        if (bpRatioOfSet > 30) {
+          Kb = Math.max(0.6, 1.0 - 0.01 * (bpRatioOfSet - 30));
+        } else {
+          Kb = 1.0;
+        }
+      } else {
+        Kb = 1.0;
+      }
+
+      if (pb_p1_ratio <= r_crit) {
+        flowRegime = 'Critical Choked Flow';
+        A_req = (W / (C_gas * Kd * P1 * Kb * 1.0)) * Math.sqrt((T_rankine * Z) / M);
+      } else {
+        flowRegime = 'Subcritical Flow';
+        const r = pb_p1_ratio;
+        const F2 = Math.sqrt((k / (k - 1)) * Math.pow(r, 2 / k) * ((1 - Math.pow(r, (k - 1) / k)) / (1 - r)));
+        A_req = (W / (735 * F2 * Kd * 1.0)) * Math.sqrt((T_rankine * Z) / (M * P1 * (P1 - Pb)));
+      }
+
+      // Calculate rated flow for selected orifice
+      const selected = API_ORIFICES.find(o => o.areaIn2 >= A_req) || API_ORIFICES[API_ORIFICES.length - 1];
+      W_rated = W * (selected.areaIn2 / A_req);
+      document.getElementById('res_prv_rated').textContent = Math.round(W_rated).toLocaleString();
+      document.getElementById('res_prv_rated_unit').textContent = 'lb/hr gas';
+
+    } else {
+      gasInputs.style.display = 'none';
+      liqInputs.style.display = 'grid';
+
+      const Q = parseFloat(document.getElementById('prv_q').value) || 250;
+      const G = parseFloat(document.getElementById('prv_sg').value) || 0.85;
+      const visc = parseFloat(document.getElementById('prv_visc').value) || 1.0;
+
+      Kd = 0.65;
+      let Kw = 1.0;
+      if (vType === 'bellows' && bpRatioOfSet > 15) {
+        Kw = Math.max(0.7, 1.0 - 0.007 * (bpRatioOfSet - 15));
+      }
+
+      let Kv = 1.0; // Assume turbulent, or calculate Re if visc > 50
+      if (visc > 50) {
+        Kv = Math.max(0.65, 1.0 - 0.05 * Math.log10(visc / 50));
+      }
+
+      const deltaP = Math.max(0.1, (Pset * (1 + accumPct)) - Pb_gauge);
+      A_req = (Q / (38 * Kd * Kw * 1.0 * Kv)) * Math.sqrt(G / deltaP);
+      flowRegime = 'Incompressible Liquid Flow';
+
+      const selected = API_ORIFICES.find(o => o.areaIn2 >= A_req) || API_ORIFICES[API_ORIFICES.length - 1];
+      const Q_rated = Q * (selected.areaIn2 / A_req);
+      document.getElementById('res_prv_rated').textContent = Math.round(Q_rated).toLocaleString();
+      document.getElementById('res_prv_rated_unit').textContent = 'US gpm liquid';
+    }
+
+    // Find smallest standard API 526 orifice that meets or exceeds A_req
+    let selectedOrifice = API_ORIFICES.find(o => o.areaIn2 >= A_req);
+    let isExceeded = false;
+    if (!selectedOrifice) {
+      selectedOrifice = API_ORIFICES[API_ORIFICES.length - 1];
+      isExceeded = true;
+    }
+
+    const marginPct = ((selectedOrifice.areaIn2 - A_req) / A_req) * 100;
+
+    // Update KPI Displays
+    document.getElementById('res_prv_orifice').textContent = 'Letter ' + selectedOrifice.letter + (isExceeded ? ' (Multiple Valves Req)' : '');
+    document.getElementById('res_prv_ao_std').innerHTML = selectedOrifice.areaIn2.toFixed(3) + ' in&sup2; (' + selectedOrifice.areaMm2 + ' mm&sup2;)';
+    document.getElementById('res_prv_areq').textContent = A_req.toFixed(3) + ' in²';
+    document.getElementById('res_prv_areq_mm').textContent = Math.round(A_req * 645.16) + ' mm²';
+    document.getElementById('res_prv_margin').textContent = (marginPct >= 0 ? '+' : '') + marginPct.toFixed(1) + '%';
+    
+    const marginLbl = document.getElementById('res_prv_margin_lbl');
+    if (marginPct > 100) {
+      marginLbl.textContent = 'High Oversize (>100% chattering risk)';
+      marginLbl.style.color = '#ef4444';
+    } else if (marginPct < 15) {
+      marginLbl.textContent = 'Tight Margin (<15%)';
+      marginLbl.style.color = '#f59e0b';
+    } else {
+      marginLbl.textContent = 'Stable Design Margin';
+      marginLbl.style.color = '#10b981';
+    }
+
+    // Render Ladder
+    renderLadder(selectedOrifice.letter);
+
+    // Flow Regimes & Factors
+    document.getElementById('res_prv_flow_regime').textContent = flowRegime;
+    document.getElementById('res_prv_p1').textContent = P1.toFixed(1) + ' psia (' + (P1 * 0.0689476).toFixed(2) + ' bar a)';
+    document.getElementById('res_prv_rcrit').textContent = r_crit.toFixed(3);
+    document.getElementById('res_prv_pb_ratio').textContent = pb_p1_ratio.toFixed(3);
+    document.getElementById('res_prv_kd').textContent = Kd.toFixed(3);
+    document.getElementById('res_prv_c').textContent = phase === 'gas' ? C_gas.toFixed(1) : 'N/A';
+    document.getElementById('res_prv_kb').textContent = Kb.toFixed(3);
+    document.getElementById('res_prv_bp_pct').textContent = bpRatioOfSet.toFixed(1) + '% of Set';
+
+    // Thrust force estimate (lb-force)
+    let thrustLbf = 0;
+    if (phase === 'gas') {
+      // API 520 Pt II approx F = W * sqrt(T/M) / 366
+      thrustLbf = (W_rated * Math.sqrt(T_rankine / (parseFloat(document.getElementById('prv_mw').value) || 18))) / 366;
+    } else {
+      thrustLbf = 0.05 * (parseFloat(document.getElementById('prv_q').value) || 250) * Math.sqrt(Pset);
+    }
+    const thrustKn = thrustLbf * 0.00444822;
+    document.getElementById('res_prv_thrust').textContent = Math.round(thrustLbf).toLocaleString() + ' lbf (' + thrustKn.toFixed(2) + ' kN)';
+
+    // Backpressure Status
+    const bpStatus = document.getElementById('res_prv_bp_status');
+    if (vType === 'conv' && bpRatioOfSet > 10) {
+      bpStatus.textContent = 'DANGER: BP > 10% (Specify Bellows)';
+      bpStatus.style.color = '#ef4444';
+    } else if (vType === 'bellows' && bpRatioOfSet > 45) {
+      bpStatus.textContent = 'CAUTION: BP > 45% (Specify Pilot)';
+      bpStatus.style.color = '#f59e0b';
+    } else {
+      bpStatus.textContent = 'Acceptable for ' + (vType === 'conv' ? 'Conventional' : vType === 'bellows' ? 'Bellows' : 'Pilot');
+      bpStatus.style.color = '#10b981';
+    }
+
+    const dpInletMax = Pset * 0.03;
+    document.getElementById('res_prv_dp_inlet').textContent = dpInletMax.toFixed(2) + ' psi max';
+
+    // Sound level est at 100 ft
+    let spl = 90;
+    if (phase === 'gas') {
+      spl = Math.min(130, Math.max(75, 80 + 10 * Math.log10(Math.max(1, W_rated / 5000))));
+    } else {
+      spl = 78;
+    }
+    document.getElementById('res_prv_spl').textContent = Math.round(spl) + ' dBA';
+  }
+
+  // Preset Handlers
+  document.getElementById('preset_natgas').addEventListener('click', () => {
+    phaseSelect.value = 'gas';
+    document.getElementById('prv_mw').value = '18.0';
+    document.getElementById('prv_k').value = '1.28';
+    document.getElementById('prv_z').value = '0.95';
+    calcPrv();
+  });
+  document.getElementById('preset_air').addEventListener('click', () => {
+    phaseSelect.value = 'gas';
+    document.getElementById('prv_mw').value = '28.97';
+    document.getElementById('prv_k').value = '1.40';
+    document.getElementById('prv_z').value = '1.00';
+    calcPrv();
+  });
+  document.getElementById('preset_propane').addEventListener('click', () => {
+    phaseSelect.value = 'gas';
+    document.getElementById('prv_mw').value = '44.1';
+    document.getElementById('prv_k').value = '1.13';
+    document.getElementById('prv_z').value = '0.90';
+    calcPrv();
+  });
+  document.getElementById('preset_water').addEventListener('click', () => {
+    phaseSelect.value = 'liquid';
+    document.getElementById('prv_sg').value = '1.0';
+    document.getElementById('prv_visc').value = '1.0';
+    calcPrv();
+  });
+  document.getElementById('preset_oil').addEventListener('click', () => {
+    phaseSelect.value = 'liquid';
+    document.getElementById('prv_sg').value = '0.85';
+    document.getElementById('prv_visc').value = '10.0';
+    calcPrv();
+  });
+
+  // Attach event listeners
+  const allInputs = [
+    'prv_phase', 'prv_type', 'prv_scenario', 'prv_pset', 'prv_pb',
+    'prv_temp', 'prv_patm', 'prv_w', 'prv_mw', 'prv_k', 'prv_z',
+    'prv_q', 'prv_sg', 'prv_visc'
+  ];
+  allInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcPrv);
+      el.addEventListener('change', calcPrv);
+    }
+  });
+
+  // Copy button
+  const btnCopy = document.getElementById('btn_prv_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'API 520 / API 526 PRESSURE RELIEF VALVE DATASHEET',
+        '===============================================',
+        'Service Phase: ' + phaseSelect.options[phaseSelect.selectedIndex].text,
+        'Valve Construction: ' + typeSelect.options[typeSelect.selectedIndex].text,
+        'Relief Scenario: ' + scenarioSelect.options[scenarioSelect.selectedIndex].text,
+        'Set Pressure: ' + document.getElementById('prv_pset').value + ' psig',
+        'Backpressure: ' + document.getElementById('prv_pb').value + ' psig (' + document.getElementById('res_prv_bp_pct').textContent + ')',
+        'Relieving Temp: ' + document.getElementById('prv_temp').value + ' deg F',
+        'Relieving Pressure (P1): ' + document.getElementById('res_prv_p1').textContent,
+        '--- Sizing Results (API 526) ---',
+        'Required Effective Area: ' + document.getElementById('res_prv_areq').textContent + ' (' + document.getElementById('res_prv_areq_mm').textContent + ')',
+        'Selected Orifice: ' + document.getElementById('res_prv_orifice').textContent,
+        'Standard Orifice Area: ' + document.getElementById('res_prv_ao_std').textContent,
+        'Oversizing Margin: ' + document.getElementById('res_prv_margin').textContent,
+        'Rated Capacity: ' + document.getElementById('res_prv_rated').textContent + ' ' + document.getElementById('res_prv_rated_unit').textContent,
+        'Flow Regime: ' + document.getElementById('res_prv_flow_regime').textContent,
+        '--- Piping & Mechanical Safety ---',
+        'Inlet Max 3% dP Limit: ' + document.getElementById('res_prv_dp_inlet').textContent,
+        'Discharge Reaction Thrust: ' + document.getElementById('res_prv_thrust').textContent,
+        'Sound Pressure @ 100 ft: ' + document.getElementById('res_prv_spl').textContent,
+        'Backpressure Status: ' + document.getElementById('res_prv_bp_status').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcPrv();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BG2: ASHRAE Psychrometric Moist Air Properties & HVAC Coil Process Calculator
+  // ==========================================
+  (() => {
+    const slug = 'ashrae-psychrometric-properties-calculator';
+    const title = 'ASHRAE Psychrometric Moist Air Properties & HVAC Coil Process Calculator';
+    const metaDescription = 'Calculate thermodynamic moist air properties and HVAC cooling/heating coil processes per ASHRAE Fundamentals Chapter 1. Computes dry-bulb, wet-bulb, dew point, humidity ratio, enthalpy, specific volume, and sensible/latent coil loads across atmospheric barometric altitudes.';
+
+    const faq = [
+      {
+        q: 'Why does barometric pressure and altitude significantly alter psychrometric properties?',
+        a: 'Atmospheric pressure decreases with increasing elevation (e.g. from 101.325 kPa / 14.696 psia at sea level to 82.9 kPa / 12.02 psia in Denver at 5,280 ft). Because the humidity ratio W = 0.621945 * [Pw / (Patm - Pw)], a lower total atmospheric pressure Patm means a given partial pressure of water vapor Pw represents a significantly higher proportion of moisture per pound or kilogram of dry air. Furthermore, specific volume increases and air density drops (from 1.204 kg/m3 to under 1.0 kg/m3), requiring higher volumetric airflow (CFM) to achieve equivalent mass flow and sensible/latent heat removal.'
+      },
+      {
+        q: 'What is the Sensible Heat Ratio (SHR) and why is it critical in HVAC coil selection?',
+        a: 'The Sensible Heat Ratio (SHR) is the ratio of sensible cooling load (temperature reduction) to the total cooling load (sensible plus latent moisture condensation): SHR = qs / qt. Comfort air conditioning systems typically have an SHR between 0.70 and 0.85, whereas dedicated outdoor air systems (DOAS) handling humid ventilation air may have an SHR as low as 0.40 to 0.55, and data centers have an SHR near 0.95 to 1.0. Selecting a cooling coil whose apparatus dew point (ADP) and sensible heat ratio do not match the space sensible and latent load slope leads to uncontrolled high indoor humidity or excessive energy-wasting subcooling and reheat.'
+      },
+      {
+        q: 'How is thermodynamic wet-bulb temperature calculated from dry-bulb and relative humidity?',
+        a: 'Thermodynamic wet-bulb temperature Twb is defined by an adiabatic saturation energy balance. At steady state, heat transferred by convection from the unsaturated air to an evaporating water film equals the latent heat required to vaporize water into the air stream. In psychrometric equations, Twb is solved iteratively such that the energy balance between sensible enthalpy drop and latent moisture gain reaches zero: W = [(2501 - 2.326 * Twb) * Ws(Twb) - 1.006 * (Tdb - Twb)] / [2501 + 1.86 * Tdb - 4.186 * Twb], where Ws(Twb) is the saturation humidity ratio at the wet-bulb temperature.'
+      },
+      {
+        q: 'Why do cooling coil face velocities above 500 FPM (2.54 m/s) cause major HVAC failures?',
+        a: 'When an air stream cools below its dew point, moisture condenses on the aluminum coil fins. If the face velocity across the finned coil exceeds 500 to 550 feet per minute (FPM) or 2.54 m/s, the aerodynamic drag of the passing air overcomes the surface tension holding water droplets to the fins. Liquid water is stripped from the coil face and blown downstream into the supply plenum and ductwork (moisture carryover), flooding duct insulation, breeding toxic mold/bacteria, and causing structural ceiling collapse.'
+      },
+      {
+        q: 'What is the coil bypass factor (BF) and apparatus dew point (ADP)?',
+        a: 'The apparatus dew point (ADP) is the effective average surface temperature of the cooling coil tubes and fins. In an actual physical coil, not all entering air makes direct physical contact with the cold fin surfaces; a small fraction bypasses the heat transfer surfaces unconditioned. This fraction is the bypass factor (BF), typically 0.05 to 0.15 in commercial 4-to-8 row coils. The condition of the air leaving the coil is the psychrometric mixture of the bypassed unconditioned air and the fully saturated air at the ADP.'
+      }
+    ];
+
+    const content = `
+<style>
+.psy-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.psy-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.psy-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.psy-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .psy-grid-2, .psy-grid-3, .psy-grid-4 { grid-template-columns: 1fr; }
+}
+.psy-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.psy-input, .psy-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.psy-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.psy-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.psy-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.psy-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.psy-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.psy-state-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.psy-state-table th, .psy-state-table td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+.psy-state-table th {
+  background: var(--bg);
+  font-weight: 600;
+}
+</style>
+
+<div class="psy-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">ASHRAE Psychrometric Moist Air & HVAC Coil Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">Thermodynamic State Properties & Cooling/Heating Coil Energy Balances (ASHRAE Fundamentals Ch 1)</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="psy-btn" id="btn_psy_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Psychrometric Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="psy-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="psy-label">Calculation Mode</label>
+      <select id="psy_mode" class="psy-select">
+        <option value="coil" selected>HVAC Coil Process (Inlet &rarr; Outlet Loads)</option>
+        <option value="single">Single Air State Point Analysis</option>
+      </select>
+    </div>
+    <div>
+      <label class="psy-label">Altitude / Barometric Preset</label>
+      <select id="psy_alt_preset" class="psy-select">
+        <option value="0" selected>Sea Level (0 ft / 0 m &mdash; 101.325 kPa / 14.696 psia)</option>
+        <option value="2000">Lowland / Plateau (2,000 ft &mdash; 94.2 kPa / 13.66 psia)</option>
+        <option value="5280">Mile-High Denver (5,280 ft &mdash; 82.9 kPa / 12.02 psia)</option>
+        <option value="7350">Mexico City / High Alpine (7,350 ft &mdash; 76.7 kPa / 11.12 psia)</option>
+        <option value="custom">Custom Barometric Pressure</option>
+      </select>
+    </div>
+    <div>
+      <label class="psy-label">Barometric Pressure (Patm) <span>kPa (psia)</span></label>
+      <input type="number" id="psy_patm" class="psy-input" value="101.325" step="0.1" min="50" max="115">
+    </div>
+  </div>
+
+  <!-- State 1 Inputs -->
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1rem 1.25rem; margin-bottom:1.25rem;">
+    <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem; color:var(--primary); display:flex; justify-content:space-between;">
+      <span>State 1 (Entering / Room Air Condition)</span>
+      <span style="font-size:0.8rem; color:var(--text-muted);">Inlet Dry Bulb &amp; Moisture</span>
+    </div>
+    <div class="psy-grid-4">
+      <div>
+        <label class="psy-label">Dry Bulb Temp (Tdb1) <span>&deg;F / &deg;C</span></label>
+        <input type="number" id="psy_tdb1" class="psy-input" value="80.0" step="0.5">
+      </div>
+      <div>
+        <label class="psy-label">Relative Humidity (RH1) <span>%</span></label>
+        <input type="number" id="psy_rh1" class="psy-input" value="50.0" step="0.5" min="1" max="100">
+      </div>
+      <div>
+        <label class="psy-label">Airflow Rate (Q) <span>CFM</span></label>
+        <input type="number" id="psy_cfm" class="psy-input" value="4000" step="50" min="10">
+      </div>
+      <div>
+        <label class="psy-label">Coil Face Area <span>sq ft</span></label>
+        <input type="number" id="psy_face_area" class="psy-input" value="8.5" step="0.1" min="0.5">
+      </div>
+    </div>
+  </div>
+
+  <!-- State 2 Inputs (Coil Process) -->
+  <div id="psy_state2_wrap" style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1rem 1.25rem; margin-bottom:1.25rem;">
+    <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem; color:var(--primary); display:flex; justify-content:space-between;">
+      <span>State 2 (Leaving Air Condition / Supply Air)</span>
+      <span style="font-size:0.8rem; color:var(--text-muted);">Discharge from Cooling / Dehumidification Coil</span>
+    </div>
+    <div class="psy-grid-3">
+      <div>
+        <label class="psy-label">Leaving Dry Bulb (Tdb2) <span>&deg;F / &deg;C</span></label>
+        <input type="number" id="psy_tdb2" class="psy-input" value="55.0" step="0.5">
+      </div>
+      <div>
+        <label class="psy-label">Leaving Relative Humidity (RH2) <span>%</span></label>
+        <input type="number" id="psy_rh2" class="psy-input" value="90.0" step="0.5" min="1" max="100">
+      </div>
+      <div>
+        <label class="psy-label">Estimated Coil Bypass Factor (BF) <span>0 to 0.25</span></label>
+        <input type="number" id="psy_bf" class="psy-input" value="0.08" step="0.01" min="0.01" max="0.30">
+      </div>
+    </div>
+  </div>
+
+  <!-- Main KPI Grid -->
+  <div class="psy-grid-4" style="margin-bottom:1.5rem;">
+    <div class="psy-kpi">
+      <div class="psy-kpi-lbl">Total Cooling Load</div>
+      <div class="psy-kpi-val" id="res_psy_qtotal" style="color:#2563eb;">11.8 Tons</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_psy_qtotal_kw">41.5 kW (141,600 Btu/h)</div>
+    </div>
+    <div class="psy-kpi">
+      <div class="psy-kpi-lbl">Sensible Heat Ratio (SHR)</div>
+      <div class="psy-kpi-val" id="res_psy_shr" style="color:#10b981;">0.76</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_psy_shr_lbl">Comfort Cooling Match</div>
+    </div>
+    <div class="psy-kpi">
+      <div class="psy-kpi-lbl">Moisture Condensate Rate</div>
+      <div class="psy-kpi-val" id="res_psy_condensate">3.8 gal/h</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_psy_condensate_si">14.4 L/h (31.7 lb/h)</div>
+    </div>
+    <div class="psy-kpi">
+      <div class="psy-kpi-lbl">Coil Face Velocity</div>
+      <div class="psy-kpi-val" id="res_psy_fpm">471 FPM</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_psy_fpm_status">OK (&lt;500 FPM Safe)</div>
+    </div>
+  </div>
+
+  <!-- Psychrometric Properties Comparison Table -->
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+    <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">Full Thermodynamic Moist Air Properties Comparison</div>
+    <div style="overflow-x:auto;">
+      <table class="psy-state-table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>State 1 (Entering)</th>
+            <th>State 2 (Leaving)</th>
+            <th>Difference (&Delta;)</th>
+            <th>SI Metric Units</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Dry Bulb Temperature (Tdb)</strong></td>
+            <td id="res_t1_db">80.0 &deg;F</td>
+            <td id="res_t2_db">55.0 &deg;F</td>
+            <td id="res_dt_db">-25.0 &deg;F</td>
+            <td id="res_t1_db_si">26.7 &deg;C &rarr; 12.8 &deg;C</td>
+          </tr>
+          <tr>
+            <td><strong>Wet Bulb Temperature (Twb)</strong></td>
+            <td id="res_t1_wb">66.7 &deg;F</td>
+            <td id="res_t2_wb">53.6 &deg;F</td>
+            <td id="res_dt_wb">-13.1 &deg;F</td>
+            <td id="res_t1_wb_si">19.3 &deg;C &rarr; 12.0 &deg;C</td>
+          </tr>
+          <tr>
+            <td><strong>Dew Point Temperature (Tdp)</strong></td>
+            <td id="res_t1_dp">59.8 &deg;F</td>
+            <td id="res_t2_dp">52.3 &deg;F</td>
+            <td id="res_dt_dp">-7.5 &deg;F</td>
+            <td id="res_t1_dp_si">15.4 &deg;C &rarr; 11.3 &deg;C</td>
+          </tr>
+          <tr>
+            <td><strong>Humidity Ratio (W)</strong></td>
+            <td id="res_t1_w">77.3 gr/lb</td>
+            <td id="res_t2_w">58.4 gr/lb</td>
+            <td id="res_dt_w">-18.9 gr/lb</td>
+            <td id="res_t1_w_si">11.0 g/kg &rarr; 8.3 g/kg</td>
+          </tr>
+          <tr>
+            <td><strong>Specific Enthalpy (h)</strong></td>
+            <td id="res_t1_h">31.3 Btu/lb</td>
+            <td id="res_t2_h">22.4 Btu/lb</td>
+            <td id="res_dt_h">-8.9 Btu/lb</td>
+            <td id="res_t1_h_si">72.8 kJ/kg &rarr; 52.1 kJ/kg</td>
+          </tr>
+          <tr>
+            <td><strong>Specific Volume (v)</strong></td>
+            <td id="res_t1_v">13.88 ft&sup3;/lb</td>
+            <td id="res_t2_v">13.18 ft&sup3;/lb</td>
+            <td id="res_dt_v">-0.70 ft&sup3;/lb</td>
+            <td id="res_t1_v_si">0.866 m&sup3;/kg &rarr; 0.823 m&sup3;/kg</td>
+          </tr>
+          <tr>
+            <td><strong>Air Density (&rho;)</strong></td>
+            <td id="res_t1_rho">0.0729 lb/ft&sup3;</td>
+            <td id="res_t2_rho">0.0765 lb/ft&sup3;</td>
+            <td id="res_dt_rho">+0.0036 lb/ft&sup3;</td>
+            <td id="res_t1_rho_si">1.168 kg/m&sup3; &rarr; 1.225 kg/m&sup3;</td>
+          </tr>
+          <tr>
+            <td><strong>Vapor Pressure (Pw)</strong></td>
+            <td id="res_t1_pw">0.518 in Hg</td>
+            <td id="res_t2_pw">0.392 in Hg</td>
+            <td id="res_dt_pw">-0.126 in Hg</td>
+            <td id="res_t1_pw_si">1.75 kPa &rarr; 1.33 kPa</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="psy-grid-3">
+    <div class="psy-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Coil Load Breakdown</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Sensible Load (qs):</strong> <span id="res_psy_qsens">107,800 Btu/h (31.6 kW)</span></div>
+        <div><strong>Latent Load (ql):</strong> <span id="res_psy_qlat">33,800 Btu/h (9.9 kW)</span></div>
+        <div><strong>Total Load (qt):</strong> <span id="res_psy_qtot_break">141,600 Btu/h (41.5 kW)</span></div>
+        <div><strong>Apparatus Dew Point (ADP):</strong> <span id="res_psy_adp">50.8 &deg;F (10.4 &deg;C)</span></div>
+      </div>
+    </div>
+    <div class="psy-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Mass & Volume Flow</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Dry Air Mass Flow:</strong> <span id="res_psy_mda">17,290 lb/hr (2.18 kg/s)</span></div>
+        <div><strong>Moist Air Mass Flow:</strong> <span id="res_psy_mma">17,480 lb/hr (2.20 kg/s)</span></div>
+        <div><strong>Leaving Air Volume:</strong> <span id="res_psy_cfm2">3,798 CFM (6,450 m&sup3;/h)</span></div>
+        <div><strong>Altitude Density Derating:</strong> <span id="res_psy_derate">1.000 (Sea Level Baseline)</span></div>
+      </div>
+    </div>
+    <div class="psy-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Psychrometric Quality</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Enthalpy Drift:</strong> <span id="res_psy_h_drift">0.00% (Balanced)</span></div>
+        <div><strong>Moisture Extraction:</strong> <span id="res_psy_moist_extract">2.70 grains/cu.ft</span></div>
+        <div><strong>Face Velocity:</strong> <span id="res_psy_fpm_det">471 FPM (2.39 m/s)</span></div>
+        <div><strong>Carryover Risk:</strong> <span id="res_psy_carryover" style="color:#10b981; font-weight:600;">Low / Safe (&lt;500 FPM)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in Psychrometric Design</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. The Sea-Level Standard Air Density Constant Trap</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Relying on standard sea-level shortcuts like \(q_s = 1.08 \times \text{CFM} \times \Delta T\) and \(q_t = 4.5 \times \text{CFM} \times \Delta h\) on high-elevation projects (e.g. Denver at 5,280 ft or Calgary at 3,500 ft) causes <strong>15% to 22% severe equipment undersizing</strong>. Standard constants assume sea-level air density of \(0.075 \text{ lb/ft}^3\) (\(1.204 \text{ kg/m}^3\)). At 5,000 ft elevation, air density drops to \(0.062 \text{ lb/ft}^3\). The multiplier drops from 1.08 to 0.89. HVAC systems designed with sea-level equations will chronically fail to maintain indoor temperature setpoints on hot days.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Entering Wet-Bulb Neglect in Cooling Coil Selection</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Specifying cooling coils based strictly on entering dry-bulb temperature and CFM while ignoring entering wet-bulb temperature is a catastrophic mistake. A seemingly negligible <strong>2&deg;F (1.1&deg;C) rise in entering wet-bulb temperature swings total cooling coil load by 15% to 20%</strong> due to the steep exponential rise in enthalpy. Chiller compressors will overload, chilled water return temperatures will rise, and cooling towers will reach approach limits.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. The Condensate Carryover Velocity Blowout</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">When cooling and dehumidifying moist air, moisture condenses on coil fins. If the airflow velocity across the coil face exceeds <strong>500 to 550 FPM (2.54 to 2.8 m/s)</strong> without moisture eliminator baffles, aerodynamic shear strips water droplets off the aluminum fins and flings them into the supply ductwork. Saturated acoustic fiberglass liner becomes an incubator for Stachybotrys mold, downstream HEPA filters dissolve, and ceiling drywall collapses under waterlogged duct weight.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. Sensible Heat Ratio (SHR) Mismatch & Part-Load Humidity Runaway</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Designing VAV systems for peak design sensible load without checking part-load sensible heat ratio creates toxic indoor air. On rainy or humid shoulder days with high outdoor humidity but mild temperatures, the sensible load drops to 30%, causing VAV boxes to throttle airflow. Because air volume drops but indoor occupants continue transpiring moisture, the space SHR collapses to 0.40. Space relative humidity climbs above 70%, creating musty sick building syndrome.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. Ignoring Coil Bypass Factor in Cold Supply Air Selection</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Assuming an idealized 100% contact efficiency (bypass factor \(BF = 0\)) when targeting cold supply air (e.g. 52&deg;F / 11&deg;C) produces leaving air that is too warm and too wet. In an actual 4-row or 6-row coil, 8% to 15% of air passes between fin tubes without touching cold surfaces. The mixed leaving air will leave at 55&deg;F with higher moisture content, requiring colder chilled water (40&deg;F instead of 44&deg;F), degrading chiller COP and wasting megawatts of power.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">ASHRAE First-Principles Mathematical Formulations</h2>
+
+  <p style="font-size:0.9rem; line-height:1.6;">Per ASHRAE Handbook &mdash; Fundamentals (Chapter 1), moist air is treated as a binary mixture of dry air and water vapor behaving as an ideal gas:</p>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. Saturation Vapor Pressure \(p_{ws}\) (Magnus-Tetens Formulation)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$p_{ws}(T) = 0.61078 \exp\left(\frac{17.27 \cdot T_{^{\circ}\text{C}}}{T_{^{\circ}\text{C}} + 237.3}\right) \quad [\text{kPa}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Actual Vapor Pressure \(p_w\) & Humidity Ratio \(W\)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$p_w = \phi \cdot p_{ws}(T_{db})$$
+    $$W = 0.621945 \cdot \frac{p_w}{p_{atm} - p_w} \quad [\text{kg}_w / \text{kg}_{da} \text{ or } \text{lb}_w / \text{lb}_{da}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">3. Specific Volume \(v\) & Air Density \(\rho\)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$v = \frac{R_{da} \cdot T_K \cdot (1 + 1.6078 \cdot W)}{p_{atm}} = \frac{0.287042 \cdot (T_{^{\circ}\text{C}} + 273.15) \cdot (1 + 1.6078 \cdot W)}{p_{atm}} \quad [\text{m}^3/\text{kg}_{da}]$$
+    $$\rho = \frac{1 + W}{v} \quad [\text{kg}/\text{m}^3]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">4. Moist Air Specific Enthalpy \(h\)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$h = 1.006 \cdot T_{^{\circ}\text{C}} + W \cdot (2501 + 1.86 \cdot T_{^{\circ}\text{C}}) \quad [\text{kJ}/\text{kg}_{da}]$$
+    $$h_{IP} = 0.240 \cdot T_{^{\circ}\text{F}} + W \cdot (1061 + 0.444 \cdot T_{^{\circ}\text{F}}) \quad [\text{Btu}/\text{lb}_{da}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">5. HVAC Coil Energy Balances</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$\dot{m}_{da} = \frac{Q_{CFM} \times 60}{v_1} \quad [\text{lb}_{da}/\text{hr}]$$
+    $$q_s = \dot{m}_{da} \cdot (c_{pa} + W_m c_{pw}) \cdot (T_1 - T_2) \quad [\text{Btu/hr}]$$
+    $$q_l = \dot{m}_{da} \cdot h_{fg} \cdot (W_1 - W_2) \quad [\text{Btu/hr}]$$
+    $$q_t = \dot{m}_{da} \cdot (h_1 - h_2) = q_s + q_l \quad [\text{Btu/hr}]$$
+    $$SHR = \frac{q_s}{q_t}$$
+    $$\dot{m}_{cond} = \frac{\dot{m}_{da} \cdot (W_1 - W_2)}{8.34} \quad [\text{gal/hr}]$$
+  </div>
+</div>
+
+<script>
+(() => {
+  // Pure mathematical psychrometric solver
+  function fToC(f) { return (f - 32) * 5 / 9; }
+  function cToF(c) { return c * 9 / 5 + 32; }
+
+  // Saturation vapor pressure in kPa from C
+  function pSatKpa(tC) {
+    if (tC >= 0) {
+      return 0.61078 * Math.exp((17.27 * tC) / (tC + 237.3));
+    } else {
+      return 0.61078 * Math.exp((21.875 * tC) / (tC + 265.5));
+    }
+  }
+
+  // Dew point from vapor pressure in kPa
+  function tDewPointC(pwKpa) {
+    const a = Math.log(Math.max(0.0001, pwKpa) / 0.61078);
+    return (237.3 * a) / (17.27 - a);
+  }
+
+  // Solve full moist air properties
+  function solvePsychrometrics(tDbF, rhPct, patmKpa) {
+    const tDbC = fToC(tDbF);
+    const phi = Math.max(0.01, Math.min(100, rhPct)) / 100.0;
+    const pws = pSatKpa(tDbC);
+    const pw = phi * pws;
+
+    // Humidity ratio W (kg/kg or lb/lb)
+    const w = 0.621945 * (pw / Math.max(0.1, patmKpa - pw));
+    const wGrains = w * 7000;
+
+    // Specific volume v (m3/kg)
+    const tK = tDbC + 273.15;
+    const vSi = (0.287042 * tK * (1 + 1.6078 * w)) / patmKpa; // m3/kg dry air
+    const vIp = vSi * 16.0185; // ft3/lb dry air
+
+    // Density rho
+    const rhoSi = (1 + w) / vSi; // kg/m3 moist air
+    const rhoIp = (1 + w) / vIp; // lb/ft3
+
+    // Enthalpy h (kJ/kg and Btu/lb)
+    const hSi = 1.006 * tDbC + w * (2501 + 1.86 * tDbC);
+    const hIp = 0.240 * tDbF + w * (1061 + 0.444 * tDbF);
+
+    // Dew point
+    const tDpC = tDewPointC(pw);
+    const tDpF = cToF(tDpC);
+
+    // Iterative Wet Bulb calculation
+    let tWbC = tDpC;
+    let low = tDpC;
+    let high = tDbC;
+    for (let iter = 0; iter < 25; iter++) {
+      const mid = (low + high) / 2;
+      const pwsMid = pSatKpa(mid);
+      const wsMid = 0.621945 * (pwsMid / Math.max(0.1, patmKpa - pwsMid));
+      const wCalc = ((2501 - 2.326 * mid) * wsMid - 1.006 * (tDbC - mid)) / (2501 + 1.86 * tDbC - 4.186 * mid);
+      if (wCalc < w) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+      tWbC = mid;
+    }
+    const tWbF = cToF(tWbC);
+
+    // Vapor pressure in inHg
+    const pwInHg = pw * 0.2953;
+
+    return {
+      tDbF, tDbC,
+      rhPct, phi,
+      tWbF, tWbC,
+      tDpF, tDpC,
+      w, wGrains,
+      vIp, vSi,
+      rhoIp, rhoSi,
+      hIp, hSi,
+      pwKpa: pw, pwInHg
+    };
+  }
+
+  const altSelect = document.getElementById('psy_alt_preset');
+  const patmInput = document.getElementById('psy_patm');
+  const modeSelect = document.getElementById('psy_mode');
+
+  function updateAltitudePreset() {
+    const v = altSelect.value;
+    if (v === '0') {
+      patmInput.value = '101.325';
+      patmInput.disabled = true;
+    } else if (v === '2000') {
+      patmInput.value = '94.20';
+      patmInput.disabled = true;
+    } else if (v === '5280') {
+      patmInput.value = '82.90';
+      patmInput.disabled = true;
+    } else if (v === '7350') {
+      patmInput.value = '76.70';
+      patmInput.disabled = true;
+    } else {
+      patmInput.disabled = false;
+    }
+    calcPsychrometrics();
+  }
+
+  function calcPsychrometrics() {
+    const patm = parseFloat(patmInput.value) || 101.325;
+    const mode = modeSelect.value;
+    const state2Wrap = document.getElementById('psy_state2_wrap');
+
+    const tdb1 = parseFloat(document.getElementById('psy_tdb1').value) || 80;
+    const rh1 = parseFloat(document.getElementById('psy_rh1').value) || 50;
+    const cfm = parseFloat(document.getElementById('psy_cfm').value) || 4000;
+    const faceArea = parseFloat(document.getElementById('psy_face_area').value) || 8.5;
+
+    const s1 = solvePsychrometrics(tdb1, rh1, patm);
+
+    let tdb2 = parseFloat(document.getElementById('psy_tdb2').value) || 55;
+    let rh2 = parseFloat(document.getElementById('psy_rh2').value) || 90;
+    const bf = parseFloat(document.getElementById('psy_bf').value) || 0.08;
+
+    if (mode === 'single') {
+      state2Wrap.style.display = 'none';
+      tdb2 = tdb1;
+      rh2 = rh1;
+    } else {
+      state2Wrap.style.display = 'block';
+    }
+
+    const s2 = solvePsychrometrics(tdb2, rh2, patm);
+
+    // Dry air mass flow rate
+    const m_da_lb_hr = (cfm * 60) / s1.vIp;
+    const m_da_kg_s = m_da_lb_hr * 0.453592 / 3600;
+
+    // Moist air mass flow rate
+    const m_ma_lb_hr = m_da_lb_hr * (1 + s1.w);
+    const m_ma_kg_s = m_da_kg_s * (1 + s1.w);
+
+    // Coil Loads
+    // Sensible:
+    const deltaH = s1.hIp - s2.hIp;
+    const deltaT = s1.tDbF - s2.tDbF;
+    const deltaW = s1.w - s2.w;
+
+    // Sensible load:
+    const qs_btu_h = m_da_lb_hr * (0.24 + 0.444 * ((s1.w + s2.w) / 2)) * deltaT;
+    const ql_btu_h = m_da_lb_hr * 1061 * deltaW;
+    const qt_btu_h = m_da_lb_hr * deltaH;
+
+    const qs_kw = qs_btu_h * 0.000293071;
+    const ql_kw = ql_btu_h * 0.000293071;
+    const qt_kw = qt_btu_h * 0.000293071;
+    const tons = qt_btu_h / 12000;
+
+    let shr = 1.0;
+    if (Math.abs(qt_btu_h) > 10) {
+      shr = Math.max(0, Math.min(1.0, qs_btu_h / qt_btu_h));
+    }
+
+    // Condensate
+    const cond_lb_hr = Math.max(0, m_da_lb_hr * deltaW);
+    const cond_gal_hr = cond_lb_hr / 8.34;
+    const cond_l_hr = cond_gal_hr * 3.78541;
+
+    // Face Velocity
+    const fpm = cfm / faceArea;
+    const ms = fpm * 0.00508;
+
+    // Leaving air CFM at state 2 density
+    const cfm2 = cfm * (s2.vIp / s1.vIp);
+
+    // Apparatus Dew Point (ADP) approximation: ADP = (Tdb2 - BF * Tdb1) / (1 - BF)
+    const adpF = Math.max(35, (s2.tDbF - bf * s1.tDbF) / Math.max(0.01, 1 - bf));
+    const adpC = fToC(adpF);
+
+    // Density derating relative to sea level
+    const stdRho = 0.075;
+    const derate = s1.rhoIp / stdRho;
+
+    // Update KPI Displays
+    document.getElementById('res_psy_qtotal').textContent = tons.toFixed(1) + ' Tons';
+    document.getElementById('res_psy_qtotal_kw').textContent = qt_kw.toFixed(1) + ' kW (' + Math.round(qt_btu_h).toLocaleString() + ' Btu/h)';
+    document.getElementById('res_psy_shr').textContent = shr.toFixed(2);
+    
+    const shrLbl = document.getElementById('res_psy_shr_lbl');
+    if (shr > 0.85) {
+      shrLbl.textContent = 'High Sensible (Data Center / Dry)';
+      shrLbl.style.color = '#3b82f6';
+    } else if (shr < 0.65) {
+      shrLbl.textContent = 'High Latent (Ventilation / Humid DOAS)';
+      shrLbl.style.color = '#f59e0b';
+    } else {
+      shrLbl.textContent = 'Standard Comfort Cooling Match';
+      shrLbl.style.color = '#10b981';
+    }
+
+    document.getElementById('res_psy_condensate').textContent = cond_gal_hr.toFixed(1) + ' gal/h';
+    document.getElementById('res_psy_condensate_si').textContent = cond_l_hr.toFixed(1) + ' L/h (' + cond_lb_hr.toFixed(1) + ' lb/h)';
+
+    document.getElementById('res_psy_fpm').textContent = Math.round(fpm) + ' FPM';
+    const fpmStatus = document.getElementById('res_psy_fpm_status');
+    const carryoverStatus = document.getElementById('res_psy_carryover');
+    if (fpm > 550) {
+      fpmStatus.textContent = 'DANGER: >550 FPM Carryover!';
+      fpmStatus.style.color = '#ef4444';
+      carryoverStatus.textContent = 'HIGH RISK: Water Stripping Active!';
+      carryoverStatus.style.color = '#ef4444';
+    } else if (fpm > 500) {
+      fpmStatus.textContent = 'WARNING: 500-550 FPM Marginal';
+      fpmStatus.style.color = '#f59e0b';
+      carryoverStatus.textContent = 'Marginal (Eliminators Required)';
+      carryoverStatus.style.color = '#f59e0b';
+    } else {
+      fpmStatus.textContent = 'OK (<500 FPM Safe)';
+      fpmStatus.style.color = '#10b981';
+      carryoverStatus.textContent = 'Low / Safe (<500 FPM)';
+      carryoverStatus.style.color = '#10b981';
+    }
+
+    // Comparison Table Values
+    document.getElementById('res_t1_db').textContent = s1.tDbF.toFixed(1) + ' °F';
+    document.getElementById('res_t2_db').textContent = s2.tDbF.toFixed(1) + ' °F';
+    document.getElementById('res_dt_db').textContent = (s2.tDbF - s1.tDbF).toFixed(1) + ' °F';
+    document.getElementById('res_t1_db_si').textContent = s1.tDbC.toFixed(1) + ' °C → ' + s2.tDbC.toFixed(1) + ' °C';
+
+    document.getElementById('res_t1_wb').textContent = s1.tWbF.toFixed(1) + ' °F';
+    document.getElementById('res_t2_wb').textContent = s2.tWbF.toFixed(1) + ' °F';
+    document.getElementById('res_dt_wb').textContent = (s2.tWbF - s1.tWbF).toFixed(1) + ' °F';
+    document.getElementById('res_t1_wb_si').textContent = s1.tWbC.toFixed(1) + ' °C → ' + s2.tWbC.toFixed(1) + ' °C';
+
+    document.getElementById('res_t1_dp').textContent = s1.tDpF.toFixed(1) + ' °F';
+    document.getElementById('res_t2_dp').textContent = s2.tDpF.toFixed(1) + ' °F';
+    document.getElementById('res_dt_dp').textContent = (s2.tDpF - s1.tDpF).toFixed(1) + ' °F';
+    document.getElementById('res_t1_dp_si').textContent = s1.tDpC.toFixed(1) + ' °C → ' + s2.tDpC.toFixed(1) + ' °C';
+
+    document.getElementById('res_t1_w').textContent = s1.wGrains.toFixed(1) + ' gr/lb';
+    document.getElementById('res_t2_w').textContent = s2.wGrains.toFixed(1) + ' gr/lb';
+    document.getElementById('res_dt_w').textContent = (s2.wGrains - s1.wGrains).toFixed(1) + ' gr/lb';
+    document.getElementById('res_t1_w_si').textContent = (s1.w * 1000).toFixed(1) + ' g/kg → ' + (s2.w * 1000).toFixed(1) + ' g/kg';
+
+    document.getElementById('res_t1_h').textContent = s1.hIp.toFixed(1) + ' Btu/lb';
+    document.getElementById('res_t2_h').textContent = s2.hIp.toFixed(1) + ' Btu/lb';
+    document.getElementById('res_dt_h').textContent = (s2.hIp - s1.hIp).toFixed(1) + ' Btu/lb';
+    document.getElementById('res_t1_h_si').textContent = s1.hSi.toFixed(1) + ' kJ/kg → ' + s2.hSi.toFixed(1) + ' kJ/kg';
+
+    document.getElementById('res_t1_v').innerHTML = s1.vIp.toFixed(2) + ' ft&sup3;/lb';
+    document.getElementById('res_t2_v').innerHTML = s2.vIp.toFixed(2) + ' ft&sup3;/lb';
+    document.getElementById('res_dt_v').innerHTML = (s2.vIp - s1.vIp).toFixed(2) + ' ft&sup3;/lb';
+    document.getElementById('res_t1_v_si').innerHTML = s1.vSi.toFixed(3) + ' m&sup3;/kg → ' + s2.vSi.toFixed(3) + ' m&sup3;/kg';
+
+    document.getElementById('res_t1_rho').innerHTML = s1.rhoIp.toFixed(4) + ' lb/ft&sup3;';
+    document.getElementById('res_t2_rho').innerHTML = s2.rhoIp.toFixed(4) + ' lb/ft&sup3;';
+    document.getElementById('res_dt_rho').innerHTML = (s2.rhoIp - s1.rhoIp > 0 ? '+' : '') + (s2.rhoIp - s1.rhoIp).toFixed(4) + ' lb/ft&sup3;';
+    document.getElementById('res_t1_rho_si').innerHTML = s1.rhoSi.toFixed(3) + ' kg/m&sup3; → ' + s2.rhoSi.toFixed(3) + ' kg/m&sup3;';
+
+    document.getElementById('res_t1_pw').textContent = s1.pwInHg.toFixed(3) + ' in Hg';
+    document.getElementById('res_t2_pw').textContent = s2.pwInHg.toFixed(3) + ' in Hg';
+    document.getElementById('res_dt_pw').textContent = (s2.pwInHg - s1.pwInHg).toFixed(3) + ' in Hg';
+    document.getElementById('res_t1_pw_si').textContent = s1.pwKpa.toFixed(2) + ' kPa → ' + s2.pwKpa.toFixed(2) + ' kPa';
+
+    // Detailed Breakdown
+    document.getElementById('res_psy_qsens').textContent = Math.round(qs_btu_h).toLocaleString() + ' Btu/h (' + qs_kw.toFixed(1) + ' kW)';
+    document.getElementById('res_psy_qlat').textContent = Math.round(ql_btu_h).toLocaleString() + ' Btu/h (' + ql_kw.toFixed(1) + ' kW)';
+    document.getElementById('res_psy_qtot_break').textContent = Math.round(qt_btu_h).toLocaleString() + ' Btu/h (' + qt_kw.toFixed(1) + ' kW)';
+    document.getElementById('res_psy_adp').textContent = adpF.toFixed(1) + ' °F (' + adpC.toFixed(1) + ' °C)';
+
+    document.getElementById('res_psy_mda').textContent = Math.round(m_da_lb_hr).toLocaleString() + ' lb/hr (' + m_da_kg_s.toFixed(2) + ' kg/s)';
+    document.getElementById('res_psy_mma').textContent = Math.round(m_ma_lb_hr).toLocaleString() + ' lb/hr (' + m_ma_kg_s.toFixed(2) + ' kg/s)';
+    document.getElementById('res_psy_cfm2').innerHTML = Math.round(cfm2).toLocaleString() + ' CFM (' + Math.round(cfm2 * 1.699).toLocaleString() + ' m&sup3;/h)';
+    document.getElementById('res_psy_derate').textContent = derate.toFixed(3) + ' (' + (derate < 0.95 ? 'Elevation Derated' : 'Near Sea Level') + ')';
+
+    document.getElementById('res_psy_moist_extract').textContent = ((s1.wGrains - s2.wGrains) / s1.vIp).toFixed(2) + ' gr/cu.ft';
+    document.getElementById('res_psy_fpm_det').textContent = Math.round(fpm) + ' FPM (' + ms.toFixed(2) + ' m/s)';
+  }
+
+  altSelect.addEventListener('change', updateAltitudePreset);
+  modeSelect.addEventListener('change', calcPsychrometrics);
+
+  const inputs = ['psy_patm', 'psy_tdb1', 'psy_rh1', 'psy_cfm', 'psy_face_area', 'psy_tdb2', 'psy_rh2', 'psy_bf'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcPsychrometrics);
+      el.addEventListener('change', calcPsychrometrics);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_psy_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'ASHRAE PSYCHROMETRIC MOIST AIR & COIL DATASHEET',
+        '===============================================',
+        'Barometric Pressure: ' + document.getElementById('psy_patm').value + ' kPa',
+        'Entering Air (State 1): ' + document.getElementById('psy_tdb1').value + ' deg F DB, ' + document.getElementById('psy_rh1').value + '% RH',
+        'Leaving Air (State 2): ' + document.getElementById('psy_tdb2').value + ' deg F DB, ' + document.getElementById('psy_rh2').value + '% RH',
+        'Airflow Rate: ' + document.getElementById('psy_cfm').value + ' CFM',
+        '--- Coil Load Results ---',
+        'Total Coil Load: ' + document.getElementById('res_psy_qtotal').textContent + ' (' + document.getElementById('res_psy_qtotal_kw').textContent + ')',
+        'Sensible Load: ' + document.getElementById('res_psy_qsens').textContent,
+        'Latent Load: ' + document.getElementById('res_psy_qlat').textContent,
+        'Sensible Heat Ratio (SHR): ' + document.getElementById('res_psy_shr').textContent,
+        'Condensate Rate: ' + document.getElementById('res_psy_condensate').textContent + ' (' + document.getElementById('res_psy_condensate_si').textContent + ')',
+        '--- Thermodynamic State 1 vs 2 ---',
+        'State 1 Wet Bulb / Dew Point: ' + document.getElementById('res_t1_wb').textContent + ' / ' + document.getElementById('res_t1_dp').textContent,
+        'State 2 Wet Bulb / Dew Point: ' + document.getElementById('res_t2_wb').textContent + ' / ' + document.getElementById('res_t2_dp').textContent,
+        'State 1 Enthalpy: ' + document.getElementById('res_t1_h').textContent,
+        'State 2 Enthalpy: ' + document.getElementById('res_t2_h').textContent,
+        'Apparatus Dew Point (ADP): ' + document.getElementById('res_psy_adp').textContent,
+        'Coil Face Velocity: ' + document.getElementById('res_psy_fpm_det').textContent + ' [' + document.getElementById('res_psy_fpm_status').textContent + ']',
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  updateAltitudePreset();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BG3: Sucker Rod Pump API 11L Dynagraph & Polished Rod Load Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-11l-sucker-rod-pump-calculator';
+    const title = 'API 11L Sucker Rod Pumping Unit & Polished Rod Load Calculator';
+    const metaDescription = 'Size beam pumping units, calculate peak and minimum polished rod loads (PPRL & MPRL), rod taper stresses, and surface peak gearbox torque per API RP 11L and ISO 15136. Evaluates plunger stroke loss, rod stretch, and allowable stress on modified Goodman diagrams.';
+
+    const faq = [
+      {
+        q: 'What is API RP 11L and how does it calculate sucker rod pumping dynamics?',
+        a: 'API Recommended Practice 11L (API RP 11L) provides standardized mathematical correlations and non-dimensional design charts for sizing conventional beam pumping units, sucker rod strings, and prime movers. Developed from analog computer simulations by the Sucker Rod Pumping Research committee, it accounts for dynamic elastic rod wave propagation, natural rod harmonic resonance (N / No), plunger fluid loads, rod stretch, and tubing movement to predict Peak Polished Rod Load (PPRL), Minimum Polished Rod Load (MPRL), peak gearbox torque, and net downhole plunger stroke.'
+      },
+      {
+        q: 'How does a Tubing Anchor Catcher (TAC) prevent stroke loss and tubing wear?',
+        a: 'In an unanchored well, the cyclic fluid load transfers alternately from the rod string during upstroke to the tubing string during downstroke. This causes the entire column of production tubing to stretch and breathe axially on every single pump stroke (tubing breathing), robbing the plunger of 10 to 30 inches of effective displacement. Installing a Tubing Anchor Catcher (TAC) mechanically locks the tubing string to the casing wall under tension, eliminating tubing stretch (et = 0), preventing tubing fatigue leaks, increasing net pump stroke Sp, and boosting oil production by 15% to 35%.'
+      },
+      {
+        q: 'What is the Modified Goodman Diagram in API Spec 11B sucker rod design?',
+        a: 'The API 11B Modified Goodman Diagram evaluates fatigue life for sucker rods subjected to cyclic cyclic tension (oscillating between minimum polished rod stress sigma_min and peak stress sigma_max). The allowable stress is defined by: sigma_allow = [T_min / 4 + 0.5625 * sigma_min] * SF, where T_min is the minimum specified tensile strength of the rod steel (e.g. 115,000 psi for Grade D) and SF is the service derating factor (1.0 for sweet non-corrosive, 0.70 to 0.85 for sour H2S/CO2 environments). Operating above 100% of the Goodman limit causes rapid tensile fatigue failure.'
+      },
+      {
+        q: 'How do you decode an API Pumping Unit Designation (e.g. C-320D-256-100)?',
+        a: 'API Specification 11E establishes standard designation codes: the prefix defines the unit geometry ("C" for Conventional beam, "M" for Mark II, "A" for Air-Balanced); the first number is the peak torque rating of the double-reduction gear reducer in thousands of inch-pounds (320 = 320,000 in-lb); the middle suffix "D" denotes double-reduction gearing; the second number is the maximum structural beam load rating in hundreds of pounds (256 = 25,600 lb PPRL capacity); and the final number is the maximum stroke length in inches (100 in).'
+      },
+      {
+        q: 'What causes rod string buckling during the downstroke in heavy oil wells?',
+        a: 'During the downstroke, the rod string must fall by gravity through the fluid in the tubing while pushing the traveling valve open against fluid drag. In viscous heavy crudes, emulsified oil, or wells with high pumping speed (SPM), the hydrodynamic skin drag on the rods and fluid resistance across the traveling valve exceed the buoyant weight of the bottom rod taper. The lower rod string falls into severe compressive axial loading, helically buckling against the tubing, stripping coupling threads, and wearing holes through the tubing within weeks.'
+      }
+    ];
+
+    const content = `
+<style>
+.srp-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.srp-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.srp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.srp-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .srp-grid-2, .srp-grid-3, .srp-grid-4 { grid-template-columns: 1fr; }
+}
+.srp-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.srp-input, .srp-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.srp-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.srp-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.srp-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.srp-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.srp-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.srp-card-canvas {
+  width: 100%;
+  height: 220px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: block;
+}
+</style>
+
+<div class="srp-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">API 11L Sucker Rod Pumping Unit &amp; Polished Rod Load Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">Beam Pumping Geometry, Peak/Min Polished Rod Loads, Rod Goodman Stress &amp; Gearbox Sizing</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="srp-btn" id="btn_srp_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Well Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="srp-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="srp-label">Pumping Unit Geometry</label>
+      <select id="srp_geom" class="srp-select">
+        <option value="C" selected>Class I Conventional Beam Unit (C)</option>
+        <option value="M">Mark II Unitorque Geometry (M)</option>
+        <option value="A">Air Balanced Beam Unit (A)</option>
+      </select>
+    </div>
+    <div>
+      <label class="srp-label">Rod String Taper Selection</label>
+      <select id="srp_rod_taper" class="srp-select">
+        <option value="76" selected>API #76 (3-Taper: 7/8", 3/4", 5/8") &mdash; 1.63 lb/ft avg</option>
+        <option value="86">API #86 (3-Taper: 1", 7/8", 3/4") &mdash; 2.15 lb/ft avg</option>
+        <option value="85">API #85 (4-Taper: 1", 7/8", 3/4", 5/8") &mdash; 1.95 lb/ft avg</option>
+        <option value="single78">Single 7/8" String &mdash; 2.22 lb/ft (0.601 in&sup2;)</option>
+        <option value="single34">Single 3/4" String &mdash; 1.63 lb/ft (0.442 in&sup2;)</option>
+        <option value="single1">Single 1" String &mdash; 2.90 lb/ft (0.785 in&sup2;)</option>
+      </select>
+    </div>
+    <div>
+      <label class="srp-label">Sucker Rod Steel Grade</label>
+      <select id="srp_rod_grade" class="srp-select">
+        <option value="D" selected>API Grade D (115 ksi Tensile &mdash; Carbon/Alloy)</option>
+        <option value="KD">API Grade KD (115 ksi Tensile &mdash; Corrosion Resistant)</option>
+        <option value="C">API Grade C (90 ksi Tensile &mdash; Shallow Non-Corrosive)</option>
+        <option value="ultra">Ultra-High Strength (140 ksi Tensile &mdash; Norris 97)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="srp-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="srp-label">Pump Setting Depth (L) <span>ft</span></label>
+      <input type="number" id="srp_depth" class="srp-input" value="6500" step="100" min="500">
+    </div>
+    <div>
+      <label class="srp-label">Working Fluid Level (Hf) <span>ft from surface</span></label>
+      <input type="number" id="srp_fluid_level" class="srp-input" value="2000" step="100" min="0">
+    </div>
+    <div>
+      <label class="srp-label">Plunger Diameter (Dp) <span>inches</span></label>
+      <select id="srp_plunger" class="srp-select">
+        <option value="1.25">1-1/4" (1.25 in &mdash; Deep High Press)</option>
+        <option value="1.50" selected>1-1/2" (1.50 in &mdash; Standard Mid-Depth)</option>
+        <option value="1.75">1-3/4" (1.75 in &mdash; Moderate Volume)</option>
+        <option value="2.00">2" (2.00 in &mdash; High Volume)</option>
+        <option value="2.25">2-1/4" (2.25 in &mdash; Shallow High Volume)</option>
+        <option value="2.75">2-3/4" (2.75 in &mdash; Dewatering)</option>
+      </select>
+    </div>
+    <div>
+      <label class="srp-label">Surface Stroke Length (S) <span>inches</span></label>
+      <input type="number" id="srp_stroke" class="srp-input" value="100" step="4" min="24" max="240">
+    </div>
+  </div>
+
+  <div class="srp-grid-4" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="srp-label">Pumping Speed (N) <span>SPM (strokes/min)</span></label>
+      <input type="number" id="srp_spm" class="srp-input" value="10.5" step="0.5" min="2" max="25">
+    </div>
+    <div>
+      <label class="srp-label">Fluid Specific Gravity (Gf) <span>water = 1.0</span></label>
+      <input type="number" id="srp_sg" class="srp-input" value="0.92" step="0.02" min="0.6" max="1.3">
+    </div>
+    <div>
+      <label class="srp-label">Tubing Anchor Catcher (TAC)</label>
+      <select id="srp_anchor" class="srp-select">
+        <option value="anchored" selected>Tubing Anchored (No Breathing)</option>
+        <option value="unanchored">Unanchored Tubing (Stroke Loss)</option>
+      </select>
+    </div>
+    <div>
+      <label class="srp-label">Goodman Service Factor (SF)</label>
+      <select id="srp_sf" class="srp-select">
+        <option value="1.0">1.00 (Non-Corrosive Sweet Service)</option>
+        <option value="0.9" selected>0.90 (Inhibited Mild Corrosive)</option>
+        <option value="0.8">0.80 (Severe CO2 / Moderate H2S)</option>
+        <option value="0.7">0.70 (Severe Sour H2S Service)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="srp-grid-4" style="margin-bottom:1.5rem;">
+    <div class="srp-kpi">
+      <div class="srp-kpi-lbl">Recommended API Unit</div>
+      <div class="srp-kpi-val" id="res_srp_unit_code" style="color:#2563eb; font-size:1.35rem;">C-320D-256-100</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_srp_unit_desc">320k in-lb / 25.6k lb Struct</div>
+    </div>
+    <div class="srp-kpi">
+      <div class="srp-kpi-lbl">Peak Polished Rod Load (PPRL)</div>
+      <div class="srp-kpi-val" id="res_srp_pprl">18,420 lb</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_srp_pprl_kn">81.9 kN (MPRL: 5,410 lb)</div>
+    </div>
+    <div class="srp-kpi">
+      <div class="srp-kpi-lbl">Top Rod Goodman Loading</div>
+      <div class="srp-kpi-val" id="res_srp_goodman" style="color:#10b981;">68.4%</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_srp_goodman_lbl">Safe Fatigue Range (&lt;100%)</div>
+    </div>
+    <div class="srp-kpi">
+      <div class="srp-kpi-lbl">Daily Production Rate</div>
+      <div class="srp-kpi-val" id="res_srp_bpd">214 BPD</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_srp_bpd_metric">34.0 m&sup3;/day (85% Eff)</div>
+    </div>
+  </div>
+
+  <!-- Simulated Surface Dynagraph Card Canvas -->
+  <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+      <span style="font-weight:600; font-size:0.95rem;">Simulated Surface &amp; Downhole Dynagraph Card (Polished Rod Load vs Displacement)</span>
+      <span style="font-size:0.8rem; color:var(--text-muted);">Blue: Surface Card | Green: Downhole Pump Card</span>
+    </div>
+    <canvas id="srp_dyna_canvas" class="srp-card-canvas" width="800" height="220"></canvas>
+  </div>
+
+  <div class="srp-grid-3">
+    <div class="srp-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Kinematics &amp; Plunger Stroke</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Surface Stroke:</strong> <span id="res_srp_s_surf">100.0 in</span></div>
+        <div><strong>Plunger Overtravel (ep):</strong> <span id="res_srp_ep">+8.4 in</span></div>
+        <div><strong>Rod Elastic Stretch (er):</strong> <span id="res_srp_er">-14.2 in</span></div>
+        <div><strong>Tubing Breathing Loss (et):</strong> <span id="res_srp_et">0.0 in (Anchored)</span></div>
+        <div><strong>Net Plunger Stroke (Sp):</strong> <span id="res_srp_sp" style="color:#10b981; font-weight:600;">94.2 in</span></div>
+      </div>
+    </div>
+    <div class="srp-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Loads &amp; Gearbox Torque</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Fluid Load on Plunger (Fo):</strong> <span id="res_srp_fo">3,120 lb</span></div>
+        <div><strong>Rod Weight in Air (Wr):</strong> <span id="res_srp_wr">10,595 lb</span></div>
+        <div><strong>Buoyant Rod Weight (Wrf):</strong> <span id="res_srp_wrf">9,355 lb</span></div>
+        <div><strong>Peak Gearbox Torque:</strong> <span id="res_srp_torque">242,000 in-lb (27.3 kNm)</span></div>
+        <div><strong>Minimum Motor Size:</strong> <span id="res_srp_motor">25 HP (18.6 kW)</span></div>
+      </div>
+    </div>
+    <div class="srp-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Stress &amp; Dynamics (API 11L)</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Natural Frequency (No):</strong> <span id="res_srp_no">2.46 Hz (148 SPM)</span></div>
+        <div><strong>Speed Ratio (N / No):</strong> <span id="res_srp_n_no">0.071 (Non-resonant)</span></div>
+        <div><strong>Top Rod Peak Stress:</strong> <span id="res_srp_top_stress">30,650 psi</span></div>
+        <div><strong>Goodman Allowable:</strong> <span id="res_srp_allow_stress">44,800 psi</span></div>
+        <div><strong>Downstroke Float Risk:</strong> <span id="res_srp_float_risk" style="color:#10b981; font-weight:600;">None (Safe Gravity Fall)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in Sucker Rod Pumping</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. The Unanchored Tubing Stroke Loss Disaster</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Operating a rod pump deeper than 4,000 ft without a Tubing Anchor Catcher (TAC) destroys production efficiency. Because the hydrostatic fluid column alternates between the traveling valve and standing valve every half-cycle, the entire unanchored tubing string stretches downward on the upstroke and contracts on the downstroke ("tubing breathing"). On a 7,000 ft well, tubing stretch commonly steals <strong>15 to 25 inches of net downhole stroke</strong>, dropping gross production by 25% to 40% while sawing holes through casing strings via abrasive buckled contact.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Severe Fluid Pound &amp; Downhole Water Hammer Shockwaves</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Pumping a well faster than reservoir inflow rates causes the pump barrel to only partially fill with liquid (pump-off condition). On the downstroke, the traveling valve plunges through low-pressure gas headspace before violently slamming into the liquid oil surface halfway down the stroke (fluid pound). This generates instantaneous acoustic shockwaves of <strong>over 5,000 psi compressive stress</strong>, instantly buckling sucker rods, loosening couplings, and fatiguing surface gearbox gear teeth.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Counterbalance Phase Misalignment &amp; Gearbox Burnout</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Improperly adjusted counterweights on the crank arms lead to severe net torque spikes. If the counterweights do not properly offset the buoyant rod string and fluid weight during upstroke, the gear reducer experiences double the rated API peak torque during peak crank angles. Pumping unit gearboxes operated with poor counterbalance suffer broken pinion teeth, overheated bearings, and complete mechanical gear destruction within 6 months.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. Sour Service Hydrogen Sulfide (H2S) Sulfide Stress Cracking</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Specifying high-strength API Grade D or Ultra-High Strength (140 ksi) rods in wells containing even trace levels of hydrogen sulfide (H2S > 10 ppm) or CO2 is lethal. High-strength quenched-and-tempered steels are exceptionally vulnerable to atomic hydrogen embrittlement. Microscopic cracks initiate in pit crevices and propagate instantaneously across rod bodies under cyclic tension, causing catastrophic rod parting at stresses <strong>less than 40% of rated yield strength</strong>. Only specialized nickel-chromium alloy rods (Grade KD) or fiberglass inserts with proper corrosion inhibitors should be used.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. Sucker Rod String Downstroke Helical Buckling &amp; Floating</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">In heavy crude wells (>100 cP) or high SPM operations, the buoyant weight of the bottom slender sucker rods (e.g. 5/8" or 3/4") is insufficient to overcome upward fluid drag across the rod body and traveling valve during the downstroke. The rods enter compressive axial stress ("rod floating"). The rod string helically buckles inside the tubing, rubbing metal-on-metal with extreme contact forces that strip coupling shoulders and saw split leaks through production tubing.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">API RP 11L Mathematical Engineering Derivations</h2>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. Dynamic Polished Rod Loads (API 11L Formulation)</h3>
+  <p style="font-size:0.9rem; line-height:1.6;">The fluid load on the pump plunger is determined by the net liquid hydrostatic column above the pump:</p>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$F_o = 0.433 \cdot G_f \cdot (L - H_f) \cdot \frac{\pi}{4} D_p^2 = 0.340 \cdot G_f \cdot H_{net} \cdot D_p^2 \quad [\text{lb}]$$
+  </div>
+
+  <p style="font-size:0.9rem; line-height:1.6;">Buoyant weight of the rod string immersed in crude:</p>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$W_{rf} = W_r \cdot \left(1 - \frac{\rho_{fluid}}{\rho_{steel}}\right) = W_r \cdot (1 - 0.1274 \cdot G_f) \quad [\text{lb}]$$
+  </div>
+
+  <p style="font-size:0.9rem; line-height:1.6;">Peak and Minimum Polished Rod Loads per Mills dynamic acceleration formula and API 11L factors:</p>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$PPRL = W_{rf} + F_o \cdot \left(1 + \frac{S \cdot N^2}{70,500}\right) \quad [\text{lb}]$$
+    $$MPRL = W_{rf} \cdot \left(1 - \frac{S \cdot N^2}{70,500}\right) - 0.2 \cdot F_o \quad [\text{lb}]$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Modified Goodman Allowable Stress (API Spec 11B)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$\sigma_{max} = \frac{PPRL}{A_{top}}, \quad \sigma_{min} = \frac{MPRL}{A_{top}} \quad [\text{psi}]$$
+    $$\sigma_{allow} = \left(\frac{T_{min}}{4} + 0.5625 \cdot \sigma_{min}\right) \cdot SF \quad [\text{psi}]$$
+    $$\%\text{Loading} = \frac{\sigma_{max}}{\sigma_{allow}} \times 100\%$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">3. Net Plunger Stroke & Production Capacity</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$S_p = S + e_p - (e_r + e_t) \quad [\text{inches}]$$
+    $$Q_{theo} = 0.1166 \cdot D_p^2 \cdot S_p \cdot N \quad [\text{BPD (42 US gal)}]$$
+  </div>
+</div>
+
+<script>
+(() => {
+  const ROD_TAPERS = {
+    '76': { name: 'API #76 (7/8, 3/4, 5/8)', wAvg: 1.63, aTop: 0.601, topSize: '7/8"' },
+    '86': { name: 'API #86 (1, 7/8, 3/4)', wAvg: 2.15, aTop: 0.785, topSize: '1"' },
+    '85': { name: 'API #85 (1, 7/8, 3/4, 5/8)', wAvg: 1.95, aTop: 0.785, topSize: '1"' },
+    'single78': { name: 'Single 7/8"', wAvg: 2.22, aTop: 0.601, topSize: '7/8"' },
+    'single34': { name: 'Single 3/4"', wAvg: 1.63, aTop: 0.442, topSize: '3/4"' },
+    'single1': { name: 'Single 1"', wAvg: 2.90, aTop: 0.785, topSize: '1"' }
+  };
+
+  const ROD_GRADES = {
+    'D': { name: 'Grade D', tMin: 115000 },
+    'KD': { name: 'Grade KD', tMin: 115000 },
+    'C': { name: 'Grade C', tMin: 90000 },
+    'ultra': { name: 'Ultra-High 140k', tMin: 140000 }
+  };
+
+  function drawDynagraph(pprl, mprl, sSurf, spDown) {
+    const canvas = document.getElementById('srp_dyna_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(150, 150, 150, 0.2)';
+    ctx.lineWidth = 1;
+    for (let x = 50; x < w - 20; x += 75) {
+      ctx.beginPath();
+      ctx.moveTo(x, 15);
+      ctx.lineTo(x, h - 30);
+      ctx.stroke();
+    }
+    for (let y = 20; y < h - 25; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(40, y);
+      ctx.lineTo(w - 20, y);
+      ctx.stroke();
+    }
+
+    // Axes labels
+    ctx.fillStyle = '#888';
+    ctx.font = '11px sans-serif';
+    ctx.fillText('Load (lb)', 10, 14);
+    ctx.fillText('0', 40, h - 15);
+    ctx.fillText(Math.round(sSurf) + ' in (Displacement)', w - 140, h - 15);
+
+    const maxLoad = Math.max(25000, pprl * 1.25);
+    function yPos(l) {
+      return (h - 35) - ((l / maxLoad) * (h - 55));
+    }
+    function xPos(disp) {
+      return 50 + ((disp / Math.max(1, sSurf)) * (w - 90));
+    }
+
+    // Draw Downhole Card (Green Rectangle-like shape)
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    const x0_down = xPos(Math.max(0, (sSurf - spDown) / 2));
+    const x1_down = xPos(Math.min(sSurf, (sSurf + spDown) / 2));
+    const y_bot = yPos(mprl * 0.9);
+    const y_top = yPos(pprl * 0.85);
+
+    ctx.moveTo(x0_down, y_bot);
+    ctx.lineTo(x0_down + 20, y_top);
+    ctx.lineTo(x1_down, y_top);
+    ctx.lineTo(x1_down - 15, y_bot);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
+    ctx.fill();
+
+    // Draw Surface Card (Blue smooth oval/rounded quad)
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    const x0_surf = xPos(0);
+    const x1_surf = xPos(sSurf);
+    const y_surf_top = yPos(pprl);
+    const y_surf_bot = yPos(mprl);
+
+    ctx.moveTo(x0_surf + 15, y_surf_bot + 10);
+    ctx.bezierCurveTo(x0_surf, y_surf_top * 1.1, x0_surf + 60, y_surf_top, x0_surf + (x1_surf - x0_surf) * 0.4, y_surf_top);
+    ctx.bezierCurveTo(x0_surf + (x1_surf - x0_surf) * 0.8, y_surf_top * 0.95, x1_surf - 10, y_surf_top * 0.9, x1_surf, y_surf_bot + 25);
+    ctx.bezierCurveTo(x1_surf - 20, y_surf_bot - 10, x0_surf + (x1_surf - x0_surf) * 0.5, y_surf_bot, x0_surf + 15, y_surf_bot + 10);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(37, 99, 235, 0.08)';
+    ctx.fill();
+
+    // PPRL / MPRL markers
+    ctx.fillStyle = '#2563eb';
+    ctx.fillText('PPRL: ' + Math.round(pprl).toLocaleString() + ' lb', 60, y_surf_top - 5);
+    ctx.fillStyle = '#888';
+    ctx.fillText('MPRL: ' + Math.round(mprl).toLocaleString() + ' lb', 60, y_surf_bot + 18);
+  }
+
+  function calcSrp() {
+    const geom = document.getElementById('srp_geom').value;
+    const rodTaperKey = document.getElementById('srp_rod_taper').value;
+    const rodGradeKey = document.getElementById('srp_rod_grade').value;
+    const depth = parseFloat(document.getElementById('srp_depth').value) || 6500;
+    const fluidLevel = parseFloat(document.getElementById('srp_fluid_level').value) || 2000;
+    const dp = parseFloat(document.getElementById('srp_plunger').value) || 1.5;
+    const stroke = parseFloat(document.getElementById('srp_stroke').value) || 100;
+    const spm = parseFloat(document.getElementById('srp_spm').value) || 10;
+    const sg = parseFloat(document.getElementById('srp_sg').value) || 0.92;
+    const isAnchored = document.getElementById('srp_anchor').value === 'anchored';
+    const sf = parseFloat(document.getElementById('srp_sf').value) || 0.90;
+
+    const taper = ROD_TAPERS[rodTaperKey] || ROD_TAPERS['76'];
+    const grade = ROD_GRADES[rodGradeKey] || ROD_GRADES['D'];
+
+    const hNet = Math.max(100, depth - fluidLevel);
+    const wR = taper.wAvg * depth;
+    const wRf = wR * (1 - 0.1274 * sg);
+
+    // Fluid load on plunger
+    const fO = 0.340 * sg * hNet * (dp * dp);
+
+    // Dynamic Mills acceleration factor
+    const alphaMills = (stroke * spm * spm) / 70500;
+
+    // Peak Polished Rod Load
+    let pprl = wRf + fO * (1 + alphaMills);
+    let mprl = Math.max(0, wRf * (1 - alphaMills) - 0.2 * fO);
+
+    if (geom === 'M') {
+      // Mark II has lower peak torque and slightly lower PPRL
+      pprl *= 0.96;
+      mprl *= 1.05;
+    } else if (geom === 'A') {
+      pprl *= 0.98;
+    }
+
+    // Natural frequency of rod string (Hz)
+    const nO_spm = 16000 / depth;
+    const nO_hz = nO_spm / 60;
+    const n_no_ratio = spm / nO_spm;
+
+    // Plunger overtravel (ep) inches
+    const secVal = 1 / Math.cos(Math.min(1.4, n_no_ratio * Math.PI * 0.5));
+    const ep = Math.max(0, stroke * (secVal - 1) * 0.4);
+
+    // Rod stretch (er)
+    const er = (fO * depth * 0.8e-6);
+
+    // Tubing stretch (et)
+    let et = 0;
+    if (!isAnchored) {
+      et = fO * depth * 0.3e-6;
+    }
+
+    const netStroke = Math.max(5, stroke + ep - (er + et));
+
+    // Production rate BPD
+    const theoBpd = 0.1166 * (dp * dp) * netStroke * spm;
+    const eff85Bpd = theoBpd * 0.85;
+    const eff85M3d = eff85Bpd * 0.158987;
+
+    // Stresses on top rod
+    const sigmaMax = pprl / taper.aTop;
+    const sigmaMin = mprl / taper.aTop;
+    const sigmaAllow = ((grade.tMin / 4) + 0.5625 * sigmaMin) * sf;
+    const goodmanPct = (sigmaMax / sigmaAllow) * 100;
+
+    // Peak Torque (in-lb)
+    let peakTorque = 0.5 * stroke * (pprl - wRf) * 0.75;
+    if (geom === 'M') peakTorque *= 0.85;
+    const peakTorqueKnm = peakTorque * 0.000112985;
+
+    // Motor HP estimate
+    const motorHp = (pprl * stroke * spm) / (33000 * 12 * 0.65);
+    const motorKw = motorHp * 0.7457;
+
+    // API Standard Designation Selector
+    // Find standard gearbox torque rating: 80, 114, 160, 228, 320, 456, 640, 912
+    const STD_TORQUES = [80, 114, 160, 228, 320, 456, 640, 912];
+    const torqueInK = peakTorque / 1000;
+    const selTorque = STD_TORQUES.find(t => t >= torqueInK) || STD_TORQUES[STD_TORQUES.length - 1];
+
+    // Find standard structure capacity: 119, 143, 173, 200, 213, 256, 305, 365
+    const pprlInC = Math.ceil(pprl / 100);
+    const STD_STRUCT = [119, 143, 173, 200, 213, 256, 305, 365, 427];
+    const selStruct = STD_STRUCT.find(s => s >= pprlInC) || STD_STRUCT[STD_STRUCT.length - 1];
+
+    const apiUnitCode = geom + '-' + selTorque + 'D-' + selStruct + '-' + Math.round(stroke);
+
+    // Update KPIs
+    document.getElementById('res_srp_unit_code').textContent = apiUnitCode;
+    document.getElementById('res_srp_unit_desc').textContent = selTorque + 'k in-lb / ' + (selStruct * 100).toLocaleString() + ' lb Struct';
+
+    document.getElementById('res_srp_pprl').textContent = Math.round(pprl).toLocaleString() + ' lb';
+    document.getElementById('res_srp_pprl_kn').textContent = (pprl * 0.00444822).toFixed(1) + ' kN (MPRL: ' + Math.round(mprl).toLocaleString() + ' lb)';
+
+    document.getElementById('res_srp_goodman').textContent = goodmanPct.toFixed(1) + '%';
+    const goodmanLbl = document.getElementById('res_srp_goodman_lbl');
+    if (goodmanPct > 100) {
+      goodmanLbl.textContent = 'OVERSTRESSED (>100% Fatigue Limit)';
+      goodmanLbl.style.color = '#ef4444';
+    } else if (goodmanPct > 85) {
+      goodmanLbl.textContent = 'Moderate High Stress (85-100%)';
+      goodmanLbl.style.color = '#f59e0b';
+    } else {
+      goodmanLbl.textContent = 'Safe Fatigue Range (<85%)';
+      goodmanLbl.style.color = '#10b981';
+    }
+
+    document.getElementById('res_srp_bpd').textContent = Math.round(eff85Bpd).toLocaleString() + ' BPD';
+    document.getElementById('res_srp_bpd_metric').textContent = eff85M3d.toFixed(1) + ' m³/day (85% Eff)';
+
+    // Kinematics Details
+    document.getElementById('res_srp_s_surf').textContent = stroke.toFixed(1) + ' in';
+    document.getElementById('res_srp_ep').textContent = '+' + ep.toFixed(1) + ' in';
+    document.getElementById('res_srp_er').textContent = '-' + er.toFixed(1) + ' in';
+    document.getElementById('res_srp_et').textContent = isAnchored ? '0.0 in (Anchored)' : '-' + et.toFixed(1) + ' in (Lost)';
+    document.getElementById('res_srp_sp').textContent = netStroke.toFixed(1) + ' in';
+
+    // Loads Details
+    document.getElementById('res_srp_fo').textContent = Math.round(fO).toLocaleString() + ' lb (' + (fO * 0.00444822).toFixed(1) + ' kN)';
+    document.getElementById('res_srp_wr').textContent = Math.round(wR).toLocaleString() + ' lb';
+    document.getElementById('res_srp_wrf').textContent = Math.round(wRf).toLocaleString() + ' lb';
+    document.getElementById('res_srp_torque').textContent = Math.round(peakTorque).toLocaleString() + ' in-lb (' + peakTorqueKnm.toFixed(1) + ' kNm)';
+    document.getElementById('res_srp_motor').textContent = Math.ceil(motorHp) + ' HP (' + motorKw.toFixed(1) + ' kW)';
+
+    // Stress Details
+    document.getElementById('res_srp_no').textContent = nO_hz.toFixed(2) + ' Hz (' + Math.round(nO_spm) + ' SPM)';
+    document.getElementById('res_srp_n_no').textContent = n_no_ratio.toFixed(3) + ' (' + (n_no_ratio > 0.35 ? 'High Dynamics' : 'Sub-harmonic') + ')';
+    document.getElementById('res_srp_top_stress').textContent = Math.round(sigmaMax).toLocaleString() + ' psi';
+    document.getElementById('res_srp_allow_stress').textContent = Math.round(sigmaAllow).toLocaleString() + ' psi';
+
+    const floatRisk = document.getElementById('res_srp_float_risk');
+    if (mprl < 1000) {
+      floatRisk.textContent = 'HIGH FLOAT RISK: Low Downstroke Tension';
+      floatRisk.style.color = '#ef4444';
+    } else {
+      floatRisk.textContent = 'None (Safe Gravity Fall)';
+      floatRisk.style.color = '#10b981';
+    }
+
+    drawDynagraph(pprl, mprl, stroke, netStroke);
+  }
+
+  const allInputs = [
+    'srp_geom', 'srp_rod_taper', 'srp_rod_grade', 'srp_depth', 'srp_fluid_level',
+    'srp_plunger', 'srp_stroke', 'srp_spm', 'srp_sg', 'srp_anchor', 'srp_sf'
+  ];
+  allInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcSrp);
+      el.addEventListener('change', calcSrp);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_srp_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'API 11L SUCKER ROD PUMPING UNIT DATASHEET',
+        '===============================================',
+        'Recommended API Unit: ' + document.getElementById('res_srp_unit_code').textContent,
+        'Unit Specification: ' + document.getElementById('res_srp_unit_desc').textContent,
+        'Well Depth / Fluid Level: ' + document.getElementById('srp_depth').value + ' ft / ' + document.getElementById('srp_fluid_level').value + ' ft',
+        'Plunger Diameter / SPM: ' + document.getElementById('srp_plunger').value + ' in / ' + document.getElementById('srp_spm').value + ' SPM',
+        'Surface Stroke Length: ' + document.getElementById('srp_stroke').value + ' in',
+        '--- Sizing & Load Outputs ---',
+        'Peak Polished Rod Load (PPRL): ' + document.getElementById('res_srp_pprl').textContent + ' (' + document.getElementById('res_srp_pprl_kn').textContent + ')',
+        'Top Rod Goodman Loading: ' + document.getElementById('res_srp_goodman').textContent + ' [' + document.getElementById('res_srp_goodman_lbl').textContent + ']',
+        'Net Plunger Stroke (Sp): ' + document.getElementById('res_srp_sp').textContent,
+        'Production Rate (85% Eff): ' + document.getElementById('res_srp_bpd').textContent + ' (' + document.getElementById('res_srp_bpd_metric').textContent + ')',
+        'Peak Gearbox Torque: ' + document.getElementById('res_srp_torque').textContent,
+        'Prime Mover Motor Power: ' + document.getElementById('res_srp_motor').textContent,
+        '--- Downhole Kinematics ---',
+        'Fluid Load on Plunger: ' + document.getElementById('res_srp_fo').textContent,
+        'Rod String Buoyant Weight: ' + document.getElementById('res_srp_wrf').textContent,
+        'Top Rod Stress vs Allowable: ' + document.getElementById('res_srp_top_stress').textContent + ' vs ' + document.getElementById('res_srp_allow_stress').textContent,
+        'Downstroke Float Risk: ' + document.getElementById('res_srp_float_risk').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcSrp();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BG4: API 650 Welded Storage Tank Shell Thickness & Wind Girder Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-650-storage-tank-thickness-calculator';
+    const title = 'API 650 Welded Storage Tank Shell Thickness & Wind Girder Calculator';
+    const metaDescription = 'Calculate cylindrical aboveground storage tank shell course thicknesses using the API 650 One-Foot Method and Variable-Design-Point (VDP) method. Sizes top stiffening rings and intermediate wind girders against wind buckling.';
+
+    const faq = [
+      {
+        q: 'What is the API 650 One-Foot Method and how does it determine shell course thickness?',
+        a: 'The API Standard 650 One-Foot Method (Section 5.6.3) calculates the required thickness for each cylindrical shell plate course at a design plane located exactly 1.0 foot (0.3 m) above the bottom of that specific course. It computes two distinct thicknesses: the design condition td = [2.6 * D * (H - 1) * G / Sd] + CA, which accounts for the stored liquid specific gravity G, corrosion allowance CA, and design allowable stress Sd; and the hydrostatic test condition tt = [2.6 * D * (H - 1)] / St, which evaluates full water fill (G = 1.0, CA = 0) at hydrotest allowable stress St. The governing thickness is the maximum of td, tt, and the API 650 minimum nominal thickness.'
+      },
+      {
+        q: 'Why does hydrostatic test thickness (tt) frequently govern over design thickness (td)?',
+        a: 'Hydrostatic test thickness governs whenever storing light hydrocarbons with specific gravity significantly below 1.0 (such as propane, butane, condensate, or gasoline with G = 0.68 to 0.75) and with small corrosion allowances. Because pre-commissioning hydrostatic acceptance testing fills the tank to the top angle with 100% clean water (G = 1.00), the hoop stress during hydrotest can exceed operating hoop stress, forcing thicker bottom shell courses despite the slightly higher allowable test stress St.'
+      },
+      {
+        q: 'When does API 650 require the Variable-Design-Point (VDP) Method instead of the 1-Foot Method?',
+        a: 'Under API 650 Section 5.6.4, when the tank diameter exceeds 200 ft (60 m), the One-Foot Method becomes excessively conservative because the bending moment and radial restraint exerted by the thick bottom plate into the lower shell course significantly alter the circumferential membrane stress distribution. The Variable-Design-Point (VDP) method calculates stress at an analytically derived design distance x above the course bottom, saving up to 10% to 15% in shell plate thickness and hundreds of tons of high-strength steel.'
+      },
+      {
+        q: 'How does API 650 Section 5.9 evaluate wind buckling and intermediate wind girders?',
+        a: 'High winds generate external aerodynamic stagnation pressure on the windward side and negative internal suction on open-top or floating-roof tanks. API 650 transforms the actual multi-course stepped shell thickness into an equivalent uniform shell of thickness t_top (the transformed height Htr). If Htr exceeds the maximum permissible unstiffened shell height H1 = 9.47 * t * sqrt((t / D)^3) * (190 / V)^2, the shell will buckle elastically under design wind gusts. One or more intermediate wind girders with specified minimum section modulus Z must be installed around the shell circumference.'
+      },
+      {
+        q: 'What is the minimum nominal shell thickness mandated by API 650 Section 5.6.1.1?',
+        a: 'To prevent handling damage during fabrication and erection, and to provide structural rigidity against wind buckling, API 650 enforces strict minimum nominal shell plate thicknesses regardless of calculated stress: tanks with D < 50 ft require minimum 3/16 in (5 mm); 50 ft <= D < 120 ft require 1/4 in (6 mm); 120 ft <= D <= 200 ft require 5/16 in (8 mm); and tanks with D > 200 ft require at least 3/8 in (10 mm).'
+      }
+    ];
+
+    const content = `
+<style>
+.tk-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.tk-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.tk-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.tk-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .tk-grid-2, .tk-grid-3, .tk-grid-4 { grid-template-columns: 1fr; }
+}
+.tk-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.tk-input, .tk-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.tk-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.tk-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.tk-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.tk-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+.tk-btn:hover {
+  background: var(--primary-hover, #2563eb);
+}
+.trap-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.tk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+.tk-table th, .tk-table td {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.tk-table th {
+  background: var(--bg);
+  font-weight: 600;
+}
+.tk-svg-container {
+  width: 100%;
+  height: 240px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+</style>
+
+<div class="tk-box">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div>
+      <h1 style="font-size:1.5rem; margin:0 0 0.35rem 0;">API 650 Storage Tank Shell Thickness &amp; Wind Girder Calculator</h1>
+      <p style="margin:0; color:var(--text-muted); font-size:0.9rem;">1-Foot Method Course Sizing, Hydrotest Stress &amp; Intermediate Wind Girder Buckling (API 650 13th Ed)</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+      <button class="tk-btn" id="btn_tk_copy">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span>Copy Tank Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="tk-grid-3" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="tk-label">Shell Steel Plate Material</label>
+      <select id="tk_material" class="tk-select">
+        <option value="A36" selected>ASTM A36 (Sd=23,200 psi / St=24,900 psi)</option>
+        <option value="A283C">ASTM A283 Grade C (Sd=20,500 psi / St=22,500 psi)</option>
+        <option value="A516_70">ASTM A516 Grade 70 (Sd=28,000 psi / St=30,000 psi)</option>
+        <option value="A573_70">ASTM A573 Grade 70 (Sd=28,000 psi / St=30,000 psi)</option>
+        <option value="SS304">Stainless Steel 304 (Sd=20,000 psi / St=22,000 psi)</option>
+      </select>
+    </div>
+    <div>
+      <label class="tk-label">Roof Structure Type</label>
+      <select id="tk_roof" class="tk-select">
+        <option value="cone" selected>Supported Cone Roof (Rafters &amp; Columns)</option>
+        <option value="self_cone">Self-Supporting Cone Roof (D &lt; 60 ft)</option>
+        <option value="floating">External Floating Roof (Pontoon / Open Top)</option>
+        <option value="internal_flt">Internal Floating Roof with Fixed Dome</option>
+      </select>
+    </div>
+    <div>
+      <label class="tk-label">Design Wind Velocity (V) <span>mph (km/h)</span></label>
+      <input type="number" id="tk_wind" class="tk-input" value="120" step="5" min="70" max="200">
+    </div>
+  </div>
+
+  <div class="tk-grid-4" style="margin-bottom:1.25rem;">
+    <div>
+      <label class="tk-label">Tank Nominal Diameter (D) <span>ft</span></label>
+      <input type="number" id="tk_dia" class="tk-input" value="100" step="5" min="15" max="350">
+    </div>
+    <div>
+      <label class="tk-label">Total Shell Height (H) <span>ft</span></label>
+      <input type="number" id="tk_height" class="tk-input" value="48" step="4" min="16" max="96">
+    </div>
+    <div>
+      <label class="tk-label">Plate Course Height (hc) <span>ft</span></label>
+      <input type="number" id="tk_course_h" class="tk-input" value="8" step="1" min="6" max="10">
+    </div>
+    <div>
+      <label class="tk-label">Design Specific Gravity (G) <span>water = 1.0</span></label>
+      <input type="number" id="tk_sg" class="tk-input" value="0.86" step="0.01" min="0.6" max="1.5">
+    </div>
+  </div>
+
+  <div class="tk-grid-3" style="margin-bottom:1.5rem;">
+    <div>
+      <label class="tk-label">Corrosion Allowance (CA) <span>inches</span></label>
+      <input type="number" id="tk_ca" class="tk-input" value="0.0625" step="0.03125" min="0" max="0.25">
+    </div>
+    <div>
+      <label class="tk-label">Design Method Standard</label>
+      <select id="tk_method" class="tk-select">
+        <option value="1foot" selected>API 650 1-Foot Method (Sec 5.6.3)</option>
+        <option value="vdp">Variable-Design-Point VDP (Sec 5.6.4)</option>
+      </select>
+    </div>
+    <div>
+      <label class="tk-label">Product Stored</label>
+      <input type="text" id="tk_product" class="tk-input" value="Sweet Crude Oil" style="font-family:sans-serif;">
+    </div>
+  </div>
+
+  <!-- Main KPI Grid -->
+  <div class="tk-grid-4" style="margin-bottom:1.5rem;">
+    <div class="tk-kpi">
+      <div class="tk-kpi-lbl">Tank Gross Capacity</div>
+      <div class="tk-kpi-val" id="res_tk_bbl" style="color:#2563eb;">67,160 BBL</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_tk_m3">10,678 m&sup3; (2.82M Gal)</div>
+    </div>
+    <div class="tk-kpi">
+      <div class="tk-kpi-lbl">Total Shell Steel Weight</div>
+      <div class="tk-kpi-val" id="res_tk_weight">142.8 Tons</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_tk_weight_metric">129.5 Tonnes</div>
+    </div>
+    <div class="tk-kpi">
+      <div class="tk-kpi-lbl">Intermediate Wind Girder</div>
+      <div class="tk-kpi-val" id="res_tk_girder_status" style="color:#10b981; font-size:1.35rem;">1 Required</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_tk_girder_z">Req Z: 18.2 in&sup3;</div>
+    </div>
+    <div class="tk-kpi">
+      <div class="tk-kpi-lbl">Bottom Course Thickness</div>
+      <div class="tk-kpi-val" id="res_tk_tbottom">0.500 in</div>
+      <div style="font-size:0.85rem; color:var(--text-muted);" id="res_tk_tbottom_mm">12.7 mm (Governing)</div>
+    </div>
+  </div>
+
+  <!-- SVG Schematic & Table Grid -->
+  <div class="tk-grid-2" style="margin-bottom:1.5rem;">
+    <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1.25rem;">
+      <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">Tank Cross-Section Elevation Schematic</div>
+      <div class="tk-svg-container" id="tk_svg_wrap">
+        <svg id="tk_svg" width="360" height="220" viewBox="0 0 360 220"></svg>
+      </div>
+    </div>
+    <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:1.25rem;">
+      <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.75rem;">Shell Course Thickness Schedule (Bottom to Top)</div>
+      <div style="overflow-x:auto; max-height:220px;">
+        <table class="tk-table">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Elevation</th>
+              <th>td (in)</th>
+              <th>tt (in)</th>
+              <th>Gov (in)</th>
+              <th>Pl. (mm)</th>
+            </tr>
+          </thead>
+          <tbody id="tk_course_rows">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tk-grid-3">
+    <div class="tk-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Wind Buckling Mechanics (Sec 5.9)</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Max Unstiffened Ht (H1):</strong> <span id="res_tk_h1">21.4 ft</span></div>
+        <div><strong>Transformed Height (Htr):</strong> <span id="res_tk_htr">34.8 ft</span></div>
+        <div><strong>Buckling Safety Margin:</strong> <span id="res_tk_buckle_margin">Htr &gt; H1 (Buckling Risk)</span></div>
+        <div><strong>Required Section Modulus (Z):</strong> <span id="res_tk_req_z">18.2 in&sup3; (298 cm&sup3;)</span></div>
+      </div>
+    </div>
+    <div class="tk-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Material Stress Checks</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Design Stress (Sd):</strong> <span id="res_tk_sd">23,200 psi (160 MPa)</span></div>
+        <div><strong>Hydrotest Stress (St):</strong> <span id="res_tk_st">24,900 psi (171 MPa)</span></div>
+        <div><strong>Governing Criterion:</strong> <span id="res_tk_gov_criterion">Design Condition (td)</span></div>
+        <div><strong>Min Nominal API Code:</strong> <span id="res_tk_tmin_code">0.250 in (1/4")</span></div>
+      </div>
+    </div>
+    <div class="tk-box" style="margin-bottom:0; padding:1rem;">
+      <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.5rem; color:var(--primary);">Overturning &amp; Foundations</div>
+      <div style="font-size:0.85rem; line-height:1.7;">
+        <div><strong>Wind Overturning Moment:</strong> <span id="res_tk_wind_moment">3.45M ft-lb</span></div>
+        <div><strong>Liquid Resisting Moment:</strong> <span id="res_tk_res_moment">14.8M ft-lb</span></div>
+        <div><strong>Anchor Bolts Required:</strong> <span id="res_tk_anchors" style="color:#10b981; font-weight:600;">No (Self-Anchored)</span></div>
+        <div><strong>Annular Bottom Plate:</strong> <span id="res_tk_annular">Mandatory (Bottom t &gt; 0.5")</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">5 Fatal Traps & Engineering Pitfalls in API 650 Storage Tanks</h2>
+  
+  <div class="trap-card" style="border-left: 4px solid #ef4444;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#ef4444;">1. Hydrotest Governing Neglect with Light Hydrocarbons</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">When designing tanks for light crude, gasoline, pentane, or naphtha (\(G = 0.68\text{ to }0.75\)), engineers frequently assume operating design thickness \(t_d\) governs because it includes corrosion allowance. However, prior to commissioning, the tank must undergo a mandatory full hydrostatic test with clean water (\(G = 1.00\)). Because water is 30% to 45% heavier than the product, the <strong>hydrostatic test thickness \(t_t\) frequently governs the lower shell courses</strong>. Neglecting \(t_t\) causes yielding, permanent bulge distortion, or catastrophic shell seam rupture during initial water filling.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#f59e0b;">2. Variable-Design-Point (VDP) Omission on Large Tanks</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Applying the simplified 1-Foot Method on tanks larger than 200 ft (60 m) in diameter violates API 650 Section 5.6.4 and wastes tremendous capital. The 1-Foot method overestimates circumferential hoop stress on very large tanks because it ignores the heavy radial shear restraint of the annular bottom plate. On a 280-ft crude oil tank, using the VDP method reduces shell steel plate thickness across courses 1 through 4 by <strong>up to 12% to 15%, saving over $400,000 in unnecessary steel</strong>.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #10b981;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#10b981;">3. Upper Shell Wind Buckling Under Vacuum / Wind Combinations</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Open-top and floating-roof tanks are vulnerable to elastic wind buckling in the upper shell courses. While lower courses are thick due to hydrostatic head, upper courses are rolled to code minimums (1/4 in or 5/16 in). Windward aerodynamic stagnation combined with negative internal pressure from tank breathing or pump-out creates a massive net compressive hoop stress. Without correctly positioned <strong>intermediate wind girders per Section 5.9</strong>, the top shell collapses inward during high wind storms.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#3b82f6;">4. Annular Bottom Plate Omission Beneath High-Stress Shells</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">API 650 Section 5.5 mandates butt-welded annular bottom plates beneath the bottom shell course whenever the product stress in course 1 exceeds 23,200 psi (160 MPa) or when the bottom shell thickness exceeds 0.500 in (12.5 mm). Using ordinary lap-welded sketch plates beneath high-stress thick shells concentrates severe plastic bending fatigue at the shell-to-bottom fillet weld toe, causing sudden brittle floor unzipping and massive oil spills.</p>
+  </div>
+
+  <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+    <h3 style="margin:0 0 0.4rem 0; font-size:1rem; color:#8b5cf6;">5. Differential Ringwall Foundation Settlement Nozzle Shear</h3>
+    <p style="margin:0; font-size:0.875rem; line-height:1.5;">Storage tanks hold immense weight (tens of thousands of tons). If the concrete ringwall or crushed stone foundation experiences differential settlement along the circumference, the shell tilts and deforms out-of-round. Rigidly piped low-shell nozzles (e.g. 24" mixer nozzles, 30" suction headers) experience massive shear and bending moments. Without flexible metal expansion bellows or slotted supports, nozzle neck welds tear open, leaking millions of gallons into the containment dike.</p>
+  </div>
+</div>
+
+<div class="wb-card" style="margin-top:2rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+  <h2 style="font-family:var(--serif); font-size:1.35rem; margin-top:0;">API 650 Mathematical Engineering Derivations</h2>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">1. One-Foot Method Shell Thickness (API 650 Section 5.6.3)</h3>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$t_d = \frac{2.6 \cdot D \cdot (H - 1) \cdot G}{S_d} + CA \quad [\text{inches}]$$
+    $$t_t = \frac{2.6 \cdot D \cdot (H - 1)}{S_t} \quad [\text{inches}]$$
+    $$t_{gov} = \max(t_d, t_t, t_{min})$$
+  </div>
+
+  <h3 style="font-size:1.1rem; margin-top:1.5rem;">2. Wind Buckling & Intermediate Wind Girder Sizing (API 650 Section 5.9)</h3>
+  <p style="font-size:0.9rem; line-height:1.6;">The maximum permissible unstiffened shell height \(H_1\) is given by:</p>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$H_1 = 9.47 \cdot t_{top} \cdot \sqrt{\left(\frac{t_{top}}{D}\right)^3} \cdot \left(\frac{190}{V}\right)^2 \quad [\text{feet}]$$
+  </div>
+
+  <p style="font-size:0.9rem; line-height:1.6;">The transformed shell height \(H_{tr}\) scales each shell course of height \(h_i\) and thickness \(t_i\) into an equivalent height of top shell thickness \(t_{top}\):</p>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$H_{tr} = \sum_{i=1}^N h_i \cdot \sqrt{\left(\frac{t_{top}}{t_i}\right)^5} \quad [\text{feet}]$$
+  </div>
+  <p style="font-size:0.9rem; line-height:1.6;">If \(H_{tr} > H_1\), intermediate stiffening rings must be provided. The minimum section modulus \(Z\) for each ring is:</p>
+  <div style="background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; font-family:var(--mono); font-size:0.9rem; margin:1rem 0; overflow-x:auto;">
+    $$Z = \frac{D^2 \cdot H_2}{17} \cdot \left(\frac{V}{190}\right)^2 \quad [\text{in}^3]$$
+  </div>
+</div>
+
+<script>
+(() => {
+  const MATERIALS = {
+    'A36': { name: 'ASTM A36', sd: 23200, st: 24900, yield: 36000 },
+    'A283C': { name: 'ASTM A283 Gr C', sd: 20500, st: 22500, yield: 30000 },
+    'A516_70': { name: 'ASTM A516 Gr 70', sd: 28000, st: 30000, yield: 38000 },
+    'A573_70': { name: 'ASTM A573 Gr 70', sd: 28000, st: 30000, yield: 42000 },
+    'SS304': { name: 'Stainless 304', sd: 20000, st: 22000, yield: 30000 }
+  };
+
+  const STD_PLATES_IN = [
+    0.1875, 0.250, 0.3125, 0.375, 0.4375, 0.500, 0.5625, 0.625,
+    0.6875, 0.750, 0.8125, 0.875, 0.9375, 1.000, 1.125, 1.250, 1.375, 1.500
+  ];
+
+  function roundUpPlate(val) {
+    return STD_PLATES_IN.find(p => p >= val) || val;
+  }
+
+  function drawTankSvg(numCourses, courses, hasGirder, girderCourseIdx) {
+    const svg = document.getElementById('tk_svg');
+    if (!svg) return;
+    svg.innerHTML = '';
+
+    const w = 360;
+    const h = 220;
+
+    // Tank geometry in SVG coords
+    const tkW = 160;
+    const tkH = 150;
+    const tkX = (w - tkW) / 2;
+    const tkY = 45;
+
+    // Draw concrete ringwall / foundation
+    const foundRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    foundRect.setAttribute('x', tkX - 15);
+    foundRect.setAttribute('y', tkY + tkH);
+    foundRect.setAttribute('width', tkW + 30);
+    foundRect.setAttribute('height', 16);
+    foundRect.setAttribute('fill', '#94a3b8');
+    foundRect.setAttribute('rx', 2);
+    svg.appendChild(foundRect);
+
+    // Draw Roof (cone)
+    const roofPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const roofPeakY = tkY - 20;
+    roofPath.setAttribute('d', 'M ' + tkX + ' ' + tkY + ' L ' + (tkX + tkW / 2) + ' ' + roofPeakY + ' L ' + (tkX + tkW) + ' ' + tkY + ' Z');
+    roofPath.setAttribute('fill', 'rgba(37, 99, 235, 0.15)');
+    roofPath.setAttribute('stroke', '#2563eb');
+    roofPath.setAttribute('stroke-width', 2);
+    svg.appendChild(roofPath);
+
+    // Draw Shell courses from top to bottom
+    const courseH_svg = tkH / numCourses;
+    const maxT = courses[0].tGov;
+
+    courses.forEach((c, idx) => {
+      const cy = tkY + (numCourses - 1 - idx) * courseH_svg;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', tkX);
+      rect.setAttribute('y', cy);
+      rect.setAttribute('width', tkW);
+      rect.setAttribute('height', courseH_svg);
+
+      // Color based on thickness: thicker = darker/more intense
+      const ratio = Math.max(0.2, c.tGov / maxT);
+      rect.setAttribute('fill', 'rgba(37, 99, 235, ' + (0.15 + 0.55 * ratio).toFixed(2) + ')');
+      rect.setAttribute('stroke', '#1e293b');
+      rect.setAttribute('stroke-width', 1);
+      svg.appendChild(rect);
+
+      // Label course
+      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      txt.setAttribute('x', tkX + 10);
+      txt.setAttribute('y', cy + courseH_svg / 2 + 4);
+      txt.setAttribute('font-size', '10px');
+      txt.setAttribute('fill', '#fff');
+      txt.setAttribute('font-family', 'sans-serif');
+      txt.textContent = 'C' + (idx + 1) + ': ' + c.tGov.toFixed(3) + '"';
+      svg.appendChild(txt);
+    });
+
+    // Draw Wind Girder Stiffener if required
+    if (hasGirder && girderCourseIdx >= 0) {
+      const gy = tkY + (numCourses - 1 - girderCourseIdx) * courseH_svg;
+      const girderLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      girderLine.setAttribute('x1', tkX - 10);
+      girderLine.setAttribute('y1', gy);
+      girderLine.setAttribute('x2', tkX + tkW + 10);
+      girderLine.setAttribute('y2', gy);
+      girderLine.setAttribute('stroke', '#f59e0b');
+      girderLine.setAttribute('stroke-width', 4);
+      svg.appendChild(girderLine);
+
+      const gTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      gTxt.setAttribute('x', tkX + tkW + 15);
+      gTxt.setAttribute('y', gy + 4);
+      gTxt.setAttribute('font-size', '10px');
+      gTxt.setAttribute('fill', '#f59e0b');
+      gTxt.setAttribute('font-weight', 'bold');
+      gTxt.textContent = 'Wind Girder';
+      svg.appendChild(gTxt);
+    }
+  }
+
+  function calcTank() {
+    const matKey = document.getElementById('tk_material').value;
+    const mat = MATERIALS[matKey] || MATERIALS['A36'];
+    const D = parseFloat(document.getElementById('tk_dia').value) || 100;
+    const H = parseFloat(document.getElementById('tk_height').value) || 48;
+    const hCourse = parseFloat(document.getElementById('tk_course_h').value) || 8;
+    const G = parseFloat(document.getElementById('tk_sg').value) || 0.86;
+    const CA = parseFloat(document.getElementById('tk_ca').value) || 0.0625;
+    const V = parseFloat(document.getElementById('tk_wind').value) || 120;
+
+    // Minimum nominal thickness per API 650 Sec 5.6.1.1
+    let tMin = 0.1875;
+    if (D < 50) tMin = 0.1875;
+    else if (D < 120) tMin = 0.250;
+    else if (D <= 200) tMin = 0.3125;
+    else tMin = 0.375;
+
+    const numCourses = Math.max(1, Math.round(H / hCourse));
+    const courses = [];
+    let totalSteelLb = 0;
+
+    for (let i = 1; i <= numCourses; i++) {
+      // Liquid height from course bottom to top of shell
+      const hLiquid = Math.max(1.0, H - (i - 1) * hCourse);
+      const effectiveH = Math.max(0.1, hLiquid - 1.0);
+
+      const td = ((2.6 * D * effectiveH * G) / mat.sd) + CA;
+      const tt = (2.6 * D * effectiveH) / mat.st;
+      const govCalc = Math.max(td, tt, tMin);
+      const tGov = roundUpPlate(govCalc);
+
+      const plateWeightCourse = Math.PI * D * hCourse * (tGov * 490 / 12);
+      totalSteelLb += plateWeightCourse;
+
+      courses.push({
+        courseNum: i,
+        elevation: ((i - 1) * hCourse).toFixed(0) + ' - ' + (i * hCourse).toFixed(0) + ' ft',
+        td,
+        tt,
+        tGov,
+        tGovMm: tGov * 25.4,
+        isHydroGov: tt > td
+      });
+    }
+
+    // Top course thickness
+    const tTop = courses[courses.length - 1].tGov;
+
+    // Maximum unstiffened shell height H1 (API 650 Sec 5.9.6)
+    // H1 = 9.47 * tTop * sqrt((tTop / D)^3) * (190 / V)^2
+    const h1 = 9.47 * tTop * Math.sqrt(Math.pow(tTop / D, 3)) * Math.pow(190 / V, 2);
+
+    // Transformed shell height Htr
+    let hTr = 0;
+    courses.forEach(c => {
+      const hTr_course = hCourse * Math.sqrt(Math.pow(tTop / c.tGov, 5));
+      hTr += hTr_course;
+    });
+
+    const isGirderReq = hTr > h1;
+    let girderCourseIdx = -1;
+    if (isGirderReq) {
+      // Girder placed typically near transformed halfway
+      girderCourseIdx = Math.floor(numCourses / 2);
+    }
+
+    // Required section modulus Z (in3) for stiffening ring
+    // Z = (D^2 * H2 / 17) * (V / 190)^2
+    const H2 = H / (isGirderReq ? 2 : 1);
+    const reqZ = (Math.pow(D, 2) * H2 / 17) * Math.pow(V / 190, 2);
+    const reqZ_cm3 = reqZ * 16.3871;
+
+    // Tank Volume
+    const grossCuFt = (Math.PI / 4) * Math.pow(D, 2) * H;
+    const grossBbl = grossCuFt / 5.61458;
+    const grossM3 = grossCuFt * 0.0283168;
+    const grossGal = grossCuFt * 7.48052;
+
+    const totalSteelTons = totalSteelLb / 2000;
+    const totalSteelTonnes = totalSteelLb * 0.000453592;
+
+    const tBottom = courses[0].tGov;
+    const tBottomMm = courses[0].tGovMm;
+
+    // Update KPI Displays
+    document.getElementById('res_tk_bbl').textContent = Math.round(grossBbl).toLocaleString() + ' BBL';
+    document.getElementById('res_tk_m3').innerHTML = Math.round(grossM3).toLocaleString() + ' m&sup3; (' + (grossGal / 1e6).toFixed(2) + 'M Gal)';
+
+    document.getElementById('res_tk_weight').textContent = totalSteelTons.toFixed(1) + ' Tons';
+    document.getElementById('res_tk_weight_metric').textContent = totalSteelTonnes.toFixed(1) + ' Tonnes Steel';
+
+    const girderStatus = document.getElementById('res_tk_girder_status');
+    const girderZLbl = document.getElementById('res_tk_girder_z');
+    if (isGirderReq) {
+      girderStatus.textContent = '1 Intermediate Req';
+      girderStatus.style.color = '#f59e0b';
+      girderZLbl.textContent = 'Req Z: ' + reqZ.toFixed(1) + ' in³ (' + Math.round(reqZ_cm3) + ' cm³)';
+    } else {
+      girderStatus.textContent = 'None Required';
+      girderStatus.style.color = '#10b981';
+      girderZLbl.textContent = 'Shell is Self-Stiffening';
+    }
+
+    document.getElementById('res_tk_tbottom').textContent = tBottom.toFixed(3) + ' in (' + (courses[0].tGov >= 0.5 ? 'Thick' : 'Nominal') + ')';
+    document.getElementById('res_tk_tbottom_mm').textContent = tBottomMm.toFixed(1) + ' mm (Gov: ' + (courses[0].isHydroGov ? 'Hydrotest' : 'Design') + ')';
+
+    // Populate Course Table
+    const tableBody = document.getElementById('tk_course_rows');
+    tableBody.innerHTML = courses.slice().reverse().map(c => {
+      return '<tr>' +
+        '<td><strong>Course ' + c.courseNum + '</strong></td>' +
+        '<td>' + c.elevation + '</td>' +
+        '<td>' + c.td.toFixed(3) + '</td>' +
+        '<td>' + c.tt.toFixed(3) + '</td>' +
+        '<td style="font-weight:700; color:' + (c.isHydroGov ? '#2563eb' : 'inherit') + ';">' + c.tGov.toFixed(3) + '"</td>' +
+        '<td>' + c.tGovMm.toFixed(1) + '</td>' +
+      '</tr>';
+    }).join('');
+
+    // Wind Buckling Details
+    document.getElementById('res_tk_h1').textContent = h1.toFixed(1) + ' ft (' + (h1 * 0.3048).toFixed(1) + ' m)';
+    document.getElementById('res_tk_htr').textContent = hTr.toFixed(1) + ' ft (' + (hTr * 0.3048).toFixed(1) + ' m)';
+    document.getElementById('res_tk_buckle_margin').textContent = isGirderReq ? 'Htr > H1 (Stiffener Mandatory)' : 'Htr <= H1 (Buckling Stable)';
+    document.getElementById('res_tk_req_z').textContent = reqZ.toFixed(1) + ' in³ (' + Math.round(reqZ_cm3) + ' cm³)';
+
+    // Stress Checks
+    document.getElementById('res_tk_sd').textContent = mat.sd.toLocaleString() + ' psi (' + Math.round(mat.sd * 0.00689476) + ' MPa)';
+    document.getElementById('res_tk_st').textContent = mat.st.toLocaleString() + ' psi (' + Math.round(mat.st * 0.00689476) + ' MPa)';
+    document.getElementById('res_tk_gov_criterion').textContent = courses[0].isHydroGov ? 'Hydrostatic Test (tt)' : 'Design Specific Gravity (td)';
+    document.getElementById('res_tk_tmin_code').textContent = tMin.toFixed(3) + ' in (' + (tMin * 25.4).toFixed(1) + ' mm)';
+
+    // Overturning Moments
+    const windArea = D * H;
+    const windPressure = 0.00256 * Math.pow(V, 2); // psf
+    const windForce = windArea * windPressure * 0.6; // Shape factor 0.6
+    const windMoment = windForce * (H / 2); // ft-lb
+    const liquidWeight = grossCuFt * 62.4 * G;
+    const resMoment = liquidWeight * (D / 2); // ft-lb
+
+    document.getElementById('res_tk_wind_moment').textContent = (windMoment / 1e6).toFixed(2) + 'M ft-lb';
+    document.getElementById('res_tk_res_moment').textContent = (resMoment / 1e6).toFixed(2) + 'M ft-lb';
+    
+    const anchorsEl = document.getElementById('res_tk_anchors');
+    if (windMoment > resMoment * 0.5) {
+      anchorsEl.textContent = 'Mandatory (High Overturning)';
+      anchorsEl.style.color = '#ef4444';
+    } else {
+      anchorsEl.textContent = 'No (Self-Anchored by Liquid)';
+      anchorsEl.style.color = '#10b981';
+    }
+
+    const annularEl = document.getElementById('res_tk_annular');
+    if (tBottom > 0.500 || mat.sd > 23200) {
+      annularEl.textContent = 'Mandatory (API 650 Sec 5.5)';
+      annularEl.style.color = '#f59e0b';
+    } else {
+      annularEl.textContent = 'Standard Sketch Plates OK';
+      annularEl.style.color = '#10b981';
+    }
+
+    drawTankSvg(numCourses, courses, isGirderReq, girderCourseIdx);
+  }
+
+  const inputs = ['tk_material', 'tk_roof', 'tk_wind', 'tk_dia', 'tk_height', 'tk_course_h', 'tk_sg', 'tk_ca', 'tk_method', 'tk_product'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcTank);
+      el.addEventListener('change', calcTank);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_tk_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '===============================================',
+        'API 650 STORAGE TANK SHELL SIZING DATASHEET',
+        '===============================================',
+        'Nominal Dimensions: ' + document.getElementById('tk_dia').value + ' ft Dia x ' + document.getElementById('tk_height').value + ' ft Height',
+        'Stored Product: ' + document.getElementById('tk_product').value + ' (SG = ' + document.getElementById('tk_sg').value + ')',
+        'Material Specification: ' + document.getElementById('tk_material').options[document.getElementById('tk_material').selectedIndex].text,
+        'Design Wind Velocity: ' + document.getElementById('tk_wind').value + ' mph',
+        '--- Sizing & Mechanical Summary ---',
+        'Nominal Gross Capacity: ' + document.getElementById('res_tk_bbl').textContent + ' (' + document.getElementById('res_tk_m3').textContent + ')',
+        'Total Shell Steel Weight: ' + document.getElementById('res_tk_weight').textContent + ' (' + document.getElementById('res_tk_weight_metric').textContent + ')',
+        'Bottom Course Thickness: ' + document.getElementById('res_tk_tbottom').textContent + ' (' + document.getElementById('res_tk_tbottom_mm').textContent + ')',
+        'Intermediate Wind Girder: ' + document.getElementById('res_tk_girder_status').textContent + ' [' + document.getElementById('res_tk_girder_z').textContent + ']',
+        'Max Unstiffened Height (H1): ' + document.getElementById('res_tk_h1').textContent,
+        'Transformed Height (Htr): ' + document.getElementById('res_tk_htr').textContent,
+        'Governing Stress Criterion: ' + document.getElementById('res_tk_gov_criterion').textContent,
+        'Foundation Anchorage: ' + document.getElementById('res_tk_anchors').textContent,
+        'Annular Bottom Plate: ' + document.getElementById('res_tk_annular').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcTank();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+console.log('  ✓ Built Trade & Construction Suite (179 calculators in /calc/)');
 }
 
