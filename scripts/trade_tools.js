@@ -40085,6 +40085,2578 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (43 calculators in /calc/)');
+  // ═══════════════════════════════════════════════════════════════════════════
+  // COOLING TOWER APPROACH & WATER BALANCE CALCULATOR (CTI STD-201 / ASHRAE)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const coolingTowerApproachBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Cooling Tower Approach Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Cooling Tower Approach &amp; Evaporation Calculator (CTI STD-201)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Analyze evaporative cooling tower thermal and hydronic performance per Cooling Technology Institute (CTI STD-201) and ASHRAE Fundamentals: calculate approach to ambient wet-bulb, cooling range, total heat rejection tonnage, evaporation rate, drift loss, blowdown bleed-off, cycles of concentration (COC), and makeup water demand.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Cooling Tower Operating Parameters
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctCircFlow">Water Circulation Flow Rate (GPM)</label>
+        <input type="number" id="ctCircFlow" value="1500" min="50" max="100000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Condenser water pump flow through cooling tower</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctHotTemp">Entering Hot Water T_in (&deg;F)</label>
+          <input type="number" id="ctHotTemp" value="95" min="50" max="160" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">From chiller condenser (95&deg;F std)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctColdTemp">Leaving Cold Water T_out (&deg;F)</label>
+          <input type="number" id="ctColdTemp" value="85" min="40" max="140" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">To chiller condenser (85&deg;F std)</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctWetBulb">Ambient Wet-Bulb T_wb (&deg;F)</label>
+          <input type="number" id="ctWetBulb" value="78" min="30" max="110" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">ASHRAE 0.4% design wet-bulb</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctCoc">Cycles of Concentration (COC)</label>
+          <input type="number" id="ctCoc" value="4.0" min="1.2" max="15.0" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">TDS ratio (Tower / Makeup water)</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctDriftPct">Drift Loss Rating (% of Flow)</label>
+        <input type="number" id="ctDriftPct" value="0.005" min="0.0005" max="0.2" step="0.001" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">High-efficiency drift eliminators (0.002% &ndash; 0.01%)</span>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--fg);">Thermodynamic Design Rules (CTI STD-201)</div>
+        <ul style="margin:0;padding-left:1.2rem;font-size:0.78rem;color:var(--text-muted);line-height:1.5;">
+          <li>Range = Entering Hot Water Temp &minus; Leaving Cold Water Temp (T_in &minus; T_out)</li>
+          <li>Approach = Leaving Cold Water Temp &minus; Ambient Wet-Bulb Temp (T_out &minus; T_wb)</li>
+          <li>Evaporation Rate E &asymp; 0.0008 &times; Flow &times; Range (GPM)</li>
+          <li>Blowdown Rate B &asymp; [E &minus; (COC &minus; 1)&times;D] / (COC &minus; 1)</li>
+          <li>Total Makeup Demand M = Evaporation (E) + Blowdown (B) + Drift (D)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RESULTS COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Tower Thermal &amp; Hydronic Performance
+      </h2>
+
+      <div id="ctAlertBox" style="display:none;margin-bottom:1.25rem;padding:1rem;border-radius:8px;font-size:0.875rem;line-height:1.5;"></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Cooling Range (&Delta;T)</div>
+          <div id="outCtRange" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--primary);">10.0 &deg;F</div>
+          <div id="outCtRangeMetric" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">5.56 &deg;C</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Thermal Approach</div>
+          <div id="outCtApproach" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--fg);">7.0 &deg;F</div>
+          <div id="outCtApproachStatus" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">Economical (5-10&deg;F)</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Heat Rejection</div>
+          <div id="outCtHeatRejection" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:#d97706;">7.50 MBH</div>
+          <div id="outCtNominalTons" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">500 Nominal Tons</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Evaporation Loss (E)</div>
+          <div id="outCtEvaporation" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:#2563eb;">12.00 GPM</div>
+          <div id="outCtEvapPct" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">0.80% of flow (17,280 GPD)</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Blowdown Rate (B)</div>
+          <div id="outCtBlowdown" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:#dc2626;">3.92 GPM</div>
+          <div id="outCtBlowdownDaily" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">5,645 Gal/Day @ 4.0 COC</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Total Makeup Water (M)</div>
+          <div id="outCtMakeup" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:#16a34a;">16.00 GPM</div>
+          <div id="outCtMakeupDaily" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">23,040 Gal/Day (E + B + D)</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:auto;">
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Drift Loss (D @ 0.005%):</span>
+          <strong id="outCtDriftGpm" style="font-family:var(--mono);">0.075 GPM (108 GPD)</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Annual Water Consumption:</span>
+          <strong id="outCtAnnualMakeup" style="font-family:var(--mono);color:#16a34a;">8,410 kGal / Year</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
+          <span style="color:var(--text-muted);">CTI Thermal Performance Factor:</span>
+          <strong id="outCtEffectiveness" style="font-family:var(--mono);">58.8% Thermal Eff</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+      Counterflow Induced Draft Cooling Tower Psychrometric &amp; Hydraulic Schematic
+    </h2>
+    <div style="overflow-x:auto;">
+      <svg id="coolingTowerSvg" viewBox="0 0 900 420" style="width:100%;max-width:900px;height:auto;display:block;margin:0 auto;font-family:var(--mono);">
+        <defs>
+          <linearGradient id="ctPlumeVapor" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#f8fafc" stop-opacity="0.05"/>
+          </linearGradient>
+          <linearGradient id="ctHotInPipe" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ef4444"/>
+            <stop offset="100%" stop-color="#f97316"/>
+          </linearGradient>
+          <linearGradient id="ctColdOutPipe" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#0284c7"/>
+            <stop offset="100%" stop-color="#0369a1"/>
+          </linearGradient>
+          <pattern id="ctFillMatrix" width="14" height="14" patternUnits="userSpaceOnUse">
+            <path d="M 0 0 L 14 14 M 14 0 L 0 14" stroke="#475569" stroke-width="1.2"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Container -->
+        <rect x="0" y="0" width="900" height="420" fill="#0f172a" rx="10"/>
+
+        <!-- Fan Stack Venturi Shroud -->
+        <path d="M 370 130 L 395 50 L 525 50 L 550 130 Z" fill="#334155" stroke="#64748b" stroke-width="2"/>
+        <ellipse cx="460" cy="65" rx="60" ry="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+        <line x1="415" y1="65" x2="505" y2="65" stroke="#38bdf8" stroke-width="4"/>
+        <circle cx="460" cy="65" r="8" fill="#f59e0b"/>
+        <!-- Evaporative Plume Vapor Cloud -->
+        <path d="M 400 50 Q 370 10 440 -15 Q 510 -25 520 50 Z" fill="url(#ctPlumeVapor)" opacity="0.65"/>
+
+        <!-- Tower Outer Structure -->
+        <rect x="290" y="130" width="340" height="220" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+
+        <!-- Drift Eliminators Layer -->
+        <rect x="300" y="145" width="320" height="22" fill="#475569" stroke="#94a3b8" stroke-width="1"/>
+        <text x="460" y="160" fill="#e2e8f0" font-size="10" text-anchor="middle" font-weight="bold">CELLULAR DRIFT ELIMINATOR (RATED 0.005%)</text>
+
+        <!-- Hot Water Distribution Pipe & Spray Cones -->
+        <line x1="300" y1="185" x2="620" y2="185" stroke="#f87171" stroke-width="6"/>
+        <g fill="#ef4444">
+          <circle cx="340" cy="185" r="4"/><circle cx="400" cy="185" r="4"/>
+          <circle cx="460" cy="185" r="4"/><circle cx="520" cy="185" r="4"/><circle cx="580" cy="185" r="4"/>
+        </g>
+        <g fill="#fca5a5" opacity="0.5">
+          <polygon points="335,188 345,188 355,210 325,210"/>
+          <polygon points="395,188 405,188 415,210 385,210"/>
+          <polygon points="455,188 465,188 475,210 445,210"/>
+          <polygon points="515,188 525,188 535,210 505,210"/>
+          <polygon points="575,188 585,188 595,210 565,210"/>
+        </g>
+
+        <!-- PVC Film Fill Media -->
+        <rect x="300" y="210" width="320" height="85" fill="url(#ctFillMatrix)" stroke="#38bdf8" stroke-width="1"/>
+        <rect x="330" y="238" width="260" height="26" rx="4" fill="#0f172a" opacity="0.85"/>
+        <text x="460" y="255" fill="#38bdf8" font-size="11" text-anchor="middle" font-weight="bold">HIGH-EFFICIENCY PVC PACKING FILL</text>
+
+        <!-- Air Intake Louvers (Counterflow draft) -->
+        <g stroke="#94a3b8" stroke-width="2">
+          <line x1="290" y1="305" x2="310" y2="315"/><line x1="290" y1="318" x2="310" y2="328"/><line x1="290" y1="331" x2="310" y2="341"/>
+          <line x1="610" y1="315" x2="630" y2="305"/><line x1="610" y1="328" x2="630" y2="318"/><line x1="610" y1="341" x2="630" y2="331"/>
+        </g>
+
+        <!-- Cold Water Collection Sump Basin -->
+        <rect x="275" y="350" width="370" height="45" rx="5" fill="url(#ctColdOutPipe)" stroke="#38bdf8" stroke-width="2"/>
+        <text x="460" y="377" fill="#ffffff" font-size="12" text-anchor="middle" font-weight="bold">COLD WATER BASIN SUMP</text>
+
+        <!-- PIPING CONNECTIONS & ANNOTATIONS -->
+        <!-- Condenser Return (Inlet Hot) -->
+        <path d="M 70 185 L 300 185" fill="none" stroke="url(#ctHotInPipe)" stroke-width="8" stroke-linecap="round"/>
+        <polygon points="295,180 305,185 295,190" fill="#ef4444"/>
+        <text x="80" y="168" fill="#f87171" font-size="12" font-weight="bold">CONDENSER RETURN (HOT INLET)</text>
+        <text id="svgHotAnnotation" x="80" y="208" fill="#ffffff" font-size="11">T_in: 95.0 &deg;F @ 1,500 GPM</text>
+
+        <!-- Chiller Supply (Outlet Cold) -->
+        <path d="M 645 372 L 830 372" fill="none" stroke="#0284c7" stroke-width="8" stroke-linecap="round"/>
+        <polygon points="825,367 835,372 825,377" fill="#0284c7"/>
+        <text x="665" y="355" fill="#38bdf8" font-size="12" font-weight="bold">CHILLER SUPPLY (COLD OUTLET)</text>
+        <text id="svgColdAnnotation" x="665" y="392" fill="#ffffff" font-size="11">T_out: 85.0 &deg;F (Approach: 7.0 &deg;F)</text>
+
+        <!-- Ambient Air Inflow Arrows -->
+        <path d="M 170 325 L 280 325" fill="none" stroke="#34d399" stroke-width="3" stroke-dasharray="6,4"/>
+        <polygon points="275,321 285,325 275,329" fill="#34d399"/>
+        <text x="140" y="315" fill="#34d399" font-size="11" font-weight="bold">AMBIENT AIR INTAKE</text>
+        <text id="svgWbAnnotation" x="140" y="342" fill="#e2e8f0" font-size="10">T_wb: 78.0 &deg;F (Wet-Bulb)</text>
+
+        <path d="M 750 325 L 640 325" fill="none" stroke="#34d399" stroke-width="3" stroke-dasharray="6,4"/>
+        <polygon points="645,321 635,325 645,329" fill="#34d399"/>
+
+        <!-- Evaporative Loss Annotation -->
+        <path d="M 460 35 L 460 0" fill="none" stroke="#60a5fa" stroke-width="3"/>
+        <polygon points="456,5 460,-5 464,5" fill="#60a5fa"/>
+        <text id="svgEvapAnnotation" x="475" y="20" fill="#93c5fd" font-size="11" font-weight="bold">EVAPORATION (E): 12.00 GPM</text>
+
+        <!-- Blowdown Bleed Drain -->
+        <path d="M 310 395 L 310 415 L 200 415" fill="none" stroke="#f87171" stroke-width="4"/>
+        <polygon points="205,412 195,415 205,418" fill="#f87171"/>
+        <text id="svgBlowAnnotation" x="70" y="415" fill="#fca5a5" font-size="11" font-weight="bold">BLOWDOWN (B): 3.92 GPM</text>
+
+        <!-- City Water Makeup -->
+        <path d="M 770 415 L 610 415 L 610 395" fill="none" stroke="#34d399" stroke-width="4"/>
+        <polygon points="607,400 610,390 613,400" fill="#34d399"/>
+        <text id="svgMakeupAnnotation" x="630" y="415" fill="#6ee7b7" font-size="11" font-weight="bold">MAKEUP (M): 16.00 GPM</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- WATER CONSERVATION MATRIX (COC ANALYSIS) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+      Cycles of Concentration (COC) Water Conservation Sensitivity Matrix
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.25rem;">
+      Benchmarking water consumption and blowdown sewer effluent across increasing cycles of concentration. Increasing from 2.0 to 5.0 cycles slashes blowdown discharge by 75%.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.875rem;text-align:left;">
+        <thead>
+          <tr style="background:var(--bg);border-bottom:2px solid var(--border);color:var(--text-muted);">
+            <th style="padding:0.75rem 1rem;">Cycles (COC)</th>
+            <th style="padding:0.75rem 1rem;">Blowdown (GPM)</th>
+            <th style="padding:0.75rem 1rem;">Total Makeup (GPM)</th>
+            <th style="padding:0.75rem 1rem;">Daily Makeup (Gal/Day)</th>
+            <th style="padding:0.75rem 1rem;">Annual Makeup (kGal/Yr)</th>
+            <th style="padding:0.75rem 1rem;">Blowdown Savings vs COC=2</th>
+          </tr>
+        </thead>
+        <tbody id="ctMatrixTableBody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTIC SPECIFICATION & COPY BUTTON -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Cooling Tower Water Balance Audit Report
+      </h2>
+      <button id="copyCtAuditBtn" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:0.6rem 1.1rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:background 0.2s;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Performance Audit</span>
+      </button>
+    </div>
+    <pre id="ctAuditReport" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.6;color:var(--fg);overflow-x:auto;margin:0;"></pre>
+  </div>
+
+  <!-- 5 FATAL ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Cooling Tower Design</h2>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        1. The Sub-5&deg;F Approach Trap &amp; Exponential Tower Footprint
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Cooling tower thermal approach exhibits steep asymptotic psychrometric resistance near the wet-bulb boundary. Sizing a tower for a 4&deg;F approach instead of standard 7&deg;F requires nearly double the packing fill volume, fan motor horsepower, and physical basin footprint. Designing for an approach below 4&deg;F is commercially unfeasible and creates severe fan motor cycling instabilities during seasonal ambient swings.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        2. Low Cycles of Concentration Water Bleed-Off Waste (COC &le; 2.0)
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Operating cooling towers at 2.0 cycles of concentration forces blowdown water bleed-off to equal 100% of the evaporation volume, wasting thousands of gallons of softened water and expensive biocides daily. Elevating concentration control to 4.0 &ndash; 6.0 cycles via automated blowdown controllers cuts bleed-off effluent by 67% to 80% with minimal chemical scaling risk.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#10b981;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        3. High Cycles Mineral Scaling &amp; Chiller Condenser Tube Fouling (COC &gt; 7)
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Allowing cycles of concentration to drift above 7 to 8 without high-performance scale inhibitors or acid feed triggers supersaturation of calcium carbonate (CaCO<sub>3</sub>) and silica (SiO<sub>2</sub>). A minute scale coating of just 0.012 inches (0.3 mm) inside chiller condenser tubes degrades heat transfer by 20%, driving head pressure up and inflating chiller electrical consumption by 11%.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        4. Recirculation &amp; Plume Downwash from Architectural Parapets
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Hiding cooling towers behind solid architectural sight screens or tight rooftop parapets creates leeward aerodynamic eddies that ingest warm, saturated discharge air back into the intake louvers. Recirculation increases entering wet-bulb temperature by 3&deg;F to 6&deg;F above ambient, choking heat transfer capacity during peak summer ambient conditions and causing chiller high-pressure trips.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        5. Sump Basin Stagnation &amp; Legionella Aerosol Dispersion
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Cooling tower sumps operating between 68&deg;F and 113&deg;F (20&deg;C&ndash;45&deg;C) create ideal proliferation conditions for <em>Legionella pneumophila</em> bacteria. Defective drift eliminators (drift &gt; 0.02%) release infectious aerosols into downwind fresh air intakes. Strict compliance with ASHRAE Guideline 12 and Standard 188 requires continuous oxidizing biocide residuals, automated bleed-off, and high-efficiency cellular drift eliminators (&le; 0.005%).
+      </p>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & ENGINEERING FOUNDATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-top:0;margin-bottom:1rem;">Psychrometric &amp; Thermodynamic Mathematical Derivations</h2>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--text-muted);">
+      <p>
+        Cooling tower thermodynamic operation is governed by Merkel's enthalpy theory and mass conservation of circulating water, evaporated steam, drift mist, and bleed-off effluent:
+      </p>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">1. Thermal Range and Approach</h3>
+      <p>
+        Cooling Range reflects the thermal duty imposed on the tower by the chiller condenser:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        Range (&Delta;T) = T_in &minus; T_out  [&deg;F]
+      </div>
+      <p>
+        Approach represents the thermodynamic effectiveness of the tower fill:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        Approach (A) = T_out &minus; T_wb  [&deg;F]
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">2. Total Heat Rejection and Nominal Tonnage</h3>
+      <p>
+        In IP units, sensible heat transfer rate in water is calculated via standard density and specific heat:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        q = 500 &times; Q &times; (T_in &minus; T_out)  [BTU/hr]<br>
+        Nominal Tower Tons = q / 15,000
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">3. Water Mass Balance (Evaporation, Blowdown &amp; Makeup)</h3>
+      <p>
+        With latent heat of vaporization \(h_{fg} \approx 1,040 \text{ BTU/lb}\), evaporation rate \(E\) is:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        E = 0.0008 &times; Q &times; (T_in &minus; T_out)  [GPM]<br>
+        B = [E &minus; (COC &minus; 1) &times; D] / (COC &minus; 1)  [GPM]<br>
+        M = E + B + D  [GPM]
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const circFlowInput = document.getElementById('ctCircFlow');
+  const hotTempInput = document.getElementById('ctHotTemp');
+  const coldTempInput = document.getElementById('ctColdTemp');
+  const wetBulbInput = document.getElementById('ctWetBulb');
+  const cocInput = document.getElementById('ctCoc');
+  const driftPctInput = document.getElementById('ctDriftPct');
+
+  const alertBox = document.getElementById('ctAlertBox');
+
+  function calculate() {
+    const Q = parseFloat(circFlowInput.value) || 0;
+    const Tin = parseFloat(hotTempInput.value) || 0;
+    const Tout = parseFloat(coldTempInput.value) || 0;
+    const Twb = parseFloat(wetBulbInput.value) || 0;
+    const coc = parseFloat(cocInput.value) || 1.2;
+    const driftPct = parseFloat(driftPctInput.value) || 0.005;
+
+    // Sanity / Thermodynamic feasibility checks
+    if (Tout <= Twb) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.border = '1px solid #f87171';
+      alertBox.style.color = '#991b1b';
+      alertBox.innerHTML = '<strong>⚠️ THERMODYNAMIC IMPOSSIBILITY:</strong> Leaving cold water temperature (' + Tout + '&deg;F) cannot be equal to or lower than ambient wet-bulb temperature (' + Twb + '&deg;F) in an evaporative cooling tower.';
+    } else if (Tout - Twb < 4.0) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fffbeb';
+      alertBox.style.border = '1px solid #f59e0b';
+      alertBox.style.color = '#92400e';
+      alertBox.innerHTML = '<strong>⚠️ EXTREME APPROACH WARNING:</strong> An approach of ' + (Tout - Twb).toFixed(1) + '&deg;F is extremely close to the wet-bulb boundary (&lt;4&deg;F). This requires an exponentially oversized tower with astronomical fill surface area and fan power.';
+    } else if (Tin <= Tout) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.border = '1px solid #f87171';
+      alertBox.style.color = '#991b1b';
+      alertBox.innerHTML = '<strong>⚠️ INVALID GRADIENT:</strong> Entering hot water temperature (' + Tin + '&deg;F) must be higher than leaving cold water temperature (' + Tout + '&deg;F).';
+    } else {
+      alertBox.style.display = 'none';
+    }
+
+    const range = Math.max(0, Tin - Tout);
+    const approach = Math.max(0, Tout - Twb);
+
+    // Thermal Heat Duty
+    const heatBTU = 500 * Q * range;
+    const heatMBH = heatBTU / 1000;
+    const tons = heatBTU / 15000;
+
+    // Water Balance
+    const E = 0.0008 * Q * range; // GPM
+    const evapPct = Q > 0 ? (E / Q) * 100 : 0;
+    const D = (driftPct / 100) * Q; // GPM
+    let B = 0;
+    if (coc > 1.0) {
+      B = Math.max(0, (E - (coc - 1) * D) / (coc - 1));
+    } else {
+      B = E * 10;
+    }
+    const M = E + B + D;
+
+    // Update Result UI
+    document.getElementById('outCtRange').textContent = range.toFixed(1) + ' °F';
+    document.getElementById('outCtRangeMetric').textContent = (range * 5 / 9).toFixed(2) + ' °C';
+
+    document.getElementById('outCtApproach').textContent = approach.toFixed(1) + ' °F';
+    const appBadge = document.getElementById('outCtApproachStatus');
+    if (approach < 5) {
+      appBadge.textContent = 'Aggressive (<5°F)';
+      appBadge.style.color = '#ef4444';
+    } else if (approach <= 10) {
+      appBadge.textContent = 'Economical (5-10°F)';
+      appBadge.style.color = '#16a34a';
+    } else {
+      appBadge.textContent = 'High Approach (>10°F)';
+      appBadge.style.color = '#0284c7';
+    }
+
+    document.getElementById('outCtHeatRejection').textContent = (heatMBH / 1000).toFixed(2) + ' MBH';
+    document.getElementById('outCtNominalTons').textContent = Math.round(tons) + ' Nominal Tons';
+
+    document.getElementById('outCtEvaporation').textContent = E.toFixed(2) + ' GPM';
+    document.getElementById('outCtEvapPct').textContent = evapPct.toFixed(2) + '% of flow (' + Math.round(E * 1440).toLocaleString() + ' GPD)';
+
+    document.getElementById('outCtBlowdown').textContent = B.toFixed(2) + ' GPM';
+    document.getElementById('outCtBlowdownDaily').textContent = Math.round(B * 1440).toLocaleString() + ' Gal/Day @ ' + coc.toFixed(1) + ' COC';
+
+    document.getElementById('outCtMakeup').textContent = M.toFixed(2) + ' GPM';
+    document.getElementById('outCtMakeupDaily').textContent = Math.round(M * 1440).toLocaleString() + ' Gal/Day (E + B + D)';
+
+    document.getElementById('outCtDriftGpm').textContent = D.toFixed(3) + ' GPM (' + Math.round(D * 1440) + ' GPD)';
+    document.getElementById('outCtAnnualMakeup').textContent = Math.round((M * 1440 * 365) / 1000).toLocaleString() + ' kGal / Year';
+
+    // Thermal Effectiveness
+    const theoreticalMaxDrop = Tin - Twb;
+    const effectiveness = theoreticalMaxDrop > 0 ? (range / theoreticalMaxDrop) * 100 : 0;
+    document.getElementById('outCtEffectiveness').textContent = effectiveness.toFixed(1) + '% Thermal Eff';
+
+    // Update SVG Annotations
+    const svgHot = document.getElementById('svgHotAnnotation');
+    if (svgHot) svgHot.textContent = 'T_in: ' + Tin.toFixed(1) + ' °F @ ' + Math.round(Q).toLocaleString() + ' GPM';
+    const svgCold = document.getElementById('svgColdAnnotation');
+    if (svgCold) svgCold.textContent = 'T_out: ' + Tout.toFixed(1) + ' °F (Approach: ' + approach.toFixed(1) + ' °F)';
+    const svgWb = document.getElementById('svgWbAnnotation');
+    if (svgWb) svgWb.textContent = 'T_wb: ' + Twb.toFixed(1) + ' °F (Wet-Bulb)';
+    const svgEvap = document.getElementById('svgEvapAnnotation');
+    if (svgEvap) svgEvap.textContent = 'EVAPORATION (E): ' + E.toFixed(2) + ' GPM';
+    const svgBlow = document.getElementById('svgBlowAnnotation');
+    if (svgBlow) svgBlow.textContent = 'BLOWDOWN (B): ' + B.toFixed(2) + ' GPM';
+    const svgMake = document.getElementById('svgMakeupAnnotation');
+    if (svgMake) svgMake.textContent = 'MAKEUP (M): ' + M.toFixed(2) + ' GPM';
+
+    // Update COC Sensitivity Matrix Table
+    const tableBody = document.getElementById('ctMatrixTableBody');
+    const cocList = [1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0];
+    const baseBlow = E / (2.0 - 1.0);
+    let rowsHtml = '';
+
+    cocList.forEach(c => {
+      const rowBlow = Math.max(0, (E - (c - 1) * D) / (c - 1));
+      const rowMake = E + rowBlow + D;
+      const dailyMake = rowMake * 1440;
+      const annualkGal = (dailyMake * 365) / 1000;
+      const savingsPct = baseBlow > 0 ? ((baseBlow - rowBlow) / baseBlow) * 100 : 0;
+      const isSelected = Math.abs(c - coc) < 0.25;
+
+      rowsHtml += '<tr style="border-bottom:1px solid var(--border);' + (isSelected ? 'background:var(--primary-light, #eff6ff);font-weight:700;' : '') + '">';
+      rowsHtml += '<td style="padding:0.6rem 1rem;">' + c.toFixed(1) + (isSelected ? ' ★ (Current)' : '') + '</td>';
+      rowsHtml += '<td style="padding:0.6rem 1rem;font-family:var(--mono);">' + rowBlow.toFixed(2) + '</td>';
+      rowsHtml += '<td style="padding:0.6rem 1rem;font-family:var(--mono);">' + rowMake.toFixed(2) + '</td>';
+      rowsHtml += '<td style="padding:0.6rem 1rem;font-family:var(--mono);">' + Math.round(dailyMake).toLocaleString() + '</td>';
+      rowsHtml += '<td style="padding:0.6rem 1rem;font-family:var(--mono);">' + Math.round(annualkGal).toLocaleString() + ' kGal</td>';
+      rowsHtml += '<td style="padding:0.6rem 1rem;font-family:var(--mono);color:' + (savingsPct >= 0 ? '#16a34a' : '#ef4444') + ';">' + (savingsPct >= 0 ? '+' : '') + savingsPct.toFixed(1) + '%</td>';
+      rowsHtml += '</tr>';
+    });
+    tableBody.innerHTML = rowsHtml;
+
+    // Diagnostic Summary Report
+    const summary = 
+      '=======================================================\\n' +
+      'COOLING TOWER WATER BALANCE AUDIT REPORT (CTI STD-201)\\n' +
+      '=======================================================\\n' +
+      'Circulation Water Flow:       ' + Q.toFixed(1) + ' GPM\\n' +
+      'Hot Water Entering (T_in):    ' + Tin.toFixed(1) + ' °F\\n' +
+      'Cold Water Leaving (T_out):   ' + Tout.toFixed(1) + ' °F\\n' +
+      'Ambient Wet-Bulb (T_wb):      ' + Twb.toFixed(1) + ' °F\\n' +
+      'Cycles of Concentration (COC):' + coc.toFixed(2) + '\\n' +
+      'Drift Loss Factor:            ' + driftPct.toFixed(4) + ' %\\n' +
+      '-------------------------------------------------------\\n' +
+      'Cooling Range (ΔT):           ' + range.toFixed(1) + ' °F (' + (range * 5 / 9).toFixed(2) + ' °C)\\n' +
+      'Thermal Approach (T_out-T_wb):' + approach.toFixed(1) + ' °F (' + (approach * 5 / 9).toFixed(2) + ' °C)\\n' +
+      'Total Heat Rejection Load:    ' + (heatMBH / 1000).toFixed(2) + ' MBH (' + tons.toFixed(1) + ' Nominal Tons)\\n' +
+      'Evaporation Rate (E):         ' + E.toFixed(2) + ' GPM (' + Math.round(E * 1440).toLocaleString() + ' GPD)\\n' +
+      'Blowdown Bleed-off Rate (B):  ' + B.toFixed(2) + ' GPM (' + Math.round(B * 1440).toLocaleString() + ' GPD)\\n' +
+      'Drift Mist Loss (D):          ' + D.toFixed(3) + ' GPM (' + Math.round(D * 1440) + ' GPD)\\n' +
+      'Total Makeup Water Demand (M):' + M.toFixed(2) + ' GPM (' + Math.round(M * 1440).toLocaleString() + ' GPD)\\n' +
+      'Annual Municipal Makeup Water:' + Math.round((M * 1440 * 365) / 1000).toLocaleString() + ' kGal/Year\\n' +
+      'Tower Thermal Effectiveness:  ' + effectiveness.toFixed(1) + ' %\\n' +
+      '=======================================================';
+    document.getElementById('ctAuditReport').textContent = summary;
+  }
+
+  document.getElementById('copyCtAuditBtn').addEventListener('click', function() {
+    const text = document.getElementById('ctAuditReport').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyCtAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [circFlowInput, hotTempInput, coldTempInput, wetBulbInput, cocInput, driftPctInput].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'cooling-tower-approach-calculator.html'), renderTradePage({
+    title: "Cooling Tower Approach & Evaporation Calculator | CTI STD-201",
+    metaDesc: "Calculate cooling tower approach to wet-bulb, thermal range, heat rejection tons, evaporation rate, blowdown bleed-off, and makeup water demand per CTI STD-201 and ASHRAE.",
+    canonical: `${DOMAIN}/calc/cooling-tower-approach-calculator`,
+    bodyContent: coolingTowerApproachBody,
+    currentPath: '/calc/cooling-tower-approach-calculator',
+    faq: [
+      {
+        "q": "What is the difference between Cooling Tower Range and Approach?",
+        "a": "Range is the temperature difference between hot entering water and cold leaving water (T_in - T_out). Approach is the temperature difference between cold leaving water and ambient wet-bulb temperature (T_out - T_wb). Range is dictated by the building cooling load, whereas Approach is determined by cooling tower size and fill efficiency."
+      },
+      {
+        "q": "Why can a cooling tower never cool water below the ambient wet-bulb temperature?",
+        "a": "The ambient wet-bulb temperature represents the theoretical adiabatic saturation limit of the air. Because evaporative cooling relies on water evaporating into unsaturated air, reaching or dropping below the wet-bulb temperature would require air relative humidity to exceed 100%, violating the second law of thermodynamics."
+      },
+      {
+        "q": "How do Cycles of Concentration (COC) impact water and sewer costs?",
+        "a": "Cycles of concentration measure mineral concentration in the sump before bleed-off. At 2.0 cycles, blowdown equals 100% of evaporation. Raising cycles to 4.0 cuts blowdown by 67%, and raising to 6.0 cuts blowdown by 80%, saving hundreds of thousands of gallons of city water and sewer utility fees annually."
+      },
+      {
+        "q": "What defines a nominal cooling tower ton in HVAC systems?",
+        "a": "In commercial HVAC engineering, one nominal cooling tower ton equals 15,000 BTU/hr of heat rejection. This accounts for 12,000 BTU/hr (1 refrigeration ton) extracted from the building plus approximately 3,000 BTU/hr of compressor electric power heat rejected through the condenser."
+      },
+      {
+        "q": "How does mineral scale on condenser tubes degrade chiller efficiency?",
+        "a": "Calcium carbonate scale has very low thermal conductivity. A microscopic scale layer of just 0.012 inches (0.3 mm) inside condenser tubes degrades heat transfer by approximately 20%, driving compressor head pressure up and inflating chiller electric power consumption by 10% to 15%."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MOTOR SOFT STARTER RAMP & INRUSH CALCULATOR (NEMA MG-1 / IEEE 141)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const motorSoftStarterBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Motor Soft Starter Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Motor Soft Starter Ramp &amp; Inrush Current Calculator (NEMA MG-1)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Analyze 3-phase induction motor starting dynamics, locked-rotor inrush reduction, acceleration torque profiles, and thermal winding heating per NEMA MG-1, IEEE 141, and IEC 60947-4-2: compare Direct-on-Line (DOL) vs Solid-State Soft Starter voltage ramp, current limit, acceleration time, and upstream supply bus voltage drop.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Motor &amp; Starter Specifications
+      </h2>
+
+      <!-- Motor Power & Voltage -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssMotorHp">Motor Rating (HP)</label>
+          <input type="number" id="ssMotorHp" value="100" min="1" max="2500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard 3-phase induction motor</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssLineVoltage">Line Voltage (V_LL)</label>
+          <select id="ssLineVoltage" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+            <option value="460" selected>460 V (US Standard)</option>
+            <option value="480">480 V (Nominal System)</option>
+            <option value="230">230 V (Low Voltage)</option>
+            <option value="208">208 V (Commercial Commercial)</option>
+            <option value="575">575 V (Canadian Industrial)</option>
+            <option value="400">400 V (IEC 50 Hz Standard)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Nominal terminal operating voltage</span>
+        </div>
+      </div>
+
+      <!-- Motor Speed & DOL Inrush Multiplier -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssSynchRpm">Synchronous Speed (RPM)</label>
+          <select id="ssSynchRpm" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+            <option value="1800" selected>1,800 RPM (4-Pole 60Hz)</option>
+            <option value="3600">3,600 RPM (2-Pole 60Hz)</option>
+            <option value="1200">1,200 RPM (6-Pole 60Hz)</option>
+            <option value="1500">1,500 RPM (4-Pole 50Hz)</option>
+            <option value="900">900 RPM (8-Pole 60Hz)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Synchronous electrical stator speed</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssDolLraMult">DOL Inrush Multiplier (LRA / FLA)</label>
+          <input type="number" id="ssDolLraMult" value="6.5" min="4.0" max="10.0" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">NEMA Code G standard (6.0 - 7.5x FLA)</span>
+        </div>
+      </div>
+
+      <!-- Soft Starter Voltage Pedestal & Current Limit -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssInitialVoltPct">Initial Pedestal Voltage (%)</label>
+          <input type="number" id="ssInitialVoltPct" value="40" min="20" max="80" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Starting voltage step (30% &ndash; 50% typical)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssCurrentLimitMult">Current Limit Setting (x FLA)</label>
+          <input type="number" id="ssCurrentLimitMult" value="3.5" min="2.0" max="5.5" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Soft starter max SCR current ceiling</span>
+        </div>
+      </div>
+
+      <!-- Total Reflected Inertia & Load Type -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssTotalInertia">Total Inertia J (lb&middot;ft&sup2;)</label>
+          <input type="number" id="ssTotalInertia" value="85" min="1" max="10000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Combined rotor + driven load inertia</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssLoadType">Load Torque Characteristic</label>
+          <select id="ssLoadType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+            <option value="quad" selected>Quadratic (Centrifugal Pump/Fan)</option>
+            <option value="const">Constant (Conveyor / Extruder)</option>
+            <option value="linear">Linear (Screw Feeder / Mixer)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Opposing mechanical load profile</span>
+        </div>
+      </div>
+
+      <!-- Upstream Transformer Capacity -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ssTxKva">Upstream Supply Transformer (kVA)</label>
+        <input type="number" id="ssTxKva" value="500" min="50" max="10000" step="50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Substation / utility feeding transformer rating</span>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--fg);">NEMA &amp; IEEE Engineering Formulas</div>
+        <ul style="margin:0;padding-left:1.2rem;font-size:0.78rem;color:var(--text-muted);line-height:1.5;">
+          <li>Motor Full Load Torque: T_FL = (HP &times; 5,252) / Synchronous RPM (lb&middot;ft)</li>
+          <li>Starting Torque scales with square of voltage: T_start &prop; (V_start / V_rated)&sup2;</li>
+          <li>Acceleration Time: t_acc = (J_total &times; &Delta;RPM) / (308 &times; T_acc_avg)</li>
+          <li>Thermal Stress: I&sup2;t Energy Reduction = 1 &minus; [(I_soft)&sup2; &times; t_soft] / [(I_DOL)&sup2; &times; t_DOL]</li>
+          <li>Supply Voltage Dip: &Delta;V% &asymp; [kVA_start / (kVA_tx / %Z + kVA_start)] &times; 100</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RESULTS COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Starting Performance &amp; Electrical Stress
+      </h2>
+
+      <div id="ssAlertBox" style="display:none;margin-bottom:1.25rem;padding:1rem;border-radius:8px;font-size:0.875rem;line-height:1.5;"></div>
+
+      <!-- FLA & DOL vs Soft Current -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Motor Full Load Amps (FLA)</div>
+          <div id="outSsFla" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--fg);">124 A</div>
+          <div id="outSsRatedTorque" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">Rated Torque: 292 lb&middot;ft</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Soft Start Inrush Current</div>
+          <div id="outSsSoftInrush" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:#2563eb;">434 A</div>
+          <div id="outSsInrushReduction" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">&minus;46.2% vs DOL (806 A)</div>
+        </div>
+      </div>
+
+      <!-- Acceleration Time & Starting Torque -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Acceleration Time (t_acc)</div>
+          <div id="outSsAccTime" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--primary);">3.8 s</div>
+          <div id="outSsDolAccTime" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">DOL Fast Start: 1.4 s</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Initial Starting Torque</div>
+          <div id="outSsStartTorque" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#d97706;">70.1 lb&middot;ft</div>
+          <div id="outSsTorquePct" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">24.0% of Full Load Torque</div>
+        </div>
+      </div>
+
+      <!-- Thermal I^2*t Stress & Voltage Sag -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Supply Bus Voltage Sag</div>
+          <div id="outSsVoltSag" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#16a34a;">4.8% Sag</div>
+          <div id="outSsDolVoltSag" style="font-size:0.75rem;color:#ef4444;margin-top:0.25rem;">DOL Severe Sag: 11.2%</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Thermal I&sup2;t Winding Stress</div>
+          <div id="outSsThermalStress" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#8b5cf6;">7.16 &times; 10&sup5; A&sup2;s</div>
+          <div id="outSsThermalReduction" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">21.3% Heating Reduction</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:auto;">
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Thyristor Heat Dissipation (During Ramp):</span>
+          <strong id="outSsThyristorHeat" style="font-family:var(--mono);">1,302 W</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Continuous Running Bypass Recommendation:</span>
+          <strong id="outSsBypassStatus" style="font-family:var(--mono);color:#16a34a;">Internal Bypass Required</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
+          <span style="color:var(--text-muted);">Overload Relay Class Capability:</span>
+          <strong id="outSsTripClass" style="font-family:var(--mono);">Class 10 / Class 20 Safe</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG TORQUE-SPEED & CURRENT CURVE SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+      Motor Torque-Speed &amp; Starting Current Dynamics (DOL vs Soft Starter)
+    </h2>
+    <div style="overflow-x:auto;">
+      <svg id="softStarterSvg" viewBox="0 0 900 420" style="width:100%;max-width:900px;height:auto;display:block;margin:0 auto;font-family:var(--mono);">
+        <!-- Background Dark Canvas -->
+        <rect x="0" y="0" width="900" height="420" fill="#0f172a" rx="10"/>
+
+        <!-- Grid Lines -->
+        <g stroke="#334155" stroke-width="1" stroke-dasharray="4,4">
+          <line x1="100" y1="340" x2="820" y2="340"/>
+          <line x1="100" y1="280" x2="820" y2="280"/>
+          <line x1="100" y1="220" x2="820" y2="220"/>
+          <line x1="100" y1="160" x2="820" y2="160"/>
+          <line x1="100" y1="100" x2="820" y2="100"/>
+          <line x1="100" y1="40" x2="820" y2="40"/>
+
+          <line x1="100" y1="40" x2="100" y2="340"/>
+          <line x1="280" y1="40" x2="280" y2="340"/>
+          <line x1="460" y1="40" x2="460" y2="340"/>
+          <line x1="640" y1="40" x2="640" y2="340"/>
+          <line x1="820" y1="40" x2="820" y2="340"/>
+        </g>
+
+        <!-- Main Axes -->
+        <line x1="100" y1="340" x2="850" y2="340" stroke="#94a3b8" stroke-width="2.5"/>
+        <line x1="100" y1="340" x2="100" y2="30" stroke="#94a3b8" stroke-width="2.5"/>
+
+        <!-- Axis Labels -->
+        <text x="460" y="380" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="bold">Rotor Speed (% of Synchronous Speed RPM)</text>
+        <text x="100" y="360" fill="#64748b" font-size="11" text-anchor="middle">0% (Locked)</text>
+        <text x="280" y="360" fill="#64748b" font-size="11" text-anchor="middle">25%</text>
+        <text x="460" y="360" fill="#64748b" font-size="11" text-anchor="middle">50%</text>
+        <text x="640" y="360" fill="#64748b" font-size="11" text-anchor="middle">75%</text>
+        <text x="820" y="360" fill="#64748b" font-size="11" text-anchor="middle">100% (Synch)</text>
+
+        <!-- Y Axis Labels -->
+        <text x="35" y="190" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="bold" transform="rotate(-90 35 190)">Torque / Current (% of FLA)</text>
+        <text x="85" y="344" fill="#64748b" font-size="10" text-anchor="end">0%</text>
+        <text x="85" y="284" fill="#64748b" font-size="10" text-anchor="end">100%</text>
+        <text x="85" y="224" fill="#64748b" font-size="10" text-anchor="end">200%</text>
+        <text x="85" y="164" fill="#64748b" font-size="10" text-anchor="end">300%</text>
+        <text x="85" y="104" fill="#64748b" font-size="10" text-anchor="end">500%</text>
+        <text x="85" y="44" fill="#64748b" font-size="10" text-anchor="end">700%</text>
+
+        <!-- DOL Current Curve (Red Dash) -->
+        <path d="M 100 55 C 280 60, 550 70, 700 130 C 760 190, 795 250, 810 330" fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="8,4"/>
+        <text x="110" y="70" fill="#f87171" font-size="11" font-weight="bold">DOL Inrush Spike (650% FLA)</text>
+
+        <!-- Soft Starter Current Limit Flat-top (Blue Solid) -->
+        <path id="svgSsCurrentPath" d="M 100 150 L 580 150 C 660 170, 750 240, 810 330" fill="none" stroke="#38bdf8" stroke-width="4"/>
+        <text id="svgSsCurrentLabel" x="120" y="140" fill="#38bdf8" font-size="12" font-weight="bold">Soft Starter Current Limit (350% FLA)</text>
+
+        <!-- DOL Motor Torque (Orange Dash) -->
+        <path d="M 100 250 C 300 245, 550 230, 680 160 C 740 120, 780 180, 810 340" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="6,4"/>
+        <text x="590" y="145" fill="#f59e0b" font-size="11">DOL Breakdown Torque (240%)</text>
+
+        <!-- Soft Starter Reduced Torque Curve (Purple Solid) -->
+        <path id="svgSsTorquePath" d="M 100 315 C 300 310, 520 295, 680 230 C 740 180, 780 220, 810 340" fill="none" stroke="#a855f7" stroke-width="3.5"/>
+        <text id="svgSsTorqueLabel" x="120" y="305" fill="#c084fc" font-size="11" font-weight="bold">Soft Starter Torque Profile</text>
+
+        <!-- Mechanical Load Torque Curve (Green Solid) -->
+        <path id="svgSsLoadPath" d="M 100 330 C 350 325, 600 310, 805 280" fill="none" stroke="#10b981" stroke-width="3"/>
+        <text x="680" y="270" fill="#34d399" font-size="11" font-weight="bold">Load Torque (Pump T &prop; N&sup2;)</text>
+
+        <!-- Accelerating Net Torque Shaded Area Indicator -->
+        <rect x="580" y="30" width="280" height="75" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+        <text x="595" y="50" fill="#ffffff" font-size="11" font-weight="bold">DYNAMIC ACCELERATION SUMMARY</text>
+        <text id="svgSsSummaryLine1" x="595" y="70" fill="#38bdf8" font-size="10">Net Accel Torque: 98.4 lb&middot;ft</text>
+        <text id="svgSsSummaryLine2" x="595" y="90" fill="#34d399" font-size="10">Ramp Time: 3.8 s (Clean Start)</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- COMPARISON TABLE (DOL vs SOFT STARTER vs VFD) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1"/><path d="M18 8h4a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-4"/><circle cx="8" cy="12" r="2"/></svg>
+      Motor Starting Methods Architectural Showdown
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.25rem;">
+      Direct engineering trade-off comparison between Direct-on-Line (DOL) electromechanical contactors, Solid-State Soft Starters (SCR), and Variable Frequency Drives (VFD).
+    </p>
+
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.875rem;text-align:left;">
+        <thead>
+          <tr style="background:var(--bg);border-bottom:2px solid var(--border);color:var(--text-muted);">
+            <th style="padding:0.75rem 1rem;">Starting Parameter</th>
+            <th style="padding:0.75rem 1rem;">Direct-on-Line (DOL)</th>
+            <th style="padding:0.75rem 1rem;">Solid-State Soft Starter</th>
+            <th style="padding:0.75rem 1rem;">Variable Frequency Drive (VFD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Inrush Starting Current</td>
+            <td style="padding:0.6rem 1rem;color:#ef4444;font-family:var(--mono);">600% &ndash; 800% FLA</td>
+            <td style="padding:0.6rem 1rem;color:#2563eb;font-family:var(--mono);font-weight:700;">250% &ndash; 450% FLA</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;font-family:var(--mono);">100% &ndash; 150% FLA</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Initial Starting Torque</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);">150% &ndash; 250% FLT</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);font-weight:700;">20% &ndash; 70% FLT (Adjustable)</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);">100% &ndash; 200% Full Torque @ 0 RPM</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Mechanical Coupler Shock</td>
+            <td style="padding:0.6rem 1rem;color:#ef4444;">Severe Jerk &amp; Belt Slippage</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;font-weight:700;">Smooth Controlled Ramp</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;">Infinitely Smooth S-Curve</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Harmonic Distortion (THD)</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;">0% (Pure Sinusoid)</td>
+            <td style="padding:0.6rem 1rem;color:#f59e0b;font-weight:700;">Temporary during 5-20s ramp</td>
+            <td style="padding:0.6rem 1rem;color:#ef4444;">Continuous 30%&ndash;45% THD_I (Requires Filters)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Operating Heat Loss</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;">Negligible (&lt; 0.1% power)</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;font-weight:700;">Zero with internal bypass contactor</td>
+            <td style="padding:0.6rem 1rem;color:#ef4444;">Continuous 2% &ndash; 4% inverter losses</td>
+          </tr>
+          <tr>
+            <td style="padding:0.6rem 1rem;font-weight:600;">Relative Capital Cost</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);color:#16a34a;">1.0x (Baseline Lowest)</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);color:#2563eb;font-weight:700;">2.5x &ndash; 3.5x</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);color:#ef4444;">6.0x &ndash; 10.0x</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTIC SPECIFICATION & COPY BUTTON -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Solid-State Soft Starter Engineering Data Sheet
+      </h2>
+      <button id="copySsAuditBtn" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:0.6rem 1.1rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:background 0.2s;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Soft Starter Audit</span>
+      </button>
+    </div>
+    <pre id="ssAuditReport" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.6;color:var(--fg);overflow-x:auto;margin:0;"></pre>
+  </div>
+
+  <!-- 5 FATAL ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Soft Starter Application</h2>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        1. Quadratic Torque Starvation on High-Breakaway Loads (The Stall Trap)
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Induction motor torque scales with the square of applied voltage (\(T \propto V^2\)). Setting initial pedestal voltage too low (e.g., 25%) reduces starting torque to just \(0.25^2 = 6.25\%\) of locked-rotor torque. On positive displacement pumps, loaded conveyors, or rock crushers with high static breakaway friction, the motor fails to break away, remaining stalled in rotor lock until thermal overload relays trip.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        2. Excessive Ramp Time &amp; Rotor Bar Thermal Overload Tripping
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Attempting to achieve an ultra-smooth start by dialing ramp time out to 30&ndash;60 seconds forces the motor to operate at high slip and elevated current (300% FLA) for an extended duration. Motor cooling fans rotate at fraction of rated speed while \(I^2 R\) rotor heating skyrockets, causing Class 10 electronic motor protection relays to trip on thermal model accumulation before full speed is reached.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#10b981;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        3. Operating SCRs Continuously Without Internal/External Bypass
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Silicon Controlled Rectifiers (SCR thyristors) exhibit a continuous forward conduction voltage drop of approximately 1.0 to 1.2 Volts per phase. A 200A motor running continuously on thyristors dissipates \(3 \times 1.2\text{V} \times 200\text{A} \approx 720\text{ Watts}\) of constant heat inside the enclosure. Without an automated bypass contactor closing upon reaching full speed, sealed NEMA 4/12 MCC cabinets suffer catastrophic thermal runaway.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        4. Centrifugal Pump Abrupt Coast-Down &amp; Water Hammer Slam
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Using a soft starter only for acceleration while allowing a centrifugal pump to free coast to a stop produces severe hydraulic shock. As soon as power is cut, fluid momentum collapses, slamming spring-loaded check valves shut and generating destructive water hammer pressure spikes up to 400% of pipeline rating. Centrifugal pump applications must enable a specialized Soft Stop / Pump Deceleration profile.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        5. Phase-Angle Voltage Notching &amp; Common Bus PLC Resets
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        During the soft start acceleration ramp, SCRs fire at steep phase angles (60&deg;&ndash;120&deg;), generating sharp commutating voltage notches on the local motor control center (MCC) bus. On weak supply transformers or backup diesel generators, these voltage notches corrupt sensitive microprocessors, digital scales, and PLC 24V switch-mode power supplies sharing the same feeder.
+      </p>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & ENGINEERING FOUNDATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-top:0;margin-bottom:1rem;">Motor Starting Kinematics &amp; Electrical Derivations</h2>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--text-muted);">
+      <p>
+        Three-phase induction motor electrodynamic starting behavior is governed by classical torque-slip equations and rotational kinetics per NEMA MG-1:
+      </p>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">1. Full Load Amps &amp; Full Load Torque</h3>
+      <p>
+        Full load current for standard 3-phase NEMA induction motors is calculated via efficiency \(\eta\) and power factor \(\cos\phi\):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        FLA = (HP &times; 746) / (&radic;3 &times; V_LL &times; &eta; &times; PF)<br>
+        T_FL = (5,252 &times; HP) / RPM_synch  [lb&middot;ft]
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">2. Soft Starter Voltage &amp; Torque Scaling</h3>
+      <p>
+        Because air-gap magnetic flux is directly proportional to applied stator voltage, electromagnetic torque is proportional to the square of voltage:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        T_start = T_LRA &times; (V_initial / V_rated)&sup2;  [lb&middot;ft]<br>
+        I_inrush = I_FLA &times; Current_Limit_Factor  [Amps]
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">3. Rotor Acceleration Time &amp; Thermal Winding Stress</h3>
+      <p>
+        Newton's second law for rotational systems defines acceleration duration under net accelerating torque \(T_{acc} = T_{motor} - T_{load}\):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        t_acc = (J_total &times; &Delta;RPM) / (308 &times; T_acc_avg)  [seconds]<br>
+        Thermal Stress Energy = &int; i&sup2;(t) dt &asymp; I_start&sup2; &times; t_acc  [A&sup2;&middot;s]
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const hpInput = document.getElementById('ssMotorHp');
+  const voltSelect = document.getElementById('ssLineVoltage');
+  const rpmSelect = document.getElementById('ssSynchRpm');
+  const lraMultInput = document.getElementById('ssDolLraMult');
+  const voltPctInput = document.getElementById('ssInitialVoltPct');
+  const currLimitInput = document.getElementById('ssCurrentLimitMult');
+  const inertiaInput = document.getElementById('ssTotalInertia');
+  const loadSelect = document.getElementById('ssLoadType');
+  const txKvaInput = document.getElementById('ssTxKva');
+
+  const alertBox = document.getElementById('ssAlertBox');
+
+  function calculate() {
+    const hp = parseFloat(hpInput.value) || 10;
+    const vll = parseFloat(voltSelect.value) || 460;
+    const rpm = parseFloat(rpmSelect.value) || 1800;
+    const lraMult = parseFloat(lraMultInput.value) || 6.5;
+    const vPct = parseFloat(voltPctInput.value) || 40;
+    const currLimit = parseFloat(currLimitInput.value) || 3.5;
+    const J = parseFloat(inertiaInput.value) || 50;
+    const loadType = loadSelect.value;
+    const txKva = parseFloat(txKvaInput.value) || 500;
+
+    // Estimate efficiency and PF based on HP
+    const eff = hp >= 100 ? 0.94 : (hp >= 25 ? 0.92 : 0.88);
+    const pf = hp >= 100 ? 0.86 : (hp >= 25 ? 0.84 : 0.82);
+
+    // Motor Full Load Amps (FLA) & Torque (FLT)
+    const fla = (hp * 746) / (Math.sqrt(3) * vll * eff * pf);
+    const flt = (5252 * hp) / rpm; // lb-ft
+
+    // DOL values
+    const dolLra = fla * lraMult;
+    const dolStartTorque = flt * 1.5; // typical NEMA B locked rotor torque is 150% FLT
+
+    // Soft Starter values
+    const softInrush = fla * currLimit;
+    const initialVoltRatio = vPct / 100;
+    const softStartTorque = dolStartTorque * Math.pow(initialVoltRatio, 2);
+
+    // Check for breakaway torque starvation
+    let loadBreakaway = 0;
+    if (loadType === 'const') {
+      loadBreakaway = flt * 0.80; // 80% constant torque
+    } else if (loadType === 'linear') {
+      loadBreakaway = flt * 0.40; // 40% linear torque
+    } else {
+      loadBreakaway = flt * 0.15; // 15% quadratic pump breakaway
+    }
+
+    if (softStartTorque < loadBreakaway) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.border = '1px solid #f87171';
+      alertBox.style.color = '#991b1b';
+      alertBox.innerHTML = '<strong>⚠️ TORQUE STARVATION / MOTOR STALL:</strong> Soft start initial torque (' + softStartTorque.toFixed(1) + ' lb&middot;ft) is lower than load breakaway torque (' + loadBreakaway.toFixed(1) + ' lb&middot;ft). Motor will not rotate until voltage pedestal is raised above ' + (Math.sqrt(loadBreakaway / dolStartTorque) * 100).toFixed(0) + '%.';
+    } else {
+      alertBox.style.display = 'none';
+    }
+
+    // Acceleration Dynamics
+    // Average accelerating torque during ramp
+    const avgMotorTorqueDOL = flt * 1.6;
+    const avgLoadTorque = loadType === 'quad' ? flt * 0.35 : (loadType === 'const' ? flt * 0.85 : flt * 0.50);
+    const netAccDol = Math.max(flt * 0.2, avgMotorTorqueDOL - avgLoadTorque);
+    const tAccDol = (J * rpm) / (308 * netAccDol);
+
+    // Soft Starter Acceleration
+    const avgMotorTorqueSoft = flt * Math.min(1.4, Math.max(0.6, (currLimit / lraMult) * 1.6));
+    const netAccSoft = Math.max(flt * 0.1, avgMotorTorqueSoft - avgLoadTorque);
+    const tAccSoft = (J * rpm) / (308 * netAccSoft);
+
+    // Thermal Winding Stress I^2 * t
+    const thermalDol = Math.pow(dolLra, 2) * tAccDol;
+    const thermalSoft = Math.pow(softInrush, 2) * tAccSoft;
+    const thermalReduction = thermalDol > 0 ? ((thermalDol - thermalSoft) / thermalDol) * 100 : 0;
+
+    // Upstream Transformer Voltage Sag
+    const txZ = 0.055; // 5.5% impedance standard
+    const kvaDol = (Math.sqrt(3) * vll * dolLra) / 1000;
+    const kvaSoft = (Math.sqrt(3) * vll * softInrush) / 1000;
+    const scKva = txKva / txZ;
+    const voltSagDol = (kvaDol / (scKva + kvaDol)) * 100;
+    const voltSagSoft = (kvaSoft / (scKva + kvaSoft)) * 100;
+
+    // Thyristor Losses (approx 3W / Amp total 3 phases)
+    const scrHeatWatts = softInrush * 3.0;
+
+    // Update UI Elements
+    document.getElementById('outSsFla').textContent = Math.round(fla) + ' A';
+    document.getElementById('outSsRatedTorque').textContent = 'Rated Torque: ' + Math.round(flt) + ' lb·ft';
+
+    document.getElementById('outSsSoftInrush').textContent = Math.round(softInrush) + ' A';
+    const inrushRedPct = ((dolLra - softInrush) / dolLra) * 100;
+    document.getElementById('outSsInrushReduction').textContent = '-' + inrushRedPct.toFixed(1) + '% vs DOL (' + Math.round(dolLra) + ' A)';
+
+    document.getElementById('outSsAccTime').textContent = tAccSoft.toFixed(1) + ' s';
+    document.getElementById('outSsDolAccTime').textContent = 'DOL Fast Start: ' + tAccDol.toFixed(1) + ' s';
+
+    document.getElementById('outSsStartTorque').textContent = softStartTorque.toFixed(1) + ' lb·ft';
+    document.getElementById('outSsTorquePct').textContent = ((softStartTorque / flt) * 100).toFixed(1) + '% of Full Load Torque';
+
+    document.getElementById('outSsVoltSag').textContent = voltSagSoft.toFixed(1) + '% Sag';
+    document.getElementById('outSsDolVoltSag').textContent = 'DOL Severe Sag: ' + voltSagDol.toFixed(1) + '%';
+
+    document.getElementById('outSsThermalStress').textContent = (thermalSoft / 1e5).toFixed(2) + ' × 10⁵ A²s';
+    const thermBadge = document.getElementById('outSsThermalReduction');
+    if (thermalReduction >= 0) {
+      thermBadge.textContent = thermalReduction.toFixed(1) + '% Heating Reduction';
+      thermBadge.style.color = '#16a34a';
+    } else {
+      thermBadge.textContent = '+' + Math.abs(thermalReduction).toFixed(1) + '% Heating Increase (Long Ramp)';
+      thermBadge.style.color = '#ef4444';
+    }
+
+    document.getElementById('outSsThyristorHeat').textContent = Math.round(scrHeatWatts).toLocaleString() + ' W';
+
+    const tripClass = document.getElementById('outSsTripClass');
+    if (tAccSoft > 20) {
+      tripClass.textContent = 'Class 30 Required (Trip Risk on Class 10/20)';
+      tripClass.style.color = '#ef4444';
+    } else if (tAccSoft > 10) {
+      tripClass.textContent = 'Class 20 Recommended';
+      tripClass.style.color = '#f59e0b';
+    } else {
+      tripClass.textContent = 'Class 10 / Class 20 Safe';
+      tripClass.style.color = '#16a34a';
+    }
+
+    // Update SVG Annotations
+    const svgCurrLabel = document.getElementById('svgSsCurrentLabel');
+    if (svgCurrLabel) svgCurrLabel.textContent = 'Soft Starter Limit: ' + Math.round(currLimit * 100) + '% FLA (' + Math.round(softInrush) + ' A)';
+    const svgTorqueLabel = document.getElementById('svgSsTorqueLabel');
+    if (svgTorqueLabel) svgTorqueLabel.textContent = 'Soft Start Torque: ' + softStartTorque.toFixed(0) + ' lb·ft (' + vPct + '% V_0)';
+    const svgSum1 = document.getElementById('svgSsSummaryLine1');
+    if (svgSum1) svgSum1.textContent = 'Net Accel Torque: ' + netAccSoft.toFixed(1) + ' lb·ft';
+    const svgSum2 = document.getElementById('svgSsSummaryLine2');
+    if (svgSum2) svgSum2.textContent = 'Ramp Time: ' + tAccSoft.toFixed(1) + ' s (' + (tAccSoft > 15 ? 'Extended' : 'Clean') + ')';
+
+    // Diagnostic Summary Report
+    const summary = 
+      '=======================================================\\n' +
+      'MOTOR SOFT STARTER ACCELERATION & INRUSH DATA SHEET\\n' +
+      '=======================================================\\n' +
+      'Motor Rating:                 ' + hp.toFixed(1) + ' HP (' + (hp * 0.746).toFixed(1) + ' kW)\\n' +
+      'Supply Line Voltage:          ' + vll + ' V (3-Phase AC)\\n' +
+      'Synchronous Speed:            ' + rpm + ' RPM\\n' +
+      'Motor Full Load Amps (FLA):   ' + fla.toFixed(1) + ' A\\n' +
+      'Full Load Torque (FLT):       ' + flt.toFixed(1) + ' lb-ft\\n' +
+      'Total Reflected Inertia (J):  ' + J.toFixed(1) + ' lb-ft²\\n' +
+      '-------------------------------------------------------\\n' +
+      'DOL Locked Rotor Current:     ' + dolLra.toFixed(1) + ' A (' + lraMult.toFixed(1) + 'x FLA)\\n' +
+      'DOL Starting Torque:          ' + dolStartTorque.toFixed(1) + ' lb-ft (150% FLT)\\n' +
+      'DOL Acceleration Duration:    ' + tAccDol.toFixed(2) + ' seconds\\n' +
+      'DOL Supply Bus Voltage Sag:   ' + voltSagDol.toFixed(1) + ' %\\n' +
+      'DOL Thermal Energy (I²t):     ' + Math.round(thermalDol).toLocaleString() + ' A²s\\n' +
+      '-------------------------------------------------------\\n' +
+      'SOFT STARTER SETTINGS & DYNAMICS:\\n' +
+      'Initial Pedestal Voltage:     ' + vPct.toFixed(0) + ' % of rated\\n' +
+      'Current Limit Ceiling:        ' + currLimit.toFixed(1) + 'x FLA (' + softInrush.toFixed(1) + ' A)\\n' +
+      'Soft Starting Torque:         ' + softStartTorque.toFixed(1) + ' lb-ft (' + ((softStartTorque / flt) * 100).toFixed(1) + '% FLT)\\n' +
+      'Load Breakaway Friction:      ' + loadBreakaway.toFixed(1) + ' lb-ft\\n' +
+      'Soft Acceleration Duration:   ' + tAccSoft.toFixed(2) + ' seconds\\n' +
+      'Supply Bus Voltage Sag:       ' + voltSagSoft.toFixed(1) + ' % (Acceptable IEEE 141)\\n' +
+      'Thermal Energy Reduction:     ' + thermalReduction.toFixed(1) + ' % vs DOL\\n' +
+      'Thyristor Ramp Heat Loss:     ' + Math.round(scrHeatWatts).toLocaleString() + ' Watts\\n' +
+      'Overload Relay Coordination:  ' + tripClass.textContent + '\\n' +
+      '=======================================================';
+    document.getElementById('ssAuditReport').textContent = summary;
+  }
+
+  document.getElementById('copySsAuditBtn').addEventListener('click', function() {
+    const text = document.getElementById('ssAuditReport').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copySsAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Soft Starter Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [hpInput, voltSelect, rpmSelect, lraMultInput, voltPctInput, currLimitInput, inertiaInput, loadSelect, txKvaInput].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'motor-soft-starter-ramp-calculator.html'), renderTradePage({
+    title: "Motor Soft Starter Ramp & Inrush Calculator | NEMA MG-1",
+    metaDesc: "Calculate induction motor soft starter current limit, locked-rotor inrush reduction, acceleration ramp time, and thermal winding heating per NEMA MG-1 and IEEE 141.",
+    canonical: `${DOMAIN}/calc/motor-soft-starter-ramp-calculator`,
+    bodyContent: motorSoftStarterBody,
+    currentPath: '/calc/motor-soft-starter-ramp-calculator',
+    faq: [
+      {
+        "q": "What is the primary advantage of a Soft Starter over Direct-on-Line (DOL) starting?",
+        "a": "A soft starter reduces locked-rotor inrush current from 600%-800% FLA down to 250%-400% FLA, preventing severe supply transformer voltage sag, eliminating mechanical shock on drive belts and gearboxes, and reducing electrical utility peak demand surcharges."
+      },
+      {
+        "q": "Why does motor torque decrease quadratically with starting voltage?",
+        "a": "In induction motors, magnetic air gap flux is directly proportional to applied stator voltage, and electromagnetic torque is proportional to the product of flux and rotor current. Therefore, torque scales with the square of voltage (T ∝ V²). Starting at 40% voltage reduces available torque to 16% of locked-rotor torque."
+      },
+      {
+        "q": "What is the purpose of an internal bypass contactor on a soft starter?",
+        "a": "Thyristor SCRs have an inherent forward voltage drop of ~1.1V per phase, dissipating approximately 3 Watts per Amp of heat. An internal bypass contactor closes once the motor reaches full speed, shunting current around the SCRs, eliminating heat generation and electrical losses during continuous operation."
+      },
+      {
+        "q": "Can a soft starter prevent water hammer in pumping systems?",
+        "a": "Yes. When equipped with a specialized pump deceleration profile, a soft starter gradually reduces motor torque instead of instantly cutting power. This allows pipeline fluid momentum to decay smoothly and check valves to close gently without slamming."
+      },
+      {
+        "q": "When should an engineer choose a Variable Frequency Drive (VFD) over a Soft Starter?",
+        "a": "A soft starter is ideal for applications that only require gentle starting and stopping but run at constant full speed (fans, pumps, crushers, conveyors). A VFD is necessary when the process requires continuous speed modulation, high starting torque at zero speed, or bidirectional positioning."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MOBILE CRANE OUTRIGGER REACTION & GROUND BEARING PRESSURE (OSHA / ASME B30.5)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const craneOutriggerBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Crane Outrigger Load Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Mobile Crane Outrigger Reaction &amp; Ground Bearing Pressure Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate 4-point mobile crane outrigger pad reaction forces, maximum corner tipping loads, ground bearing pressure (GBP in PSI/PSF), and timber mat sizing per OSHA 1926.1402, ASME B30.5, and CIRIA C703: account for boom azimuth rotation, operating radius, counterweight moments, dynamic impact factors, and allowable soil bearing capacities.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Crane &amp; Lift Parameters
+      </h2>
+
+      <!-- Crane Base & Counterweight -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="craneGrossWeight">Crane Gross Weight (kips)</label>
+          <input type="number" id="craneGrossWeight" value="110" min="10" max="1000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Carrier + superstructure weight (1 kip = 1,000 lbs)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="craneCounterweight">Counterweight (kips)</label>
+          <input type="number" id="craneCounterweight" value="35" min="0" max="500" step="2.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Pinned rear counterweight ballast</span>
+        </div>
+      </div>
+
+      <!-- Outrigger Dimensions -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="craneOutriggerLength">Longitudinal Spread L (ft)</label>
+          <input type="number" id="craneOutriggerLength" value="26.0" min="8" max="60" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Front-to-rear outrigger center distance</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="craneOutriggerWidth">Lateral Spread W (ft)</label>
+          <input type="number" id="craneOutriggerWidth" value="24.0" min="6" max="50" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Side-to-side outrigger span</span>
+        </div>
+      </div>
+
+      <!-- Suspended Load & Radius -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="craneLoadWeight">Total Suspended Load (kips)</label>
+          <input type="number" id="craneLoadWeight" value="45" min="0" max="1000" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Payload + hook block + rigging tackle</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="craneOperatingRadius">Operating Radius R (ft)</label>
+          <input type="number" id="craneOperatingRadius" value="38.0" min="8" max="250" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Center of rotation to load center</span>
+        </div>
+      </div>
+
+      <!-- Azimuth Angle & Dynamic Factor -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="craneSlewAngle">Boom Azimuth Angle (&deg;)</label>
+          <input type="number" id="craneSlewAngle" value="45" min="0" max="360" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">0&deg; Rear, 90&deg; Right, 180&deg; Front, 270&deg; Left</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="craneImpactFactor">Dynamic Impact Factor</label>
+          <input type="number" id="craneImpactFactor" value="1.15" min="1.0" max="1.5" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">ASME B30.5 dynamic hoist multiplier (1.10 - 1.25)</span>
+        </div>
+      </div>
+
+      <!-- Matting & Ground Soil Capacity -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="craneSoilType">Soil Bearing Capacity</label>
+          <select id="craneSoilType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="3000" selected>Medium Stiff Clay / Sand (3,000 PSF / 20.8 PSI)</option>
+            <option value="1500">Soft Clay / Wet Silt (1,500 PSF / 10.4 PSI)</option>
+            <option value="2000">Loose Sand / Gravel Fill (2,000 PSF / 13.9 PSI)</option>
+            <option value="5000">Compacted Crushed Rock (5,000 PSF / 34.7 PSI)</option>
+            <option value="8000">Dense Gravel Subbase (8,000 PSF / 55.6 PSI)</option>
+            <option value="20000">Structural Concrete Pad (20,000 PSF / 138.9 PSI)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">OSHA 1926.1402 soil classification</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="craneMatDimensions">Crane Mat Size (L &times; W)</label>
+          <select id="craneMatDimensions" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;font-weight:600;">
+            <option value="36" selected>6 ft &times; 6 ft Timber Mat (36 sq ft)</option>
+            <option value="16">4 ft &times; 4 ft Timber Mat (16 sq ft)</option>
+            <option value="25">5 ft &times; 5 ft Timber Mat (25 sq ft)</option>
+            <option value="48">8 ft &times; 6 ft Heavy Mat (48 sq ft)</option>
+            <option value="64">8 ft &times; 8 ft Composite Mat (64 sq ft)</option>
+            <option value="4">Steel Pontoon Float Only (2 ft &times; 2 ft, 4 sq ft)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Outrigger load distribution pad area</span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--fg);">OSHA 1926.1402 Rigging Rules</div>
+        <ul style="margin:0;padding-left:1.2rem;font-size:0.78rem;color:var(--text-muted);line-height:1.5;">
+          <li>Maximum corner reaction F_max occurs when swinging 45&deg; over a corner outrigger.</li>
+          <li>Ground Bearing Pressure (GBP) = Force (lbs) / Mat Contact Area (sq in or sq ft).</li>
+          <li>Safety Factor = Soil Allowable Capacity / Calculated Ground Bearing Pressure.</li>
+          <li>OSHA mandates ground conditions be firm, drained, and graded within 1% slope.</li>
+          <li>Mats must be rigid enough to distribute loads without excessive bending deflection.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RESULTS COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Outrigger Reactions &amp; Soil Pressure
+      </h2>
+
+      <div id="craneAlertBox" style="display:none;margin-bottom:1.25rem;padding:1rem;border-radius:8px;font-size:0.875rem;line-height:1.5;"></div>
+
+      <!-- Max Outrigger Force & Soil Pressure -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Maximum Reaction (F_max)</div>
+          <div id="outCraneMaxForce" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:#ef4444;">128.4 kips</div>
+          <div id="outCraneMaxMetric" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">58.2 Metric Tons (67% System Weight)</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Ground Bearing Pressure (GBP)</div>
+          <div id="outCraneMatGbp" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--fg);">3,567 PSF</div>
+          <div id="outCraneMatPsi" style="font-size:0.75rem;font-weight:700;color:#2563eb;margin-top:0.25rem;">24.8 PSI under Mat</div>
+        </div>
+      </div>
+
+      <!-- 4 Outrigger Corner Forces Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;font-weight:600;color:var(--text-muted);">Front Left (FL)</div>
+          <div id="outCraneFlForce" style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--fg);">24.2 kips</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;font-weight:600;color:var(--text-muted);">Front Right (FR)</div>
+          <div id="outCraneFrForce" style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--fg);">128.4 kips</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;font-weight:600;color:var(--text-muted);">Rear Left (RL)</div>
+          <div id="outCraneRlForce" style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--fg);">12.1 kips</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.75rem;text-align:center;">
+          <div style="font-size:0.7rem;font-weight:600;color:var(--text-muted);">Rear Right (RR)</div>
+          <div id="outCraneRrForce" style="font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--fg);">27.3 kips</div>
+        </div>
+      </div>
+
+      <!-- Safety Factor & Required Mat Area -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Soil Safety Factor</div>
+          <div id="outCraneSafetyFactor" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#ef4444;">0.84 SF</div>
+          <div id="outCranePassFailBadge" style="font-size:0.75rem;font-weight:700;color:#ef4444;margin-top:0.25rem;">FAILED: SOIL OVERBURDEN</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Minimum Mat Area Needed</div>
+          <div id="outCraneMinMatArea" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--primary);">42.8 sq ft</div>
+          <div id="outCraneMinMatDims" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">&ge; 6.6 ft &times; 6.6 ft Mat</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:auto;">
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Bare Steel Pad Pressure (No Mat):</span>
+          <strong id="outCraneBarePadPsi" style="font-family:var(--mono);color:#ef4444;">223.0 PSI (32,100 PSF)</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Total Lifted System Weight:</span>
+          <strong id="outCraneTotalWeight" style="font-family:var(--mono);">191.8 kips (Dynamic)</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
+          <span style="color:var(--text-muted);">ASME B30.5 Stability Status:</span>
+          <strong id="outCraneTippingMargin" style="font-family:var(--mono);color:#16a34a;">Stable (&gt; 15% Margin)</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG CRANE PLAN VIEW SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+      Crane Outrigger Plan View Reaction Forces &amp; Slew Center of Gravity
+    </h2>
+    <div style="overflow-x:auto;">
+      <svg id="craneOutriggerSvg" viewBox="0 0 900 480" style="width:100%;max-width:900px;height:auto;display:block;margin:0 auto;font-family:var(--mono);">
+        <!-- Background Dark Canvas -->
+        <rect x="0" y="0" width="900" height="480" fill="#0f172a" rx="10"/>
+
+        <!-- Grid Lines -->
+        <defs>
+          <radialGradient id="craneHighLoadGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ef4444" stop-opacity="0.9"/>
+            <stop offset="60%" stop-color="#ef4444" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Coordinate Compass Marks -->
+        <g stroke="#334155" stroke-width="1" stroke-dasharray="4,4">
+          <line x1="450" y1="40" x2="450" y2="440"/>
+          <line x1="150" y1="240" x2="750" y2="240"/>
+          <circle cx="450" cy="240" r="150" fill="none"/>
+        </g>
+        <text x="450" y="30" fill="#64748b" font-size="11" text-anchor="middle">FRONT (180&deg;)</text>
+        <text x="450" y="465" fill="#64748b" font-size="11" text-anchor="middle">REAR (0&deg;)</text>
+        <text x="130" y="244" fill="#64748b" font-size="11" text-anchor="end">LEFT (270&deg;)</text>
+        <text x="770" y="244" fill="#64748b" font-size="11" text-anchor="start">RIGHT (90&deg;)</text>
+
+        <!-- Crane Carrier Chassis Rectangle (Center) -->
+        <rect x="390" y="140" width="120" height="200" rx="8" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+        <text x="450" y="215" fill="#94a3b8" font-size="11" text-anchor="middle" font-weight="bold">CRANE CARRIER</text>
+        <circle cx="450" cy="240" r="28" fill="#334155" stroke="#64748b" stroke-width="2"/>
+
+        <!-- Outrigger Extension Beams -->
+        <!-- Front Left Beam -->
+        <line x1="390" y1="160" x2="260" y2="100" stroke="#64748b" stroke-width="8" stroke-linecap="round"/>
+        <!-- Front Right Beam -->
+        <line x1="510" y1="160" x2="640" y2="100" stroke="#64748b" stroke-width="8" stroke-linecap="round"/>
+        <!-- Rear Left Beam -->
+        <line x1="390" y1="320" x2="260" y2="380" stroke="#64748b" stroke-width="8" stroke-linecap="round"/>
+        <!-- Rear Right Beam -->
+        <line x1="510" y1="320" x2="640" y2="380" stroke="#64748b" stroke-width="8" stroke-linecap="round"/>
+
+        <!-- Outrigger Pads & Heat Rings -->
+        <!-- Front Left (FL) -->
+        <g id="svgPadFL" transform="translate(260, 100)">
+          <circle r="35" fill="none" stroke="#38bdf8" stroke-width="2"/>
+          <rect x="-20" y="-20" width="40" height="40" fill="#334155" stroke="#94a3b8" stroke-width="2" rx="4"/>
+          <text id="svgTextFL" x="0" y="5" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="bold">24k</text>
+          <text x="-45" y="-10" fill="#94a3b8" font-size="11" text-anchor="end" font-weight="bold">FL Pad</text>
+        </g>
+
+        <!-- Front Right (FR) - Target High Load Corner -->
+        <g id="svgPadFR" transform="translate(640, 100)">
+          <circle r="48" fill="url(#craneHighLoadGlow)"/>
+          <circle r="45" fill="none" stroke="#ef4444" stroke-width="3"/>
+          <rect x="-24" y="-24" width="48" height="48" fill="#991b1b" stroke="#f87171" stroke-width="2.5" rx="4"/>
+          <text id="svgTextFR" x="0" y="6" fill="#ffffff" font-size="12" text-anchor="middle" font-weight="bold">128k</text>
+          <text x="45" y="-10" fill="#f87171" font-size="11" text-anchor="start" font-weight="bold">FR Pad (CRITICAL)</text>
+        </g>
+
+        <!-- Rear Left (RL) -->
+        <g id="svgPadRL" transform="translate(260, 380)">
+          <circle r="25" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+          <rect x="-18" y="-18" width="36" height="36" fill="#334155" stroke="#94a3b8" stroke-width="2" rx="4"/>
+          <text id="svgTextRL" x="0" y="5" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="bold">12k</text>
+          <text x="-45" y="15" fill="#94a3b8" font-size="11" text-anchor="end" font-weight="bold">RL Pad</text>
+        </g>
+
+        <!-- Rear Right (RR) -->
+        <g id="svgPadRR" transform="translate(640, 380)">
+          <circle r="35" fill="none" stroke="#f59e0b" stroke-width="2"/>
+          <rect x="-20" y="-20" width="40" height="40" fill="#78350f" stroke="#f59e0b" stroke-width="2" rx="4"/>
+          <text id="svgTextRR" x="0" y="5" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="bold">27k</text>
+          <text x="45" y="15" fill="#94a3b8" font-size="11" text-anchor="start" font-weight="bold">RR Pad</text>
+        </g>
+
+        <!-- Rotating Boom Vector & Counterweight Vector -->
+        <g id="svgBoomGroup" transform="translate(450, 240) rotate(45)">
+          <!-- Counterweight (Opposite 180 deg) -->
+          <rect x="-25" y="40" width="50" height="25" rx="3" fill="#64748b" stroke="#cbd5e1" stroke-width="1.5"/>
+          <text x="0" y="56" fill="#0f172a" font-size="9" text-anchor="middle" font-weight="bold">CW</text>
+
+          <!-- Boom Centerline & Head -->
+          <line x1="0" y1="0" x2="0" y2="-170" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/>
+          <polygon points="-8,-160 0,-175 8,-160" fill="#f59e0b"/>
+          <circle cx="0" cy="-170" r="10" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
+          <text x="18" y="-165" fill="#f59e0b" font-size="11" font-weight="bold">LOAD (45k)</text>
+        </g>
+
+        <!-- Dynamic Legend Box -->
+        <rect x="20" y="30" width="230" height="90" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+        <text x="35" y="50" fill="#ffffff" font-size="11" font-weight="bold">EQUILIBRIUM AUDIT</text>
+        <text id="svgAuditSlew" x="35" y="70" fill="#f59e0b" font-size="10">Boom Azimuth: 45&deg; (Corner)</text>
+        <text id="svgAuditMax" x="35" y="90" fill="#ef4444" font-size="10">Max Pad Load: 128.4 kips</text>
+        <text id="svgAuditGbp" x="35" y="110" fill="#38bdf8" font-size="10">Soil Pressure: 3,567 PSF</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- SOIL BEARING CAPACITY REFERENCE TABLE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+      OSHA &amp; CIRIA C703 Allowable Soil Bearing Capacities
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.25rem;">
+      Presumptive soil bearing capacities per OSHA 1926 Subpart CC and CIRIA C703 crane ground guidelines. Always consult a geotechnical engineer for unknown or wet fills.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.875rem;text-align:left;">
+        <thead>
+          <tr style="background:var(--bg);border-bottom:2px solid var(--border);color:var(--text-muted);">
+            <th style="padding:0.75rem 1rem;">Soil Classification</th>
+            <th style="padding:0.75rem 1rem;">Allowable Capacity (PSF)</th>
+            <th style="padding:0.75rem 1rem;">Allowable Pressure (PSI)</th>
+            <th style="padding:0.75rem 1rem;">Typical Pad Requirement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Soft Clay, Organic Silt, Uncompacted Fill</td>
+            <td style="padding:0.6rem 1rem;color:#ef4444;font-family:var(--mono);">1,000 &ndash; 1,500 PSF</td>
+            <td style="padding:0.6rem 1rem;color:#ef4444;font-family:var(--mono);">6.9 &ndash; 10.4 PSI</td>
+            <td style="padding:0.6rem 1rem;">Multi-Layer Timber Matting / Steel Plates</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Loose Sand, Sandy Clay, Medium Silt</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);">2,000 &ndash; 3,000 PSF</td>
+            <td style="padding:0.6rem 1rem;font-family:var(--mono);">13.9 &ndash; 20.8 PSI</td>
+            <td style="padding:0.6rem 1rem;">Standard 6x6 ft or 8x6 ft Hardwood Mats</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Dense Compacted Sand &amp; Gravel Fill</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;font-family:var(--mono);">4,000 &ndash; 6,000 PSF</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;font-family:var(--mono);">27.8 &ndash; 41.7 PSI</td>
+            <td style="padding:0.6rem 1rem;">4x4 ft or 5x5 ft Outrigger Pads</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:0.6rem 1rem;font-weight:600;">Well-Graded Compacted Crushed Stone Subbase</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;font-family:var(--mono);">8,000 &ndash; 10,000 PSF</td>
+            <td style="padding:0.6rem 1rem;color:#16a34a;font-family:var(--mono);">55.6 &ndash; 69.4 PSI</td>
+            <td style="padding:0.6rem 1rem;">Composite Polymer Outrigger Pads</td>
+          </tr>
+          <tr>
+            <td style="padding:0.6rem 1rem;font-weight:600;">Reinforced Structural Concrete Slab (&ge; 6 in)</td>
+            <td style="padding:0.6rem 1rem;color:#2563eb;font-family:var(--mono);">20,000 &ndash; 50,000 PSF</td>
+            <td style="padding:0.6rem 1rem;color:#2563eb;font-family:var(--mono);">138.9 &ndash; 347.2 PSI</td>
+            <td style="padding:0.6rem 1rem;">Direct Float with Rubber Cushion</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTIC SPECIFICATION & COPY BUTTON -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        OSHA Lift Plan Outrigger Load Data Sheet
+      </h2>
+      <button id="copyCraneAuditBtn" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:0.6rem 1.1rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:background 0.2s;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Rigging Plan</span>
+      </button>
+    </div>
+    <pre id="craneAuditReport" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.6;color:var(--fg);overflow-x:auto;margin:0;"></pre>
+  </div>
+
+  <!-- 5 FATAL ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Crane Outrigger Setup</h2>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        1. The Diagonal Corner Swing Surcharge (The 85% System Weight Trap)
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Many crane riggers mistakenly assume total crane weight is equally distributed across all 4 outriggers (25% each). When the boom is swung diagonally at a 45&deg; azimuth directly over a corner outrigger, static equilibrium shifts the machine's tipping fulcrum: up to 80% to 85% of the combined gross machine weight, counterweight, and dynamic suspended load is focused entirely onto that single corner pad!
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        2. Hidden Subsurface Utilities &amp; Retaining Wall Proximity
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Setting outrigger pads adjacent to an unreinforced retaining wall or directly over buried utility trenches, storm sewers, or septic tanks invites catastrophic punch-through. OSHA 1926.1402 mandates that outriggers maintain a minimum set-back distance equal to at least 1.5 times the trench depth (the 45&deg; soil shear cone of influence) unless supported by stamped engineered shoring.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#10b981;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        3. Flexible / Thin Plywood Cribbing (The Virtual Zero-Area Illusion)
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Using flexible 3/4-inch plywood sheets or thin boards as outrigger pads provides zero effective load spreading. Under a 100,000-lb concentrated outrigger load, thin wood flexes upward at the edges, transmitting 90%+ of the force directly through the central 2x2 ft footprint of the steel pontoon float. Timber crane mats must be at least 6 to 12 inches thick oak timbers bolted together to resist bending moments.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        4. Operating Crane Out-of-Level by Just 1% to 2% Grade
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        A mobile crane setup that is just 1.5&deg; out of level dramatically alters the center of gravity and induces massive torsional side-loading in the telescopic boom. Out-of-level operation increases downhill outrigger reaction force by 15% to 30% while reducing crane rated load chart capacity by up to 50% due to out-of-plane boom buckling instability. Always verify level with digital spirit levels.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        5. Point Contact Floating on Uneven Rip-Rap &amp; Cylinder Rod Bending
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Placing an outrigger float directly onto rocky, unlevel, or rounded stone terrain prevents uniform surface contact. The steel float rocks onto an edge, concentrating hundreds of kips into a point contact that can fracture the cast float socket or apply severe eccentric bending moments to the hydraulic vertical jack cylinder rod, resulting in sudden mechanical buckling.
+      </p>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & ENGINEERING FOUNDATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-top:0;margin-bottom:1rem;">Outrigger Load Distribution &amp; Equilibrium Derivations</h2>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--text-muted);">
+      <p>
+        Mobile crane outrigger reaction forces are calculated via two-dimensional static equilibrium of vertical forces and overturning moments about the center of rotation:
+      </p>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">1. Total Vertical Gravitational &amp; Dynamic Load</h3>
+      <p>
+        Total system vertical load \(W_{total}\) combines the crane superstructure, carrier, ballast counterweight, and dynamic lifted load:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        W_total = W_crane + W_cw + (W_load &times; Dynamic_Factor)  [kips]
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">2. Overturning Moment Resolution via Azimuth &amp; Radius</h3>
+      <p>
+        Load position coordinates relative to slewing center \((0,0)\) at azimuth angle \(\theta\):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        X_load = R &times; sin(&theta;), &nbsp; Y_load = R &times; cos(&theta;)<br>
+        M_x = W_load &times; Y_load &minus; W_cw &times; Y_cw<br>
+        M_y = W_load &times; X_load
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">3. Four-Corner Reaction Equilibrium &amp; Soil Pressure</h3>
+      <p>
+        Assuming rigid outrigger box geometry of length \(L\) and width \(W\):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        F_corner = (W_total / 4) &plusmn; (M_x / 2L) &plusmn; (M_y / 2W)  [kips]<br>
+        GBP_mat = F_max / Area_mat  [PSF] = (F_max &times; 1,000) / (Area_mat &times; 144)  [PSI]
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const grossWeightInput = document.getElementById('craneGrossWeight');
+  const counterweightInput = document.getElementById('craneCounterweight');
+  const outriggerLenInput = document.getElementById('craneOutriggerLength');
+  const outriggerWidInput = document.getElementById('craneOutriggerWidth');
+  const loadWeightInput = document.getElementById('craneLoadWeight');
+  const radiusInput = document.getElementById('craneOperatingRadius');
+  const slewAngleInput = document.getElementById('craneSlewAngle');
+  const impactFactorInput = document.getElementById('craneImpactFactor');
+  const soilSelect = document.getElementById('craneSoilType');
+  const matSelect = document.getElementById('craneMatDimensions');
+
+  const alertBox = document.getElementById('craneAlertBox');
+
+  function calculate() {
+    const Wcrane = parseFloat(grossWeightInput.value) || 100;
+    const Wcw = parseFloat(counterweightInput.value) || 30;
+    const L = parseFloat(outriggerLenInput.value) || 25;
+    const W = parseFloat(outriggerWidInput.value) || 24;
+    const WloadRaw = parseFloat(loadWeightInput.value) || 20;
+    const R = parseFloat(radiusInput.value) || 30;
+    const thetaDeg = parseFloat(slewAngleInput.value) || 45;
+    const dynFactor = parseFloat(impactFactorInput.value) || 1.15;
+    const soilCapacityPsf = parseFloat(soilSelect.value) || 3000;
+    const matAreaSqFt = parseFloat(matSelect.value) || 36;
+
+    const Wload = WloadRaw * dynFactor;
+    const Wtotal = Wcrane + Wcw + Wload;
+
+    // Azimuth conversion (0 deg = Rear, 90 deg = Right, 180 deg = Front, 270 deg = Left)
+    const rad = (thetaDeg * Math.PI) / 180;
+    // Y is longitudinal (+ is Front, - is Rear)
+    // X is lateral (+ is Right, - is Left)
+    const xLoad = R * Math.sin(rad);
+    const yLoad = -R * Math.cos(rad); // at 0 deg, boom is to rear (-Y)
+
+    // Counterweight is at fixed radius approx 14 ft opposite to boom
+    const rcw = 14;
+    const xCw = -rcw * Math.sin(rad);
+    const yCw = rcw * Math.cos(rad);
+
+    // Moments about center of rotation (0,0)
+    // Mx causes front/rear imbalance (positive tips forward towards Front)
+    const Mx = (Wload * yLoad) + (Wcw * yCw) + (Wcrane * 0); // crane CG assumed near rotation center
+    // My causes right/left imbalance (positive tips right towards Right)
+    const My = (Wload * xLoad) + (Wcw * xCw);
+
+    // 4 Corner Outrigger Reactions
+    // Outriggers at (+L/2, +W/2) = FR, (+L/2, -W/2) = FL, (-L/2, +W/2) = RR, (-L/2, -W/2) = RL
+    const baseF = Wtotal / 4;
+    const deltaF_L = Mx / L; // positive increases Front, decreases Rear
+    const deltaF_W = My / W; // positive increases Right, decreases Left
+
+    let fFR = baseF + (deltaF_L / 2) + (deltaF_W / 2);
+    let fFL = baseF + (deltaF_L / 2) - (deltaF_W / 2);
+    let fRR = baseF - (deltaF_L / 2) + (deltaF_W / 2);
+    let fRL = baseF - (deltaF_L / 2) - (deltaF_W / 2);
+
+    // Ensure physical no-tension boundary (if outrigger lifts off ground, F = 0)
+    fFR = Math.max(0, fFR);
+    fFL = Math.max(0, fFL);
+    fRR = Math.max(0, fRR);
+    fRL = Math.max(0, fRL);
+
+    // Maximum reaction force
+    const fMax = Math.max(fFR, fFL, fRR, fRL);
+    const fMaxLbs = fMax * 1000;
+
+    // Ground Bearing Pressure
+    const gbpMatPsf = fMaxLbs / matAreaSqFt;
+    const gbpMatPsi = gbpMatPsf / 144;
+
+    // Bare steel float (approx 4 sq ft = 2x2 ft float)
+    const bareFloatSqFt = 4.0;
+    const gbpBarePsf = fMaxLbs / bareFloatSqFt;
+    const gbpBarePsi = gbpBarePsf / 144;
+
+    // Safety Factor
+    const safetyFactor = soilCapacityPsf / gbpMatPsf;
+    const minMatAreaReq = fMaxLbs / soilCapacityPsf;
+
+    // Alerts
+    if (safetyFactor < 1.0) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.border = '1px solid #f87171';
+      alertBox.style.color = '#991b1b';
+      alertBox.innerHTML = '<strong>⚠️ CATASTROPHIC SOIL FAILURE RISK:</strong> Ground bearing pressure (' + Math.round(gbpMatPsf).toLocaleString() + ' PSF) exceeds allowable soil capacity (' + Math.round(soilCapacityPsf).toLocaleString() + ' PSF). Safety factor is only ' + safetyFactor.toFixed(2) + '. You must increase mat size to at least ' + minMatAreaReq.toFixed(1) + ' sq ft.';
+    } else if (safetyFactor < 1.25) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fffbeb';
+      alertBox.style.border = '1px solid #f59e0b';
+      alertBox.style.color = '#92400e';
+      alertBox.innerHTML = '<strong>⚠️ MARGINAL BEARING MARGIN:</strong> Safety factor (' + safetyFactor.toFixed(2) + ') is below recommended OSHA 1.5x minimum margin. Verify soil compaction or add cribbing layers.';
+    } else {
+      alertBox.style.display = 'none';
+    }
+
+    // Update UI Results
+    document.getElementById('outCraneMaxForce').textContent = fMax.toFixed(1) + ' kips';
+    const maxMetricTons = fMax * 0.453592;
+    const pctTotal = (fMax / Wtotal) * 100;
+    document.getElementById('outCraneMaxMetric').textContent = maxMetricTons.toFixed(1) + ' Metric Tons (' + pctTotal.toFixed(0) + '% System Weight)';
+
+    document.getElementById('outCraneMatGbp').textContent = Math.round(gbpMatPsf).toLocaleString() + ' PSF';
+    document.getElementById('outCraneMatPsi').textContent = gbpMatPsi.toFixed(1) + ' PSI under Mat';
+
+    document.getElementById('outCraneFlForce').textContent = fFL.toFixed(1) + ' kips';
+    document.getElementById('outCraneFrForce').textContent = fFR.toFixed(1) + ' kips';
+    document.getElementById('outCraneRlForce').textContent = fRL.toFixed(1) + ' kips';
+    document.getElementById('outCraneRrForce').textContent = fRR.toFixed(1) + ' kips';
+
+    document.getElementById('outCraneSafetyFactor').textContent = safetyFactor.toFixed(2) + ' SF';
+    const passBadge = document.getElementById('outCranePassFailBadge');
+    if (safetyFactor >= 1.25) {
+      passBadge.textContent = 'PASSED: SAFE BEARING (SF ≥ 1.25)';
+      passBadge.style.color = '#16a34a';
+      document.getElementById('outCraneSafetyFactor').style.color = '#16a34a';
+    } else if (safetyFactor >= 1.0) {
+      passBadge.textContent = 'MARGINAL (1.0 ≤ SF < 1.25)';
+      passBadge.style.color = '#f59e0b';
+      document.getElementById('outCraneSafetyFactor').style.color = '#f59e0b';
+    } else {
+      passBadge.textContent = 'FAILED: SOIL OVERBURDEN';
+      passBadge.style.color = '#ef4444';
+      document.getElementById('outCraneSafetyFactor').style.color = '#ef4444';
+    }
+
+    document.getElementById('outCraneMinMatArea').textContent = minMatAreaReq.toFixed(1) + ' sq ft';
+    const minSide = Math.sqrt(minMatAreaReq);
+    document.getElementById('outCraneMinMatDims').textContent = '≥ ' + minSide.toFixed(1) + ' ft × ' + minSide.toFixed(1) + ' ft Mat';
+
+    document.getElementById('outCraneBarePadPsi').textContent = gbpBarePsi.toFixed(1) + ' PSI (' + Math.round(gbpBarePsf).toLocaleString() + ' PSF)';
+    document.getElementById('outCraneTotalWeight').textContent = Wtotal.toFixed(1) + ' kips (Dynamic)';
+
+    // Update SVG
+    document.getElementById('svgTextFL').textContent = Math.round(fFL) + 'k';
+    document.getElementById('svgTextFR').textContent = Math.round(fFR) + 'k';
+    document.getElementById('svgTextRL').textContent = Math.round(fRL) + 'k';
+    document.getElementById('svgTextRR').textContent = Math.round(fRR) + 'k';
+
+    const boomGroup = document.getElementById('svgBoomGroup');
+    if (boomGroup) boomGroup.setAttribute('transform', 'translate(450, 240) rotate(' + thetaDeg + ')');
+
+    const auditSlew = document.getElementById('svgAuditSlew');
+    if (auditSlew) auditSlew.textContent = 'Boom Azimuth: ' + thetaDeg + '°';
+    const auditMax = document.getElementById('svgAuditMax');
+    if (auditMax) auditMax.textContent = 'Max Pad Load: ' + fMax.toFixed(1) + ' kips';
+    const auditGbp = document.getElementById('svgAuditGbp');
+    if (auditGbp) auditGbp.textContent = 'Soil Pressure: ' + Math.round(gbpMatPsf).toLocaleString() + ' PSF';
+
+    // Diagnostic Summary Report
+    const summary = 
+      '=======================================================\\n' +
+      'OSHA 1926.1402 CRANE OUTRIGGER & GROUND BEARING AUDIT\\n' +
+      '=======================================================\\n' +
+      'Crane Gross Weight:           ' + Wcrane.toFixed(1) + ' kips (' + (Wcrane * 0.4536).toFixed(1) + ' t)\\n' +
+      'Counterweight Ballast:        ' + Wcw.toFixed(1) + ' kips\\n' +
+      'Suspended Rigged Load:        ' + WloadRaw.toFixed(1) + ' kips (Dynamic: ' + Wload.toFixed(1) + ' kips @ ' + dynFactor.toFixed(2) + 'x)\\n' +
+      'Operating Radius (R):         ' + R.toFixed(1) + ' ft\\n' +
+      'Boom Azimuth Angle:           ' + thetaDeg.toFixed(0) + ' °\\n' +
+      'Outrigger Spread (L × W):     ' + L.toFixed(1) + ' ft × ' + W.toFixed(1) + ' ft\\n' +
+      '-------------------------------------------------------\\n' +
+      'OUTRIGGER CORNER REACTION FORCES:\\n' +
+      'Front Left (FL) Pad:          ' + fFL.toFixed(1) + ' kips\\n' +
+      'Front Right (FR) Pad:         ' + fFR.toFixed(1) + ' kips\\n' +
+      'Rear Left (RL) Pad:           ' + fRL.toFixed(1) + ' kips\\n' +
+      'Rear Right (RR) Pad:          ' + fRR.toFixed(1) + ' kips\\n' +
+      'CRITICAL CORNER LOAD (F_max): ' + fMax.toFixed(1) + ' kips (' + pctTotal.toFixed(1) + '% of System Weight)\\n' +
+      '-------------------------------------------------------\\n' +
+      'GROUND BEARING PRESSURE & MAT SIZING:\\n' +
+      'Bare Steel Float Pressure:    ' + gbpBarePsi.toFixed(1) + ' PSI (' + Math.round(gbpBarePsf).toLocaleString() + ' PSF)\\n' +
+      'Selected Mat Dimensions:      ' + matAreaSqFt.toFixed(0) + ' sq ft contact area\\n' +
+      'Actual Ground Pressure (GBP): ' + Math.round(gbpMatPsf).toLocaleString() + ' PSF (' + gbpMatPsi.toFixed(1) + ' PSI)\\n' +
+      'Allowable Soil Capacity:      ' + Math.round(soilCapacityPsf).toLocaleString() + ' PSF\\n' +
+      'Soil Safety Factor:           ' + safetyFactor.toFixed(2) + ' (' + passBadge.textContent + ')\\n' +
+      'Minimum Required Mat Area:    ' + minMatAreaReq.toFixed(1) + ' sq ft (' + minSide.toFixed(1) + ' ft × ' + minSide.toFixed(1) + ' ft)\\n' +
+      '=======================================================';
+    document.getElementById('craneAuditReport').textContent = summary;
+  }
+
+  document.getElementById('copyCraneAuditBtn').addEventListener('click', function() {
+    const text = document.getElementById('craneAuditReport').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyCraneAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Rigging Plan!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [grossWeightInput, counterweightInput, outriggerLenInput, outriggerWidInput, loadWeightInput, radiusInput, slewAngleInput, impactFactorInput, soilSelect, matSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'crane-outrigger-load-calculator.html'), renderTradePage({
+    title: "Crane Outrigger Load & Ground Bearing Pressure Calculator | OSHA",
+    metaDesc: "Calculate mobile crane 4-point outrigger reactions, corner tipping loads, ground bearing pressure (GBP in PSI/PSF), and timber mat sizing per OSHA 1926.1402 and ASME B30.5.",
+    canonical: `${DOMAIN}/calc/crane-outrigger-load-calculator`,
+    bodyContent: craneOutriggerBody,
+    currentPath: '/calc/crane-outrigger-load-calculator',
+    faq: [
+      {
+        "q": "Why does swinging the boom over a corner outrigger cause maximum reaction force?",
+        "a": "When a crane swings over a 45° corner, the tipping fulcrum aligns directly with that outrigger pad. The overturning moments from both the suspended load and counterweight combine constructively along the diagonal axis, focusing 75% to 85% of the entire combined machine and load weight onto that single corner."
+      },
+      {
+        "q": "What is Ground Bearing Pressure (GBP) and how is it calculated?",
+        "a": "Ground Bearing Pressure is the vertical compressive force exerted by the outrigger pad divided by the surface contact area of the mat or float (GBP = Force / Area). It is expressed in Pounds per Square Foot (PSF) or Pounds per Square Inch (PSI)."
+      },
+      {
+        "q": "What safety factor does OSHA require for crane outrigger ground support?",
+        "a": "OSHA 1926.1402 requires that ground conditions be firm, drained, and capable of supporting the crane equipment without settling. Industry standards (ASME B30.5 and CIRIA C703) recommend a minimum safety factor of 1.25 to 1.50 over presumptive allowable soil bearing capacities."
+      },
+      {
+        "q": "Why is thin plywood dangerous as crane outrigger cribbing?",
+        "a": "Thin plywood lacks bending stiffness. Under heavy outrigger forces, thin wood flexes upward away from the soil, transmitting almost 100% of the concentrated load through the central footprint of the steel pontoon float without dispersing it across the soil."
+      },
+      {
+        "q": "How does an unlevel crane setup affect outrigger loading?",
+        "a": "Operating a crane just 1° to 2° out of level shifts the machine center of gravity downhill, increasing downhill outrigger loads by 20% or more, and introduces severe torsional side-loading in the boom that can cause catastrophic boom buckling."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PUMP AFFINITY LAWS & IMPELLER TRIMMING CALCULATOR (HYDRAULIC INSTITUTE)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const pumpAffinityBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Pump Affinity Laws Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Pump Affinity Laws &amp; Impeller Trimming Calculator (HI 14.3 / 20.3)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Analyze centrifugal pump scaling under Variable Frequency Drive (VFD) speed modulation and physical impeller diameter trimming per Hydraulic Institute Standards (ANSI/HI 14.3 / 20.3) and ISO 9906: calculate flow rate (Q), total dynamic head (H), brake horsepower (BHP), NPSHr scaling, system curve static lift intersection, and annual electrical energy savings.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Baseline Operating Point (Condition 1)
+      </h2>
+
+      <!-- Initial Speed & Diameter -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pumpBaseRpm">Base Speed N_1 (RPM)</label>
+          <input type="number" id="pumpBaseRpm" value="1750" min="200" max="7200" step="50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard 4-pole motor speed (60Hz)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pumpBaseDia">Base Impeller D_1 (in)</label>
+          <input type="number" id="pumpBaseDia" value="10.0" min="2" max="60" step="0.25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Original full-size impeller diameter</span>
+        </div>
+      </div>
+
+      <!-- Initial Flow & Head -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pumpBaseFlow">Base Flow Q_1 (GPM)</label>
+          <input type="number" id="pumpBaseFlow" value="500" min="5" max="50000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Rated design flow at baseline</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pumpBaseHead">Base Head H_1 (ft TDH)</label>
+          <input type="number" id="pumpBaseHead" value="120" min="5" max="2500" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Total dynamic head (52 PSI = 120 ft)</span>
+        </div>
+      </div>
+
+      <!-- Efficiency & NPSHr -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pumpBaseEff">Pump Efficiency &eta;_1 (%)</label>
+          <input type="number" id="pumpBaseEff" value="76" min="30" max="95" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Hydraulic pump efficiency at BEP</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pumpBaseNpsh">Base NPSHr_1 (ft)</label>
+          <input type="number" id="pumpBaseNpsh" value="11.5" min="1" max="60" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Required net positive suction head</span>
+        </div>
+      </div>
+
+      <h2 style="font-size:1.25rem;margin-top:1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+        New Operating Conditions (Condition 2)
+      </h2>
+
+      <!-- New Speed & New Diameter -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pumpNewRpm">New Speed N_2 (RPM)</label>
+          <input type="number" id="pumpNewRpm" value="1400" min="200" max="7200" step="50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">VFD frequency: 48 Hz (80% speed)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pumpNewDia">New Impeller D_2 (in)</label>
+          <input type="number" id="pumpNewDia" value="10.0" min="2" max="60" step="0.25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Trimmed diameter (max 15% cut)</span>
+        </div>
+      </div>
+
+      <!-- Static Head & Energy Cost -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pumpStaticHead">System Static Head H_stat (ft)</label>
+          <input type="number" id="pumpStaticHead" value="35" min="0" max="1000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Elevation lift + tank pressure head</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pumpElectricRate">Electric Rate ($/kWh)</label>
+          <input type="number" id="pumpElectricRate" value="0.12" min="0.01" max="1.0" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">8,000 annual operating hours</span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--fg);">Hydraulic Institute Affinity Laws (HI 14.3)</div>
+        <ul style="margin:0;padding-left:1.2rem;font-size:0.78rem;color:var(--text-muted);line-height:1.5;">
+          <li>Flow scales linearly: Q_2 = Q_1 &times; (N_2 / N_1) &times; (D_2 / D_1)</li>
+          <li>Head scales quadratically: H_2 = H_1 &times; (N_2 / N_1)&sup2; &times; (D_2 / D_1)&sup2;</li>
+          <li>Power scales cubically: P_2 = P_1 &times; (N_2 / N_1)&sup3; &times; (D_2 / D_1)&sup3;</li>
+          <li>NPSHr scaling: NPSHr_2 &asymp; NPSHr_1 &times; (N_2 / N_1)^1.7</li>
+          <li>CRITICAL: If system has static head, actual operating point diverges from pure affinity!</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RESULTS COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Scaled Pump Hydraulic &amp; Energy Results
+      </h2>
+
+      <div id="pumpAlertBox" style="display:none;margin-bottom:1.25rem;padding:1rem;border-radius:8px;font-size:0.875rem;line-height:1.5;"></div>
+
+      <!-- Flow & Head -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">New Flow Rate (Q_2)</div>
+          <div id="outPumpNewFlow" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--primary);">400.0 GPM</div>
+          <div id="outPumpFlowDiff" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">&minus;20.0% vs Base (500 GPM)</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">New Dynamic Head (H_2)</div>
+          <div id="outPumpNewHead" style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--fg);">76.8 ft</div>
+          <div id="outPumpHeadDiff" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">33.3 PSI (&minus;36.0% Head)</div>
+        </div>
+      </div>
+
+      <!-- Power & Annual Energy Savings -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">New Brake Power (BHP_2)</div>
+          <div id="outPumpNewBhp" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#2563eb;">10.2 BHP</div>
+          <div id="outPumpPowerReduction" style="font-size:0.75rem;font-weight:700;color:#16a34a;margin-top:0.25rem;">&minus;48.8% Power vs Base (19.9 HP)</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Annual Electricity Savings</div>
+          <div id="outPumpAnnualSavings" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#16a34a;">$6,960 / Yr</div>
+          <div id="outPumpKwhSavings" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">58,000 kWh / yr saved</div>
+        </div>
+      </div>
+
+      <!-- NPSHr & Static Head Margin -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Scaled NPSHr (Condition 2)</div>
+          <div id="outPumpNewNpsh" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#8b5cf6;">7.9 ft</div>
+          <div style="font-size:0.75rem;color:#16a34a;margin-top:0.25rem;">+3.6 ft Suction Margin Gained</div>
+        </div>
+
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Static Head Ratio</div>
+          <div id="outPumpStaticRatio" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#d97706;">45.6% of H_2</div>
+          <div id="outPumpStaticStatus" style="font-size:0.75rem;font-weight:700;color:#d97706;margin-top:0.25rem;">High Static: Affinity Diverges</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:auto;">
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Impeller Diameter Trim %:</span>
+          <strong id="outPumpTrimPct" style="font-family:var(--mono);color:#16a34a;">0.0% (No Trim)</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.35rem;">
+          <span style="color:var(--text-muted);">Speed Scaling Ratio (N_2 / N_1):</span>
+          <strong id="outPumpSpeedRatio" style="font-family:var(--mono);">0.800 (80.0% Speed)</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;">
+          <span style="color:var(--text-muted);">Shutoff Head Safety Margin:</span>
+          <strong id="outPumpShutoffMargin" style="font-family:var(--mono);color:#16a34a;">+57.2 ft Above Static Head</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG PUMP H-Q & SYSTEM CURVE SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+      Centrifugal Pump H-Q Curves &amp; System Static Head Operating Point
+    </h2>
+    <div style="overflow-x:auto;">
+      <svg id="pumpAffinitySvg" viewBox="0 0 900 440" style="width:100%;max-width:900px;height:auto;display:block;margin:0 auto;font-family:var(--mono);">
+        <!-- Background Dark Canvas -->
+        <rect x="0" y="0" width="900" height="440" fill="#0f172a" rx="10"/>
+
+        <!-- Grid Lines -->
+        <g stroke="#334155" stroke-width="1" stroke-dasharray="4,4">
+          <line x1="100" y1="360" x2="820" y2="360"/>
+          <line x1="100" y1="290" x2="820" y2="290"/>
+          <line x1="100" y1="220" x2="820" y2="220"/>
+          <line x1="100" y1="150" x2="820" y2="150"/>
+          <line x1="100" y1="80" x2="820" y2="80"/>
+
+          <line x1="100" y1="50" x2="100" y2="360"/>
+          <line x1="280" y1="50" x2="280" y2="360"/>
+          <line x1="460" y1="50" x2="460" y2="360"/>
+          <line x1="640" y1="50" x2="640" y2="360"/>
+          <line x1="820" y1="50" x2="820" y2="360"/>
+        </g>
+
+        <!-- Main Axes -->
+        <line x1="100" y1="360" x2="850" y2="360" stroke="#94a3b8" stroke-width="2.5"/>
+        <line x1="100" y1="360" x2="100" y2="40" stroke="#94a3b8" stroke-width="2.5"/>
+
+        <!-- Axis Labels -->
+        <text x="460" y="400" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="bold">Discharge Flow Rate Q (GPM)</text>
+        <text x="100" y="380" fill="#64748b" font-size="11" text-anchor="middle">0</text>
+        <text x="280" y="380" fill="#64748b" font-size="11" text-anchor="middle">200</text>
+        <text x="460" y="380" fill="#64748b" font-size="11" text-anchor="middle">400</text>
+        <text x="640" y="380" fill="#64748b" font-size="11" text-anchor="middle">600</text>
+        <text x="820" y="380" fill="#64748b" font-size="11" text-anchor="middle">800</text>
+
+        <text x="35" y="200" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="bold" transform="rotate(-90 35 200)">Total Dynamic Head H (ft)</text>
+        <text x="85" y="364" fill="#64748b" font-size="10" text-anchor="end">0</text>
+        <text x="85" y="294" fill="#64748b" font-size="10" text-anchor="end">40</text>
+        <text x="85" y="224" fill="#64748b" font-size="10" text-anchor="end">80</text>
+        <text x="85" y="154" fill="#64748b" font-size="10" text-anchor="end">120</text>
+        <text x="85" y="84" fill="#64748b" font-size="10" text-anchor="end">160</text>
+
+        <!-- Static Head Line (Orange Dash) -->
+        <line id="svgStaticLine" x1="100" y1="298" x2="820" y2="298" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,4"/>
+        <text id="svgStaticLabel" x="720" y="290" fill="#f59e0b" font-size="11" font-weight="bold">Static Head H_stat (35 ft)</text>
+
+        <!-- System Friction Curve H = H_stat + k*Q^2 (Green Solid) -->
+        <path id="svgSystemCurve" d="M 100 298 C 300 295, 500 250, 750 100" fill="none" stroke="#10b981" stroke-width="3"/>
+        <text x="660" y="120" fill="#34d399" font-size="11" font-weight="bold">System Curve (H_stat + Friction)</text>
+
+        <!-- Condition 1: Baseline Pump H-Q Curve (Blue Dash) -->
+        <path d="M 100 90 C 350 95, 550 140, 750 250" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="6,4"/>
+        <text x="580" y="150" fill="#38bdf8" font-size="11" font-weight="bold">Condition 1 (1750 RPM)</text>
+        <!-- Operating Point 1 -->
+        <circle cx="550" cy="150" r="6" fill="#38bdf8" stroke="#ffffff" stroke-width="2"/>
+
+        <!-- Condition 2: Scaled Pump H-Q Curve (Purple Solid) -->
+        <path id="svgPumpCurve2" d="M 100 185 C 300 190, 480 230, 680 320" fill="none" stroke="#a855f7" stroke-width="3.5"/>
+        <text id="svgPumpCurve2Label" x="420" y="215" fill="#c084fc" font-size="11" font-weight="bold">Condition 2 (1400 RPM)</text>
+        <!-- Operating Point 2 -->
+        <circle id="svgPoint2" cx="460" cy="225" r="7" fill="#a855f7" stroke="#ffffff" stroke-width="2"/>
+
+        <!-- Dynamic Summary Box -->
+        <rect x="570" y="30" width="290" height="95" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+        <text x="585" y="52" fill="#ffffff" font-size="11" font-weight="bold">AFFINITY LAWS ENERGY AUDIT</text>
+        <text id="svgAuditFlow" x="585" y="72" fill="#38bdf8" font-size="10">Flow: 500 &rarr; 400 GPM (-20%)</text>
+        <text id="svgAuditHead" x="585" y="90" fill="#c084fc" font-size="10">Head: 120 &rarr; 76.8 ft (-36%)</text>
+        <text id="svgAuditPower" x="585" y="108" fill="#34d399" font-size="10">Power: 19.9 &rarr; 10.2 BHP (-48.8%)</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTIC SPECIFICATION & COPY BUTTON -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Hydraulic Institute Pump Affinity Scaling Data Sheet
+      </h2>
+      <button id="copyPumpAuditBtn" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:0.6rem 1.1rem;font-size:0.875rem;font-weight:600;cursor:pointer;transition:background 0.2s;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Pump Scaling Audit</span>
+      </button>
+    </div>
+    <pre id="pumpAuditReport" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.6;color:var(--fg);overflow-x:auto;margin:0;"></pre>
+  </div>
+
+  <!-- 5 FATAL ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Pump Affinity Scaling</h2>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        1. The Static Head Trap (Deadheading Under Pure Cubic Law Assumptions)
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        The pump affinity laws assume pure friction systems where total head varies with \(Q^2\) through the origin \((0,0)\). In systems dominated by static elevation lift or pressurized boilers (\(H_{stat} > 0.40 H_1\)), reducing VFD speed by just 25% drops pump shutoff head below static head. The pump deadheads completely (zero flow), boiling liquid in the casing and destroying mechanical shaft seals in minutes.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        2. Excessive Impeller Trimming (&gt; 15% Vane Tip Diameter Reduction)
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Hydraulic Institute standards caution that affinity laws lose accuracy when trimming impellers more than 10% to 15%. Excessive diameter cuts widen the radial clearance gap between the impeller vane tips and the stationary volute cutwater. This triggers severe internal recirculation eddies, collapsing hydraulic efficiency by 8% to 15% and inducing low-frequency pressure pulsations.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#10b981;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        3. Motor Thermal Breakdown Below 30 Hz Without External Blower
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Standard Totally Enclosed Fan Cooled (TEFC) motors utilize a cooling fan mounted directly to the rotor shaft. Cooling airflow varies with the cube of motor speed. When a VFD slows the motor down below 30 Hz (50% speed), cooling fan airflow drops to just \(0.5^3 = 12.5\%\). If the pump encounters unexpectedly high torque, the motor stator overheats rapidly without a constant-speed auxiliary cooling blower.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        4. Reverse Affinity Over-Speeding (The 65+ Hz Motor Overload Trap)
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Operators often attempt to squeeze additional flow from an undersized pump by driving the VFD past 60 Hz (e.g., to 66 Hz). Because shaft power scales with the cube of speed (\(P \propto N^3\)), a 10% speed increase (\(66/60 = 1.10\)) increases brake horsepower demand by \(1.10^3 = 1.33\times\) (+33%). The motor enters severe continuous thermal overload, tripping drives and stripping mechanical drive keys.
+      </p>
+    </div>
+
+    <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;">
+      <h3 style="margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-size:1.1rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        5. Low Suction Margin &amp; Minimum Continuous Stable Flow (MCSF)
+      </h3>
+      <p style="margin:0;font-size:0.9rem;line-height:1.6;color:var(--text-muted);">
+        Although NPSHr decreases at reduced speeds, throttling pump flow below 25% of Best Efficiency Point (BEP) triggers Minimum Continuous Stable Flow (MCSF) violations. Extreme low-flow operation causes suction recirculation, discharge vane cavitation pitting, high radial bearing side-thrust, and temperature rise within the volute casing. Always maintain flow above manufacturer MCSF limits.
+      </p>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS & ENGINEERING FOUNDATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-family:var(--serif);font-size:1.75rem;margin-top:0;margin-bottom:1rem;">Pump Affinity Laws Mathematical Derivations</h2>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--text-muted);">
+      <p>
+        The centrifugal pump affinity laws (homologous scaling laws) are derived from Buckingham \(\Pi\) dimensional analysis and Euler's turbine equation:
+      </p>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">1. Flow Rate Scaling (Law 1)</h3>
+      <p>
+        Volumetric flow rate \(Q\) is proportional to peripheral impeller tip velocity \(u = \pi D N / 720\):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        Q_2 = Q_1 &times; (N_2 / N_1) &times; (D_2 / D_1)  [GPM]
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">2. Total Dynamic Head Scaling (Law 2)</h3>
+      <p>
+        Euler head \(H = u^2 / g\) scales with the square of peripheral velocity:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        H_2 = H_1 &times; (N_2 / N_1)&sup2; &times; (D_2 / D_1)&sup2;  [ft TDH]
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">3. Brake Horsepower Scaling (Law 3)</h3>
+      <p>
+        Hydraulic power is proportional to the product of flow and head (\(P \propto Q \times H\)), resulting in cubic scaling:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        BHP = (Q &times; H &times; SG) / (3,960 &times; &eta;)  [Horsepower]<br>
+        P_2 = P_1 &times; (N_2 / N_1)&sup3; &times; (D_2 / D_1)&sup3;  [BHP]
+      </div>
+
+      <h3 style="color:var(--fg);font-size:1.15rem;margin-top:1.5rem;margin-bottom:0.5rem;">4. NPSHr Scaling &amp; Suction Margin</h3>
+      <p>
+        Empirical testing demonstrates that Net Positive Suction Head Required scales with an exponent of approximately 1.5 to 1.8:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.95rem;color:var(--primary);margin-bottom:1rem;">
+        NPSHr_2 &asymp; NPSHr_1 &times; (N_2 / N_1)^1.7  [ft]
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const baseRpmInput = document.getElementById('pumpBaseRpm');
+  const baseDiaInput = document.getElementById('pumpBaseDia');
+  const baseFlowInput = document.getElementById('pumpBaseFlow');
+  const baseHeadInput = document.getElementById('pumpBaseHead');
+  const baseEffInput = document.getElementById('pumpBaseEff');
+  const baseNpshInput = document.getElementById('pumpBaseNpsh');
+
+  const newRpmInput = document.getElementById('pumpNewRpm');
+  const newDiaInput = document.getElementById('pumpNewDia');
+  const staticHeadInput = document.getElementById('pumpStaticHead');
+  const electricRateInput = document.getElementById('pumpElectricRate');
+
+  const alertBox = document.getElementById('pumpAlertBox');
+
+  function calculate() {
+    const N1 = parseFloat(baseRpmInput.value) || 1750;
+    const D1 = parseFloat(baseDiaInput.value) || 10;
+    const Q1 = parseFloat(baseFlowInput.value) || 500;
+    const H1 = parseFloat(baseHeadInput.value) || 120;
+    const effPct = parseFloat(baseEffInput.value) || 75;
+    const npsh1 = parseFloat(baseNpshInput.value) || 10;
+
+    const N2 = parseFloat(newRpmInput.value) || 1400;
+    const D2 = parseFloat(newDiaInput.value) || 10;
+    const Hstat = parseFloat(staticHeadInput.value) || 0;
+    const kwhRate = parseFloat(electricRateInput.value) || 0.12;
+
+    const speedRatio = N2 / N1;
+    const diaRatio = D2 / D1;
+    const totalRatio1 = speedRatio * diaRatio;
+
+    // Scaling Laws
+    const Q2 = Q1 * totalRatio1;
+    const H2 = H1 * Math.pow(totalRatio1, 2);
+
+    const eff = effPct / 100;
+    const bhp1 = (Q1 * H1 * 1.0) / (3960 * eff);
+    const bhp2 = bhp1 * Math.pow(totalRatio1, 3);
+
+    // NPSHr scaling
+    const npsh2 = npsh1 * Math.pow(speedRatio, 1.7) * Math.pow(diaRatio, 1.7);
+
+    // Shutoff head estimated at approx 1.15 to 1.25 of BEP head
+    const shutoffHead1 = H1 * 1.20;
+    const shutoffHead2 = shutoffHead1 * Math.pow(totalRatio1, 2);
+    const shutoffMargin = shutoffHead2 - Hstat;
+
+    // Impeller trim %
+    const trimPct = ((D1 - D2) / D1) * 100;
+
+    // Power and Energy savings
+    const kw1 = bhp1 * 0.746;
+    const kw2 = bhp2 * 0.746;
+    const kwSaved = Math.max(0, kw1 - kw2);
+    const annualHours = 8000;
+    const annualKwhSaved = kwSaved * annualHours;
+    const annualDollarSavings = annualKwhSaved * kwhRate;
+    const powerReductionPct = bhp1 > 0 ? ((bhp1 - bhp2) / bhp1) * 100 : 0;
+
+    // Static head ratio check
+    const staticRatio = H2 > 0 ? (Hstat / H2) * 100 : 0;
+
+    // Alerts
+    if (shutoffMargin <= 0) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.border = '1px solid #f87171';
+      alertBox.style.color = '#991b1b';
+      alertBox.innerHTML = '<strong>⚠️ PUMP DEADHEAD DISASTER:</strong> New shutoff head (' + shutoffHead2.toFixed(1) + ' ft) is below system static head (' + Hstat.toFixed(1) + ' ft). The pump cannot overcome static elevation, resulting in complete zero flow and immediate thermal damage!';
+    } else if (trimPct > 15) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fffbeb';
+      alertBox.style.border = '1px solid #f59e0b';
+      alertBox.style.color = '#92400e';
+      alertBox.innerHTML = '<strong>⚠️ EXCESSIVE IMPELLER TRIM (' + trimPct.toFixed(1) + '%):</strong> Hydraulic Institute recommends a maximum trim of 15%. Excessive cut causes severe volute cutwater clearance recirculation and efficiency collapse.';
+    } else if (staticRatio > 40) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#eff6ff';
+      alertBox.style.border = '1px solid #3b82f6';
+      alertBox.style.color = '#1e3a8a';
+      alertBox.innerHTML = '<strong>ℹ️ STATIC HEAD AFFINITY WARNING:</strong> Static head represents ' + staticRatio.toFixed(1) + '% of total head. In high static systems, reducing speed shifts the true operating point off the pure affinity parabola!';
+    } else {
+      alertBox.style.display = 'none';
+    }
+
+    // Update UI Results
+    document.getElementById('outPumpNewFlow').textContent = Q2.toFixed(1) + ' GPM';
+    const flowDiffPct = ((Q2 - Q1) / Q1) * 100;
+    document.getElementById('outPumpFlowDiff').textContent = (flowDiffPct >= 0 ? '+' : '') + flowDiffPct.toFixed(1) + '% vs Base (' + Q1.toFixed(0) + ' GPM)';
+
+    document.getElementById('outPumpNewHead').textContent = H2.toFixed(1) + ' ft';
+    const headDiffPct = ((H2 - H1) / H1) * 100;
+    document.getElementById('outPumpHeadDiff').textContent = (H2 * 0.4335).toFixed(1) + ' PSI (' + (headDiffPct >= 0 ? '+' : '') + headDiffPct.toFixed(1) + '% Head)';
+
+    document.getElementById('outPumpNewBhp').textContent = bhp2.toFixed(1) + ' BHP';
+    document.getElementById('outPumpPowerReduction').textContent = '-' + powerReductionPct.toFixed(1) + '% Power vs Base (' + bhp1.toFixed(1) + ' HP)';
+
+    document.getElementById('outPumpAnnualSavings').textContent = '$' + Math.round(annualDollarSavings).toLocaleString() + ' / Yr';
+    document.getElementById('outPumpKwhSavings').textContent = Math.round(annualKwhSaved).toLocaleString() + ' kWh / yr saved';
+
+    document.getElementById('outPumpNewNpsh').textContent = npsh2.toFixed(1) + ' ft';
+
+    document.getElementById('outPumpStaticRatio').textContent = staticRatio.toFixed(1) + '% of H_2';
+    const staticBadge = document.getElementById('outPumpStaticStatus');
+    if (staticRatio > 40) {
+      staticBadge.textContent = 'High Static: Affinity Diverges';
+      staticBadge.style.color = '#d97706';
+    } else {
+      staticBadge.textContent = 'Friction Dominated (Pure Affinity Valid)';
+      staticBadge.style.color = '#16a34a';
+    }
+
+    document.getElementById('outPumpTrimPct').textContent = trimPct.toFixed(1) + '% ' + (trimPct === 0 ? '(No Trim)' : 'Trim');
+    document.getElementById('outPumpSpeedRatio').textContent = speedRatio.toFixed(3) + ' (' + (speedRatio * 100).toFixed(1) + '% Speed)';
+    document.getElementById('outPumpShutoffMargin').textContent = (shutoffMargin >= 0 ? '+' : '') + shutoffMargin.toFixed(1) + ' ft Above Static Head';
+
+    // Update SVG Annotations
+    const svgAuditFlow = document.getElementById('svgAuditFlow');
+    if (svgAuditFlow) svgAuditFlow.textContent = 'Flow: ' + Q1.toFixed(0) + ' → ' + Q2.toFixed(0) + ' GPM (' + flowDiffPct.toFixed(1) + '%)';
+    const svgAuditHead = document.getElementById('svgAuditHead');
+    if (svgAuditHead) svgAuditHead.textContent = 'Head: ' + H1.toFixed(0) + ' → ' + H2.toFixed(1) + ' ft (' + headDiffPct.toFixed(1) + '%)';
+    const svgAuditPower = document.getElementById('svgAuditPower');
+    if (svgAuditPower) svgAuditPower.textContent = 'Power: ' + bhp1.toFixed(1) + ' → ' + bhp2.toFixed(1) + ' BHP (-' + powerReductionPct.toFixed(1) + '%)';
+
+    const staticLine = document.getElementById('svgStaticLine');
+    if (staticLine) {
+      // Map Hstat (0 to 160 ft) to SVG Y (360 down to 80)
+      const svgY = Math.max(80, Math.min(360, 360 - (Hstat / 160) * 280));
+      staticLine.setAttribute('y1', svgY);
+      staticLine.setAttribute('y2', svgY);
+      const staticLabel = document.getElementById('svgStaticLabel');
+      if (staticLabel) {
+        staticLabel.setAttribute('y', svgY - 8);
+        staticLabel.textContent = 'Static Head H_stat (' + Hstat.toFixed(0) + ' ft)';
+      }
+    }
+
+    // Diagnostic Summary Report
+    const summary = 
+      '=======================================================\\n' +
+      'HYDRAULIC INSTITUTE PUMP AFFINITY SCALING AUDIT\\n' +
+      '=======================================================\\n' +
+      'CONDITION 1 (BASELINE OPERATING POINT):\\n' +
+      'Shaft Speed (N_1):            ' + N1.toFixed(0) + ' RPM\\n' +
+      'Impeller Diameter (D_1):      ' + D1.toFixed(2) + ' in\\n' +
+      'Discharge Flow Rate (Q_1):    ' + Q1.toFixed(1) + ' GPM\\n' +
+      'Total Dynamic Head (H_1):     ' + H1.toFixed(1) + ' ft TDH (' + (H1 * 0.4335).toFixed(1) + ' PSI)\\n' +
+      'Hydraulic Efficiency (η_1):   ' + effPct.toFixed(1) + ' %\\n' +
+      'Brake Horsepower (BHP_1):     ' + bhp1.toFixed(2) + ' BHP (' + (kw1).toFixed(1) + ' kW)\\n' +
+      'Base NPSHr:                   ' + npsh1.toFixed(1) + ' ft\\n' +
+      '-------------------------------------------------------\\n' +
+      'CONDITION 2 (SCALED OPERATING POINT):\\n' +
+      'New Shaft Speed (N_2):        ' + N2.toFixed(0) + ' RPM (Ratio: ' + speedRatio.toFixed(3) + ')\\n' +
+      'New Impeller Diameter (D_2):  ' + D2.toFixed(2) + ' in (Trim: ' + trimPct.toFixed(1) + ' %)\\n' +
+      'Scaled Flow Rate (Q_2):       ' + Q2.toFixed(1) + ' GPM (' + flowDiffPct.toFixed(1) + ' %)\\n' +
+      'Scaled Total Head (H_2):      ' + H2.toFixed(1) + ' ft TDH (' + (H2 * 0.4335).toFixed(1) + ' PSI)\\n' +
+      'Scaled Brake Power (BHP_2):   ' + bhp2.toFixed(2) + ' BHP (' + (kw2).toFixed(1) + ' kW)\\n' +
+      'Scaled NPSHr (Condition 2):   ' + npsh2.toFixed(1) + ' ft\\n' +
+      '-------------------------------------------------------\\n' +
+      'SYSTEM HYDRAULICS & ENERGY SAVINGS:\\n' +
+      'System Static Head Lift:      ' + Hstat.toFixed(1) + ' ft (' + staticRatio.toFixed(1) + '% of H_2)\\n' +
+      'Condition 2 Shutoff Head:     ' + shutoffHead2.toFixed(1) + ' ft (Margin: ' + shutoffMargin.toFixed(1) + ' ft)\\n' +
+      'Power Demand Reduction:       ' + powerReductionPct.toFixed(1) + ' %\\n' +
+      'Electrical Power Saved:       ' + kwSaved.toFixed(2) + ' kW\\n' +
+      'Annual Energy Reduction:      ' + Math.round(annualKwhSaved).toLocaleString() + ' kWh / year\\n' +
+      'Annual Utility Cost Savings:  $' + Math.round(annualDollarSavings).toLocaleString() + ' / year @ $' + kwhRate.toFixed(2) + '/kWh\\n' +
+      '=======================================================';
+    document.getElementById('pumpAuditReport').textContent = summary;
+  }
+
+  document.getElementById('copyPumpAuditBtn').addEventListener('click', function() {
+    const text = document.getElementById('pumpAuditReport').textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyPumpAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Pump Scaling Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [baseRpmInput, baseDiaInput, baseFlowInput, baseHeadInput, baseEffInput, baseNpshInput, newRpmInput, newDiaInput, staticHeadInput, electricRateInput].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'pump-affinity-laws-calculator.html'), renderTradePage({
+    title: "Pump Affinity Laws & Impeller Trimming Calculator | HI 14.3",
+    metaDesc: "Calculate centrifugal pump VFD speed scaling and impeller trimming per Hydraulic Institute Standards HI 14.3/20.3: compute flow (Q), head (H), brake horsepower (BHP), and energy savings.",
+    canonical: `${DOMAIN}/calc/pump-affinity-laws-calculator`,
+    bodyContent: pumpAffinityBody,
+    currentPath: '/calc/pump-affinity-laws-calculator',
+    faq: [
+      {
+        "q": "What are the Centrifugal Pump Affinity Laws?",
+        "a": "The pump affinity laws are mathematical relationships governing centrifugal pump performance under speed and impeller diameter variations: flow rate varies linearly with speed (Q ∝ N), total dynamic head varies with the square of speed (H ∝ N²), and power consumption varies with the cube of speed (P ∝ N³)."
+      },
+      {
+        "q": "Why does the cubic power law break down in systems with high static head?",
+        "a": "The cubic affinity law assumes pure friction head loss where the system curve passes through the origin (0,0). When static elevation lift exists (H_stat > 0), the pump must generate enough head to overcome static lift before any fluid moves. Slowing the pump down drops head quadratically; once head falls below static lift, flow drops to zero."
+      },
+      {
+        "q": "How much can a centrifugal pump impeller safely be trimmed?",
+        "a": "The Hydraulic Institute recommends trimming pump impellers by no more than 10% to 15% of maximum diameter. Excessive trimming increases the gap between the vane tip and the casing cutwater, creating turbulence, internal recirculation, and substantial efficiency losses."
+      },
+      {
+        "q": "How does pump speed reduction affect Net Positive Suction Head Required (NPSHr)?",
+        "a": "NPSHr decreases significantly when pump speed is reduced, approximately scaling as NPSHr ∝ N^1.7. This increases the suction margin (NPSHa - NPSHr), reducing cavitation risk and enabling quiet, reliable pump operation."
+      },
+      {
+        "q": "Why is running a pump above 60 Hz on a VFD dangerous for the motor?",
+        "a": "Because power demand scales with the cube of speed, running a standard 60 Hz motor at 66 Hz (+10% speed) demands (1.10)³ = 1.33 times (33% more) brake horsepower. Without an oversized motor frame, the drive motor will draw severe overload current and trip."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (47 calculators in /calc/)');
 }
 
