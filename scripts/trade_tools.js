@@ -113502,6 +113502,2288 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
   })();
 
 
-console.log('  ✓ Built Trade & Construction Suite (171 calculators in /calc/)');
+  // --- BATCH BF TOOLS (172 - 175) ---
+
+  // --- TOOL BF1: DUAL-MEDIA RAPID SAND FILTER & BACKWASH CALCULATOR (AWWA B100) ---
+  (() => {
+    const slug = 'dual-media-filter-backwash-calculator';
+    const title = 'Dual-Media Rapid Sand Filter Sizing & Backwash Hydraulics Calculator (AWWA B100 & Ergun)';
+    const metaDescription = 'Municipal and industrial dual-media granular water filter sizing calculator per AWWA B100, Ergun equation, and Cleasby fluidization theory. Computes clean bed headloss, minimum fluidization velocity (v_mf), backwash bed expansion (20-30%), air scour rates, washwater trough hydraulics, and auxiliary backwash pumping demand.';
+
+    const faq = [
+      {
+        q: 'Why does a dual-media filter outperform a mono-medium rapid sand filter?',
+        a: 'A single-medium sand filter stratifies after backwashing such that the finest sand grains settle on the very top of the bed. Consequently, all suspended solids are trapped in the top 25 to 50 mm, causing rapid headloss spikes and surface clogging. A dual-media filter places a thick layer of coarse, low-density anthracite coal (d10 = 1.0 mm, density 1,600 kg/m³) over fine, high-density silica sand (d10 = 0.5 mm, density 2,650 kg/m³). This creates true in-depth filtration where floc penetrates into the coarse anthracite, while the sand layer polishes the effluent, extending filter run times by 200% to 300%.'
+      },
+      {
+        q: 'How does the Ergun equation compute clean bed headloss through porous granular media?',
+        a: 'The Ergun equation combines viscous laminar energy dissipation (the Carman-Kozeny term) and turbulent inertial energy dissipation into a single universal formulation: Delta h / L = 150 * [(1 - eps0)^2 / eps0^3] * [mu * vf / (rho * g * (psi * d)^2)] + 1.75 * [(1 - eps0) / eps0^3] * [vf^2 / (g * psi * d)]. Here, eps0 is bed porosity, psi is grain sphericity (0.72 for crushed anthracite, 0.82 for round sand), d is grain diameter, vf is filtration velocity, mu is dynamic water viscosity, and L is bed depth.'
+      },
+      {
+        q: 'What is the condition required to prevent media intermixing during backwash settling?',
+        a: 'To maintain distinct separation between the top anthracite layer and bottom sand layer after fluidized backwash, the terminal settling velocity of the smallest anthracite particle must be equal to or slightly less than the terminal settling velocity of the largest sand particle: v_t(anthracite, d90) <= v_t(sand, d10). If the coarse anthracite is too fine or the sand is too coarse, fluid shear during backwash causes the two media to mix into an unsorted blend, ruining in-depth filtration capacity.'
+      },
+      {
+        q: 'Why is air scour combined with water backwash essential for mudball prevention?',
+        a: 'Water backwash alone merely suspends particles in a fluidized blanket without generating significant grain-to-grain abrasive collisions. Coagulated clay, organic matter, and aluminum hydroxide flocs adhere to grains, gradually aggregating into dense, sticky mudballs that sink to the gravel layer. Air scour (0.9 to 1.5 m³/m²·min) introduces violent multi-phase bubbling that vigorously scrubs grain surfaces against each other, pulverizing mudball agglomerations and loosening stubborn biological slime.'
+      },
+      {
+        q: 'What is filter ripening and why must filter-to-waste (ripening bypass) be practiced?',
+        a: 'Immediately following a backwash, the clean media grains lack the attachment coating and pore-narrowing deposits that capture microscopic particles. For the first 15 to 45 minutes of filtration, effluent turbidity exhibits a sharp transient spike (turbidity ripening spike), during which Cryptosporidium oocysts and Giardia cysts can slip into treated water. Modern water treatment standards mandate a "filter-to-waste" piping line to divert initial effluent back to the raw water basin until turbidity drops below 0.10 NTU.'
+      }
+    ];
+
+    const content = `
+<style>
+  .dmf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .dmf-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .dmf-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div style="margin-bottom: 1.5rem; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 0.5rem; padding: 1rem;">
+  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: #38bdf8;">
+    <span>💡 Quick Municipal & Industrial Filtration Presets</span>
+  </div>
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadDMFPreset('muni_std')">Municipal Drinking Water (10 m/h, 6 Cells)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadDMFPreset('high_rate')">High-Rate Clarified Feed (15 m/h, 4 Cells)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadDMFPreset('tertiary')">Wastewater Tertiary Polishing (8 m/h, 8 Cells)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadDMFPreset('deep_bed')">Deep-Bed Monomedia Sand (6 m/h, Heavy Solids)</button>
+  </div>
+</div>
+
+<div class="dmf-grid">
+  <!-- Column 1: Plant Flow & Media Geometry -->
+  <div class="dmf-card">
+    <h3>1. Filtration Rate & Media Specification</h3>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="dmf_flow">Total Plant Flow (Q, m³/day)</label>
+        <input type="number" id="dmf_flow" class="form-control" value="35000" min="100" max="500000" step="500" oninput="calcDMF()">
+      </div>
+      <div class="form-group">
+        <label for="dmf_cells">Number of Filter Cells (N)</label>
+        <input type="number" id="dmf_cells" class="form-control" value="6" min="2" max="32" step="1" oninput="calcDMF()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="dmf_v_filt">Filtration Velocity (v_f, m/h)</label>
+        <input type="number" id="dmf_v_filt" class="form-control" value="10.0" min="4.0" max="25.0" step="0.5" oninput="calcDMF()">
+      </div>
+      <div class="form-group">
+        <label for="dmf_temp">Water Temperature (°C)</label>
+        <input type="number" id="dmf_temp" class="form-control" value="20" min="2" max="40" step="1" oninput="calcDMF()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="dmf_l_anth">Anthracite Depth (L_anth, mm)</label>
+        <input type="number" id="dmf_l_anth" class="form-control" value="500" min="0" max="1200" step="25" oninput="calcDMF()">
+      </div>
+      <div class="form-group">
+        <label for="dmf_d_anth">Anthracite Effective Size (d10, mm)</label>
+        <input type="number" id="dmf_d_anth" class="form-control" value="1.05" min="0.6" max="2.0" step="0.05" oninput="calcDMF()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="dmf_l_sand">Sand Layer Depth (L_sand, mm)</label>
+        <input type="number" id="dmf_l_sand" class="form-control" value="300" min="150" max="1000" step="25" oninput="calcDMF()">
+      </div>
+      <div class="form-group">
+        <label for="dmf_d_sand">Sand Effective Size (d10, mm)</label>
+        <input type="number" id="dmf_d_sand" class="form-control" value="0.52" min="0.35" max="1.0" step="0.02" oninput="calcDMF()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="dmf_v_bw">Backwash Water Velocity (v_bw, m/h)</label>
+        <input type="number" id="dmf_v_bw" class="form-control" value="38.0" min="15.0" max="70.0" step="1.0" oninput="calcDMF()">
+      </div>
+      <div class="form-group">
+        <label for="dmf_t_bw">Backwash Duration (t_bw, min)</label>
+        <input type="number" id="dmf_t_bw" class="form-control" value="10.0" min="4.0" max="25.0" step="1.0" oninput="calcDMF()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 2: Headloss & Bed Expansion Results -->
+  <div class="dmf-card">
+    <h3>2. Filtration Hydraulics & Bed Expansion</h3>
+
+    <div class="res-row">
+      <span class="res-label">Bed Fluidization Status</span>
+      <span id="res_dmf_status" class="status-badge badge-safe">OPTIMAL 20-30% EXPANSION</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Area per Filter Cell</span>
+      <span id="res_dmf_cell_area" class="res-val highlight">-- m² (-- ft²)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Total Filter Surface Area</span>
+      <span id="res_dmf_tot_area" class="res-val">-- m²</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Clean Bed Headloss (Ergun Δh₀)</span>
+      <span id="res_dmf_hloss" class="res-val highlight">-- m (-- ft H₂O)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Sand Fluidization Velocity (v_mf)</span>
+      <span id="res_dmf_vmf_sand" class="res-val">-- m/h</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Anthracite Fluidization Velocity</span>
+      <span id="res_dmf_vmf_anth" class="res-val">-- m/h</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Total Bed Expansion (% Exp)</span>
+      <span id="res_dmf_exp" class="res-val success">-- % (-- mm rise)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Intermixing Risk Ratio</span>
+      <span id="res_dmf_intermix" class="res-val">-- (Good Separation)</span>
+    </div>
+  </div>
+</div>
+
+<!-- Backwash Demands & Trough Sizing Section -->
+<div class="dmf-grid">
+  <div class="dmf-card">
+    <h3>3. Backwash Consumables & Pumping Power</h3>
+
+    <div class="res-row">
+      <span class="res-label">Backwash Pumping Flow per Cell</span>
+      <span id="res_dmf_bw_flow" class="res-val highlight">-- m³/h (-- GPM)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Water Volume Consumed per Wash</span>
+      <span id="res_dmf_bw_vol" class="res-val">-- m³ per cycle</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Backwash Recycle / Loss Rate</span>
+      <span id="res_dmf_bw_loss" class="res-val">-- % of daily production</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Air Scour Blower Demand (1.2 m/min)</span>
+      <span id="res_dmf_air_scour" class="res-val warning">-- Nm³/h (-- SCFM)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Backwash Pump Shaft Power (8m head)</span>
+      <span id="res_dmf_bw_power" class="res-val success">-- kW</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Washwater Trough Water Depth</span>
+      <span id="res_dmf_trough_depth" class="res-val">-- mm (Free discharge)</span>
+    </div>
+
+    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+      <button type="button" id="btn_copy_dmf" class="btn-copy">
+        <span>📋 Copy Dual-Media Filter Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Dual-Media Filter Profile & Backwash Expansion Diagram -->
+  <div class="dmf-card">
+    <h3>4. Dual-Media Layer Profile & Fluidized Expansion</h3>
+    <div style="display: flex; justify-content: center; align-items: center; padding: 0.5rem;">
+      <svg viewBox="0 0 340 280" style="width: 100%; max-width: 320px; height: auto;">
+        <!-- Filter Basin Walls -->
+        <rect x="50" y="20" width="240" height="240" rx="4" fill="#0f172a" stroke="#475569" stroke-width="3"/>
+
+        <!-- Water Supernatant (Freeboard) -->
+        <rect x="52" y="22" width="236" height="75" fill="#0284c7" opacity="0.2"/>
+        <text x="170" y="45" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="600">Water Head / Supernatant</text>
+
+        <!-- Washwater V-Notch Trough (Center Top) -->
+        <polygon points="140,55 170,85 200,55" fill="#334155" stroke="#94a3b8" stroke-width="2"/>
+        <text x="170" y="50" text-anchor="middle" fill="#94a3b8" font-size="8">Washwater Trough</text>
+
+        <!-- Anthracite Coal Layer (Black/Grey) -->
+        <rect x="52" y="97" width="236" height="80" fill="#334155" stroke="#64748b" stroke-dasharray="2,2"/>
+        <text x="170" y="135" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="700">Anthracite Coal (500 mm)</text>
+        <text x="170" y="150" text-anchor="middle" fill="#94a3b8" font-size="9">d10 = 1.05 mm | rho = 1,600 kg/m³</text>
+
+        <!-- Sand Layer (Tan/Yellow) -->
+        <rect x="52" y="177" width="236" height="45" fill="#b45309" opacity="0.4" stroke="#d97706"/>
+        <text x="170" y="198" text-anchor="middle" fill="#fef08a" font-size="10" font-weight="700">Silica Sand (300 mm)</text>
+        <text x="170" y="212" text-anchor="middle" fill="#fde047" font-size="8">d10 = 0.52 mm | rho = 2,650 kg/m³</text>
+
+        <!-- Gravel Support Layer (Bottom) -->
+        <rect x="52" y="222" width="236" height="25" fill="#475569" opacity="0.5"/>
+        <circle cx="75" cy="234" r="4" fill="#94a3b8"/>
+        <circle cx="95" cy="234" r="5" fill="#94a3b8"/>
+        <circle cx="120" cy="234" r="4" fill="#94a3b8"/>
+        <circle cx="145" cy="234" r="6" fill="#94a3b8"/>
+        <circle cx="170" cy="234" r="5" fill="#94a3b8"/>
+        <circle cx="195" cy="234" r="6" fill="#94a3b8"/>
+        <circle cx="220" cy="234" r="4" fill="#94a3b8"/>
+        <circle cx="245" cy="234" r="5" fill="#94a3b8"/>
+        <circle cx="265" cy="234" r="4" fill="#94a3b8"/>
+        <text x="170" y="242" text-anchor="middle" fill="#e2e8f0" font-size="8" font-weight="600">Graded Gravel / Underdrain Lateral</text>
+
+        <!-- Backwash Flow Arrows (Rising) -->
+        <line x1="80" y1="255" x2="80" y2="100" stroke="#10b981" stroke-width="2" stroke-dasharray="4,3"/>
+        <polygon points="77,105 80,95 83,105" fill="#10b981"/>
+        <line x1="260" y1="255" x2="260" y2="100" stroke="#10b981" stroke-width="2" stroke-dasharray="4,3"/>
+        <polygon points="257,105 260,95 263,105" fill="#10b981"/>
+        <text x="170" y="272" text-anchor="middle" fill="#10b981" font-size="9" font-weight="700">Upflow Backwash + Air Scour ▲</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Technical Design Standards Table -->
+<div class="dmf-card" style="margin-bottom: 2rem;">
+  <h3>AWWA B100 Standard Filter Media Properties & Intermixing Limits</h3>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Filter Media Layer</th>
+        <th>Effective Size (d₁₀)</th>
+        <th>Uniformity Coeff (UC)</th>
+        <th>Grain Sphericity (ψ)</th>
+        <th>Clean Porosity (ε₀)</th>
+        <th>Grain Density (ρ_s)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Crushed Anthracite Coal</strong></td>
+        <td>0.90 – 1.20 mm</td>
+        <td>&le; 1.40</td>
+        <td>0.70 – 0.75</td>
+        <td>0.50 – 0.54</td>
+        <td>1,550 – 1,650 kg/m³</td>
+      </tr>
+      <tr>
+        <td><strong>Washed Silica Sand</strong></td>
+        <td>0.45 – 0.55 mm</td>
+        <td>&le; 1.35</td>
+        <td>0.80 – 0.85</td>
+        <td>0.40 – 0.44</td>
+        <td>2,600 – 2,680 kg/m³</td>
+      </tr>
+      <tr>
+        <td><strong>High-Density Garnet / Ilmenite</strong></td>
+        <td>0.20 – 0.35 mm</td>
+        <td>&le; 1.45</td>
+        <td>0.78 – 0.82</td>
+        <td>0.42 – 0.46</td>
+        <td>3,800 – 4,200 kg/m³</td>
+      </tr>
+      <tr>
+        <td><strong>Support Silica Gravel</strong></td>
+        <td>2.0 – 32.0 mm</td>
+        <td>&le; 1.50</td>
+        <td>0.85 – 0.90</td>
+        <td>0.38 – 0.42</td>
+        <td>2,650 kg/m³</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5 Fatal Engineering Traps -->
+<div class="dmf-card" style="margin-bottom: 2rem;">
+  <h3>5 Fatal Dual-Media Granular Filter Traps & Operational Failures</h3>
+
+  <div class="trap-card" style="border-left-color: #ef4444;">
+    <div style="font-weight: 700; color: #ef4444; margin-bottom: 0.25rem;">Trap 1: Catastrophic Media Intermixing & Settling Layer Inversion</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      If the ratio of the coarsest anthracite terminal settling velocity exceeds the finest sand settling velocity, the two media invert or form an intermixed blended slurry during post-backwash settling. A 100 mm intermixed boundary zone completely destroys the benefit of coarse-to-fine filtration. Filter runs collapse from 48 hours to less than 12 hours as surface headloss spikes prematurely. AWWA B100 settling ratio rules must be strictly verified prior to loading media.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #f59e0b;">
+    <div style="font-weight: 700; color: #f59e0b; margin-bottom: 0.25rem;">Trap 2: Mudball Formation & Deep Silt Gelling from Water-Only Backwash</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Relying solely on hydrodynamic water fluidization without simultaneous or antecedent air scour fails to produce sufficient grain-on-grain abrasive scrub. Coagulated aluminum flocs and organic polymer adhere to grains, consolidating into dense mudballs up to 50 mm in diameter. Because mudballs have higher bulk density than fluidized sand, they sink to the gravel interface, forming dead zones that channel flow, crack the bed, and allow raw water bypass.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #10b981;">
+    <div style="font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">Trap 3: Underdrain Gravel Disruption During Sudden Backwash Valve Surging</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Opening the backwash water valve or air scour blower too rapidly creates localized hydraulic pressure jets that erupt through the support gravel layers. Graded gravel is displaced laterally into mounds ("boils"). Once gravel layers are disturbed, sand migrates downwards directly into the underdrain plenum nozzles, blowing tons of filter sand into backwash pumps and clearwells, necessitating a multi-week complete filter dig-out and re-pack.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #3b82f6;">
+    <div style="font-weight: 700; color: #3b82f6; margin-bottom: 0.25rem;">Trap 4: Negative Head Development & Air Binding Choking Media Pores</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      When operators allow headloss to exceed the static water depth over the filter media, the internal pore water pressure drops below atmospheric pressure (negative head). Dissolved gases (nitrogen, oxygen) spontaneously bubble out of solution and become trapped within the microscopic pore necks of the sand bed. This "air binding" severely restricts flow passages, creating localized high-velocity jetting that punches channels through the bed and causes massive turbidity breakthrough.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #8b5cf6;">
+    <div style="font-weight: 700; color: #8b5cf6; margin-bottom: 0.25rem;">Trap 5: Filter Ripening Turbidity Spikes & Cryptosporidium Slip</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      During the first 20 to 30 minutes following backwash, freshly scrubbed media lacks the sticky dendritic floc coating that enables secondary capture of sub-micron particles. Effluent turbidity spikes from 0.05 NTU up to > 0.50 NTU. Over 90% of waterborne Cryptosporidium and Giardia breakthrough occurs during this initial unripened phase. Automated filter-to-waste valves or chemical coagulant backwash water conditioning are mandatory regulatory barriers.
+    </p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const presets = {
+    muni_std: { flow: 35000, cells: 6, vf: 10.0, temp: 20, l_anth: 500, d_anth: 1.05, l_sand: 300, d_sand: 0.52, v_bw: 38.0, t_bw: 10.0 },
+    high_rate: { flow: 45000, cells: 4, vf: 15.0, temp: 24, l_anth: 600, d_anth: 1.20, l_sand: 300, d_sand: 0.55, v_bw: 42.0, t_bw: 8.0 },
+    tertiary: { flow: 25000, cells: 8, vf: 8.0, temp: 18, l_anth: 450, d_anth: 1.00, l_sand: 350, d_sand: 0.48, v_bw: 35.0, t_bw: 12.0 },
+    deep_bed: { flow: 20000, cells: 6, vf: 6.0, temp: 15, l_anth: 0, d_anth: 1.00, l_sand: 900, d_sand: 0.65, v_bw: 48.0, t_bw: 12.0 }
+  };
+
+  window.loadDMFPreset = (name) => {
+    const p = presets[name];
+    if (!p) return;
+    document.getElementById('dmf_flow').value = p.flow;
+    document.getElementById('dmf_cells').value = p.cells;
+    document.getElementById('dmf_v_filt').value = p.vf;
+    document.getElementById('dmf_temp').value = p.temp;
+    document.getElementById('dmf_l_anth').value = p.l_anth;
+    document.getElementById('dmf_d_anth').value = p.d_anth;
+    document.getElementById('dmf_l_sand').value = p.l_sand;
+    document.getElementById('dmf_d_sand').value = p.d_sand;
+    document.getElementById('dmf_v_bw').value = p.v_bw;
+    document.getElementById('dmf_t_bw').value = p.t_bw;
+    calcDMF();
+  };
+
+  window.calcDMF = function() {
+    const Q_m3d = parseFloat(document.getElementById('dmf_flow').value) || 35000;
+    const N_cells = parseInt(document.getElementById('dmf_cells').value) || 6;
+    const vf_mh = parseFloat(document.getElementById('dmf_v_filt').value) || 10.0;
+    const temp_C = parseFloat(document.getElementById('dmf_temp').value) || 20;
+
+    const L_anth_mm = parseFloat(document.getElementById('dmf_l_anth').value) || 500;
+    const d_anth_mm = parseFloat(document.getElementById('dmf_d_anth').value) || 1.05;
+    const L_sand_mm = parseFloat(document.getElementById('dmf_l_sand').value) || 300;
+    const d_sand_mm = parseFloat(document.getElementById('dmf_d_sand').value) || 0.52;
+
+    const v_bw_mh = parseFloat(document.getElementById('dmf_v_bw').value) || 38.0;
+    const t_bw_min = parseFloat(document.getElementById('dmf_t_bw').value) || 10.0;
+
+    // Physical water properties
+    const rho_w = 998.2; // kg/m3
+    const g = 9.80665;
+    // Dynamic viscosity approximation mu (Pa.s)
+    const mu = 0.001792 / (1 + 0.03368 * temp_C + 0.000221 * Math.pow(temp_C, 2));
+
+    // Media properties
+    const rho_anth = 1600; // kg/m3
+    const eps0_anth = 0.52;
+    const psi_anth = 0.72; // crushed coal sphericity
+
+    const rho_sand = 2650; // kg/m3
+    const eps0_sand = 0.42;
+    const psi_sand = 0.82; // rounded silica sphericity
+
+    // Filter Sizing
+    const Q_m3h = Q_m3d / 24;
+    const tot_area_m2 = vf_mh > 0 ? (Q_m3h / vf_mh) : 100;
+    const cell_area_m2 = N_cells > 0 ? (tot_area_m2 / N_cells) : tot_area_m2;
+    const cell_area_ft2 = cell_area_m2 * 10.7639;
+
+    // Clean Bed Headloss via Ergun Equation
+    // vf in m/s
+    const vf_ms = vf_mh / 3600;
+
+    function ergunLoss(L_m, d_m, eps0, psi) {
+      if (L_m <= 0) return 0;
+      const term1 = 150 * (Math.pow(1 - eps0, 2) / Math.pow(eps0, 3)) * ((mu * vf_ms) / (rho_w * g * Math.pow(psi * d_m, 2)));
+      const term2 = 1.75 * ((1 - eps0) / Math.pow(eps0, 3)) * (Math.pow(vf_ms, 2) / (g * psi * d_m));
+      return L_m * (term1 + term2);
+    }
+
+    const hloss_anth = ergunLoss(L_anth_mm / 1000, d_anth_mm / 1000, eps0_anth, psi_anth);
+    const hloss_sand = ergunLoss(L_sand_mm / 1000, d_sand_mm / 1000, eps0_sand, psi_sand);
+    const hloss_underdrain = 0.25; // m standard nozzle / lateral drop
+    const hloss_tot_m = hloss_anth + hloss_sand + hloss_underdrain;
+    const hloss_tot_ft = hloss_tot_m * 3.28084;
+
+    // Minimum Fluidization Velocity (v_mf) via Wen & Yu formulation
+    function calcVmf(d_m, rho_s) {
+      const Ar = (Math.pow(d_m, 3) * rho_w * (rho_s - rho_w) * g) / Math.pow(mu, 2);
+      const Remf = Math.sqrt(Math.pow(33.7, 2) + 0.0408 * Ar) - 33.7;
+      return (Remf * mu / (rho_w * d_m)) * 3600; // m/h
+    }
+
+    const vmf_sand_mh = calcVmf(d_sand_mm / 1000, rho_sand);
+    const vmf_anth_mh = calcVmf(d_anth_mm / 1000, rho_anth);
+
+    // Bed Expansion via Richardson-Zaki
+    // Terminal settling velocity vt approx 10 * vmf
+    const vt_sand = vmf_sand_mh * 7.5;
+    const vt_anth = vmf_anth_mh * 6.5;
+
+    // Intermixing check: vt(anth, d90) vs vt(sand, d10)
+    const intermix_ratio = vt_sand > 0 ? (vt_anth / vt_sand) : 1.0;
+
+    // Expanded porosity eps_e = (v_bw / vt)^(1/n), n ~ 4.45 * Re^-0.1 ~ 3.5
+    const n_rz = 3.5;
+    const eps_e_anth = Math.min(0.85, Math.max(eps0_anth, Math.pow(v_bw_mh / vt_anth, 1 / n_rz)));
+    const eps_e_sand = Math.min(0.80, Math.max(eps0_sand, Math.pow(v_bw_mh / vt_sand, 1 / n_rz)));
+
+    const L_e_anth = (L_anth_mm / 1000) * ((1 - eps0_anth) / (1 - eps_e_anth));
+    const L_e_sand = (L_sand_mm / 1000) * ((1 - eps0_sand) / (1 - eps_e_sand));
+
+    const L0_tot_m = (L_anth_mm + L_sand_mm) / 1000;
+    const Le_tot_m = L_e_anth + L_e_sand;
+    const exp_pct = L0_tot_m > 0 ? ((Le_tot_m - L0_tot_m) / L0_tot_m) * 100 : 25;
+    const exp_rise_mm = (Le_tot_m - L0_tot_m) * 1000;
+
+    // Backwash Pumping & Consumables
+    const bw_flow_m3h = cell_area_m2 * v_bw_mh;
+    const bw_flow_gpm = bw_flow_m3h * 4.40287;
+    const bw_vol_per_wash_m3 = bw_flow_m3h * (t_bw_min / 60);
+
+    // Assuming each cell washes once every 48 hours
+    const daily_bw_vol = bw_vol_per_wash_m3 * N_cells * 0.5;
+    const bw_loss_pct = Q_m3d > 0 ? (daily_bw_vol / Q_m3d) * 100 : 2.5;
+
+    // Air Scour Rate: 1.2 m3/m2.min
+    const air_scour_m3h = cell_area_m2 * 1.2 * 60;
+    const air_scour_scfm = air_scour_m3h * 0.588578;
+
+    // Pump shaft power: P = rho * g * Q * H / eta (H ~ 8.0 m including static + pipe)
+    const P_pump_kW = (rho_w * g * (bw_flow_m3h / 3600) * 8.0) / (0.75 * 1000);
+
+    // Washwater Trough Weir Depth (Francis weir formula: Q = 1.38 * b * H^1.5, trough width ~ 0.5m)
+    const b_trough = 0.5;
+    const Q_trough_s = (bw_flow_m3h / 3600) / 2; // dual troughs per cell
+    const h_trough_m = Math.pow(Q_trough_s / (1.38 * b_trough), 2 / 3);
+    const h_trough_mm = h_trough_m * 1000;
+
+    // Render Outputs
+    document.getElementById('res_dmf_cell_area').textContent = cell_area_m2.toFixed(1) + ' m² (' + Math.round(cell_area_ft2) + ' ft²)';
+    document.getElementById('res_dmf_tot_area').textContent = Math.round(tot_area_m2).toLocaleString() + ' m² (' + N_cells + ' cells)';
+    document.getElementById('res_dmf_hloss').textContent = hloss_tot_m.toFixed(2) + ' m (' + hloss_tot_ft.toFixed(2) + ' ft)';
+    document.getElementById('res_dmf_vmf_sand').textContent = vmf_sand_mh.toFixed(1) + ' m/h';
+    document.getElementById('res_dmf_vmf_anth').textContent = vmf_anth_mh.toFixed(1) + ' m/h';
+    document.getElementById('res_dmf_exp').textContent = exp_pct.toFixed(1) + ' % (' + Math.round(exp_rise_mm) + ' mm)';
+    document.getElementById('res_dmf_intermix').textContent = intermix_ratio.toFixed(2) + ' (Ratio <= 1.15 prevents mixing)';
+
+    document.getElementById('res_dmf_bw_flow').textContent = Math.round(bw_flow_m3h).toLocaleString() + ' m³/h (' + Math.round(bw_flow_gpm).toLocaleString() + ' GPM)';
+    document.getElementById('res_dmf_bw_vol').textContent = Math.round(bw_vol_per_wash_m3).toLocaleString() + ' m³ / cell wash';
+    document.getElementById('res_dmf_bw_loss').textContent = bw_loss_pct.toFixed(2) + ' % of treated flow';
+    document.getElementById('res_dmf_air_scour').textContent = Math.round(air_scour_m3h).toLocaleString() + ' Nm³/h (' + Math.round(air_scour_scfm).toLocaleString() + ' SCFM)';
+    document.getElementById('res_dmf_bw_power').textContent = Math.round(P_pump_kW).toLocaleString() + ' kW';
+    document.getElementById('res_dmf_trough_depth').textContent = Math.round(h_trough_mm) + ' mm weir depth';
+
+    // Status Badge
+    const badge = document.getElementById('res_dmf_status');
+    if (exp_pct < 15.0) {
+      badge.className = 'status-badge badge-danger';
+      badge.textContent = 'INSUFFICIENT EXPANSION (< 15% - MUDBALL RISK)';
+    } else if (exp_pct > 38.0) {
+      badge.className = 'status-badge badge-danger';
+      badge.textContent = 'EXCESSIVE EXPANSION (> 38% - MEDIA LOSS OVER TROUGHS)';
+    } else if (intermix_ratio > 1.25) {
+      badge.className = 'status-badge badge-warn';
+      badge.textContent = 'MEDIA INTERMIXING RISK (ANTHRACITE TOO COARSE)';
+    } else {
+      badge.className = 'status-badge badge-safe';
+      badge.textContent = 'OPTIMAL 20–30% BED EXPANSION';
+    }
+  };
+
+  const btnCopy = document.getElementById('btn_copy_dmf');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '=== DUAL-MEDIA GRANULAR FILTER SIZING DATASHEET ===',
+        'Standard: AWWA B100 / Ergun Equation / Cleasby & Baumann',
+        'Plant Flow: ' + document.getElementById('dmf_flow').value + ' m³/day | Cells: ' + document.getElementById('dmf_cells').value,
+        'Filtration Rate: ' + document.getElementById('dmf_v_filt').value + ' m/h | Water Temp: ' + document.getElementById('dmf_temp').value + ' °C',
+        'Anthracite: ' + document.getElementById('dmf_l_anth').value + ' mm (d10 = ' + document.getElementById('dmf_d_anth').value + ' mm)',
+        'Silica Sand: ' + document.getElementById('dmf_l_sand').value + ' mm (d10 = ' + document.getElementById('dmf_d_sand').value + ' mm)',
+        'Backwash Rate: ' + document.getElementById('dmf_v_bw').value + ' m/h for ' + document.getElementById('dmf_t_bw').value + ' min',
+        '--- Filtration & Hydraulics ---',
+        'Area per Filter Cell: ' + document.getElementById('res_dmf_cell_area').textContent,
+        'Total Filter Area: ' + document.getElementById('res_dmf_tot_area').textContent,
+        'Clean Bed Headloss: ' + document.getElementById('res_dmf_hloss').textContent,
+        'Minimum Fluidization (Sand): ' + document.getElementById('res_dmf_vmf_sand').textContent,
+        'Minimum Fluidization (Anthracite): ' + document.getElementById('res_dmf_vmf_anth').textContent,
+        'Fluidized Bed Expansion: ' + document.getElementById('res_dmf_exp').textContent,
+        'Intermixing Ratio: ' + document.getElementById('res_dmf_intermix').textContent,
+        '--- Backwash Consumables & Power ---',
+        'Backwash Water Flow: ' + document.getElementById('res_dmf_bw_flow').textContent,
+        'Water Volume per Wash: ' + document.getElementById('res_dmf_bw_vol').textContent,
+        'Water Loss Percentage: ' + document.getElementById('res_dmf_bw_loss').textContent,
+        'Air Scour Demand: ' + document.getElementById('res_dmf_air_scour').textContent,
+        'Backwash Pump Shaft Power: ' + document.getElementById('res_dmf_bw_power').textContent,
+        'Trough Water Depth: ' + document.getElementById('res_dmf_trough_depth').textContent,
+        'Operating Regime: ' + document.getElementById('res_dmf_status').textContent,
+        '==================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcDMF();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BF2: TEMA SHELL & TUBE HEAT EXCHANGER CALCULATOR (KERN METHOD / ASME VIII) ---
+  (() => {
+    const slug = 'tema-shell-tube-heat-exchanger-calculator';
+    const title = 'TEMA Shell & Tube Heat Exchanger Sizing & Kern Rating Calculator (ASME VIII)';
+    const metaDescription = 'Industrial shell and tube heat exchanger sizing and rating calculator per TEMA Standards (10th Ed), ASME Section VIII, and Kern\'s Method. Computes log mean temperature difference (LMTD), F-correction factor, shell-side crossflow area, heat transfer coefficients (h_s, h_t), overall U-value, shell and tube pressure drops, and TEMA tube vibration limits.';
+
+    const faq = [
+      {
+        q: 'How does Kern\'s Method calculate the shell-side heat transfer coefficient (h_s)?',
+        a: 'Kern\'s Method models cross-flow across the tube bundle between segmental baffles. It determines the minimum cross-flow area at the shell centerline: A_s = D_s * C * B / P_t, where D_s is shell ID, B is baffle spacing, C is tube clearance (P_t - d_o), and P_t is pitch. An equivalent hydraulic diameter D_e is computed based on wetted perimeter. The shell mass velocity G_s = m_dot / A_s yields the Reynolds number Re_s. Kern\'s empirical Colburn factor j_H = 0.36 * Re_s^0.55 then determines Nusselt number and h_s = Nu_s * k / D_e.'
+      },
+      {
+        q: 'What is the significance of the TEMA LMTD F-Correction Factor (F >= 0.75)?',
+        a: 'In multi-pass heat exchangers (such as a 1-shell pass, 2-tube pass 1-2 TEMA E exchanger), flow is a mix of counter-current and co-current directions. The true effective mean temperature difference is Delta T_m = F * LMTD. If the temperatures produce an F-factor below 0.75 to 0.80, a "temperature cross" exists where the cold stream outlet exceeds the hot stream outlet. Operating with F < 0.75 causes severe thermodynamic inefficiency, requiring multiple shells in series (e.g. TEMA F two-pass shell or two TEMA E shells).'
+      },
+      {
+        q: 'What causes flow-induced tube vibration (FIV) in shell and tube heat exchangers?',
+        a: 'High shell-side fluid velocities induce three destructive aero-hydrodynamic phenomena: (1) Vortex Shedding: periodic vortices shedding behind tubes match the natural resonant frequency of the tube span; (2) Turbulent Buffeting: broadband turbulent kinetic energy induces cyclic fatigue; and (3) Fluid-Elastic Instability (FEI): fluid forces couple with tube motion, causing self-excited amplitude growth. When cross-flow velocity exceeds Connors\' critical velocity, adjacent tubes clash together, severing tubes at the baffle holes.'
+      },
+      {
+        q: 'Why is an impingement baffle mandatory at the shell inlet nozzle?',
+        a: 'Per TEMA Standard Section RCB-4.61, when the shell inlet fluid momentum kinetic energy (rho * v^2) exceeds 2,230 kg/(m·s²) for non-corrosive gases or 740 kg/(m·s²) for liquids, high-velocity incoming droplets and jets directly impact the outer tube row. Without a sacrificial impingement baffle plate (or dummy rod bar) mounted under the nozzle, the turbulent entering jet mechanically erodes and thins the top tube rows, causing pinhole perforations within months.'
+      },
+      {
+        q: 'What is the operational difference between 30° Triangular and 90° Square pitch layouts?',
+        a: 'A 30° triangular pitch layout packs the maximum number of tubes into a given shell diameter, providing 15% to 25% higher heat transfer coefficient and surface area per unit shell volume. However, it cannot be cleaned mechanically by water jet lancing. A 90° square pitch layout provides continuous 6.35 mm (0.25-inch) cleaning lanes between tube rows, permitting mechanical rodding and high-pressure washing for heavily fouling hydrocarbon or crystallization fluids.'
+      }
+    ];
+
+    const content = `
+<style>
+  .st-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .st-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .st-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div style="margin-bottom: 1.5rem; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 0.5rem; padding: 1rem;">
+  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: #38bdf8;">
+    <span>💡 Quick Industrial TEMA Exchanger Presets</span>
+  </div>
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadTEMAPreset('oil_water')">Lube Oil Cooler (Shell Oil / Tube Water, 1-2 TEMA E)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadTEMAPreset('naphtha_cond')">Naphtha Condenser (Refinery Hydrocarbon, 1-2 TEMA E)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadTEMAPreset('feedwater_htr')">Boiler Feedwater Preheater (Steam / Water)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadTEMAPreset('amine_inter')">Amine Interchanger (Rich / Lean Amine, 2 Passes)</button>
+  </div>
+</div>
+
+<div class="st-grid">
+  <!-- Column 1: Thermal Duty & Temperatures -->
+  <div class="st-card">
+    <h3>1. Thermal Process Temperatures & Duties</h3>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="st_duty">Thermal Heat Duty (Q, kW)</label>
+        <input type="number" id="st_duty" class="form-control" value="2500" min="50" max="100000" step="50" oninput="calcTEMA()">
+      </div>
+      <div class="form-group">
+        <label for="st_passes">Tube Passes (n_p)</label>
+        <select id="st_passes" class="form-control" onchange="calcTEMA()">
+          <option value="1">1 Pass (Pure Counter-Current)</option>
+          <option value="2" selected>2 Passes (TEMA 1-2 Standard)</option>
+          <option value="4">4 Passes (High Tube Velocity)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="st_th_in">Hot Fluid Inlet (T_h,in, °C)</label>
+        <input type="number" id="st_th_in" class="form-control" value="120" min="20" max="450" step="1" oninput="calcTEMA()">
+      </div>
+      <div class="form-group">
+        <label for="st_th_out">Hot Fluid Outlet (T_h,out, °C)</label>
+        <input type="number" id="st_th_out" class="form-control" value="70" min="15" max="400" step="1" oninput="calcTEMA()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="st_tc_in">Cold Fluid Inlet (T_c,in, °C)</label>
+        <input type="number" id="st_tc_in" class="form-control" value="30" min="0" max="250" step="1" oninput="calcTEMA()">
+      </div>
+      <div class="form-group">
+        <label for="st_tc_out">Cold Fluid Outlet (T_c,out, °C)</label>
+        <input type="number" id="st_tc_out" class="form-control" value="60" min="5" max="300" step="1" oninput="calcTEMA()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="st_flow_shell">Shell-Side Mass Flow (kg/s)</label>
+        <input type="number" id="st_flow_shell" class="form-control" value="23.8" min="0.5" max="500" step="0.5" oninput="calcTEMA()">
+      </div>
+      <div class="form-group">
+        <label for="st_flow_tube">Tube-Side Mass Flow (kg/s)</label>
+        <input type="number" id="st_flow_tube" class="form-control" value="19.9" min="0.5" max="500" step="0.5" oninput="calcTEMA()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 2: TEMA Geometry & Layout -->
+  <div class="st-card">
+    <h3>2. Exchanger Geometry (TEMA Kern Sizing)</h3>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="st_ds">Shell Inside Diameter (D_s, mm)</label>
+        <input type="number" id="st_ds" class="form-control" value="650" min="150" max="2500" step="25" oninput="calcTEMA()">
+      </div>
+      <div class="form-group">
+        <label for="st_baffle_space">Baffle Spacing (B, mm)</label>
+        <input type="number" id="st_baffle_space" class="form-control" value="250" min="50" max="1000" step="10" oninput="calcTEMA()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="st_tube_od">Tube Outer Diameter (d_o, mm)</label>
+        <select id="st_tube_od" class="form-control" onchange="calcTEMA()">
+          <option value="19.05" selected>19.05 mm (3/4 in OD)</option>
+          <option value="25.40">25.40 mm (1.0 in OD)</option>
+          <option value="31.75">31.75 mm (1-1/4 in OD)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="st_tube_thk">Tube Wall Gauge (BWG / mm)</label>
+        <input type="number" id="st_tube_thk" class="form-control" value="1.65" min="0.8" max="4.0" step="0.05" oninput="calcTEMA()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="st_pitch_layout">Tube Layout & Pitch</label>
+        <select id="st_pitch_layout" class="form-control" onchange="calcTEMA()">
+          <option value="tri_30" selected>30° Triangular Pitch (P_t = 1.25 d_o)</option>
+          <option value="sq_90">90° Square Pitch (P_t = 1.25 d_o, Cleanable)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="st_tube_len">Tube Length (L, m)</label>
+        <input type="number" id="st_tube_len" class="form-control" value="4.88" min="1.5" max="12.0" step="0.1" oninput="calcTEMA()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="st_rf_shell">Shell Fouling Resistance (m²·K/W)</label>
+        <input type="number" id="st_rf_shell" class="form-control" value="0.00035" min="0.00005" max="0.002" step="0.00005" oninput="calcTEMA()">
+      </div>
+      <div class="form-group">
+        <label for="st_rf_tube">Tube Fouling Resistance (m²·K/W)</label>
+        <input type="number" id="st_rf_tube" class="form-control" value="0.00018" min="0.00005" max="0.002" step="0.00005" oninput="calcTEMA()">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Results & Rating Section -->
+<div class="st-grid">
+  <div class="st-card">
+    <h3>3. Thermal Performance & Pressure Drops</h3>
+
+    <div class="res-row">
+      <span class="res-label">Exchanger Rating Status</span>
+      <span id="res_st_status" class="status-badge badge-safe">ADEQUATE (SURFACE MARGIN > 10%)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Corrected LMTD (ΔT_m = F × LMTD)</span>
+      <span id="res_st_lmtd" class="res-val highlight">-- °C (F = --)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Shell Crossflow Area (A_s)</span>
+      <span id="res_st_as" class="res-val">-- m²</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Shell Film Coeff (h_s, Kern)</span>
+      <span id="res_st_hs" class="res-val">-- W/m²·K</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Tube Film Coeff (h_t)</span>
+      <span id="res_st_ht" class="res-val">-- W/m²·K</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Overall U-Value (U_dirty)</span>
+      <span id="res_st_u" class="res-val highlight">-- W/m²·K</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Required vs Provided Surface Area</span>
+      <span id="res_st_area" class="res-val success">-- m² (Margin: -- %)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Total Tube Count & Tube Velocity</span>
+      <span id="res_st_tubes" class="res-val">-- tubes (-- m/s)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Shell Pressure Drop (ΔP_s)</span>
+      <span id="res_st_dps" class="res-val">-- bar</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Tube Pressure Drop (ΔP_t)</span>
+      <span id="res_st_dpt" class="res-val">-- bar</span>
+    </div>
+
+    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+      <button type="button" id="btn_copy_st" class="btn-copy">
+        <span>📋 Copy TEMA Exchanger Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive TEMA Exchanger Flow Schematic -->
+  <div class="st-card">
+    <h3>4. TEMA 1-2 Exchanger Cross-Section & Baffle Bypasses</h3>
+    <div style="display: flex; justify-content: center; align-items: center; padding: 0.5rem;">
+      <svg viewBox="0 0 420 280" style="width: 100%; max-width: 380px; height: auto;">
+        <!-- Shell Cylinder -->
+        <rect x="70" y="50" width="280" height="160" rx="10" fill="#0f172a" stroke="#475569" stroke-width="3"/>
+
+        <!-- Front Head (Channel Bonnet Left) -->
+        <path d="M 70,50 Q 20,130 70,210 Z" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+        <line x1="45" y1="130" x2="70" y2="130" stroke="#38bdf8" stroke-width="2"/>
+        <text x="30" y="95" fill="#38bdf8" font-size="9" font-weight="700">Inlet</text>
+        <text x="30" y="175" fill="#38bdf8" font-size="9" font-weight="700">Outlet</text>
+
+        <!-- Rear Head (Floating Head / U-Tube Right) -->
+        <path d="M 350,50 Q 400,130 350,210 Z" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+
+        <!-- Segmental Baffles (Alternating up and down) -->
+        <!-- Baffle 1 (Top cut) -->
+        <line x1="130" y1="100" x2="130" y2="208" stroke="#f59e0b" stroke-width="3"/>
+        <!-- Baffle 2 (Bottom cut) -->
+        <line x1="190" y1="52" x2="190" y2="160" stroke="#f59e0b" stroke-width="3"/>
+        <!-- Baffle 3 (Top cut) -->
+        <line x1="250" y1="100" x2="250" y2="208" stroke="#f59e0b" stroke-width="3"/>
+        <!-- Baffle 4 (Bottom cut) -->
+        <line x1="310" y1="52" x2="310" y2="160" stroke="#f59e0b" stroke-width="3"/>
+
+        <!-- Shell Nozzles -->
+        <!-- Inlet Top Left -->
+        <rect x="90" y="20" width="30" height="30" fill="#334155" stroke="#ef4444" stroke-width="2"/>
+        <text x="105" y="15" text-anchor="middle" fill="#ef4444" font-size="9" font-weight="700">Shell In</text>
+        <!-- Impingement Plate under nozzle -->
+        <line x1="85" y1="60" x2="125" y2="60" stroke="#ef4444" stroke-width="3"/>
+
+        <!-- Outlet Bottom Right -->
+        <rect x="300" y="210" width="30" height="30" fill="#334155" stroke="#ef4444" stroke-width="2"/>
+        <text x="315" y="255" text-anchor="middle" fill="#ef4444" font-size="9" font-weight="700">Shell Out</text>
+
+        <!-- Tube Lines (Schematic 2 passes) -->
+        <line x1="70" y1="85" x2="350" y2="85" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <line x1="70" y1="115" x2="350" y2="115" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <line x1="70" y1="145" x2="350" y2="145" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <line x1="70" y1="175" x2="350" y2="175" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+        <!-- Shell Crossflow Flow Path (Wavy arrow) -->
+        <path d="M 105,65 Q 115,140 160,140 Q 190,80 220,170 Q 280,110 315,210" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="210" y="270" text-anchor="middle" fill="#94a3b8" font-size="10">TEMA 1-2 Single-Shell Divided Pass</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Technical Design Standards Table -->
+<div class="st-card" style="margin-bottom: 2rem;">
+  <h3>TEMA Standards Recommended Fouling Factors & Velocity Limits</h3>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Process Fluid Service</th>
+        <th>TEMA Recommended R_f (m²·K/W)</th>
+        <th>Max Permissible Tube Velocity</th>
+        <th>Minimum Baffle Cut</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Treated Cooling Tower Water</strong></td>
+        <td>0.00018 – 0.00035</td>
+        <td>1.8 – 2.5 m/s (Min 1.0 m/s)</td>
+        <td>20% – 25%</td>
+      </tr>
+      <tr>
+        <td><strong>Boiler Feedwater / Demineralized</strong></td>
+        <td>0.00009 – 0.00018</td>
+        <td>2.0 – 3.2 m/s</td>
+        <td>20% – 25%</td>
+      </tr>
+      <tr>
+        <td><strong>Light Hydrocarbons (Gasoline, Naphtha)</strong></td>
+        <td>0.00018 – 0.00035</td>
+        <td>1.5 – 2.2 m/s</td>
+        <td>25% – 30%</td>
+      </tr>
+      <tr>
+        <td><strong>Heavy Crude Oil / Vacuum Bottoms</strong></td>
+        <td>0.00053 – 0.00088</td>
+        <td>1.2 – 1.8 m/s</td>
+        <td>30% – 35%</td>
+      </tr>
+      <tr>
+        <td><strong>Lean / Rich Gas Treating Amine</strong></td>
+        <td>0.00035 – 0.00053</td>
+        <td>1.5 – 2.0 m/s</td>
+        <td>20% – 25%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5 Fatal Engineering Traps -->
+<div class="st-card" style="margin-bottom: 2rem;">
+  <h3>5 Fatal Shell & Tube Heat Exchanger Engineering Traps</h3>
+
+  <div class="trap-card" style="border-left-color: #ef4444;">
+    <div style="font-weight: 700; color: #ef4444; margin-bottom: 0.25rem;">Trap 1: Flow-Induced Tube Vibration & Acoustic Fatigue Fracturing</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      When shell-side crossflow velocity exceeds the critical fluid-elastic instability threshold (Connors\' beta limit), neighboring tubes undergo self-excited violent whipping oscillations. Tubes strike adjacent tubes at thousands of cycles per minute, while baffle hole ligaments act as cutting dies that saw through the tube wall within 48 to 72 hours. TEMA Section 5 vibration audits (evaluating FEI, vortex shedding, and acoustic resonance) must be satisfied for every design.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #f59e0b;">
+    <div style="font-weight: 700; color: #f59e0b; margin-bottom: 0.25rem;">Trap 2: The F-Correction Factor Collapse & Temperature Cross Pinch</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      In a 1-shell, 2-tube pass (TEMA E) exchanger, when the cold fluid outlet temperature exceeds the hot fluid outlet temperature (a temperature cross), the logarithmic mean temperature difference correction factor F plunges toward zero. If F drops below 0.75, the required surface area escalates asymptotically, and minor operating flow variations cause immediate thermal collapse. The system must be split into two or more shell passes in series.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #10b981;">
+    <div style="font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">Trap 3: Shell Baffle Bypass Stream Leakage (Tinker Stream Inefficiencies)</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Kern\'s simplified method assumes 100% of the shell fluid crosses the tube bundle. In real exchangers, substantial fractions leak through clearances: the A-stream (tube-to-baffle hole gap) and E-stream (baffle-to-shell gap). If manufacturing clearances are generous or seal strips are omitted, up to 40% of shell fluid bypasses the tubes entirely without exchanging heat, causing actual thermal capacity to fall 30% below Kern predictions.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #3b82f6;">
+    <div style="font-weight: 700; color: #3b82f6; margin-bottom: 0.25rem;">Trap 4: Impingement Baffle Omission & Outer Tube Row Scouring</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      When shell inlet nozzle momentum (rho * v^2) exceeds 2,230 kg/(m·s²), high-velocity entering liquid or two-phase mist acts as a continuous sandblaster against the outermost tube row. Omitting the TEMA-mandated impingement plate or dummy bar array results in severe mechanical erosion-corrosion, cutting through the outer tube wall and forcing an unscheduled refinery unit shutdown.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #8b5cf6;">
+    <div style="font-weight: 700; color: #8b5cf6; margin-bottom: 0.25rem;">Trap 5: Fixed Tubesheet Differential Thermal Expansion Binding</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      In fixed tubesheet (TEMA BEM/AEM) exchangers, both ends of the tubes are rigidly welded or rolled into tubesheets welded to the shell. If the mean operating temperature difference between the shell wall and tube bundle exceeds 35°C to 50°C, differential thermal growth generates massive axial forces. The tubes buckle in compression or tear out of the tubesheet in tension. A shell expansion bellow or a floating head (TEMA AES/AET) must be selected.
+    </p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const presets = {
+    oil_water: { q: 2500, passes: 2, th_in: 120, th_out: 70, tc_in: 30, tc_out: 60, m_shell: 23.8, m_tube: 19.9, ds: 650, b: 250, do_mm: 19.05, thk: 1.65, layout: 'tri_30', l: 4.88, rf_s: 0.00035, rf_t: 0.00018 },
+    naphtha_cond: { q: 4200, passes: 2, th_in: 145, th_out: 85, tc_in: 32, tc_out: 58, m_shell: 35.0, m_tube: 38.5, ds: 800, b: 300, do_mm: 25.40, thk: 2.11, layout: 'sq_90', l: 6.10, rf_s: 0.00030, rf_t: 0.00020 },
+    feedwater_htr: { q: 6500, passes: 4, th_in: 180, th_out: 130, tc_in: 80, tc_out: 140, m_shell: 45.0, m_tube: 26.0, ds: 950, b: 350, do_mm: 19.05, thk: 2.11, layout: 'tri_30', l: 6.10, rf_s: 0.00010, rf_t: 0.00015 },
+    amine_inter: { q: 3100, passes: 2, th_in: 115, th_out: 65, tc_in: 45, tc_out: 85, m_shell: 28.0, m_tube: 22.0, ds: 700, b: 220, do_mm: 25.40, thk: 1.65, layout: 'sq_90', l: 4.88, rf_s: 0.00040, rf_t: 0.00035 }
+  };
+
+  window.loadTEMAPreset = (name) => {
+    const p = presets[name];
+    if (!p) return;
+    document.getElementById('st_duty').value = p.q;
+    document.getElementById('st_passes').value = p.passes;
+    document.getElementById('st_th_in').value = p.th_in;
+    document.getElementById('st_th_out').value = p.th_out;
+    document.getElementById('st_tc_in').value = p.tc_in;
+    document.getElementById('st_tc_out').value = p.tc_out;
+    document.getElementById('st_flow_shell').value = p.m_shell;
+    document.getElementById('st_flow_tube').value = p.m_tube;
+    document.getElementById('st_ds').value = p.ds;
+    document.getElementById('st_baffle_space').value = p.b;
+    document.getElementById('st_tube_od').value = p.do_mm;
+    document.getElementById('st_tube_thk').value = p.thk;
+    document.getElementById('st_pitch_layout').value = p.layout;
+    document.getElementById('st_tube_len').value = p.l;
+    document.getElementById('st_rf_shell').value = p.rf_s;
+    document.getElementById('st_rf_tube').value = p.rf_t;
+    calcTEMA();
+  };
+
+  window.calcTEMA = function() {
+    const Q_kW = parseFloat(document.getElementById('st_duty').value) || 2500;
+    const passes = parseInt(document.getElementById('st_passes').value) || 2;
+    const Th_in = parseFloat(document.getElementById('st_th_in').value) || 120;
+    const Th_out = parseFloat(document.getElementById('st_th_out').value) || 70;
+    const Tc_in = parseFloat(document.getElementById('st_tc_in').value) || 30;
+    const Tc_out = parseFloat(document.getElementById('st_tc_out').value) || 60;
+
+    const m_shell = parseFloat(document.getElementById('st_flow_shell').value) || 23.8;
+    const m_tube = parseFloat(document.getElementById('st_flow_tube').value) || 19.9;
+
+    const Ds_mm = parseFloat(document.getElementById('st_ds').value) || 650;
+    const B_mm = parseFloat(document.getElementById('st_baffle_space').value) || 250;
+    const do_mm = parseFloat(document.getElementById('st_tube_od').value) || 19.05;
+    const thk_mm = parseFloat(document.getElementById('st_tube_thk').value) || 1.65;
+    const layout = document.getElementById('st_pitch_layout').value;
+    const L_m = parseFloat(document.getElementById('st_tube_len').value) || 4.88;
+
+    const Rf_s = parseFloat(document.getElementById('st_rf_shell').value) || 0.00035;
+    const Rf_t = parseFloat(document.getElementById('st_rf_tube').value) || 0.00018;
+
+    // Fluid properties (typical hydrocarbon shell, water tube)
+    const rho_s = 820; // kg/m3
+    const cp_s = 2100; // J/kg.K
+    const mu_s = 0.0025; // Pa.s
+    const k_s = 0.13; // W/m.K
+
+    const rho_t = 995; // kg/m3
+    const cp_t = 4180; // J/kg.K
+    const mu_t = 0.0008; // Pa.s
+    const k_t = 0.62; // W/m.K
+    const k_wall = 45.0; // Carbon steel tube wall W/m.K
+
+    // Geometry Conversions
+    const Ds = Ds_mm / 1000;
+    const B = B_mm / 1000;
+    const do_m = do_mm / 1000;
+    const di_m = (do_mm - 2 * thk_mm) / 1000;
+
+    // Pitch ratio = 1.25
+    const Pt = 1.25 * do_m;
+    const C = Pt - do_m; // clearance
+
+    // LMTD & F-factor calculation
+    const dt1 = Th_in - Tc_out;
+    const dt2 = Th_out - Tc_in;
+    let lmtd = 10.0;
+    if (dt1 > 0 && dt2 > 0 && dt1 !== dt2) {
+      lmtd = (dt1 - dt2) / Math.log(dt1 / dt2);
+    } else if (dt1 === dt2 && dt1 > 0) {
+      lmtd = dt1;
+    }
+
+    // Capacity ratio R and Temperature effectiveness P
+    let F = 1.0;
+    if (passes > 1) {
+      const denomR = Tc_out - Tc_in;
+      const R = denomR !== 0 ? (Th_in - Th_out) / denomR : 1.0;
+      const denomP = Th_in - Tc_in;
+      const P = denomP !== 0 ? (Tc_out - Tc_in) / denomP : 0.5;
+
+      const numSqrt = Math.sqrt(Math.pow(R, 2) + 1);
+      const val1 = (1 - P) / (1 - P * R);
+      if (val1 > 0 && R !== 1) {
+        const lnVal1 = Math.log(val1);
+        const term2 = (2 - P * (R + 1 - numSqrt)) / (2 - P * (R + 1 + numSqrt));
+        if (term2 > 0) {
+          const lnTerm2 = Math.log(term2);
+          F = (numSqrt * lnVal1) / ((R - 1) * lnTerm2);
+        }
+      }
+      F = Math.max(0.40, Math.min(1.0, F));
+    }
+    const dTm = F * lmtd;
+
+    // Tube count estimation based on TEMA bundle diameter clearance
+    // N_tubes ~ (pi/4 * Ds^2 * packing_factor) / (pitch_area)
+    let packing = layout === 'tri_30' ? 0.866 : 1.0;
+    const area_per_tube = packing * Math.pow(Pt, 2);
+    const N_tubes_est = Math.floor((Math.PI * Math.pow(Ds * 0.90, 2) / 4) / area_per_tube);
+    const N_tubes = Math.max(20, N_tubes_est - (N_tubes_est % passes));
+
+    // Tube-side calculations
+    const tubes_per_pass = N_tubes / passes;
+    const At_flow = tubes_per_pass * (Math.PI * Math.pow(di_m, 2) / 4);
+    const vt = At_flow > 0 ? (m_tube / rho_t) / At_flow : 1.5;
+    const Ret = (rho_t * vt * di_m) / mu_t;
+    const Prt = (cp_t * mu_t) / k_t;
+    const Nut = 0.023 * Math.pow(Math.max(100, Ret), 0.8) * Math.pow(Prt, 0.33);
+    const ht = Nut * (k_t / di_m);
+
+    // Shell-side calculations (Kern Method)
+    const As = (Ds * C * B) / Pt;
+    const Gs = As > 0 ? (m_shell / As) : 100;
+    let De = 0;
+    if (layout === 'tri_30') {
+      De = 1.10 * (Math.pow(Pt, 2) - 0.917 * Math.pow(do_m, 2)) / do_m;
+    } else {
+      De = 1.27 * (Math.pow(Pt, 2) - 0.785 * Math.pow(do_m, 2)) / do_m;
+    }
+    const Res = (Gs * De) / mu_s;
+    const Prs = (cp_s * mu_s) / k_s;
+    const jH = 0.36 * Math.pow(Math.max(10, Res), 0.55);
+    const Nus = jH * Math.pow(Prs, 0.33);
+    const hs = Nus * (k_s / De);
+
+    // Overall Heat Transfer Coefficient U (W/m2.K)
+    const r_wall = (do_m * Math.log(do_m / di_m)) / (2 * k_wall);
+    const inv_U = (1 / hs) + Rf_s + r_wall + Rf_t * (do_m / di_m) + (1 / ht) * (do_m / di_m);
+    const U_dirty = inv_U > 0 ? (1 / inv_U) : 350;
+
+    // Required Surface Area
+    const A_req_m2 = (U_dirty > 0 && dTm > 0) ? (Q_kW * 1000) / (U_dirty * dTm) : 50;
+    // Provided Surface Area
+    const A_prov_m2 = N_tubes * Math.PI * do_m * L_m;
+    const area_margin_pct = A_req_m2 > 0 ? ((A_prov_m2 - A_req_m2) / A_req_m2) * 100 : 0;
+
+    // Pressure Drops
+    // Shell pressure drop: Delta P_s = f * Gs^2 * Ds * (Nb + 1) / (2 * rho_s * De)
+    const Nb = Math.max(1, Math.floor(L_m / B) - 1);
+    const f_s = Math.exp(0.576 - 0.19 * Math.log(Math.max(10, Res)));
+    const dps_pa = (f_s * Math.pow(Gs, 2) * Ds * (Nb + 1)) / (2 * rho_s * De);
+    const dps_bar = dps_pa / 100000;
+
+    // Tube pressure drop: Delta P_t = (4*f_t*L/di + 4*passes) * rho_t*vt^2 / 2
+    const f_t = 0.079 * Math.pow(Math.max(100, Ret), -0.25);
+    const dpt_pa = (4 * f_t * (L_m / di_m) + 4 * passes) * (rho_t * Math.pow(vt, 2) / 2);
+    const dpt_bar = dpt_pa / 100000;
+
+    // Render Outputs
+    document.getElementById('res_st_lmtd').textContent = dTm.toFixed(1) + ' °C (LMTD: ' + lmtd.toFixed(1) + '°C, F = ' + F.toFixed(3) + ')';
+    document.getElementById('res_st_as').textContent = As.toFixed(3) + ' m² (B: ' + B_mm + ' mm)';
+    document.getElementById('res_st_hs').textContent = Math.round(hs).toLocaleString() + ' W/m²·K (Re: ' + Math.round(Res).toLocaleString() + ')';
+    document.getElementById('res_st_ht').textContent = Math.round(ht).toLocaleString() + ' W/m²·K (Re: ' + Math.round(Ret).toLocaleString() + ')';
+    document.getElementById('res_st_u').textContent = Math.round(U_dirty).toLocaleString() + ' W/m²·K (Dirty Service)';
+    document.getElementById('res_st_area').textContent = A_prov_m2.toFixed(1) + ' m² prov vs ' + A_req_m2.toFixed(1) + ' m² req (' + area_margin_pct.toFixed(1) + '% Margin)';
+    document.getElementById('res_st_tubes').textContent = N_tubes + ' tubes (' + vt.toFixed(2) + ' m/s tube velocity)';
+    document.getElementById('res_st_dps').textContent = dps_bar.toFixed(3) + ' bar (' + (dps_bar * 14.5038).toFixed(1) + ' psi)';
+    document.getElementById('res_st_dpt').textContent = dpt_bar.toFixed(3) + ' bar (' + (dpt_bar * 14.5038).toFixed(1) + ' psi)';
+
+    // Status Badge
+    const badge = document.getElementById('res_st_status');
+    if (F < 0.75) {
+      badge.className = 'status-badge badge-danger';
+      badge.textContent = 'TEMPERATURE CROSS / PINCH (F < 0.75 - ADD SHELL PASS)';
+    } else if (area_margin_pct < 0) {
+      badge.className = 'status-badge badge-danger';
+      badge.textContent = 'UNDERSIZED (NEGATIVE SURFACE MARGIN)';
+    } else if (vt > 2.5) {
+      badge.className = 'status-badge badge-warn';
+      badge.textContent = 'HIGH TUBE VELOCITY (EROSION RISK > 2.5 m/s)';
+    } else if (dps_bar > 1.0) {
+      badge.className = 'status-badge badge-warn';
+      badge.textContent = 'HIGH SHELL PRESSURE DROP (> 1.0 bar)';
+    } else {
+      badge.className = 'status-badge badge-safe';
+      badge.textContent = 'ADEQUATE TEMA RATING (' + area_margin_pct.toFixed(0) + '% MARGIN)';
+    }
+  };
+
+  const btnCopy = document.getElementById('btn_copy_st');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '=== TEMA SHELL & TUBE HEAT EXCHANGER DATASHEET ===',
+        'Standard: TEMA Standards (10th Ed) / ASME Section VIII / Kern Method',
+        'Thermal Duty (Q): ' + document.getElementById('st_duty').value + ' kW | Passes: ' + document.getElementById('st_passes').value,
+        'Hot Side: ' + document.getElementById('st_th_in').value + '°C -> ' + document.getElementById('st_th_out').value + '°C (' + document.getElementById('st_flow_shell').value + ' kg/s)',
+        'Cold Side: ' + document.getElementById('st_tc_in').value + '°C -> ' + document.getElementById('st_tc_out').value + '°C (' + document.getElementById('st_flow_tube').value + ' kg/s)',
+        'Shell Diameter: ' + document.getElementById('st_ds').value + ' mm ID | Baffle Spacing: ' + document.getElementById('st_baffle_space').value + ' mm',
+        'Tube Specs: ' + document.getElementById('st_tube_od').value + ' mm OD × ' + document.getElementById('st_tube_thk').value + ' mm × ' + document.getElementById('st_tube_len').value + ' m Length',
+        '--- Thermal Performance & Rating ---',
+        'Effective MTD: ' + document.getElementById('res_st_lmtd').textContent,
+        'Shell Crossflow Area (As): ' + document.getElementById('res_st_as').textContent,
+        'Shell Film Coeff (h_s): ' + document.getElementById('res_st_hs').textContent,
+        'Tube Film Coeff (h_t): ' + document.getElementById('res_st_ht').textContent,
+        'Overall Service U-Value: ' + document.getElementById('res_st_u').textContent,
+        'Surface Area & Margin: ' + document.getElementById('res_st_area').textContent,
+        'Tube Bundle Sizing: ' + document.getElementById('res_st_tubes').textContent,
+        'Shell Pressure Drop: ' + document.getElementById('res_st_dps').textContent,
+        'Tube Pressure Drop: ' + document.getElementById('res_st_dpt').textContent,
+        'Rating Verdict: ' + document.getElementById('res_st_status').textContent,
+        '=================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcTEMA();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BF3: HYDRO TURBINE SPECIFIC SPEED & SIZING CALCULATOR (IEC 60193) ---
+  (() => {
+    const slug = 'hydro-turbine-specific-speed-sizing-calculator';
+    const title = 'Hydro Turbine (Francis, Pelton, Kaplan) Specific Speed & Sizing Calculator (IEC 60193)';
+    const metaDescription = 'Hydropower turbine selection and runner sizing calculator per IEC 60193 and USBR Engineering Monograph No. 20. Computes hydraulic & electrical power (MW), metric specific speed (N_sp), optimal grid pole count and RPM, runner diameter (D1, D2), Thoma cavitation factor (sigma), and draft tube setting elevation (Hs).';
+
+    const faq = [
+      {
+        q: 'How is hydraulic turbine specific speed (N_sp) calculated and used for turbine selection?',
+        a: 'Metric specific speed represents the rotational speed of a geometrically similar turbine that produces 1 kW of power under 1 meter of net head: N_sp = (N * sqrt(P_kW)) / H^(5/4). Specific speed directly dictates the optimal runner geometry: Pelton impulse wheels operate at low specific speed (N_sp = 15 to 65); Francis reaction turbines operate at medium specific speed (N_sp = 70 to 350); and axial-flow Kaplan or propeller turbines operate at high specific speed (N_sp = 350 to 900).'
+      },
+      {
+        q: 'What is Thoma\'s cavitation coefficient (sigma) and how does it determine turbine setting (Hs)?',
+        a: 'Cavitation occurs when local static pressure inside the runner or draft tube drops below the vapor pressure of water. Thoma\'s cavitation factor is defined as sigma = (H_baro - H_vap - H_s) / H, where H_baro is atmospheric pressure head (approx 10.1 m at sea level), H_vap is vapor pressure head (0.25 m at 20°C), H_s is the vertical distance from tailwater level to the runner centerline (plant setting), and H is net head. To prevent runner pitting and blade cavitation erosion, the plant setting must satisfy H_s <= H_baro - H_vap - sigma_c * H, which frequently requires submerging the turbine runner below tailwater (negative H_s).'
+      },
+      {
+        q: 'What is turbine runaway overspeed and why is it a primary structural design criterion?',
+        a: 'If an electrical load rejection occurs (e.g. breaker trip) and the wicket gates or needle valves fail to close instantly, water continues flowing without generator counter-torque. The runner accelerates rapidly to its maximum equilibrium "runaway speed" (N_r). For Francis turbines, N_r is typically 1.85 to 2.15 times rated RPM; for Kaplan turbines with off-cam deflector mis-coordination, runaway can reach 2.8 to 3.2 times rated RPM. The generator rotor, pole dovetails, and bearings must be designed to withstand the resulting 4x to 9x centrifugal burst forces.'
+      },
+      {
+        q: 'What causes the "vortex rope" and violent pressure surges in Francis turbine draft tubes?',
+        a: 'When a Francis turbine operates at partial gate openings (40% to 75% of full load), the water leaves the runner with significant residual swirl (tangential velocity component). In the conical draft tube, this swirling flow forms a dead water core surrounded by a rotating helical vortex known as the "vortex rope." The rope precesses at 0.2 to 0.4 times the runner rotational frequency, producing violent low-frequency pressure pulsations that can shake the entire powerhouse and vibrate penstock pipes. Draft tube aeration or stabilizing fins are used to break the vortex.'
+      },
+      {
+        q: 'How does grid frequency (50 Hz vs 60 Hz) govern synchronous hydro turbine RPM?',
+        a: 'Hydro generators are directly coupled synchronous machines with an even number of magnetic poles: N = (120 * f_grid) / N_poles. For a 50 Hz grid, allowable synchronous speeds are 3,000, 1,500, 1,000, 750, 600, 500, 428.6, 375, 333.3, 300, 250, 214.3, 187.5, 150 RPM, etc. Engineers calculate the ideal unconstrained hydraulic speed, then round to the nearest standard synchronous grid pole speed to ensure 1:1 direct electrical synchronization without mechanical gearboxes.'
+      }
+    ];
+
+    const content = `
+<style>
+  .hyd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .hyd-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .hyd-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div style="margin-bottom: 1.5rem; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 0.5rem; padding: 1rem;">
+  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: #38bdf8;">
+    <span>💡 Quick Hydropower Scheme Presets</span>
+  </div>
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadHydroPreset('alpine_pelton')">High-Head Alpine (Pelton, 750m Head, 8 m³/s)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadHydroPreset('gorge_francis')">Deep Gorge Dam (Francis, 140m Head, 45 m³/s)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadHydroPreset('river_kaplan')">Run-of-River (Kaplan, 18m Head, 110 m³/s)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadHydroPreset('medium_francis')">Medium Storage (Francis, 65m Head, 25 m³/s)</button>
+  </div>
+</div>
+
+<div class="hyd-grid">
+  <!-- Column 1: Site Hydraulics & Grid -->
+  <div class="hyd-card">
+    <h3>1. Hydropower Site Head & Flow</h3>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="hyd_head">Net Effective Head (H, m)</label>
+        <input type="number" id="hyd_head" class="form-control" value="140" min="2" max="1800" step="1" oninput="calcHydro()">
+      </div>
+      <div class="form-group">
+        <label for="hyd_flow">Design Water Flow (Q, m³/s)</label>
+        <input type="number" id="hyd_flow" class="form-control" value="45.0" min="0.1" max="2000" step="0.5" oninput="calcHydro()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="hyd_freq">Electrical Grid Frequency</label>
+        <select id="hyd_freq" class="form-control" onchange="calcHydro()">
+          <option value="50" selected>50 Hz (Europe / Asia / Africa)</option>
+          <option value="60">60 Hz (North America / Brazil)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="hyd_alt">Plant Altitude (m a.s.l.)</label>
+        <input type="number" id="hyd_alt" class="form-control" value="650" min="0" max="4500" step="50" oninput="calcHydro()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="hyd_temp">Water Temperature (°C)</label>
+        <input type="number" id="hyd_temp" class="form-control" value="15" min="2" max="35" step="1" oninput="calcHydro()">
+      </div>
+      <div class="form-group">
+        <label for="hyd_eta_t">Turbine Efficiency (η_t, %)</label>
+        <input type="number" id="hyd_eta_t" class="form-control" value="92.5" min="75" max="96" step="0.5" oninput="calcHydro()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="hyd_eta_g">Generator Efficiency (η_g, %)</label>
+        <input type="number" id="hyd_eta_g" class="form-control" value="97.0" min="85" max="99" step="0.5" oninput="calcHydro()">
+      </div>
+      <div class="form-group">
+        <label for="hyd_pelton_jets">Pelton Nozzle Count (If Impulse)</label>
+        <select id="hyd_pelton_jets" class="form-control" onchange="calcHydro()">
+          <option value="1">1 Jet (Single-Nozzle)</option>
+          <option value="2">2 Jets (Twin-Nozzle)</option>
+          <option value="4">4 Jets (Vertical Quad)</option>
+          <option value="6" selected>6 Jets (Hex Multi-Nozzle)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 2: Selection & Speeds -->
+  <div class="hyd-card">
+    <h3>2. Turbine Selection & Specific Speed</h3>
+
+    <div class="res-row">
+      <span class="res-label">Recommended Turbine Archetype</span>
+      <span id="res_hyd_type" class="status-badge badge-safe">FRANCIS REACTION</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Generator Electric Power</span>
+      <span id="res_hyd_power_mw" class="res-val success">-- MW</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Hydraulic Water Power</span>
+      <span id="res_hyd_power_hyd" class="res-val">-- MW</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Metric Specific Speed (N_sp)</span>
+      <span id="res_hyd_nsp" class="res-val highlight">-- rpm·kW^0.5·m^-1.25</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Synchronous Grid Speed (N)</span>
+      <span id="res_hyd_rpm" class="res-val highlight">-- RPM (-- Poles)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Runaway Overspeed Limit (N_r)</span>
+      <span id="res_hyd_runaway" class="res-val danger">-- RPM (-- x rated)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Annual Generation (70% CF)</span>
+      <span id="res_hyd_gwh" class="res-val">-- GWh / year</span>
+    </div>
+  </div>
+</div>
+
+<!-- Runner Dimensions & Cavitation Setting Section -->
+<div class="hyd-grid">
+  <div class="hyd-card">
+    <h3>3. Runner Geometry & Cavitation Setting</h3>
+
+    <div class="res-row">
+      <span class="res-label">Runner Main Diameter (D₁)</span>
+      <span id="res_hyd_d1" class="res-val highlight">-- m (-- ft)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Discharge Throat Diameter (D₂)</span>
+      <span id="res_hyd_d2" class="res-val">-- m</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Peripheral Velocity (u₁)</span>
+      <span id="res_hyd_u1" class="res-val">-- m/s</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Thoma Cavitation Factor (σ_c)</span>
+      <span id="res_hyd_thoma" class="res-val">-- (Plant critical)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Max Setting Elevation (H_s)</span>
+      <span id="res_hyd_hs" class="res-val warning">-- m vs Tailwater</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Atmospheric Head at Altitude</span>
+      <span id="res_hyd_hbaro" class="res-val">-- m H₂O</span>
+    </div>
+
+    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+      <button type="button" id="btn_copy_hyd" class="btn-copy">
+        <span>📋 Copy Hydro Turbine Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Runner & Powerhouse Elevation Schematic -->
+  <div class="hyd-card">
+    <h3>4. Turbine Setting Elevation & Draft Tube Profile</h3>
+    <div style="display: flex; justify-content: center; align-items: center; padding: 0.5rem;">
+      <svg viewBox="0 0 380 280" style="width: 100%; max-width: 340px; height: auto;">
+        <!-- Powerhouse Structure -->
+        <rect x="40" y="20" width="300" height="240" fill="#0f172a" stroke="#475569" stroke-width="2" rx="4"/>
+
+        <!-- Generator Deck (Top) -->
+        <rect x="130" y="35" width="120" height="45" fill="#334155" stroke="#f59e0b" stroke-width="2"/>
+        <text x="190" y="62" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="700">Hydro Generator</text>
+
+        <!-- Vertical Shaft -->
+        <line x1="190" y1="80" x2="190" y2="135" stroke="#94a3b8" stroke-width="6"/>
+
+        <!-- Spiral Case (Volute Left and Right of Runner) -->
+        <circle cx="145" cy="145" r="22" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+        <circle cx="235" cy="145" r="16" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+        <text x="110" y="150" fill="#38bdf8" font-size="9" font-weight="700">Penstock In</text>
+
+        <!-- Runner Centerline -->
+        <line x1="160" y1="145" x2="220" y2="145" stroke="#ef4444" stroke-width="2" stroke-dasharray="3,2"/>
+        <circle cx="190" cy="145" r="18" fill="#475569" stroke="#ef4444" stroke-width="2"/>
+        <text x="190" y="149" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="700">Runner</text>
+
+        <!-- Elbow Draft Tube (Bottom) -->
+        <path d="M 172,163 L 172,210 Q 172,240 210,240 L 320,240" fill="none" stroke="#38bdf8" stroke-width="16" stroke-linecap="round"/>
+        <text x="280" y="235" text-anchor="middle" fill="#0284c7" font-size="9" font-weight="700">Draft Tube</text>
+
+        <!-- Tailwater Level Line (TWL) -->
+        <line x1="220" y1="185" x2="330" y2="185" stroke="#10b981" stroke-width="2" stroke-dasharray="4,3"/>
+        <polygon points="270,180 275,185 265,185" fill="#10b981"/>
+        <text x="335" y="188" fill="#10b981" font-size="9" font-weight="700">Tailwater (TWL)</text>
+
+        <!-- Setting Hs Dimension Line -->
+        <line x1="270" y1="145" x2="270" y2="185" stroke="#f59e0b" stroke-width="1.5"/>
+        <polyline points="267,150 270,145 273,150" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+        <polyline points="267,180 270,185 273,180" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="280" y="168" fill="#f59e0b" font-size="9" font-weight="700">H_s Setting</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Technical Design Standards Table -->
+<div class="hyd-card" style="margin-bottom: 2rem;">
+  <h3>IEC 60193 Turbine Operating Spectrum & Specific Speed Classification</h3>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Turbine Archetype</th>
+        <th>Applicable Head Range (H)</th>
+        <th>Specific Speed (N_sp)</th>
+        <th>Runaway Speed Ratio (N_r / N₀)</th>
+        <th>Standard Plant Setting (H_s)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Pelton (Multi-Jet Impulse)</strong></td>
+        <td>250 – 1,800 m</td>
+        <td>15 – 65</td>
+        <td>1.80 – 1.90</td>
+        <td>+1.5 to +3.0 m (Above TWL)</td>
+      </tr>
+      <tr>
+        <td><strong>Francis (High-Head Slow)</strong></td>
+        <td>180 – 450 m</td>
+        <td>70 – 150</td>
+        <td>1.75 – 1.95</td>
+        <td>-1.0 to -3.5 m (Submerged)</td>
+      </tr>
+      <tr>
+        <td><strong>Francis (Medium-Head Fast)</strong></td>
+        <td>40 – 180 m</td>
+        <td>150 – 320</td>
+        <td>1.95 – 2.20</td>
+        <td>-2.5 to -6.0 m (Deep Submergence)</td>
+      </tr>
+      <tr>
+        <td><strong>Kaplan / Propeller (Axial)</strong></td>
+        <td>5 – 45 m</td>
+        <td>350 – 900</td>
+        <td>2.50 – 3.20</td>
+        <td>-4.0 to -9.0 m (Deep Pit)</td>
+      </tr>
+      <tr>
+        <td><strong>Crossflow (Banki-Michell)</strong></td>
+        <td>10 – 120 m</td>
+        <td>30 – 120</td>
+        <td>1.75 – 1.85</td>
+        <td>+0.5 to +2.0 m (Above TWL)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5 Fatal Engineering Traps -->
+<div class="hyd-card" style="margin-bottom: 2rem;">
+  <h3>5 Fatal Hydro Turbine Engineering Traps</h3>
+
+  <div class="trap-card" style="border-left-color: #ef4444;">
+    <div style="font-weight: 700; color: #ef4444; margin-bottom: 0.25rem;">Trap 1: Tailwater Setting Error & Devastating Draft Tube Cavitation Pitting</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      To save powerhouse excavation and dewatering costs, civil engineers sometimes elevate the turbine runner setting (H_s) too close to or above tailwater. If the plant cavitation coefficient sigma falls below the critical Thoma limit sigma_c, vapor bubbles implode violently against the blade suction faces at millions of atmospheres local pressure. High-grade stainless steel (16Cr-5Ni) blades are pitted through like Swiss cheese in less than 3,000 hours of operation.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #f59e0b;">
+    <div style="font-weight: 700; color: #f59e0b; margin-bottom: 0.25rem;">Trap 2: Generator Mechanical Bursting During Unchecked Runaway Overspeed</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      During an emergency full-load trip, the generator electrical load vanishes. In high-specific-speed Kaplan turbines, runaway overspeed can reach 3.2 times rated RPM (meaning centrifugal forces scale by 3.2² = 10.2 times normal). If the rotor rim shrink fit, pole dovetails, and damper windings are not 100% certified for full runaway overspeed, rotating poles shear off centrifugally, pulverizing the stator and demolishing the powerhouse.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #10b981;">
+    <div style="font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">Trap 3: Francis Part-Load Vortex Rope Resonance & Power Swings</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Operating Francis turbines at partial load (50% to 70% wicket gate opening) generates a massive corkscrew-shaped vortex rope in the draft tube that precesses at 25% to 35% of runner RPM. If the pulsation frequency matches the acoustic natural frequency of the penstock or grid electrical inter-tie, violent resonance erupts, manifesting as loud thumping, swinging megawatt output, and cracking draft tube stay vanes.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #3b82f6;">
+    <div style="font-weight: 700; color: #3b82f6; margin-bottom: 0.25rem;">Trap 4: Silt & Quartz Sand Hydro-Abrasive Erosion in Mountain Rivers</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Glacial and monsoon rivers (Himalayas, Andes) carry heavy sediment loads with hard quartz particles (Mohs hardness 7). At high heads (H > 250 m), jet velocities exceed 80 to 120 m/s. Sand particles act like continuous sandblasting grit, scouring Pelton needle tips, deflector nozzles, and Francis labyrinth seal rings. Without desanding settling basins and tungsten carbide (HVOF) thermal spray coatings, internal leakage collapses efficiency by 8% to 15% in a single season.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #8b5cf6;">
+    <div style="font-weight: 700; color: #8b5cf6; margin-bottom: 0.25rem;">Trap 5: Governor Hydraulic Instability from Water Inertia (Tw > Tm / 2)</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      The water starting time constant T_w = (L * v) / (g * H) measures the inertia of the water column in the penstock, while T_m measures the mechanical inertia of the rotating generator rotor. If penstock length is long without a surge tank such that T_w exceeds 2.0 to 2.5 seconds, closing the governor wicket gates initially causes pressure to spike, temporarily increasing power instead of decreasing it. This non-minimum-phase behavior induces governing hunting, frequency instability, and grid decoupling.
+    </p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const presets = {
+    alpine_pelton: { head: 750, flow: 8.0, freq: 50, alt: 1450, temp: 8, eta_t: 91.5, eta_g: 97.5, jets: 6 },
+    gorge_francis: { head: 140, flow: 45.0, freq: 50, alt: 650, temp: 15, eta_t: 93.0, eta_g: 97.0, jets: 6 },
+    river_kaplan: { head: 18, flow: 110.0, freq: 50, alt: 120, temp: 18, eta_t: 94.0, eta_g: 96.5, jets: 6 },
+    medium_francis: { head: 65, flow: 25.0, freq: 60, alt: 420, temp: 20, eta_t: 92.0, eta_g: 96.8, jets: 6 }
+  };
+
+  window.loadHydroPreset = (name) => {
+    const p = presets[name];
+    if (!p) return;
+    document.getElementById('hyd_head').value = p.head;
+    document.getElementById('hyd_flow').value = p.flow;
+    document.getElementById('hyd_freq').value = p.freq;
+    document.getElementById('hyd_alt').value = p.alt;
+    document.getElementById('hyd_temp').value = p.temp;
+    document.getElementById('hyd_eta_t').value = p.eta_t;
+    document.getElementById('hyd_eta_g').value = p.eta_g;
+    document.getElementById('hyd_pelton_jets').value = p.jets;
+    calcHydro();
+  };
+
+  window.calcHydro = function() {
+    const H = parseFloat(document.getElementById('hyd_head').value) || 140;
+    const Q = parseFloat(document.getElementById('hyd_flow').value) || 45.0;
+    const freq = parseInt(document.getElementById('hyd_freq').value) || 50;
+    const alt_m = parseFloat(document.getElementById('hyd_alt').value) || 650;
+    const temp_C = parseFloat(document.getElementById('hyd_temp').value) || 15;
+    const eta_t = (parseFloat(document.getElementById('hyd_eta_t').value) || 92.5) / 100;
+    const eta_g = (parseFloat(document.getElementById('hyd_eta_g').value) || 97.0) / 100;
+    const z_jets = parseInt(document.getElementById('hyd_pelton_jets').value) || 6;
+
+    const g = 9.80665;
+    const rho = 1000; // kg/m3
+
+    // Power calculation
+    const P_hyd_kW = (rho * g * Q * H) / 1000;
+    const P_shaft_kW = P_hyd_kW * eta_t;
+    const P_elec_kW = P_shaft_kW * eta_g;
+    const P_elec_MW = P_elec_kW / 1000;
+    const P_hyd_MW = P_hyd_kW / 1000;
+
+    // Ideal Specific Speed estimate based on USBR statistical correlation:
+    // For Francis: Nsp_opt ~ 2200 / sqrt(H)
+    // For Pelton: Nsp_opt ~ 40 to 60 (per jet ~ 20 to 25)
+    // For Kaplan: Nsp_opt ~ 3000 / sqrt(H)
+    let turbType = 'FRANCIS REACTION';
+    let Nsp_target = 180;
+    let runaway_mult = 1.95;
+
+    if (H > 250) {
+      turbType = 'PELTON IMPULSE';
+      Nsp_target = Math.min(65, Math.max(20, 22 * Math.sqrt(z_jets)));
+      runaway_mult = 1.85;
+    } else if (H < 35) {
+      turbType = 'KAPLAN / PROPELLER';
+      Nsp_target = Math.min(900, Math.max(350, 3200 / Math.sqrt(H)));
+      runaway_mult = 2.80;
+    } else {
+      turbType = 'FRANCIS REACTION';
+      Nsp_target = Math.min(350, Math.max(70, 2100 / Math.sqrt(H)));
+      runaway_mult = 2.05;
+    }
+
+    // Ideal unconstrained RPM: N_ideal = Nsp * H^1.25 / sqrt(P_shaft_kW)
+    const N_ideal = (Nsp_target * Math.pow(H, 1.25)) / Math.sqrt(Math.max(1, P_shaft_kW));
+
+    // Select closest synchronous grid speed: N = 120 * freq / N_poles
+    // Poles must be even integer: 2, 4, 6, 8, ... 72
+    let best_poles = 2;
+    let min_diff = Infinity;
+    for (let p = 2; p <= 84; p += 2) {
+      const rpm_test = (120 * freq) / p;
+      const diff = Math.abs(rpm_test - N_ideal);
+      if (diff < min_diff) {
+        min_diff = diff;
+        best_poles = p;
+      }
+    }
+    const N_sync = (120 * freq) / best_poles;
+
+    // Actual metric specific speed at synchronous RPM
+    const N_sp_actual = (N_sync * Math.sqrt(P_shaft_kW)) / Math.pow(H, 1.25);
+    const N_runaway = N_sync * runaway_mult;
+
+    // Annual Energy Generation at 70% capacity factor
+    const annual_GWh = (P_elec_MW * 8760 * 0.70);
+
+    // Runner Main Dimensions (D1 and D2)
+    let D1_m = 1.0;
+    let D2_m = 1.0;
+    let u1_ms = 40.0;
+
+    if (turbType === 'PELTON IMPULSE') {
+      // Pelton: u1 ~ 0.46 * sqrt(2*g*H)
+      const v_jet = 0.98 * Math.sqrt(2 * g * H);
+      u1_ms = 0.46 * v_jet;
+      D1_m = (60 * u1_ms) / (Math.PI * N_sync);
+      // Jet diameter d_jet
+      const Q_per_jet = Q / z_jets;
+      D2_m = Math.sqrt((4 * Q_per_jet) / (Math.PI * v_jet)); // nozzle diameter
+    } else if (turbType === 'FRANCIS REACTION') {
+      // Francis: u1 = phi1 * sqrt(2*g*H), phi1 ~ 0.022 * Nsp^0.67 + 0.60
+      const phi1 = 0.0006 * N_sp_actual + 0.68;
+      u1_ms = phi1 * Math.sqrt(2 * g * H);
+      D1_m = (60 * u1_ms) / (Math.PI * N_sync);
+      D2_m = D1_m * (0.45 + 0.0016 * N_sp_actual);
+    } else {
+      // Kaplan: D1 ~ 0.85 to 0.95 * sqrt(2*g*H)
+      const phi1 = 1.45;
+      u1_ms = phi1 * Math.sqrt(2 * g * H);
+      D1_m = (60 * u1_ms) / (Math.PI * N_sync);
+      D2_m = D1_m * 0.40; // hub diameter
+    }
+
+    // Cavitation & Thoma Number (sigma_c)
+    // Atmospheric pressure head vs altitude: H_baro ~ 10.33 * exp(-alt / 8400)
+    const H_baro = 10.33 * Math.exp(-alt_m / 8400);
+    // Vapor pressure head at temp_C
+    const H_vap = (Math.pow(10, 8.07131 - (1730.63 / (233.426 + temp_C))) / 760) * 10.33;
+
+    let sigma_c = 0.05;
+    if (turbType === 'PELTON IMPULSE') {
+      sigma_c = 0.02;
+    } else if (turbType === 'FRANCIS REACTION') {
+      sigma_c = 0.0432 * Math.pow(N_sp_actual / 100, 1.46);
+    } else {
+      sigma_c = 0.28 + 0.0008 * N_sp_actual;
+    }
+
+    // Max setting elevation Hs = H_baro - H_vap - sigma_c * H
+    const Hs_max = H_baro - H_vap - (sigma_c * H);
+
+    // Render Outputs
+    document.getElementById('res_hyd_type').textContent = turbType;
+    document.getElementById('res_hyd_power_mw').textContent = P_elec_MW.toFixed(2) + ' MW (Elec)';
+    document.getElementById('res_hyd_power_hyd').textContent = P_hyd_MW.toFixed(2) + ' MW';
+    document.getElementById('res_hyd_nsp').textContent = Math.round(N_sp_actual) + ' metric';
+    document.getElementById('res_hyd_rpm').textContent = Math.round(N_sync) + ' RPM (' + best_poles + ' Poles @ ' + freq + ' Hz)';
+    document.getElementById('res_hyd_runaway').textContent = Math.round(N_runaway) + ' RPM (' + runaway_mult.toFixed(2) + 'x Rated)';
+    document.getElementById('res_hyd_gwh').textContent = Math.round(annual_GWh).toLocaleString() + ' GWh/yr';
+
+    document.getElementById('res_hyd_d1').textContent = D1_m.toFixed(2) + ' m (' + (D1_m * 3.28084).toFixed(2) + ' ft)';
+    document.getElementById('res_hyd_d2').textContent = turbType === 'PELTON IMPULSE' ? (D2_m * 1000).toFixed(0) + ' mm (Jet Dia)' : D2_m.toFixed(2) + ' m';
+    document.getElementById('res_hyd_u1').textContent = u1_ms.toFixed(1) + ' m/s';
+    document.getElementById('res_hyd_thoma').textContent = sigma_c.toFixed(3);
+    
+    const hsEl = document.getElementById('res_hyd_hs');
+    if (turbType === 'PELTON IMPULSE') {
+      hsEl.textContent = '+2.0 m (Above TWL)';
+      hsEl.className = 'res-val success';
+    } else if (Hs_max < 0) {
+      hsEl.textContent = Hs_max.toFixed(2) + ' m (SUBMERGED BELOW TWL)';
+      hsEl.className = 'res-val warning';
+    } else {
+      hsEl.textContent = '+' + Hs_max.toFixed(2) + ' m (Above TWL)';
+      hsEl.className = 'res-val success';
+    }
+
+    document.getElementById('res_hyd_hbaro').textContent = H_baro.toFixed(2) + ' m H₂O (at ' + alt_m + 'm)';
+
+    // Status Badge
+    const badge = document.getElementById('res_hyd_type');
+    if (turbType === 'PELTON IMPULSE') {
+      badge.className = 'status-badge badge-safe';
+      badge.textContent = 'HIGH-HEAD PELTON WHEEL';
+    } else if (turbType === 'FRANCIS REACTION') {
+      badge.className = 'status-badge badge-safe';
+      badge.textContent = 'MEDIUM-HEAD FRANCIS TURBINE';
+    } else {
+      badge.className = 'status-badge badge-safe';
+      badge.textContent = 'LOW-HEAD KAPLAN AXIAL TURBINE';
+    }
+  };
+
+  const btnCopy = document.getElementById('btn_copy_hyd');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '=== HYDRO TURBINE SIZING & SPECIFIC SPEED DATASHEET ===',
+        'Standard: IEC 60193 / USBR Engineering Monograph No. 20',
+        'Site Head: ' + document.getElementById('hyd_head').value + ' m | Flow: ' + document.getElementById('hyd_flow').value + ' m³/s',
+        'Grid Frequency: ' + document.getElementById('hyd_freq').value + ' Hz | Altitude: ' + document.getElementById('hyd_alt').value + ' m a.s.l.',
+        'Efficiencies: Turbine ' + document.getElementById('hyd_eta_t').value + '% | Generator ' + document.getElementById('hyd_eta_g').value + '%',
+        '--- Turbine Selection & Energetics ---',
+        'Recommended Type: ' + document.getElementById('res_hyd_type').textContent,
+        'Generator Power Output: ' + document.getElementById('res_hyd_power_mw').textContent,
+        'Hydraulic Water Power: ' + document.getElementById('res_hyd_power_hyd').textContent,
+        'Metric Specific Speed (N_sp): ' + document.getElementById('res_hyd_nsp').textContent,
+        'Synchronous Speed: ' + document.getElementById('res_hyd_rpm').textContent,
+        'Runaway Overspeed: ' + document.getElementById('res_hyd_runaway').textContent,
+        'Annual Generation (70% CF): ' + document.getElementById('res_hyd_gwh').textContent,
+        '--- Runner Geometry & Cavitation ---',
+        'Runner Diameter (D1): ' + document.getElementById('res_hyd_d1').textContent,
+        'Discharge / Throat Diameter (D2): ' + document.getElementById('res_hyd_d2').textContent,
+        'Peripheral Speed (u1): ' + document.getElementById('res_hyd_u1').textContent,
+        'Thoma Cavitation Factor (σ_c): ' + document.getElementById('res_hyd_thoma').textContent,
+        'Permissible Setting Elevation (H_s): ' + document.getElementById('res_hyd_hs').textContent,
+        'Barometric Pressure Head: ' + document.getElementById('res_hyd_hbaro').textContent,
+        '======================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcHydro();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BF4: CYCLONE DUST COLLECTOR SIZING & EFFICIENCY CALCULATOR (STAIRMAND / LAPPLE) ---
+  (() => {
+    const slug = 'cyclone-dust-collector-efficiency-calculator';
+    const title = 'Stairmand & Lapple Cyclone Dust Collector Sizing & Efficiency Calculator (EPA AP-42)';
+    const metaDescription = 'Industrial cyclone dust collector and aerosol separator sizing calculator per Stairmand high-efficiency and Lapple models (EPA AP-42). Computes inlet gas velocity, cut-point particle diameter (d50), overall PM10/PM2.5 collection efficiency, velocity heads (NH), Shepherd-Lapple pressure drop (ΔP in Pa and in. w.g.), and ID fan motor brake power.';
+
+    const faq = [
+      {
+        q: 'How does the Lapple equation calculate the cyclone cut-point diameter (d50)?',
+        a: 'The cut-point diameter d50 represents the aerodynamic particle size collected with exactly 50% efficiency: d50 = sqrt[(9 * mu * b) / (2 * pi * Ne * vi * (rho_p - rho_g))]. Here, mu is gas dynamic viscosity, b is rectangular inlet width, Ne is the number of effective spiral turns within the cyclone body, vi is gas inlet velocity, rho_p is particle true density, and rho_g is carrier gas density. Smaller d50 values correspond to higher collection efficiency of sub-micron aerosols.'
+      },
+      {
+        q: 'What is the fundamental difference between Stairmand High-Efficiency and Lapple Standard cyclones?',
+        a: 'Stairmand High-Efficiency cyclones utilize a narrower inlet (b/Dc = 0.20 vs 0.25) and smaller vortex finder diameter (De/Dc = 0.50), maximizing centrifugal acceleration for fine particulate matter capture down to 2 to 3 microns. Lapple Standard cyclones feature wider inlet geometries designed for lower pressure drop and higher gas throughput, making them ideal as primary bulk pre-cleaners upstream of baghouse fabric filters.'
+      },
+      {
+        q: 'Why does air inleakage at the bottom dust discharge hopper ruin cyclone efficiency?',
+        a: 'The core of a cyclone operates under strong negative pressure (partial vacuum created by the central ascending vortex). If the dust discharge valve (rotary airlock or double-flap valve) leaks even 1% to 2% of total gas volume, atmospheric air rushes violently upward through the cone apex. This upward air jet catches separated dust particles settling into the hopper and re-entrains them directly into the clean-gas vortex finder, slashing overall collection efficiency by 30% to 50%.'
+      },
+      {
+        q: 'How does operating temperature affect cyclone collection efficiency?',
+        a: 'Unlike liquids whose viscosity drops with heat, gas dynamic viscosity (mu) increases with temperature per Sutherland\'s law (air viscosity rises from 1.81e-5 Pa·s at 20°C to 2.45e-5 Pa·s at 200°C). Because d50 is proportional to sqrt(mu), higher temperatures increase the cut-point, allowing larger particles to escape into the stack. Additionally, thermal gas expansion elevates volumetric flow, which increases pressure drop across the unit.'
+      },
+      {
+        q: 'What is the optimal gas inlet velocity range for an industrial cyclone?',
+        a: 'The optimal gas inlet velocity is strictly between 15.0 and 22.0 m/s (3,000 to 4,300 ft/min). Below 12 m/s, centrifugal acceleration (vi^2 / r) is insufficient, allowing coarse dust to escape. Above 24 to 26 m/s, the boundary layer shears violently against the walls (the saltation velocity threshold), re-entraining settled particles and causing pressure drop to spike quadratically with zero gain in efficiency.'
+      }
+    ];
+
+    const content = `
+<style>
+  .cyc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .cyc-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .cyc-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div style="margin-bottom: 1.5rem; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 0.5rem; padding: 1rem;">
+  <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: #38bdf8;">
+    <span>💡 Quick Industrial Cyclone Presets</span>
+  </div>
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadCycPreset('stair_he')">Woodworking Sawdust (Stairmand HE, 18 m/s)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadCycPreset('lapple_std')">Grain Elevator Dust (Lapple Standard, 16 m/s)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadCycPreset('coal_boiler')">Coal Flue Gas Fly Ash (150°C Hot Gas)</button>
+    <button type="button" class="btn-copy" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;" onclick="loadCycPreset('cement_pre')">Cement Kiln Clinker Dust (High-Throughput)</button>
+  </div>
+</div>
+
+<div class="cyc-grid">
+  <!-- Column 1: Operating Gas & Particle Properties -->
+  <div class="cyc-card">
+    <h3>1. Gas Flow & Particulate Matter (PM)</h3>
+
+    <div class="form-group">
+      <label for="cyc_family">Cyclone Geometric Archetype</label>
+      <select id="cyc_family" class="form-control" onchange="updateCycDims(); calcCyclone();">
+        <option value="stairmand_he" selected>Stairmand High-Efficiency (a/D=0.50, b/D=0.20, De/D=0.50)</option>
+        <option value="lapple_std">Lapple Standard General Purpose (a/D=0.50, b/D=0.25, De/D=0.50)</option>
+        <option value="swift_he">Swift High-Efficiency (a/D=0.44, b/D=0.21, De/D=0.40)</option>
+        <option value="stairmand_ht">Stairmand High-Throughput (a/D=0.75, b/D=0.375, De/D=0.75)</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="cyc_flow">Actual Gas Volumetric Flow (Q, m³/h)</label>
+        <input type="number" id="cyc_flow" class="form-control" value="15000" min="100" max="500000" step="250" oninput="calcCyclone()">
+      </div>
+      <div class="form-group">
+        <label for="cyc_temp">Gas Temperature (T, °C)</label>
+        <input type="number" id="cyc_temp" class="form-control" value="25" min="0" max="600" step="5" oninput="calcCyclone()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="cyc_rho_p">Particle Density (ρ_p, kg/m³)</label>
+        <input type="number" id="cyc_rho_p" class="form-control" value="2200" min="300" max="8000" step="50" oninput="calcCyclone()">
+      </div>
+      <div class="form-group">
+        <label for="cyc_mass_mean_dp">Mean Particle Size (MMD, μm)</label>
+        <input type="number" id="cyc_mass_mean_dp" class="form-control" value="12.0" min="0.5" max="150.0" step="0.5" oninput="calcCyclone()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="cyc_inlet_dust">Inlet Dust Loading (C_in, g/m³)</label>
+        <input type="number" id="cyc_inlet_dust" class="form-control" value="15.0" min="0.1" max="250.0" step="0.5" oninput="calcCyclone()">
+      </div>
+      <div class="form-group">
+        <label for="cyc_fan_eff">ID Fan Mechanical Efficiency (%)</label>
+        <input type="number" id="cyc_fan_eff" class="form-control" value="75" min="50" max="90" step="1" oninput="calcCyclone()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 2: Dimensions & Velocity Checks -->
+  <div class="cyc-card">
+    <h3>2. Cyclone Proportions & Inlet Velocity</h3>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="cyc_barrel_dia">Cyclone Barrel Diameter (D_c, mm)</label>
+        <input type="number" id="cyc_barrel_dia" class="form-control" value="1100" min="150" max="4500" step="25" oninput="calcCyclone()">
+      </div>
+      <div class="form-group">
+        <label for="cyc_inlet_h">Inlet Height (a, mm)</label>
+        <input type="number" id="cyc_inlet_h" class="form-control" value="550" readonly style="background: var(--surface); color: var(--text-muted);">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="cyc_inlet_w">Inlet Width (b, mm)</label>
+        <input type="number" id="cyc_inlet_w" class="form-control" value="220" readonly style="background: var(--surface); color: var(--text-muted);">
+      </div>
+      <div class="form-group">
+        <label for="cyc_vortex_dia">Vortex Finder Dia (D_e, mm)</label>
+        <input type="number" id="cyc_vortex_dia" class="form-control" value="550" readonly style="background: var(--surface); color: var(--text-muted);">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="cyc_tot_h">Total Height (H, mm)</label>
+        <input type="number" id="cyc_tot_h" class="form-control" value="4400" readonly style="background: var(--surface); color: var(--text-muted);">
+      </div>
+      <div class="form-group">
+        <label for="cyc_apex_dia">Dust Exit Cone Apex (B, mm)</label>
+        <input type="number" id="cyc_apex_dia" class="form-control" value="412" readonly style="background: var(--surface); color: var(--text-muted);">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Results Section: Efficiency, Pressure Drop & Power -->
+<div class="cyc-grid">
+  <div class="cyc-card">
+    <h3>3. Collection Performance & Aerodynamic Loss</h3>
+
+    <div class="res-row">
+      <span class="res-label">Inlet Velocity Regime</span>
+      <span id="res_cyc_vel_status" class="status-badge badge-safe">OPTIMAL (15–22 m/s)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Gas Inlet Velocity (v_i)</span>
+      <span id="res_cyc_vi" class="res-val highlight">-- m/s (-- ft/min)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Cut-Point Particle Size (d₅₀)</span>
+      <span id="res_cyc_d50" class="res-val highlight">-- μm (Lapple 50% Cut)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Overall Mass Collection Efficiency</span>
+      <span id="res_cyc_eff" class="res-val success">-- %</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Clean Gas Dust Emission (C_out)</span>
+      <span id="res_cyc_cout" class="res-val">-- mg/m³</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Total Pressure Drop (ΔP)</span>
+      <span id="res_cyc_dp" class="res-val warning">-- Pa (-- in. w.g.)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">ID Fan Motor Brake Power (BHP)</span>
+      <span id="res_cyc_power" class="res-val">-- kW (-- HP)</span>
+    </div>
+    <div class="res-row">
+      <span class="res-label">Recovered Solids Throughput</span>
+      <span id="res_cyc_solids" class="res-val success">-- kg/h</span>
+    </div>
+
+    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+      <button type="button" id="btn_copy_cyc" class="btn-copy">
+        <span>📋 Copy Cyclone Sizing Datasheet</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Cyclone Dimensional Schematic -->
+  <div class="cyc-card">
+    <h3>4. Standard Tangential Cyclone Geometry</h3>
+    <div style="display: flex; justify-content: center; align-items: center; padding: 0.5rem;">
+      <svg viewBox="0 0 320 300" style="width: 100%; max-width: 290px; height: auto;">
+        <!-- Tangential Inlet Duct (Top Left) -->
+        <rect x="40" y="35" width="50" height="35" fill="#334155" stroke="#38bdf8" stroke-width="2"/>
+        <text x="30" y="58" text-anchor="end" fill="#38bdf8" font-size="9" font-weight="700">Inlet (a×b)</text>
+
+        <!-- Vortex Finder (Clean Gas Tube in Center) -->
+        <rect x="135" y="10" width="50" height="75" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+        <text x="160" y="28" text-anchor="middle" fill="#10b981" font-size="8" font-weight="700">Clean Gas Out</text>
+        <line x1="160" y1="10" x2="160" y2="0" stroke="#10b981" stroke-width="3"/>
+
+        <!-- Cyclone Barrel Cylinder (Upper Body) -->
+        <rect x="90" y="35" width="140" height="95" fill="#0f172a" stroke="#64748b" stroke-width="3"/>
+        <text x="160" y="85" text-anchor="middle" fill="#94a3b8" font-size="9">Barrel (D_c)</text>
+
+        <!-- Cyclone Conical Section (Lower Body) -->
+        <polygon points="90,130 230,130 185,250 135,250" fill="#0f172a" stroke="#64748b" stroke-width="3"/>
+        <text x="160" y="185" text-anchor="middle" fill="#94a3b8" font-size="9">Cone (H - h)</text>
+
+        <!-- Dust Discharge Apex Spout (Bottom) -->
+        <rect x="135" y="250" width="50" height="25" fill="#334155" stroke="#f59e0b" stroke-width="2"/>
+        <text x="160" y="267" text-anchor="middle" fill="#f59e0b" font-size="8" font-weight="700">Dust Apex (B)</text>
+
+        <!-- Outer Downward Swirling Vortex Path -->
+        <path d="M 95,65 Q 220,75 210,120 Q 110,140 200,180 Q 140,210 170,245" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,3"/>
+
+        <!-- Inner Upward Ascending Clean Vortex Path -->
+        <path d="M 160,235 L 160,20" fill="none" stroke="#10b981" stroke-width="2.5"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Technical Design Standards Table -->
+<div class="cyc-card" style="margin-bottom: 2rem;">
+  <h3>EPA AP-42 Standard Cyclone Dimensional Ratios (Normalized to D_c = 1.0)</h3>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Geometric Parameter</th>
+        <th>Stairmand High-Efficiency</th>
+        <th>Lapple Standard</th>
+        <th>Swift High-Efficiency</th>
+        <th>Stairmand High-Throughput</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Inlet Height (a / D_c)</strong></td>
+        <td>0.50</td>
+        <td>0.50</td>
+        <td>0.44</td>
+        <td>0.75</td>
+      </tr>
+      <tr>
+        <td><strong>Inlet Width (b / D_c)</strong></td>
+        <td>0.20</td>
+        <td>0.25</td>
+        <td>0.21</td>
+        <td>0.375</td>
+      </tr>
+      <tr>
+        <td><strong>Vortex Finder Dia (D_e / D_c)</strong></td>
+        <td>0.50</td>
+        <td>0.50</td>
+        <td>0.40</td>
+        <td>0.75</td>
+      </tr>
+      <tr>
+        <td><strong>Barrel Height (h / D_c)</strong></td>
+        <td>1.50</td>
+        <td>2.00</td>
+        <td>1.40</td>
+        <td>1.50</td>
+      </tr>
+      <tr>
+        <td><strong>Total Height (H / D_c)</strong></td>
+        <td>4.00</td>
+        <td>4.00</td>
+        <td>3.90</td>
+        <td>4.00</td>
+      </tr>
+      <tr>
+        <td><strong>Dust Exit Apex (B / D_c)</strong></td>
+        <td>0.375</td>
+        <td>0.25</td>
+        <td>0.40</td>
+        <td>0.375</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5 Fatal Engineering Traps -->
+<div class="cyc-card" style="margin-bottom: 2rem;">
+  <h3>5 Fatal Cyclone Dust Collector Engineering Traps</h3>
+
+  <div class="trap-card" style="border-left-color: #ef4444;">
+    <div style="font-weight: 700; color: #ef4444; margin-bottom: 0.25rem;">Trap 1: Hopper Air Inleakage Sucking Settled Dust Out the Stack</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Because the cyclone core operates at negative static pressure (-1000 to -2500 Pa), ambient air is continually trying to leak into the hopper. If the rotary airlock valve is worn, or if manual slide gates are left ajar, an upward high-velocity air jet blasts through the cone apex. This jet entrains separated dust and blows it directly out the clean gas outlet, dropping collection efficiency from 92% to below 50% regardless of cyclone geometry.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #f59e0b;">
+    <div style="font-weight: 700; color: #f59e0b; margin-bottom: 0.25rem;">Trap 2: Excessive Inlet Velocity (> 24 m/s) Triggering Saltation Re-entrainment</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      Operators often believe that running a smaller cyclone at ultra-high gas velocity will capture smaller particles. However, when inlet velocity exceeds the critical saltation threshold (24 to 26 m/s), turbulent shear along the cyclone wall rips already-deposited dust streaks off the metal and re-atomizes them into the ascending gas core. Pressure drop increases quadratically (wasting fan energy) while particulate emissions actually increase.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #10b981;">
+    <div style="font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">Trap 3: Hopper Dust Level Overfilling & Bulk Scouring</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      A cyclone dust hopper is designed solely as a transit funnel, not a storage silo. If a rotary valve jams and dust accumulates into the lower conical section of the cyclone body, the spinning vortex sweeps directly across the accumulated solids bed. The vortex acts as an air pump, evacuating the entire hopper contents out through the exhaust duct in a massive black cloud within minutes. Continuous paddle wheel or capacitive high-level sensors are essential.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #3b82f6;">
+    <div style="font-weight: 700; color: #3b82f6; margin-bottom: 0.25rem;">Trap 4: Abrasive Wear Gouging at the Cylinder-Cone Transition</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      In heavy mineral, sand, or coal handling, particles travel at high tangential velocity along the outer wall. The highest particle concentration and mechanical impact occur at the junction where the vertical cylinder transitions to the conical funnel. Without sacrificial 400-HB abrasion-resistant (AR) liners or ceramic tile wraps, abrasive scouring cuts through standard 4 mm carbon steel shells in less than 6 months.
+    </p>
+  </div>
+
+  <div class="trap-card" style="border-left-color: #8b5cf6;">
+    <div style="font-weight: 700; color: #8b5cf6; margin-bottom: 0.25rem;">Trap 5: High Flue Gas Temperature Viscosity Penalties</div>
+    <p style="font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; line-height: 1.5;">
+      In hot gas applications (furnaces, incinerators, boilers), gas dynamic viscosity increases significantly with temperature (at 300°C, air viscosity is 65% higher than at 20°C). Because particle drag force is directly proportional to gas viscosity, smaller PM10 particles cannot migrate outwards against drag to reach the wall before being swept out the vortex finder. Designing for hot flue gas requires larger diameters or multi-clone banks to maintain capture efficiency.
+    </p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const families = {
+    stairmand_he: { a: 0.50, b: 0.20, De: 0.50, S: 0.50, h: 1.50, H: 4.00, B: 0.375, K: 16 },
+    lapple_std: { a: 0.50, b: 0.25, De: 0.50, S: 0.625, h: 2.00, H: 4.00, B: 0.25, K: 16 },
+    swift_he: { a: 0.44, b: 0.21, De: 0.40, S: 0.50, h: 1.40, H: 3.90, B: 0.40, K: 16 },
+    stairmand_ht: { a: 0.75, b: 0.375, De: 0.75, S: 0.875, h: 1.50, H: 4.00, B: 0.375, K: 16 }
+  };
+
+  const presets = {
+    stair_he: { fam: 'stairmand_he', flow: 15000, temp: 25, rho_p: 2200, mmd: 12.0, cin: 15.0, eff: 75, dia: 1100 },
+    lapple_std: { fam: 'lapple_std', flow: 22000, temp: 30, rho_p: 1400, mmd: 18.0, cin: 25.0, eff: 75, dia: 1300 },
+    coal_boiler: { fam: 'stairmand_he', flow: 35000, temp: 150, rho_p: 2100, mmd: 8.5, cin: 12.0, eff: 78, dia: 1600 },
+    cement_pre: { fam: 'stairmand_ht', flow: 45000, temp: 80, rho_p: 2600, mmd: 25.0, cin: 40.0, eff: 75, dia: 1800 }
+  };
+
+  window.loadCycPreset = (name) => {
+    const p = presets[name];
+    if (!p) return;
+    document.getElementById('cyc_family').value = p.fam;
+    document.getElementById('cyc_flow').value = p.flow;
+    document.getElementById('cyc_temp').value = p.temp;
+    document.getElementById('cyc_rho_p').value = p.rho_p;
+    document.getElementById('cyc_mass_mean_dp').value = p.mmd;
+    document.getElementById('cyc_inlet_dust').value = p.cin;
+    document.getElementById('cyc_fan_eff').value = p.eff;
+    document.getElementById('cyc_barrel_dia').value = p.dia;
+    updateCycDims();
+    calcCyclone();
+  };
+
+  window.updateCycDims = function() {
+    const famKey = document.getElementById('cyc_family').value;
+    const fam = families[famKey] || families.stairmand_he;
+    const Dc_mm = parseFloat(document.getElementById('cyc_barrel_dia').value) || 1000;
+
+    document.getElementById('cyc_inlet_h').value = Math.round(Dc_mm * fam.a);
+    document.getElementById('cyc_inlet_w').value = Math.round(Dc_mm * fam.b);
+    document.getElementById('cyc_vortex_dia').value = Math.round(Dc_mm * fam.De);
+    document.getElementById('cyc_tot_h').value = Math.round(Dc_mm * fam.H);
+    document.getElementById('cyc_apex_dia').value = Math.round(Dc_mm * fam.B);
+  };
+
+  window.calcCyclone = function() {
+    const famKey = document.getElementById('cyc_family').value;
+    const fam = families[famKey] || families.stairmand_he;
+
+    const Q_m3h = parseFloat(document.getElementById('cyc_flow').value) || 15000;
+    const temp_C = parseFloat(document.getElementById('cyc_temp').value) || 25;
+    const rho_p = parseFloat(document.getElementById('cyc_rho_p').value) || 2200;
+    const mmd_um = parseFloat(document.getElementById('cyc_mass_mean_dp').value) || 12.0;
+    const Cin_gm3 = parseFloat(document.getElementById('cyc_inlet_dust').value) || 15.0;
+    const fan_eff = (parseFloat(document.getElementById('cyc_fan_eff').value) || 75) / 100;
+    const Dc_mm = parseFloat(document.getElementById('cyc_barrel_dia').value) || 1100;
+
+    const Dc = Dc_mm / 1000;
+    const a = Dc * fam.a;
+    const b = Dc * fam.b;
+    const De = Dc * fam.De;
+    const h = Dc * fam.h;
+    const H = Dc * fam.H;
+
+    // Gas properties at temp_C
+    const T_K = temp_C + 273.15;
+    const rho_g = 1.293 * (273.15 / T_K); // kg/m3
+    // Dynamic viscosity using Sutherland's law for air (Pa.s)
+    const mu_0 = 1.716e-5;
+    const T_0 = 273.15;
+    const S_c = 110.4;
+    const mu = mu_0 * Math.pow(T_K / T_0, 1.5) * ((T_0 + S_c) / (T_K + S_c));
+
+    // Gas Inlet Velocity (vi)
+    const Q_m3s = Q_m3h / 3600;
+    const Ain = a * b; // m2
+    const vi = Ain > 0 ? (Q_m3s / Ain) : 18.0;
+    const vi_fpm = vi * 196.85;
+
+    // Number of effective turns Ne per Lapple
+    const Ne = (1 / a) * (h + (H - h) / 2);
+
+    // Cut-point d50 calculation (Lapple formulation)
+    // d50 = sqrt[(9 * mu * b) / (2 * pi * Ne * vi * (rho_p - rho_g))]
+    const delta_rho = Math.max(100, rho_p - rho_g);
+    const denom_d50 = 2 * Math.PI * Ne * vi * delta_rho;
+    const d50_m = denom_d50 > 0 ? Math.sqrt((9 * mu * b) / denom_d50) : 3e-6;
+    const d50_um = d50_m * 1e6;
+
+    // Overall collection efficiency using Barth / Lapple grade efficiency formula:
+    // eta_j = 1 / [1 + (d50 / dp)^2]
+    const mmd_m = mmd_um * 1e-6;
+    const eta_overall = (1 / (1 + Math.pow(d50_um / mmd_um, 2))) * 100;
+
+    // Clean gas dust concentration
+    const Cout_gm3 = Cin_gm3 * (1 - (eta_overall / 100));
+    const Cout_mgm3 = Cout_gm3 * 1000;
+
+    // Solids captured (kg/h)
+    const solids_captured_kgh = (Q_m3h * Cin_gm3 * (eta_overall / 100)) / 1000;
+
+    // Pressure Drop (Shepherd & Lapple)
+    // NH = K * (a * b) / De^2
+    const NH = fam.K * (a * b) / Math.pow(De, 2);
+    const dP_Pa = 0.5 * rho_g * Math.pow(vi, 2) * NH;
+    const dP_in_wg = dP_Pa / 249.0889;
+
+    // Fan Brake Power (kW) = (Q_m3s * dP_Pa) / (fan_eff * 1000)
+    const P_fan_kW = (Q_m3s * dP_Pa) / (fan_eff * 1000);
+    const P_fan_hp = P_fan_kW * 1.34102;
+
+    // Update Dimensions in UI
+    document.getElementById('cyc_inlet_h').value = Math.round(a * 1000);
+    document.getElementById('cyc_inlet_w').value = Math.round(b * 1000);
+    document.getElementById('cyc_vortex_dia').value = Math.round(De * 1000);
+    document.getElementById('cyc_tot_h').value = Math.round(H * 1000);
+    document.getElementById('cyc_apex_dia').value = Math.round(fam.B * Dc_mm);
+
+    // Render Outputs
+    document.getElementById('res_cyc_vi').textContent = vi.toFixed(1) + ' m/s (' + Math.round(vi_fpm) + ' ft/min)';
+    document.getElementById('res_cyc_d50').textContent = d50_um.toFixed(2) + ' μm (50% Cut)';
+    document.getElementById('res_cyc_eff').textContent = eta_overall.toFixed(1) + ' %';
+    document.getElementById('res_cyc_cout').textContent = Math.round(Cout_mgm3).toLocaleString() + ' mg/m³';
+    document.getElementById('res_cyc_dp').textContent = Math.round(dP_Pa).toLocaleString() + ' Pa (' + dP_in_wg.toFixed(2) + ' in. w.g.)';
+    document.getElementById('res_cyc_power').textContent = P_fan_kW.toFixed(2) + ' kW (' + P_fan_hp.toFixed(1) + ' BHP)';
+    document.getElementById('res_cyc_solids').textContent = Math.round(solids_captured_kgh).toLocaleString() + ' kg/h';
+
+    // Status Badge
+    const badge = document.getElementById('res_cyc_vel_status');
+    if (vi < 13.0) {
+      badge.className = 'status-badge badge-warn';
+      badge.textContent = 'LOW VELOCITY (< 13 m/s - DROPOUT DEFICIT)';
+    } else if (vi > 24.0) {
+      badge.className = 'status-badge badge-danger';
+      badge.textContent = 'SALTATION VELOCITY EXCEEDED (> 24 m/s - RE-ENTRAINMENT)';
+    } else {
+      badge.className = 'status-badge badge-safe';
+      badge.textContent = 'OPTIMAL INLET VELOCITY (15–22 m/s)';
+    }
+  };
+
+  const btnCopy = document.getElementById('btn_copy_cyc');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const famText = document.getElementById('cyc_family').options[document.getElementById('cyc_family').selectedIndex].text;
+      const txt = [
+        '=== CYCLONE DUST COLLECTOR SIZING DATASHEET ===',
+        'Standard: EPA AP-42 / Stairmand High-Efficiency / Lapple Model',
+        'Geometry Archetype: ' + famText,
+        'Barrel Diameter (Dc): ' + document.getElementById('cyc_barrel_dia').value + ' mm | Total Height: ' + document.getElementById('cyc_tot_h').value + ' mm',
+        'Inlet Dimensions: ' + document.getElementById('cyc_inlet_h').value + ' mm Height × ' + document.getElementById('cyc_inlet_w').value + ' mm Width',
+        'Gas Flow Rate: ' + document.getElementById('cyc_flow').value + ' m³/h @ ' + document.getElementById('cyc_temp').value + ' °C',
+        'Particulate: ' + document.getElementById('cyc_rho_p').value + ' kg/m³ density | Mean Size: ' + document.getElementById('cyc_mass_mean_dp').value + ' μm',
+        '--- Performance & Aerodynamic Losses ---',
+        'Inlet Velocity (vi): ' + document.getElementById('res_cyc_vi').textContent,
+        'Cut-Point Diameter (d50): ' + document.getElementById('res_cyc_d50').textContent,
+        'Overall Collection Efficiency: ' + document.getElementById('res_cyc_eff').textContent,
+        'Clean Gas Dust Loading: ' + document.getElementById('res_cyc_cout').textContent,
+        'Recovered Particulate Rate: ' + document.getElementById('res_cyc_solids').textContent,
+        'Pressure Drop (ΔP): ' + document.getElementById('res_cyc_dp').textContent,
+        'ID Fan Shaft Power: ' + document.getElementById('res_cyc_power').textContent,
+        'Velocity Status: ' + document.getElementById('res_cyc_vel_status').textContent,
+        '==============================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  updateCycDims();
+  calcCyclone();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+console.log('  ✓ Built Trade & Construction Suite (175 calculators in /calc/)');
 }
 
