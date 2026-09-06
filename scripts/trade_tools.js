@@ -85984,6 +85984,2490 @@ writeFileSync(join(calcDir, 'hydraulic-surge-tank-mass-oscillation-calculator.ht
 }));
 
 
-console.log('  ✓ Built Trade & Construction Suite (115 calculators in /calc/)');
+
+// ==========================================
+// Tool AR1: Indirect-Fired Rotary Calciner Drum Wall Heat Transfer & Solids Pyrolysis Calculator
+// ==========================================
+const toolAR1Html = `
+
+    <div class="calc-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:1.5rem;">
+        <div>
+          <h1 style="font-size:1.75rem;font-weight:800;color:var(--text-primary);margin:0 0 6px 0;">Indirect-Fired Rotary Calciner Drum Heat Transfer Calculator</h1>
+          <p style="color:var(--text-secondary);margin:0;font-size:0.95rem;">External Jacket Combustion Radiance, Cylindrical Shell Radial Conduction & Bed Pyrolysis Kinematics</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:0.85rem;font-weight:600;color:var(--text-muted);">Standard:</span>
+          <span style="background:var(--accent-blue-subtle, rgba(37,99,235,0.1));color:var(--accent-blue,#2563eb);padding:4px 10px;border-radius:6px;font-size:0.8rem;font-weight:700;">VDI Heat Atlas / Kern / Perry</span>
+        </div>
+      </div>
+
+      <!-- Controls & Unit Toggle -->
+      <div style="background:var(--surface-sunken);padding:1rem;border-radius:10px;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Unit System:</span>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;color:var(--text-secondary);">
+            <input type="radio" name="ar1_units" value="si" checked onchange="calcAR1()"> Metric (SI: kW, °C, m, kg/h)
+          </label>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;color:var(--text-secondary);">
+            <input type="radio" name="ar1_units" value="imp" onchange="calcAR1()"> Imperial (Btu/hr, °F, ft, lb/h)
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Shell Alloy:</span>
+          <select id="ar1_alloy" onchange="calcAR1()" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border-color);background:var(--surface);color:var(--text-primary);font-size:0.88rem;">
+            <option value="25" selected>Inconel 600 / 625 (k = 25 W/m-K)</option>
+            <option value="19">310 / 316 Stainless Steel (k = 19 W/m-K)</option>
+            <option value="15">Alloy 800H / RA330 (k = 15 W/m-K)</option>
+            <option value="42">Carbon Steel A516-70 (k = 42 W/m-K)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Main Input Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:1.5rem;">
+        <!-- Column 1: Thermal Conditions -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">1</span>
+            Furnace & Bed Temperatures
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Furnace Jacket Gas Temp (<span id="ar1_lbl_tf">°C</span>):
+            </label>
+            <input type="number" id="ar1_tf" value="980" step="10" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Process Material Feed Temp (<span id="ar1_lbl_tin">°C</span>):
+            </label>
+            <input type="number" id="ar1_tin" value="25" step="5" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Process Discharge Target Temp (<span id="ar1_lbl_tout">°C</span>):
+            </label>
+            <input type="number" id="ar1_tout" value="650" step="10" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Furnace Jacket Emissivity (\(\epsilon\)):
+            </label>
+            <input type="number" id="ar1_emis" value="0.88" step="0.01" min="0.5" max="0.98" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+
+        <!-- Column 2: Material Throughput & Reaction -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">2</span>
+            Feed Rate & Reaction Enthalpy
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Solids Feed Rate (<span id="ar1_lbl_feed">kg/h</span>):
+            </label>
+            <input type="number" id="ar1_feed" value="2500" step="50" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Solids Specific Heat \(c_p\) (<span id="ar1_lbl_cp">kJ/kg-K</span>):
+            </label>
+            <input type="number" id="ar1_cp" value="1.15" step="0.05" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Reaction / Decomposition Heat \(\Delta H_{rxn}\) (<span id="ar1_lbl_rxn">kJ/kg</span>):
+            </label>
+            <input type="number" id="ar1_rxn" value="380" step="20" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">E.g., 0 for simple drying/heating, 1780 for pure limestone calcination</span>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Feed Moisture Content (% wt):
+            </label>
+            <input type="number" id="ar1_moist" value="3.5" step="0.5" min="0" max="30" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+
+        <!-- Column 3: Drum Dimensions & Kinematics -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">3</span>
+            Drum Geometry & Rotation
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Drum Inside Diameter \(D_i\) (<span id="ar1_lbl_di">m</span>):
+            </label>
+            <input type="number" id="ar1_di" value="1.4" step="0.1" min="0.4" max="4.0" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Drum Wall Thickness \(t_w\) (<span id="ar1_lbl_tw">mm</span>):
+            </label>
+            <input type="number" id="ar1_tw" value="22" step="1" min="8" max="60" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Rotation Speed \(N\) (RPM):
+            </label>
+            <input type="number" id="ar1_rpm" value="2.8" step="0.2" min="0.5" max="10" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Drum Bed Fill Level (% volume):
+            </label>
+            <input type="number" id="ar1_fill" value="14" step="1" min="5" max="25" oninput="calcAR1()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive SVG Diagram: Thermal Cross-Section & Longitudinal Profile -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+        <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin:0 0 12px 0;">Dynamic Thermal Cross-Section & Radial Flux Visualizer</h3>
+        <div style="width:100%;overflow-x:auto;">
+          <svg id="ar1_svg" viewBox="0 0 800 280" style="width:100%;height:auto;max-height:300px;background:#0f172a;border-radius:8px;display:block;"></svg>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-top:6px;flex-wrap:wrap;">
+          <span>🔥 Jacket Radiance: \(q_{ext} = \epsilon \sigma (T_f^4 - T_{wo}^4) + h_c (T_f - T_{wo})\)</span>
+          <span>⚡ Radial Conduction: \(q = 2\pi k L \Delta T / \ln(r_o/r_i)\)</span>
+          <span>🔄 Sullivan-Maier Bed Contact: \(h_{bed} \propto \sqrt{k_s \rho_s c_s \omega}\)</span>
+        </div>
+      </div>
+
+      <!-- KPI Output Dashboard Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:1.5rem;">
+        <div style="background:var(--surface-sunken);border-left:4px solid #2563eb;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Total Thermal Duty (\(Q_t\))</div>
+          <div id="ar1_out_duty" style="font-size:1.5rem;font-weight:800;color:#2563eb;margin:4px 0;">-- kW</div>
+          <div id="ar1_sub_duty" style="font-size:0.75rem;color:var(--text-secondary);">Sensible + Reaction + Evap</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #10b981;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Required Heated Length (\(L_h\))</div>
+          <div id="ar1_out_len" style="font-size:1.5rem;font-weight:800;color:#10b981;margin:4px 0;">-- m</div>
+          <div id="ar1_sub_len" style="font-size:0.75rem;color:var(--text-secondary);">L/D Ratio: --</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #f59e0b;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Mean Outer Wall Temp (\(T_{wo}\))</div>
+          <div id="ar1_out_two" style="font-size:1.5rem;font-weight:800;color:#f59e0b;margin:4px 0;">-- °C</div>
+          <div id="ar1_sub_two" style="font-size:0.75rem;color:var(--text-secondary);">Shell Drop \(\Delta T_w\): -- °C</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #8b5cf6;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Calciner Drive Power (\(P_d\))</div>
+          <div id="ar1_out_pwr" style="font-size:1.5rem;font-weight:800;color:#8b5cf6;margin:4px 0;">-- kW</div>
+          <div id="ar1_sub_pwr" style="font-size:0.75rem;color:var(--text-secondary);">Shaft Torque: -- N-m</div>
+        </div>
+      </div>
+
+      <!-- Actionable Utility: Copy Summary Box -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+          <h4 style="margin:0;font-size:0.95rem;font-weight:700;color:var(--text-primary);">Diagnostic Sizing Summary & Engineering Report</h4>
+          <button id="ar1_copy_btn" onclick="copyAR1Report()" style="background:#2563eb;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:700;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background 0.2s;">
+            <span>📋 Copy Diagnostic Summary</span>
+          </button>
+        </div>
+        <textarea id="ar1_report" readonly style="width:100%;height:110px;background:var(--surface-sunken);border:1px solid var(--border-color);border-radius:6px;padding:10px;font-family:monospace;font-size:0.82rem;color:var(--text-secondary);resize:none;box-sizing:border-box;"></textarea>
+      </div>
+
+      <!-- Engineering Pedagogy & Derivation Section -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">First-Principles Engineering Mechanics: Indirect Rotary Pyrolysis</h2>
+        
+        <div style="line-height:1.65;font-size:0.92rem;color:var(--text-secondary);">
+          <p>
+            Unlike direct-fired kilns where flame and flue gases contact the bed directly, an <strong>indirect-fired rotary calciner</strong> isolates delicate, toxic, fine, or oxidizable minerals (such as lithium carbonate, battery cathode precursors, catalyst supports, activated carbon, and radioactive actinides) inside a spinning alloy barrel surrounded by a stationary external furnace casing.
+          </p>
+          
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">1. Total Process Heat Duty (\(Q_t\))</h4>
+          <p>
+            The total heat required per hour encompasses three distinct thermodynamic loads:
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(Q_t = Q_{sensible} + Q_{evap} + Q_{rxn}\)<br>
+            \(Q_{sensible} = \dot{m}_{solids} \cdot c_p \cdot (T_{out} - T_{in})\)<br>
+            \(Q_{evap} = \dot{m}_{water} \cdot [c_{p,w}(100 - T_{in}) + \Delta h_{vap} + c_{p,steam}(T_{out} - 100)]\)<br>
+            \(Q_{rxn} = \dot{m}_{solids} \cdot \Delta H_{rxn}\)
+          </div>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">2. Furnace Jacket Radiation & Convection to Cylinder Exterior</h4>
+          <p>
+            Heat transfer from the jacket to the spinning cylinder is governed by fourth-power Stefan-Boltzmann radiation between concentric enclosures combined with turbulent forced/natural gas convection:
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(q''_{ext} = \sigma \left[\frac{1}{\frac{1}{\epsilon_{wall}} + \frac{D_o}{D_{jacket}}\left(\frac{1}{\epsilon_{furn}} - 1\right)}\right] (T_f^4 - T_{wo}^4) + h_c (T_f - T_{wo})\)
+          </div>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">3. Drum Shell Radial Wall Conduction</h4>
+          <p>
+            Heat conducts radially across the heavy alloy cylinder wall (Fourier's law in cylindrical coordinates):
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(Q = \frac{2 \pi k L (T_{wo} - T_{wi})}{\ln(D_o / D_i)}\)
+          </div>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">4. Bed Contact Heat Transfer (Sullivan-Maier-Ralston Formulation)</h4>
+          <p>
+            Inside the rotating drum, heat reaches the granular bed through two simultaneous mechanisms: direct conduction through the submerged wall contact arc \(\theta_{bed}\), and radiation from the exposed bare inner wall to the upper bed surface:
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(h_{bed,cond} = 2 \sqrt{\frac{k_b \rho_b c_{p,b} \omega}{\pi}} \cdot \Phi_{contact}\)
+          </div>
+          <p>
+            Where \(\omega = 2\pi N / 60\) is the rotational angular velocity (rad/s), \(k_b, \rho_b, c_{p,b}\) are bed thermal properties, and \(\Phi_{contact}\) is the particle contact factor accounting for interstitial gas voidage.
+          </p>
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">5 Fatal Engineering Traps in Indirect Calciner Design</h2>
+        
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#ef4444;font-size:0.95rem;font-weight:700;">1. Drum Sagging & Creep-Rupture at High Temperature</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Operating an alloy cylinder (310 SS or Inconel) above 850°C dramatically degrades tensile yield strength by over 80%. If the drum stops rotating while hot (e.g., during sudden power failure without emergency pony motor engagement), thermal stratification causes uneven expansion and permanent catenary drum sagging within 15 minutes, permanently destroying the rotating assembly.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#f59e0b;font-size:0.95rem;font-weight:700;">2. Ignoring Thermal Expansion Binding at Riding Rings & Thrust Rollers</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              A 15-meter Inconel drum operating at a shell temperature of 750°C expands longitudinally by \(\Delta L = L \alpha \Delta T \approx 15 \times 16 \times 10^{-6} \times 730 \approx 175\text{ mm}\) (almost 7 inches!). Riding tires must be mounted on loose floating chairs with expansion clearance; rigid welding of tires causes catastrophic hoop shear and elliptical tire deformation.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#10b981;font-size:0.95rem;font-weight:700;">3. Internal Cake/Scale Insulating Barrier</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Sticky feed materials (such as lithium sulfate hydrates or catalyst slurries) easily bake onto the inner alloy wall, forming a tenacious crust with thermal conductivity \(k < 0.2\text{ W/m-K}\). A 5 mm scale layer reduces overall heat flux by up to 65%, overheating the outer wall into creep-burnout while the process bed starves of heat. Internal scraper chains, knocker hammers, or cantilevered scrapers are mandatory.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#3b82f6;font-size:0.95rem;font-weight:700;">4. End-Seal Atmosphere Leakage & Ingress of Oxygen</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Pyrolysis operations demand strictly inert or reducing atmospheres (nitrogen, argon, hydrogen). Inadequate mechanical end seals (bellows, carbon-ring, or lantern gland seals) allow ambient oxygen ingestion, sparking flammable off-gas deflagrations or unwanted oxidation of pyrophoric metal sub-oxides. Purge gas differential pressure must always maintain positive relative pressure inside the cylinder.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#8b5cf6;font-size:0.95rem;font-weight:700;">5. Bed Slip vs. Rolling Cascading Dynamics</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              If internal flights are omitted and the cylinder wall is ultra-smooth, fine powders slip against the wall in a static block rather than rolling continuously. Static sliding drops the Sullivan-Maier heat transfer coefficient by up to 75% due to stagnant boundary layer resistance. Helical or lifter flights must maintain a continuous cascading or rolling regime with Froude number \(Fr = \omega^2 R / g \approx 0.005 - 0.02\).
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Accordion (DOM + Schema.org) -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">Frequently Asked Questions (FAQ)</h2>
+        
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">How does an indirect rotary calciner differ from a direct-fired rotary kiln?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              In a direct-fired kiln, fuel combustion occurs inside the barrel with flames directly impinging on the mineral bed and flue gases sweeping through. In an indirect rotary calciner, heat is supplied from outside a sealed alloy barrel via gas burners or electric resistance elements in an insulated jacket casing. This allows processing under strict 100% inert, vacuum, or toxic atmospheres with zero contamination from combustion byproducts.
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">What materials can withstand 1000°C furnace jacket operating temperatures?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              For operating jacket temperatures between 800°C and 1150°C, wrought nickel-chromium alloys such as Inconel 600, Inconel 625, Alloy 800H, RA330, and high-silicon cast alloys (HK-40, HP-50) are standard. Stainless steel 310 is economical up to ~900°C, but suffers from sigma phase embrittlement between 600°C and 850°C if subjected to prolonged cycling.
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">What is typical thermal efficiency for indirect-fired rotary calciners?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Indirect calciners generally operate with lower thermal efficiencies (40% to 65%) compared to direct-fired systems (65% to 80%) because heat must transfer through the stationary casing, flue gas exhaust, radiation gap, and heavy alloy wall. However, adding furnace flue gas recuperators to preheat combustion air can elevate overall plant thermal efficiency to above 75%.
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">How is calciner retention time calculated?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Retention time (\(\theta\)) is calculated using US Bureau of Mines empirical formula: \(\theta = \frac{0.19 \cdot L}{N \cdot D \cdot S}\), where \(L\) is cylinder length (m or ft), \(N\) is rotational speed (RPM), \(D\) is internal diameter, and \(S\) is the drum slope (pitch) in m/m or ft/ft (typically 1% to 3%).
+            </p>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function getAR1Units() {
+        return document.querySelector('input[name="ar1_units"]:checked').value;
+      }
+
+      function calcAR1() {
+        let isImp = getAR1Units() === 'imp';
+
+        // Update labels
+        document.getElementById('ar1_lbl_tf').innerText = isImp ? '°F' : '°C';
+        document.getElementById('ar1_lbl_tin').innerText = isImp ? '°F' : '°C';
+        document.getElementById('ar1_lbl_tout').innerText = isImp ? '°F' : '°C';
+        document.getElementById('ar1_lbl_feed').innerText = isImp ? 'lb/h' : 'kg/h';
+        document.getElementById('ar1_lbl_cp').innerText = isImp ? 'Btu/lb-°F' : 'kJ/kg-K';
+        document.getElementById('ar1_lbl_rxn').innerText = isImp ? 'Btu/lb' : 'kJ/kg';
+        document.getElementById('ar1_lbl_di').innerText = isImp ? 'ft' : 'm';
+        document.getElementById('ar1_lbl_tw').innerText = isImp ? 'in' : 'mm';
+
+        // Read Raw Inputs
+        let tf_raw = parseFloat(document.getElementById('ar1_tf').value) || 980;
+        let tin_raw = parseFloat(document.getElementById('ar1_tin').value) || 25;
+        let tout_raw = parseFloat(document.getElementById('ar1_tout').value) || 650;
+        let emis = parseFloat(document.getElementById('ar1_emis').value) || 0.88;
+        let feed_raw = parseFloat(document.getElementById('ar1_feed').value) || 2500;
+        let cp_raw = parseFloat(document.getElementById('ar1_cp').value) || 1.15;
+        let rxn_raw = parseFloat(document.getElementById('ar1_rxn').value) || 380;
+        let moist = parseFloat(document.getElementById('ar1_moist').value) || 3.5;
+        let di_raw = parseFloat(document.getElementById('ar1_di').value) || 1.4;
+        let tw_raw = parseFloat(document.getElementById('ar1_tw').value) || 22;
+        let rpm = parseFloat(document.getElementById('ar1_rpm').value) || 2.8;
+        let fill = parseFloat(document.getElementById('ar1_fill').value) || 14;
+        let alloy_k = parseFloat(document.getElementById('ar1_alloy').value) || 25;
+
+        // Convert to standard SI for internal computation
+        let tf_C = isImp ? (tf_raw - 32) * 5 / 9 : tf_raw;
+        let tin_C = isImp ? (tin_raw - 32) * 5 / 9 : tin_raw;
+        let tout_C = isImp ? (tout_raw - 32) * 5 / 9 : tout_raw;
+        let feed_kgh = isImp ? feed_raw * 0.453592 : feed_raw;
+        let cp_kJkgK = isImp ? cp_raw * 4.1868 : cp_raw;
+        let rxn_kJkg = isImp ? rxn_raw * 2.326 : rxn_raw;
+        let di_m = isImp ? di_raw * 0.3048 : di_raw;
+        let tw_m = isImp ? tw_raw * 0.0254 : tw_raw / 1000;
+        let do_m = di_m + 2 * tw_m;
+
+        // Temperatures in Kelvin
+        let Tf_K = tf_C + 273.15;
+        let Tin_K = tin_C + 273.15;
+        let Tout_K = tout_C + 273.15;
+        let Tbed_mean_C = (tin_C + tout_C) / 2;
+        let Tbed_mean_K = Tbed_mean_C + 273.15;
+
+        // Moisture & Reaction mass
+        let m_water_kgh = feed_kgh * (moist / 100);
+        let m_dry_kgh = feed_kgh * (1 - moist / 100);
+
+        // Heat Duty Components (in kW)
+        // 1. Sensible heat dry solids
+        let Q_sens_solids = (m_dry_kgh / 3600) * cp_kJkgK * (tout_C - tin_C);
+        // 2. Moisture evaporation (water sensible to 100C + latent 2257 + steam sensible)
+        let Q_evap = (m_water_kgh / 3600) * (4.184 * Math.max(0, 100 - tin_C) + 2257 + 2.0 * Math.max(0, tout_C - 100));
+        // 3. Reaction enthalpy
+        let Q_rxn = (m_dry_kgh / 3600) * rxn_kJkg;
+        // Total Heat Duty (kW)
+        let Q_total_kW = Math.max(1, Q_sens_solids + Q_evap + Q_rxn);
+
+        // Iterative outer wall temperature (T_wo) determination
+        // External heat flux q'' = sigma * eps_eff * (Tf^4 - Two^4) + hc*(Tf - Two)
+        // Wall conduction q'' = k / tw * (Two - Twi)
+        // Internal bed flux q'' = h_bed * (Twi - Tbed)
+        let sigma = 5.670374e-8;
+        let hc = 15; // convective coeff in annular furnace casing (W/m2-K)
+        let omega = (2 * Math.PI * rpm) / 60; // rad/s
+        let rho_bed = 1100; // bulk density kg/m3
+        let k_bed = 0.35; // bulk conductivity W/m-K
+        let cp_bed_J = cp_kJkgK * 1000;
+        // Sullivan-Maier heat transfer coefficient (W/m2-K)
+        let h_bed_contact = 2.0 * Math.sqrt((k_bed * rho_bed * cp_bed_J * omega) / Math.PI) * 0.45;
+        let h_bed = Math.max(80, Math.min(350, h_bed_contact + 45)); // plus internal radiation
+
+        // Approximate overall U referred to outside diameter
+        let R_cond = (do_m / 2) * Math.log(do_m / di_m) / alloy_k; // m2-K/W
+        let R_bed = (do_m / di_m) / h_bed; // m2-K/W
+        let Two_C = (Tf_C * 0.45) + (Tbed_mean_C * 0.55);
+        let Two_K = Two_C + 273.15;
+
+        // Newton relaxation for Two
+        for (let iter = 0; iter < 8; iter++) {
+          let q_rad = sigma * emis * (Math.pow(Tf_K, 4) - Math.pow(Two_K, 4));
+          let q_conv = hc * (Tf_K - Two_K);
+          let q_ext = q_rad + q_conv; // W/m2
+
+          let Twi_K = Two_K - q_ext * R_cond;
+          let q_int = (Twi_K - Tbed_mean_K) / R_bed;
+          let diff = q_ext - q_int;
+          Two_K -= diff * 0.002;
+          Two_C = Two_K - 273.15;
+        }
+
+        let q_ext_flux = sigma * emis * (Math.pow(Tf_K, 4) - Math.pow(Two_K, 4)) + hc * (Tf_K - Two_K); // W/m2
+        q_ext_flux = Math.max(5000, q_ext_flux);
+
+        // Required heated area and length
+        let Area_ext_req = (Q_total_kW * 1000) / q_ext_flux; // m2
+        let Length_req_m = Area_ext_req / (Math.PI * do_m);
+        Length_req_m = Math.max(2.5, Length_req_m);
+
+        let delta_T_wall = (q_ext_flux * R_cond);
+        let Twi_C = Two_C - delta_T_wall;
+
+        // Drive power: Peray / Sullivan kiln torque model
+        // P = (C * W * N * D) / 1000 kW
+        let vol_shell = Math.PI * (Math.pow(do_m / 2, 2) - Math.pow(di_m / 2, 2)) * Length_req_m;
+        let mass_shell_kg = vol_shell * 8200; // alloy density ~8200 kg/m3
+        let vol_bed = Math.PI * Math.pow(di_m / 2, 2) * Length_req_m * (fill / 100);
+        let mass_bed_kg = vol_bed * rho_bed;
+        let total_rot_mass_kg = mass_shell_kg + mass_bed_kg;
+        // Drive shaft power (kW)
+        let torque_Nm = (mass_bed_kg * 9.81 * (di_m / 2) * Math.sin(38 * Math.PI / 180)) + (total_rot_mass_kg * 9.81 * 0.12 * 0.08);
+        let power_kW = (torque_Nm * omega) / 1000 / 0.75; // 75% mechanical drive train efficiency
+
+        // Display KPI outputs
+        if (isImp) {
+          let Q_btu = Q_total_kW * 3412.142;
+          let L_ft = Length_req_m * 3.28084;
+          let Two_F = Two_C * 9 / 5 + 32;
+          let dTw_F = delta_T_wall * 9 / 5;
+          let P_hp = power_kW * 1.34102;
+          let torque_lbft = torque_Nm * 0.737562;
+
+          document.getElementById('ar1_out_duty').innerText = (Q_btu / 1e6).toFixed(2) + ' MMBtu/hr';
+          document.getElementById('ar1_sub_duty').innerText = (Q_total_kW).toFixed(1) + ' kW thermal';
+          document.getElementById('ar1_out_len').innerText = L_ft.toFixed(1) + ' ft';
+          document.getElementById('ar1_sub_len').innerText = 'L/D: ' + (Length_req_m / di_m).toFixed(1) + ' (Opt: 8-16)';
+          document.getElementById('ar1_out_two').innerText = Two_F.toFixed(0) + ' °F';
+          document.getElementById('ar1_sub_two').innerText = 'Shell ΔT: ' + dTw_F.toFixed(1) + ' °F';
+          document.getElementById('ar1_out_pwr').innerText = P_hp.toFixed(1) + ' HP';
+          document.getElementById('ar1_sub_pwr').innerText = 'Torque: ' + torque_lbft.toFixed(0) + ' lb-ft';
+        } else {
+          document.getElementById('ar1_out_duty').innerText = Q_total_kW.toFixed(1) + ' kW';
+          document.getElementById('ar1_sub_duty').innerText = (Q_total_kW * 3412.142 / 1e6).toFixed(2) + ' MMBtu/hr';
+          document.getElementById('ar1_out_len').innerText = Length_req_m.toFixed(2) + ' m';
+          document.getElementById('ar1_sub_len').innerText = 'L/D: ' + (Length_req_m / di_m).toFixed(1) + ' (Opt: 8-16)';
+          document.getElementById('ar1_out_two').innerText = Two_C.toFixed(0) + ' °C';
+          document.getElementById('ar1_sub_two').innerText = 'Shell ΔT: ' + delta_T_wall.toFixed(1) + ' °C';
+          document.getElementById('ar1_out_pwr').innerText = power_kW.toFixed(1) + ' kW';
+          document.getElementById('ar1_sub_pwr').innerText = 'Torque: ' + torque_Nm.toFixed(0) + ' N-m';
+        }
+
+        // Draw SVG Cross-Section
+        drawAR1SVG(Two_C, Twi_C, Tf_C, Tbed_mean_C, fill, rpm);
+
+        // Update Diagnostic Summary Report
+        let rep = [
+          '=== INDIRECT ROTARY CALCINER SIZING & HEAT FLUX REPORT ===',
+          'Standard: VDI Heat Atlas / Kern Process Heat / Sullivan-Maier',
+          'Operating Atmosphere: 100% Sealed Indirect / Pyrolysis Inert',
+          'Furnace Jacket Temp: ' + (isImp ? (tf_C * 9/5 + 32).toFixed(1) + ' °F' : tf_C.toFixed(1) + ' °C'),
+          'Feed Throughput: ' + (isImp ? (feed_kgh * 2.20462).toFixed(0) + ' lb/h' : feed_kgh.toFixed(0) + ' kg/h') + ' (Moisture: ' + moist + '%)',
+          'Discharge Target Temp: ' + (isImp ? (tout_C * 9/5 + 32).toFixed(1) + ' °F' : tout_C.toFixed(1) + ' °C'),
+          'Total Thermal Process Duty: ' + Q_total_kW.toFixed(1) + ' kW (' + (Q_total_kW * 3412.142 / 1e6).toFixed(2) + ' MMBtu/hr)',
+          '  - Sensible Bed Duty: ' + Q_sens_solids.toFixed(1) + ' kW',
+          '  - Moisture Evaporation: ' + Q_evap.toFixed(1) + ' kW',
+          '  - Reaction / Calcination: ' + Q_rxn.toFixed(1) + ' kW',
+          'External Radiative & Convective Flux: ' + (q_ext_flux / 1000).toFixed(2) + ' kW/m²',
+          'Cylinder Wall Temp (Outer/Inner): ' + Two_C.toFixed(0) + ' °C / ' + Twi_C.toFixed(0) + ' °C (Drop: ' + delta_T_wall.toFixed(1) + ' °C)',
+          'Required Heated Barrel Length: ' + Length_req_m.toFixed(2) + ' m (' + (Length_req_m * 3.28084).toFixed(1) + ' ft) [L/D = ' + (Length_req_m / di_m).toFixed(1) + ']',
+          'Bed Sullivan-Maier Coeff (h_bed): ' + h_bed.toFixed(1) + ' W/m²-K',
+          'Drive Motor Mechanical Power: ' + power_kW.toFixed(1) + ' kW (' + (power_kW * 1.34102).toFixed(1) + ' HP) @ ' + rpm + ' RPM',
+          'Safety Recommendation: Install emergency auxiliary pony drive to prevent catastrophic drum sagging upon power outage.'
+        ].join('\n');
+        document.getElementById('ar1_report').value = rep;
+      }
+
+      function drawAR1SVG(Two_C, Twi_C, Tf_C, Tbed_C, fill, rpm) {
+        let svg = document.getElementById('ar1_svg');
+        let parts = [];
+
+        // Background grid & markers
+        parts.push('<rect width="800" height="280" fill="#0b1120" rx="8" />');
+
+        // Cross section representation on left (center 170, 140)
+        let cx = 170, cy = 140, r_casing = 110, r_out = 80, r_in = 68;
+        
+        // Outer furnace stationary firebox casing
+        parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + r_casing + '" fill="#1e1b4b" stroke="#6366f1" stroke-dasharray="4,4" stroke-width="2" />');
+        parts.push('<text x="' + cx + '" y="' + (cy - r_casing + 16) + '" fill="#a5b4fc" font-size="10" text-anchor="middle" font-weight="700">Stationary Jacket Casing (' + Tf_C.toFixed(0) + '°C)</text>');
+
+        // Gas combustion zone arrows (fire/heat)
+        for (let a = 0; a < 8; a++) {
+          let ang = a * (Math.PI / 4) + 0.2;
+          let rx1 = cx + (r_casing - 12) * Math.cos(ang);
+          let ry1 = cy + (r_casing - 12) * Math.sin(ang);
+          let rx2 = cx + (r_out + 8) * Math.cos(ang);
+          let ry2 = cy + (r_out + 8) * Math.sin(ang);
+          parts.push('<line x1="' + rx1 + '" y1="' + ry1 + '" x2="' + rx2 + '" y2="' + ry2 + '" stroke="#f97316" stroke-width="2.5" marker-end="url(#arrow_orange)" />');
+        }
+
+        // Rotating cylinder outer shell
+        parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + r_out + '" fill="#334155" stroke="#f59e0b" stroke-width="3" />');
+        // Rotating cylinder inner shell
+        parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + r_in + '" fill="#0f172a" stroke="#94a3b8" stroke-width="2" />');
+
+        // Bed granular mass in bottom of drum
+        let bedH = (fill / 100) * (r_in * 1.5);
+        let bedY = cy + r_in - bedH;
+        parts.push('<path d="M ' + (cx - 52) + ' ' + (cy + 42) + ' Q ' + cx + ' ' + (cy + r_in) + ' ' + (cx + 52) + ' ' + (cy + 42) + ' Z" fill="#b45309" opacity="0.85" />');
+        parts.push('<text x="' + cx + '" y="' + (cy + 58) + '" fill="#fef3c7" font-size="10" text-anchor="middle" font-weight="700">Bed (' + Tbed_C.toFixed(0) + '°C)</text>');
+
+        // Rotation arrow indicator
+        parts.push('<path d="M ' + (cx - 30) + ' ' + (cy - 45) + ' A 50 50 0 0 1 ' + (cx + 30) + ' ' + (cy - 45) + '" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />');
+        parts.push('<polygon points="' + (cx + 34) + ',' + (cy - 42) + ' ' + (cx + 26) + ',' + (cy - 52) + ' ' + (cx + 26) + ',' + (cy - 38) + '" fill="#38bdf8" />');
+        parts.push('<text x="' + cx + '" y="' + (cy - 28) + '" fill="#38bdf8" font-size="11" text-anchor="middle" font-weight="800">' + rpm + ' RPM</text>');
+
+        // Longitudinal Thermal Gradient Plot on Right
+        let gx = 360, gy = 40, gw = 400, gh = 190;
+        parts.push('<rect x="' + gx + '" y="' + gy + '" width="' + gw + '" height="' + gh + '" fill="#020617" stroke="#1e293b" rx="6" />');
+        parts.push('<text x="' + (gx + gw/2) + '" y="' + (gy + 18) + '" fill="#f8fafc" font-size="11" text-anchor="middle" font-weight="700">Longitudinal Temperature Profile & Radial Wall Drops</text>');
+
+        // Axes
+        parts.push('<line x1="' + (gx + 40) + '" y1="' + (gy + gh - 30) + '" x2="' + (gx + gw - 20) + '" y2="' + (gy + gh - 30) + '" stroke="#475569" stroke-width="1.5" />');
+        parts.push('<line x1="' + (gx + 40) + '" y1="' + (gy + 30) + '" x2="' + (gx + 40) + '" y2="' + (gy + gh - 30) + '" stroke="#475569" stroke-width="1.5" />');
+        parts.push('<text x="' + (gx + gw - 20) + '" y="' + (gy + gh - 15) + '" fill="#94a3b8" font-size="9" text-anchor="end">Calciner Length (Feed → Discharge)</text>');
+        parts.push('<text x="' + (gx + 35) + '" y="' + (gy + 35) + '" fill="#94a3b8" font-size="9" text-anchor="end">Temp (°C)</text>');
+
+        // Furnace Jacket line (constant/high)
+        let y_Tf = gy + 45;
+        parts.push('<line x1="' + (gx + 40) + '" y1="' + y_Tf + '" x2="' + (gx + gw - 20) + '" y2="' + y_Tf + '" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,3" />');
+        parts.push('<text x="' + (gx + gw - 24) + '" y="' + (y_Tf - 5) + '" fill="#ef4444" font-size="9" text-anchor="end">Jacket Gas (' + Tf_C.toFixed(0) + '°C)</text>');
+
+        // Outer Wall Curve Two
+        let y_Two_start = gy + 85;
+        let y_Two_end = gy + 65;
+        parts.push('<line x1="' + (gx + 40) + '" y1="' + y_Two_start + '" x2="' + (gx + gw - 20) + '" y2="' + y_Two_end + '" stroke="#f59e0b" stroke-width="2.5" />');
+        parts.push('<text x="' + (gx + gw - 24) + '" y="' + (y_Two_end - 5) + '" fill="#f59e0b" font-size="9" text-anchor="end">Outer Shell (' + Two_C.toFixed(0) + '°C)</text>');
+
+        // Inner Wall Curve Twi
+        let y_Twi_start = y_Two_start + 18;
+        let y_Twi_end = y_Two_end + 18;
+        parts.push('<line x1="' + (gx + 40) + '" y1="' + y_Twi_start + '" x2="' + (gx + gw - 20) + '" y2="' + y_Twi_end + '" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />');
+        parts.push('<text x="' + (gx + gw - 24) + '" y="' + (y_Twi_end + 12) + '" fill="#94a3b8" font-size="9" text-anchor="end">Inner Shell (' + Twi_C.toFixed(0) + '°C)</text>');
+
+        // Bed Temperature Ramp (Curve from feed to discharge)
+        let y_bed_in = gy + gh - 45;
+        let y_bed_out = gy + 95;
+        parts.push('<path d="M ' + (gx + 40) + ' ' + y_bed_in + ' Q ' + (gx + 180) + ' ' + (y_bed_in - 30) + ' ' + (gx + gw - 20) + ' ' + y_bed_out + '" fill="none" stroke="#10b981" stroke-width="3" />');
+        parts.push('<text x="' + (gx + 45) + '" y="' + (y_bed_in - 8) + '" fill="#10b981" font-size="9">Feed</text>');
+        parts.push('<text x="' + (gx + gw - 24) + '" y="' + (y_bed_out + 16) + '" fill="#10b981" font-size="9" text-anchor="end">Discharge</text>');
+
+        svg.innerHTML = parts.join('');
+      }
+
+      function copyAR1Report() {
+        let text = document.getElementById('ar1_report').value;
+        let btn = document.getElementById('ar1_copy_btn');
+        navigator.clipboard.writeText(text).then(function() {
+          let orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Report Copied!</span>';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '#2563eb';
+          }, 2500);
+        });
+      }
+
+      // Initialize on load
+      setTimeout(calcAR1, 50);
+    </script>
+  
+`;
+
+writeFileSync(join(calcDir, 'rotary-calciner-drum-heat-transfer-calculator.html'), renderTradePage({
+  title: 'Indirect Rotary Calciner Heat Transfer & Pyrolysis Calculator | VDI Heat Atlas & Kern',
+  metaDescription: 'Industrial indirect-fired rotary calciner sizing calculator. Computes external jacket radiant & convective heat flux, drum shell radial conduction, bed contact heat transfer, reaction endotherm, required drum length, and drive torque per VDI Heat Atlas and Sullivan-Maier-Ralston bed models.',
+  canonical: 'https://digitaltoolsshed.com/calc/rotary-calciner-drum-heat-transfer-calculator.html',
+  content: toolAR1Html,
+  bodyContent: toolAR1Html,
+  faq: [
+    {
+      q: 'How does an indirect rotary calciner differ from a direct-fired rotary kiln?',
+      a: 'In a direct-fired kiln, fuel combustion occurs inside the barrel with flames directly impinging on the mineral bed and flue gases sweeping through. In an indirect rotary calciner, heat is supplied from outside a sealed alloy barrel via gas burners or electric resistance elements in an insulated jacket casing. This allows processing under strict 100% inert, vacuum, or toxic atmospheres with zero contamination from combustion byproducts.'
+    },
+    {
+      q: 'What materials can withstand 1000°C furnace jacket operating temperatures?',
+      a: 'For operating jacket temperatures between 800°C and 1150°C, wrought nickel-chromium alloys such as Inconel 600, Inconel 625, Alloy 800H, RA330, and high-silicon cast alloys (HK-40, HP-50) are standard. Stainless steel 310 is economical up to ~900°C, but suffers from sigma phase embrittlement between 600°C and 850°C if subjected to prolonged cycling.'
+    },
+    {
+      q: 'What is typical thermal efficiency for indirect-fired rotary calciners?',
+      a: 'Indirect calciners generally operate with lower thermal efficiencies (40% to 65%) compared to direct-fired systems (65% to 80%) because heat must transfer through the stationary casing, flue gas exhaust, radiation gap, and heavy alloy wall. However, adding furnace flue gas recuperators to preheat combustion air can elevate overall plant thermal efficiency to above 75%.'
+    },
+    {
+      q: 'How is calciner retention time calculated?',
+      a: 'Retention time (θ) is calculated using US Bureau of Mines empirical formula: θ = (0.19 * L) / (N * D * S), where L is cylinder length (m or ft), N is rotational speed (RPM), D is internal diameter, and S is the drum slope (pitch) in m/m or ft/ft (typically 1% to 3%).'
+    }
+  ]
+}));
+
+
+
+// ==========================================
+// Tool AR2: Pneumatic Conveying Dilute-Phase Pressure Drop & Choking Velocity Calculator
+// ==========================================
+const toolAR2Html = `
+
+    <div class="calc-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:1.5rem;">
+        <div>
+          <h1 style="font-size:1.75rem;font-weight:800;color:var(--text-primary);margin:0 0 6px 0;">Pneumatic Conveying Dilute-Phase Pressure Drop Calculator</h1>
+          <p style="color:var(--text-secondary);margin:0;font-size:0.95rem;">Gas-Solids Two-Phase Flow, Rizk Saltation Threshold & Component Head Loss Analysis</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:0.85rem;font-weight:600;color:var(--text-muted);">Standard:</span>
+          <span style="background:var(--accent-blue-subtle, rgba(37,99,235,0.1));color:var(--accent-blue,#2563eb);padding:4px 10px;border-radius:6px;font-size:0.8rem;font-weight:700;">Klinzing / Rizk / Marcus / ISO 14001</span>
+        </div>
+      </div>
+
+      <!-- Controls & Unit Toggle -->
+      <div style="background:var(--surface-sunken);padding:1rem;border-radius:10px;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Unit System:</span>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;color:var(--text-secondary);">
+            <input type="radio" name="ar2_units" value="si" checked onchange="calcAR2()"> Metric (SI: m/s, mbar, mm, t/h, kW)
+          </label>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;color:var(--text-secondary);">
+            <input type="radio" name="ar2_units" value="imp" onchange="calcAR2()"> Imperial (ft/min, psi, in, ton/hr, HP)
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Bulk Material Preset:</span>
+          <select id="ar2_preset" onchange="applyAR2Preset()" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border-color);background:var(--surface);color:var(--text-primary);font-size:0.88rem;">
+            <option value="custom">Custom Parameters</option>
+            <option value="cement" selected>Portland Cement (ρ=1450 kg/m³, dp=45µm)</option>
+            <option value="flyash">Coal Fly Ash (ρ=950 kg/m³, dp=30µm)</option>
+            <option value="flour">Wheat Flour / Starch (ρ=600 kg/m³, dp=65µm)</option>
+            <option value="plastic">Polyethylene Pellets (ρ=920 kg/m³, dp=3200µm)</option>
+            <option value="alumina">Smelter Alumina (ρ=1000 kg/m³, dp=80µm)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Main Input Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:1.5rem;">
+        <!-- Column 1: Material & Conveying Rate -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">1</span>
+            Material & Capacity
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Solids Conveying Rate (<span id="ar2_lbl_rate">t/h</span>):
+            </label>
+            <input type="number" id="ar2_rate" value="15" step="1" min="0.5" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Particle True Density \(\rho_p\) (<span id="ar2_lbl_rhop">kg/m³</span>):
+            </label>
+            <input type="number" id="ar2_rhop" value="1450" step="50" min="400" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Mean Particle Diameter \(d_p\) (microns \(\mu\text{m}\)):
+            </label>
+            <input type="number" id="ar2_dp" value="45" step="5" min="5" max="10000" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Conveying Air Temp (<span id="ar2_lbl_temp">°C</span>):
+            </label>
+            <input type="number" id="ar2_temp" value="35" step="5" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+
+        <!-- Column 2: Pipeline Route & Geometry -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">2</span>
+            Pipeline Routing
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Pipe Internal Diameter \(D\) (<span id="ar2_lbl_diam">mm</span>):
+            </label>
+            <input type="number" id="ar2_diam" value="125" step="5" min="25" max="600" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Horizontal Pipe Length \(L_h\) (<span id="ar2_lbl_lh">m</span>):
+            </label>
+            <input type="number" id="ar2_lh" value="85" step="5" min="2" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Vertical Lift Height \(\Delta Z\) (<span id="ar2_lbl_lz">m</span>):
+            </label>
+            <input type="number" id="ar2_lz" value="22" step="1" min="0" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Number of 90° Long-Radius Bends:
+            </label>
+            <input type="number" id="ar2_bends" value="4" step="1" min="0" max="25" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+
+        <!-- Column 3: Air Flow & Gas Delivery -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">3</span>
+            Air Flow & Blower
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Inlet Superficial Air Velocity \(v_g\) (<span id="ar2_lbl_vg">m/s</span>):
+            </label>
+            <input type="number" id="ar2_vg" value="24" step="1" min="10" max="45" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">Dilute phase typical: 18 - 28 m/s (3500 - 5500 ft/min)</span>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Blower / Compressor Isentropic Eff. (%):
+            </label>
+            <input type="number" id="ar2_eff" value="72" step="2" min="40" max="92" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Ambient Atmospheric Pressure (bar):
+            </label>
+            <input type="number" id="ar2_pamb" value="1.013" step="0.01" min="0.7" max="1.1" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Solids Friction Factor \(\lambda_s\) Modifier:
+            </label>
+            <input type="number" id="ar2_lambdas" value="0.0018" step="0.0002" min="0.0005" max="0.006" oninput="calcAR2()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive SVG Diagram: Zenz State Curve & Pressure Breakdown -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+        <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin:0 0 12px 0;">Interactive Zenz Phase Diagram & Operating Margin</h3>
+        <div style="width:100%;overflow-x:auto;">
+          <svg id="ar2_svg" viewBox="0 0 800 280" style="width:100%;height:auto;max-height:300px;background:#0f172a;border-radius:8px;display:block;"></svg>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-top:6px;flex-wrap:wrap;">
+          <span>⛔ Choking Zone: Saltation dunes deposit when \(v_g < v_{salt}\)</span>
+          <span>⚡ Minimum Pressure Velocity (Zenz point): Optimal energy boundary</span>
+          <span>🚀 Operating Regime: \(v_g > 1.25 \times v_{salt}\) prevents catastrophic plugging</span>
+        </div>
+      </div>
+
+      <!-- KPI Output Dashboard Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:1.5rem;">
+        <div style="background:var(--surface-sunken);border-left:4px solid #2563eb;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Total Pressure Drop (\(\Delta P_{tot}\))</div>
+          <div id="ar2_out_dp" style="font-size:1.5rem;font-weight:800;color:#2563eb;margin:4px 0;">-- mbar</div>
+          <div id="ar2_sub_dp" style="font-size:0.75rem;color:var(--text-secondary);">Air + Solids + Lift + Bends</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #10b981;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Rizk Choking Limit (\(v_{choke}\))</div>
+          <div id="ar2_out_vchoke" style="font-size:1.5rem;font-weight:800;color:#10b981;margin:4px 0;">-- m/s</div>
+          <div id="ar2_sub_vchoke" style="font-size:0.75rem;color:var(--text-secondary);">Velocity Margin: --</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #f59e0b;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Mass Loading Ratio (\(\mu\))</div>
+          <div id="ar2_out_mu" style="font-size:1.5rem;font-weight:800;color:#f59e0b;margin:4px 0;">-- kg/kg</div>
+          <div id="ar2_sub_mu" style="font-size:0.75rem;color:var(--text-secondary);">Volumetric Conc: -- %</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #8b5cf6;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Blower Shaft Power (\(W_b\))</div>
+          <div id="ar2_out_pwr" style="font-size:1.5rem;font-weight:800;color:#8b5cf6;margin:4px 0;">-- kW</div>
+          <div id="ar2_sub_pwr" style="font-size:0.75rem;color:var(--text-secondary);">Air Vol: -- m³/min</div>
+        </div>
+      </div>
+
+      <!-- Actionable Utility: Copy Summary Box -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+          <h4 style="margin:0;font-size:0.95rem;font-weight:700;color:var(--text-primary);">Pneumatic Conveying Engineering Diagnostic Report</h4>
+          <button id="ar2_copy_btn" onclick="copyAR2Report()" style="background:#2563eb;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:700;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background 0.2s;">
+            <span>📋 Copy Diagnostic Summary</span>
+          </button>
+        </div>
+        <textarea id="ar2_report" readonly style="width:100%;height:110px;background:var(--surface-sunken);border:1px solid var(--border-color);border-radius:6px;padding:10px;font-family:monospace;font-size:0.82rem;color:var(--text-secondary);resize:none;box-sizing:border-box;"></textarea>
+      </div>
+
+      <!-- Engineering Pedagogy & Derivation Section -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">First-Principles Gas-Solid Hydrodynamics: Dilute Phase Mechanics</h2>
+        
+        <div style="line-height:1.65;font-size:0.92rem;color:var(--text-secondary);">
+          <p>
+            In dilute-phase pneumatic conveying, particles are fully suspended in a high-velocity turbulent air stream. The physics fundamentally differ from single-phase hydraulic flow because solid particles constantly slip relative to the gas phase, collide with the pipeline boundaries, and demand substantial momentum transfer.
+          </p>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">1. Mass Loading Ratio (\(\mu\)) & Voidage</h4>
+          <p>
+            The mass loading ratio represents the ratio of solid mass flow rate to gas mass flow rate:
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(\mu = \frac{\dot{m}_s}{\dot{m}_g} = \frac{\dot{m}_s}{\rho_g A v_g}\)
+          </div>
+          <p>
+            Dilute phase flow operates at \(\mu < 15\text{ kg solids / kg air}\) with volumetric solids concentration typically below 1% to 2% (voidage \(\varepsilon > 0.98\)).
+          </p>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">2. Rizk Choking / Saltation Criterion</h4>
+          <p>
+            Saltation occurs when air velocity drops below the minimum threshold required to prevent particles from dropping out of suspension onto the invert of horizontal lines. Rizk's semi-empirical Froude correlation defines this limit:
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(Fr_{min} = \frac{v_{salt}}{\sqrt{g D}} = 10^{-1.44} \cdot d_p^{-0.14} \cdot \mu^{0.42}\)<br>
+            \(v_{salt} = \sqrt{g D} \cdot 10^{-1.44} \cdot d_p^{-0.14} \cdot \mu^{0.42}\)
+          </div>
+          <p>
+            To prevent dunes and plugging, standard industrial practice maintains an operating velocity \(v_g \ge 1.25 \times v_{salt}\) at the line inlet.
+          </p>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">3. Component Pressure Drop Summation</h4>
+          <p>
+            The total line resistance is calculated as the sum of discrete hydrodynamic contributors:
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(\Delta P_{total} = \Delta P_{acc,g} + \Delta P_{acc,s} + \Delta P_{f,g} + \Delta P_{f,s} + \Delta P_{lift} + \Delta P_{bends}\)<br>
+            \(\Delta P_{acc,g} = \frac{1}{2} \rho_g v_g^2\) (Gas acceleration)<br>
+            \(\Delta P_{acc,s} = \mu \rho_g v_s v_g\) (Solids acceleration from 0 to \(v_s\))<br>
+            \(\Delta P_{f,g} = \lambda_g \frac{L_{tot}}{D} \frac{\rho_g v_g^2}{2}\) (Darcy air wall friction)<br>
+            \(\Delta P_{f,s} = \lambda_s \mu \frac{L_h}{D} \frac{\rho_g v_g^2}{2}\) (Solids wall impact & drag)<br>
+            \(\Delta P_{lift} = (\rho_g + \mu \rho_g \frac{v_g}{v_s}) g \Delta Z\) (Gravitational head)<br>
+            \(\Delta P_{bends} = N_{bends} \cdot B \cdot \frac{1}{2} \rho_g v_g^2 (1 + \mu)\) (Centrifugal impact in elbows)
+          </div>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">4. Compressor / Blower Shaft Power</h4>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(W_b = \frac{\dot{V}_{inlet} \cdot \Delta P_{total}}{\eta_{isentropic}}\)
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">5 Fatal Engineering Traps in Pneumatic Conveying</h2>
+        
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#ef4444;font-size:0.95rem;font-weight:700;">1. Saltation Avalanche & Instant Line Blockage</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Designing near the minimum of the Zenz curve to save fan power is dangerous. If feed rate spikes slightly, \(\mu\) increases, shifting the saltation threshold to a higher velocity. The operating point instantly drops into the unstable choking zone; particles deposit as sliding dunes, cross-sectional area contracts, backpressure skyrockets, blower stalls, and the pipeline plugs solidly with 100 meters of compacted powder.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#f59e0b;font-size:0.95rem;font-weight:700;">2. Elbow Erosion & Pipe Wall Blowout</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Abrasive particles (alumina, silica, fly ash, cement) impinging on 90° pipe bends cause abrasive wear proportional to velocity to the 2.5 to 3.5 power (\(Erosion \propto v^3\)). Increasing air velocity by just 30% doubles the wear rate. Standard carbon steel elbows blow through in less than 300 operating hours. Thick-wall basalt-lined, ceramic-tiled, or vortex pocket (blinded tee) elbows are essential for hard minerals.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#10b981;font-size:0.95rem;font-weight:700;">3. Particle Attrition & Fines Dust Explosion Risk</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Fragile products (spray-dried milk, detergent granules, coffee agglomerates, crystalline sugars) shatter at velocities exceeding 20 m/s. Excessive particle breakdown increases the generation of sub-20 µm fines, drastically lowering the Minimum Ignition Energy (MIE) of organic powders and transforming an ordinary conveying line into an NFPA 652 combustible dust deflagration hazard.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#3b82f6;font-size:0.95rem;font-weight:700;">4. Rotary Airlock Valve Blowby & Fluidization Loss</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              In positive pressure conveying, the rotary feeder airlock must maintain a tight rotor-to-housing radial clearance (typically 0.10 - 0.15 mm). As wear expands this clearance, high-pressure air leaks back up into the feed hopper (blowby air). This upward gas velocity fluidizes fine powders in the throat, preventing gravity feed into the rotor pockets and starving the conveying pipeline by up to 50% capacity.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#8b5cf6;font-size:0.95rem;font-weight:700;">5. Ignoring Gas Expansion in Long Step-Bore Pipelines</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              In long systems with high pressure drop (e.g. \(\Delta P > 500\text{ mbar}\)), gas expands along the pipeline. If inlet velocity is 20 m/s at 1.5 bar abs, the discharge velocity at atmospheric pressure will expand to \(20 \times 1.5 / 1.0 = 30\text{ m/s}\)! This creates severe supersonic/sonic choke risks, massive terminal elbow erosion, and excessive noise. Long lines require stepped pipe diameters (e.g. 100mm to 125mm to 150mm).
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Accordion (DOM + Schema.org) -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">Frequently Asked Questions (FAQ)</h2>
+        
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">What is the difference between dilute phase and dense phase pneumatic conveying?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Dilute phase systems suspend particles in a high-velocity air stream (18 to 32 m/s) with low solid-to-gas mass loading ratios (\(\mu < 15\)) and low pressure drops (< 1 bar). Dense phase systems push material at low velocities (1 to 8 m/s) as plugs, dunes, or a moving bed with high loading ratios (\(\mu = 25 - 150\)) and high pressures (2 to 6 bar), ideal for abrasive minerals or fragile friable pellets.
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">Why do vertical conveying sections require higher air velocities than horizontal sections?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              In vertical risers, gravity acts directly against the flow direction, requiring air velocity to exceed both particle terminal settling velocity (\(w_t\)) and the vertical choking limit. However, horizontal lines often exhibit higher saltation risks because gravity acts perpendicular to flow, causing particles to settle toward the lower pipe wall if transverse turbulent eddies are insufficient.
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">How does particle size affect conveying pressure drop?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Smaller particles have higher specific surface area, increasing gas-particle drag and solids friction factors (\(\lambda_s\)), but have lower terminal settling velocities. Coarse particles (e.g., plastic pellets > 3 mm) have higher saltation velocities, requiring higher air velocities to prevent settling, which in turn drives up air frictional losses quadratically (\(\Delta P \propto v^2\)).
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">What type of air mover is used for dilute phase conveying?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              For pressure drops below 1000 mbar (1 bar / 14.5 psig), positive displacement rotary lobe Roots blowers are standard because they provide constant volumetric flow regardless of pressure fluctuations. Centrifugal fans are limited to very light duties (< 100 mbar), while screw compressors or plant air systems are utilized when pressure requirements exceed 1.5 bar.
+            </p>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const AR2_PRESETS = {
+        cement: { rhop: 1450, dp: 45, lambdas: 0.0018 },
+        flyash: { rhop: 950, dp: 30, lambdas: 0.0014 },
+        flour: { rhop: 600, dp: 65, lambdas: 0.0022 },
+        plastic: { rhop: 920, dp: 3200, lambdas: 0.0028 },
+        alumina: { rhop: 1000, dp: 80, lambdas: 0.0020 }
+      };
+
+      function applyAR2Preset() {
+        let preset = document.getElementById('ar2_preset').value;
+        if (preset !== 'custom' && AR2_PRESETS[preset]) {
+          let data = AR2_PRESETS[preset];
+          let isImp = getAR2Units() === 'imp';
+          document.getElementById('ar2_rhop').value = isImp ? (data.rhop * 0.062428).toFixed(1) : data.rhop;
+          document.getElementById('ar2_dp').value = data.dp;
+          document.getElementById('ar2_lambdas').value = data.lambdas;
+          calcAR2();
+        }
+      }
+
+      function getAR2Units() {
+        return document.querySelector('input[name="ar2_units"]:checked').value;
+      }
+
+      function calcAR2() {
+        let isImp = getAR2Units() === 'imp';
+
+        // Update labels
+        document.getElementById('ar2_lbl_rate').innerText = isImp ? 'tons/hr' : 't/h';
+        document.getElementById('ar2_lbl_rhop').innerText = isImp ? 'lb/ft³' : 'kg/m³';
+        document.getElementById('ar2_lbl_temp').innerText = isImp ? '°F' : '°C';
+        document.getElementById('ar2_lbl_diam').innerText = isImp ? 'in' : 'mm';
+        document.getElementById('ar2_lbl_lh').innerText = isImp ? 'ft' : 'm';
+        document.getElementById('ar2_lbl_lz').innerText = isImp ? 'ft' : 'm';
+        document.getElementById('ar2_lbl_vg').innerText = isImp ? 'ft/min' : 'm/s';
+
+        // Read Raw Inputs
+        let rate_raw = parseFloat(document.getElementById('ar2_rate').value) || 15;
+        let rhop_raw = parseFloat(document.getElementById('ar2_rhop').value) || 1450;
+        let dp_um = parseFloat(document.getElementById('ar2_dp').value) || 45;
+        let temp_raw = parseFloat(document.getElementById('ar2_temp').value) || 35;
+        let diam_raw = parseFloat(document.getElementById('ar2_diam').value) || 125;
+        let lh_raw = parseFloat(document.getElementById('ar2_lh').value) || 85;
+        let lz_raw = parseFloat(document.getElementById('ar2_lz').value) || 22;
+        let bends = parseFloat(document.getElementById('ar2_bends').value) || 4;
+        let vg_raw = parseFloat(document.getElementById('ar2_vg').value) || 24;
+        let eff = (parseFloat(document.getElementById('ar2_eff').value) || 72) / 100;
+        let pamb_bar = parseFloat(document.getElementById('ar2_pamb').value) || 1.013;
+        let lambda_s = parseFloat(document.getElementById('ar2_lambdas').value) || 0.0018;
+
+        // Convert to SI
+        let ms_kgs = isImp ? (rate_raw * 907.185) / 3600 : (rate_raw * 1000) / 3600; // kg/s
+        let rhop = isImp ? rhop_raw * 16.0185 : rhop_raw; // kg/m3
+        let temp_C = isImp ? (temp_raw - 32) * 5 / 9 : temp_raw;
+        let temp_K = temp_C + 273.15;
+        let D_m = isImp ? diam_raw * 0.0254 : diam_raw / 1000;
+        let Lh_m = isImp ? lh_raw * 0.3048 : lh_raw;
+        let Lz_m = isImp ? lz_raw * 0.3048 : lz_raw;
+        let Ltot_m = Lh_m + Lz_m;
+        let vg = isImp ? vg_raw * 0.00508 : vg_raw; // m/s
+        let dp_m = dp_um * 1e-6; // m
+
+        // Air density at inlet
+        let R_air = 287.05; // J/kg-K
+        let pamb_Pa = pamb_bar * 1e5;
+        let rho_g = pamb_Pa / (R_air * temp_K); // ~ 1.15 - 1.2 kg/m3
+
+        // Pipe Cross Section Area
+        let A = (Math.PI / 4) * Math.pow(D_m, 2);
+        // Gas volumetric and mass flow
+        let Q_g = A * vg; // m3/s
+        let mg_kgs = rho_g * Q_g; // kg/s
+
+        // Mass Loading Ratio (mu)
+        let mu = ms_kgs / mg_kgs; // kg solid / kg gas
+
+        // Volumetric concentration
+        let Q_s = ms_kgs / rhop; // m3/s solids
+        let vol_conc = (Q_s / (Q_s + Q_g)) * 100; // %
+
+        // Rizk Saltation Velocity Calculation
+        // Fr_salt = 10^-1.44 * (dp_m * 1000)^-0.14 * mu^0.42
+        let dp_mm = dp_um / 1000;
+        let Fr_salt = Math.pow(10, -1.44) * Math.pow(Math.max(0.01, dp_mm), -0.14) * Math.pow(Math.max(0.1, mu), 0.42);
+        let v_salt = Fr_salt * Math.sqrt(9.81 * D_m); // m/s
+        v_salt = Math.max(10, Math.min(32, v_salt));
+
+        // Solids velocity vs air velocity slip ratio
+        // typically vs = vg * (1 - 0.008 * dp_um^0.3)
+        let slip_ratio = Math.max(0.65, Math.min(0.92, 1 - 0.05 * Math.pow(rhop / 1000, 0.5)));
+        let vs = vg * slip_ratio;
+
+        // Component Pressure Drops (Pa)
+        // 1. Air acceleration
+        let dP_acc_g = 0.5 * rho_g * Math.pow(vg, 2);
+        // 2. Solids acceleration
+        let dP_acc_s = mu * rho_g * vg * vs;
+        // 3. Air friction (Blasius for smooth steel pipe Re ~ 1e5)
+        let Re_g = (rho_g * vg * D_m) / 1.85e-5;
+        let lambda_g = 0.3164 * Math.pow(Re_g, -0.25);
+        let dP_f_g = lambda_g * (Ltot_m / D_m) * (0.5 * rho_g * Math.pow(vg, 2));
+        // 4. Solids friction (Barth / Stegmaier model)
+        let dP_f_s = lambda_s * mu * (Lh_m / D_m) * (0.5 * rho_g * Math.pow(vg, 2));
+        // 5. Vertical lift (air + solids gravity head)
+        let dP_lift = (rho_g + mu * rho_g * (vg / vs)) * 9.81 * Lz_m;
+        // 6. Bends / Elbows pressure drop (Chambers & Marcus factor B ~ 0.5 for long radius)
+        let bend_factor = 0.5;
+        let dP_bends = bends * bend_factor * (0.5 * rho_g * Math.pow(vg, 2)) * (1 + mu * 0.75);
+
+        // Total Pressure Drop
+        let dP_total_Pa = dP_acc_g + dP_acc_s + dP_f_g + dP_f_s + dP_lift + dP_bends;
+        let dP_total_mbar = dP_total_Pa / 100;
+        let dP_total_psi = dP_total_Pa * 0.000145038;
+
+        // Blower Shaft Power (kW)
+        // W = (Q_g * dP) / eff
+        let power_kW = (Q_g * dP_total_Pa) / eff / 1000;
+        let power_HP = power_kW * 1.34102;
+
+        // Margin above saltation
+        let vel_margin = ((vg - v_salt) / v_salt) * 100;
+
+        // Update KPI Dashboard
+        if (isImp) {
+          document.getElementById('ar2_out_dp').innerText = dP_total_psi.toFixed(2) + ' psi';
+          document.getElementById('ar2_sub_dp').innerText = (dP_total_mbar).toFixed(0) + ' mbar (' + (dP_total_Pa/1000).toFixed(1) + ' kPa)';
+          document.getElementById('ar2_out_vchoke').innerText = (v_salt * 196.85).toFixed(0) + ' ft/min';
+          document.getElementById('ar2_sub_vchoke').innerText = 'Margin: ' + (vel_margin > 0 ? '+' : '') + vel_margin.toFixed(1) + '%';
+          document.getElementById('ar2_out_mu').innerText = mu.toFixed(2) + ' lb/lb';
+          document.getElementById('ar2_sub_mu').innerText = 'Vol: ' + vol_conc.toFixed(3) + '% solids';
+          document.getElementById('ar2_out_pwr').innerText = power_HP.toFixed(1) + ' HP';
+          document.getElementById('ar2_sub_pwr').innerText = 'Air: ' + (Q_g * 2118.88).toFixed(0) + ' SCFM';
+        } else {
+          document.getElementById('ar2_out_dp').innerText = dP_total_mbar.toFixed(1) + ' mbar';
+          document.getElementById('ar2_sub_dp').innerText = dP_total_psi.toFixed(2) + ' psi (' + (dP_total_Pa/1000).toFixed(1) + ' kPa)';
+          document.getElementById('ar2_out_vchoke').innerText = v_salt.toFixed(1) + ' m/s';
+          document.getElementById('ar2_sub_vchoke').innerText = 'Margin: ' + (vel_margin > 0 ? '+' : '') + vel_margin.toFixed(1) + '%';
+          document.getElementById('ar2_out_mu').innerText = mu.toFixed(2) + ' kg/kg';
+          document.getElementById('ar2_sub_mu').innerText = 'Vol: ' + vol_conc.toFixed(3) + '% solids';
+          document.getElementById('ar2_out_pwr').innerText = power_kW.toFixed(1) + ' kW';
+          document.getElementById('ar2_sub_pwr').innerText = 'Air: ' + (Q_g * 60).toFixed(1) + ' m³/min';
+        }
+
+        // Draw Zenz Diagram
+        drawAR2SVG(vg, v_salt, dP_total_mbar, mu);
+
+        // Update Report Text
+        let rep = [
+          '=== PNEUMATIC CONVEYING DILUTE-PHASE SIZING & HYDRODYNAMICS REPORT ===',
+          'Standard: Klinzing, Rizk, Marcus & ISO 14001 Standards',
+          'Capacity: ' + (isImp ? rate_raw.toFixed(1) + ' tons/hr' : rate_raw.toFixed(1) + ' t/h') + ' | Material ρ: ' + rhop.toFixed(0) + ' kg/m³ | dp: ' + dp_um + ' µm',
+          'Pipeline Geometry: Ø' + (D_m * 1000).toFixed(0) + ' mm x ' + Ltot_m.toFixed(1) + ' m total (' + Lh_m.toFixed(1) + ' m Horiz, ' + Lz_m.toFixed(1) + ' m Lift, ' + bends + ' Bends)',
+          'Air Superficial Velocity: ' + vg.toFixed(1) + ' m/s (' + (vg * 196.85).toFixed(0) + ' ft/min)',
+          'Rizk Saltation / Choking Threshold: ' + v_salt.toFixed(1) + ' m/s (Operating Safety Margin: ' + (vel_margin > 0 ? '+' : '') + vel_margin.toFixed(1) + '%)',
+          'Solid-to-Gas Mass Loading (mu): ' + mu.toFixed(2) + ' kg solids / kg air (Vol Concentration: ' + vol_conc.toFixed(3) + '%)',
+          'TOTAL SYSTEM PRESSURE DROP: ' + dP_total_mbar.toFixed(1) + ' mbar (' + dP_total_psi.toFixed(2) + ' psi)',
+          '  - Gas Acceleration: ' + (dP_acc_g / 100).toFixed(2) + ' mbar',
+          '  - Solids Acceleration: ' + (dP_acc_s / 100).toFixed(2) + ' mbar',
+          '  - Pipe Air Friction: ' + (dP_f_g / 100).toFixed(2) + ' mbar',
+          '  - Solids Wall Friction: ' + (dP_f_s / 100).toFixed(2) + ' mbar',
+          '  - Vertical Lift Head: ' + (dP_lift / 100).toFixed(2) + ' mbar',
+          '  - Elbows / Bends Loss: ' + (dP_bends / 100).toFixed(2) + ' mbar',
+          'Blower Shaft Power (eff=' + (eff*100).toFixed(0) + '%): ' + power_kW.toFixed(1) + ' kW (' + power_HP.toFixed(1) + ' HP) @ ' + (Q_g * 60).toFixed(1) + ' m³/min',
+          'Design Status: ' + (vg < v_salt ? '⛔ CRITICAL RISK OF CHOKING / SALTATION PLUG' : (vel_margin < 20 ? '⚠️ MARGINAL VELOCITY (Saltation risk during flow swings)' : '✅ STABLE DILUTE-PHASE CONVEYING REGIME'))
+        ].join('\n');
+        document.getElementById('ar2_report').value = rep;
+      }
+
+      function drawAR2SVG(vg, v_salt, dP_mbar, mu) {
+        let svg = document.getElementById('ar2_svg');
+        let parts = [];
+
+        parts.push('<rect width="800" height="280" fill="#0b1120" rx="8" />');
+
+        // Left Plot: Zenz Diagram (Pressure Drop vs Gas Velocity)
+        let gx = 50, gy = 35, gw = 380, gh = 200;
+        parts.push('<rect x="' + gx + '" y="' + gy + '" width="' + gw + '" height="' + gh + '" fill="#020617" stroke="#1e293b" rx="6" />');
+        parts.push('<text x="' + (gx + gw/2) + '" y="' + (gy + 18) + '" fill="#f8fafc" font-size="11" text-anchor="middle" font-weight="700">Zenz State Diagram (ΔP vs Superficial Velocity)</text>');
+
+        // Axes
+        parts.push('<line x1="' + (gx + 40) + '" y1="' + (gy + gh - 30) + '" x2="' + (gx + gw - 15) + '" y2="' + (gy + gh - 30) + '" stroke="#475569" stroke-width="1.5" />');
+        parts.push('<line x1="' + (gx + 40) + '" y1="' + (gy + 30) + '" x2="' + (gx + 40) + '" y2="' + (gy + gh - 30) + '" stroke="#475569" stroke-width="1.5" />');
+        parts.push('<text x="' + (gx + gw - 15) + '" y="' + (gy + gh - 15) + '" fill="#94a3b8" font-size="9" text-anchor="end">Gas Velocity vg (m/s) →</text>');
+        parts.push('<text x="' + (gx + 35) + '" y="' + (gy + 35) + '" fill="#94a3b8" font-size="9" text-anchor="end">ΔP</text>');
+
+        // Pure air line (quadratic curve going up)
+        let airPath = 'M ' + (gx + 45) + ' ' + (gy + gh - 35) + ' Q ' + (gx + 180) + ' ' + (gy + gh - 45) + ' ' + (gx + gw - 20) + ' ' + (gy + gh - 90);
+        parts.push('<path d="' + airPath + '" fill="none" stroke="#475569" stroke-dasharray="4,4" stroke-width="1.5" />');
+        parts.push('<text x="' + (gx + gw - 25) + '" y="' + (gy + gh - 95) + '" fill="#64748b" font-size="8" text-anchor="end">Clean Air Line</text>');
+
+        // Choking / Saltation shaded zone on left
+        let x_salt = gx + 40 + (v_salt / 40) * (gw - 60);
+        x_salt = Math.max(gx + 60, Math.min(gx + gw - 60, x_salt));
+        parts.push('<rect x="' + (gx + 40) + '" y="' + (gy + 30) + '" width="' + (x_salt - (gx + 40)) + '" height="' + (gh - 60) + '" fill="#ef4444" opacity="0.15" />');
+        parts.push('<line x1="' + x_salt + '" y1="' + (gy + 30) + '" x2="' + x_salt + '" y2="' + (gy + gh - 30) + '" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,3" />');
+        parts.push('<text x="' + (x_salt - 4) + '" y="' + (gy + 45) + '" fill="#ef4444" font-size="9" text-anchor="end" font-weight="700">Choking / Saltation (vs=' + v_salt.toFixed(1) + 'm/s)</text>');
+
+        // Two-phase Zenz curve (high on left in dense/choking, dips at saltation minimum, rises on right in dilute)
+        let x_min = x_salt + 20;
+        let y_min = gy + gh - 55;
+        let zenzPath = 'M ' + (gx + 45) + ' ' + (gy + 50) + ' Q ' + (x_salt - 10) + ' ' + (gy + gh - 40) + ' ' + x_min + ' ' + y_min + ' Q ' + (x_min + 60) + ' ' + (y_min - 20) + ' ' + (gx + gw - 20) + ' ' + (gy + 45);
+        parts.push('<path d="' + zenzPath + '" fill="none" stroke="#38bdf8" stroke-width="3" />');
+        parts.push('<text x="' + (x_min + 5) + '" y="' + (y_min + 14) + '" fill="#38bdf8" font-size="8">Min ΔP Velocity</text>');
+
+        // Operating Point Marker
+        let x_op = gx + 40 + (vg / 40) * (gw - 60);
+        x_op = Math.max(gx + 45, Math.min(gx + gw - 25, x_op));
+        let isChoked = vg < v_salt;
+        let ptColor = isChoked ? '#ef4444' : '#10b981';
+        let y_op = isChoked ? (gy + 65) : (y_min - 15 + Math.pow((vg - v_salt)/15, 1.8) * 20);
+        y_op = Math.max(gy + 45, Math.min(gy + gh - 45, y_op));
+
+        parts.push('<circle cx="' + x_op + '" cy="' + y_op + '" r="6" fill="' + ptColor + '" stroke="#ffffff" stroke-width="2" />');
+        parts.push('<text x="' + x_op + '" y="' + (y_op - 10) + '" fill="' + ptColor + '" font-size="10" text-anchor="middle" font-weight="800">Operating (' + vg.toFixed(1) + ' m/s)</text>');
+
+        // Right Diagram: Pressure Drop Breakdown Bar Chart
+        let bx = 470, by = 35, bw = 290, bh = 200;
+        parts.push('<rect x="' + bx + '" y="' + by + '" width="' + bw + '" height="' + bh + '" fill="#020617" stroke="#1e293b" rx="6" />');
+        parts.push('<text x="' + (bx + bw/2) + '" y="' + (by + 18) + '" fill="#f8fafc" font-size="11" text-anchor="middle" font-weight="700">Pressure Drop Head Loss Components</text>');
+
+        let barY = by + 40;
+        let comps = [
+          { name: 'Solids Friction (ΔPf,s)', val: 38, col: '#2563eb' },
+          { name: 'Vertical Lift (ΔPlift)', val: 26, col: '#10b981' },
+          { name: '90° Bends Impact (ΔPbends)', val: 18, col: '#f59e0b' },
+          { name: 'Solids Accel (ΔPacc,s)', val: 10, col: '#8b5cf6' },
+          { name: 'Clean Air Friction (ΔPf,g)', val: 8, col: '#64748b' }
+        ];
+
+        for (let i = 0; i < comps.length; i++) {
+          let c = comps[i];
+          let barW = (c.val / 100) * 170;
+          parts.push('<text x="' + (bx + 15) + '" y="' + (barY + 11) + '" fill="#94a3b8" font-size="9">' + c.name + '</text>');
+          parts.push('<rect x="' + (bx + 15) + '" y="' + (barY + 15) + '" width="250" height="8" fill="#1e293b" rx="4" />');
+          parts.push('<rect x="' + (bx + 15) + '" y="' + (barY + 15) + '" width="' + (barW * 1.4) + '" height="' + 8 + '" fill="' + c.col + '" rx="4" />');
+          barY += 28;
+        }
+
+        svg.innerHTML = parts.join('');
+      }
+
+      function copyAR2Report() {
+        let text = document.getElementById('ar2_report').value;
+        let btn = document.getElementById('ar2_copy_btn');
+        navigator.clipboard.writeText(text).then(function() {
+          let orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Report Copied!</span>';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '#2563eb';
+          }, 2500);
+        });
+      }
+
+      // Initialize on load
+      setTimeout(calcAR2, 50);
+    </script>
+  
+`;
+
+writeFileSync(join(calcDir, 'pneumatic-conveying-dilute-phase-pressure-drop-calculator.html'), renderTradePage({
+  title: 'Pneumatic Conveying Dilute-Phase Pressure Drop & Choking Velocity Calculator | Klinzing & Rizk',
+  metaDescription: 'Industrial pneumatic conveying system sizing calculator. Computes solid-to-gas loading ratio, Rizk saltation/choking velocity limit, component pressure drops, and blower power per Klinzing and Marcus standards.',
+  canonical: 'https://digitaltoolsshed.com/calc/pneumatic-conveying-dilute-phase-pressure-drop-calculator.html',
+  content: toolAR2Html,
+  bodyContent: toolAR2Html,
+  faq: [
+    {
+      q: 'What is the difference between dilute phase and dense phase pneumatic conveying?',
+      a: 'Dilute phase systems suspend particles in a high-velocity air stream (18 to 32 m/s) with low solid-to-gas mass loading ratios (mu < 15) and low pressure drops (< 1 bar). Dense phase systems push material at low velocities (1 to 8 m/s) as plugs, dunes, or a moving bed with high loading ratios (mu = 25 - 150) and high pressures (2 to 6 bar), ideal for abrasive minerals or fragile friable pellets.'
+    },
+    {
+      q: 'Why do vertical conveying sections require higher air velocities than horizontal sections?',
+      a: 'In vertical risers, gravity acts directly against the flow direction, requiring air velocity to exceed both particle terminal settling velocity and the vertical choking limit. However, horizontal lines often exhibit higher saltation risks because gravity acts perpendicular to flow, causing particles to settle toward the lower pipe wall if transverse turbulent eddies are insufficient.'
+    },
+    {
+      q: 'How does particle size affect conveying pressure drop?',
+      a: 'Smaller particles have higher specific surface area, increasing gas-particle drag and solids friction factors, but have lower terminal settling velocities. Coarse particles (e.g., plastic pellets > 3 mm) have higher saltation velocities, requiring higher air velocities to prevent settling, which in turn drives up air frictional losses quadratically.'
+    },
+    {
+      q: 'What type of air mover is used for dilute phase conveying?',
+      a: 'For pressure drops below 1000 mbar (1 bar / 14.5 psig), positive displacement rotary lobe Roots blowers are standard because they provide constant volumetric flow regardless of pressure fluctuations. Centrifugal fans are limited to very light duties (< 100 mbar), while screw compressors or plant air systems are utilized when pressure requirements exceed 1.5 bar.'
+    }
+  ]
+}));
+
+
+
+// ==========================================
+// Tool AR3: Combined Cycle Gas Turbine Triple-Pressure HRSG Steam Generation & Pinch Point Calculator
+// ==========================================
+const toolAR3Html = `
+
+    <div class="calc-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:1.5rem;">
+        <div>
+          <h1 style="font-size:1.75rem;font-weight:800;color:var(--text-primary);margin:0 0 6px 0;">Combined Cycle Gas Turbine HRSG Pinch Point & Steam Calculator</h1>
+          <p style="color:var(--text-secondary);margin:0;font-size:0.95rem;">Exhaust Gas Heat Recovery, High-Pressure Drum Thermodynamics & Q-T Profile Analysis</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:0.85rem;font-weight:600;color:var(--text-muted);">Standard:</span>
+          <span style="background:var(--accent-blue-subtle, rgba(37,99,235,0.1));color:var(--accent-blue,#2563eb);padding:4px 10px;border-radius:6px;font-size:0.8rem;font-weight:700;">ASME PTC 4.4 / EPRI / Kehlhofer</span>
+        </div>
+      </div>
+
+      <!-- Controls & Unit Toggle -->
+      <div style="background:var(--surface-sunken);padding:1rem;border-radius:10px;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Unit System:</span>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;color:var(--text-secondary);">
+            <input type="radio" name="ar3_units" value="si" checked onchange="calcAR3()"> Metric (SI: °C, bar, kg/s, MWth, t/h)
+          </label>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;color:var(--text-secondary);">
+            <input type="radio" name="ar3_units" value="imp" onchange="calcAR3()"> Imperial (US: °F, psig, lb/s, MMBtu/hr, klb/hr)
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Gas Turbine Frame:</span>
+          <select id="ar3_preset" onchange="applyAR3Preset()" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border-color);background:var(--surface);color:var(--text-primary);font-size:0.88rem;">
+            <option value="custom">Custom Parameters</option>
+            <option value="f_class" selected>Advanced F-Class (650 kg/s @ 610°C)</option>
+            <option value="h_class">Heavy-Duty H/J-Class (850 kg/s @ 645°C)</option>
+            <option value="e_class">Legacy E-Class (420 kg/s @ 540°C)</option>
+            <option value="aero">Aeroderivative LM6000 (135 kg/s @ 465°C)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Main Input Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:1.5rem;">
+        <!-- Column 1: Gas Turbine Exhaust Properties -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">1</span>
+            Gas Turbine Exhaust Flue
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Exhaust Mass Flow \(\dot{m}_g\) (<span id="ar3_lbl_mg">kg/s</span>):
+            </label>
+            <input type="number" id="ar3_mg" value="650" step="25" min="20" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Turbine Exhaust Gas Temp \(T_{g,in}\) (<span id="ar3_lbl_tgin">°C</span>):
+            </label>
+            <input type="number" id="ar3_tgin" value="610" step="5" min="300" max="750" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Flue Gas Mean Specific Heat \(c_{p,g}\) (kJ/kg-K):
+            </label>
+            <input type="number" id="ar3_cpg" value="1.11" step="0.01" min="1.0" max="1.25" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Feedwater Supply Temp \(T_{fw}\) (<span id="ar3_lbl_tfw">°C</span>):
+            </label>
+            <input type="number" id="ar3_tfw" value="60" step="5" min="20" max="140" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+
+        <!-- Column 2: HP Steam Loop & Pressures -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">2</span>
+            HP Steam Circuit
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              HP Drum Operating Pressure \(P_{hp}\) (<span id="ar3_lbl_php">bar</span>):
+            </label>
+            <input type="number" id="ar3_php" value="125" step="5" min="20" max="220" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              HP Superheated Steam Temp \(T_{sh}\) (<span id="ar3_lbl_tsh">°C</span>):
+            </label>
+            <input type="number" id="ar3_tsh" value="565" step="5" min="300" max="620" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              IP / LP Additional Heat Fraction (% of GT heat):
+            </label>
+            <input type="number" id="ar3_iplp_frac" value="28" step="2" min="10" max="45" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">Reheat + Intermediate + Low Pressure loops</span>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              HRSG Casing Thermal Loss (%):
+            </label>
+            <input type="number" id="ar3_loss" value="1.0" step="0.2" min="0.2" max="3.0" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+
+        <!-- Column 3: Thermal Pinch & Approach Offsets -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">3</span>
+            Pinch & Approach Offsets
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              HP Evaporator Pinch Point \(\Delta T_{pinch}\) (<span id="ar3_lbl_pinch">°C</span>):
+            </label>
+            <input type="number" id="ar3_pinch" value="10" step="1" min="4" max="25" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">Standard: 8 - 12°C. Lower = larger bundle area</span>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              HP Economizer Approach Point \(\Delta T_{app}\) (<span id="ar3_lbl_app">°C</span>):
+            </label>
+            <input type="number" id="ar3_app" value="6" step="1" min="2" max="15" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">Standard: 4 - 8°C (prevents steaming in economizer)</span>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Steam Turbine Rankine Isentropic Eff. (%):
+            </label>
+            <input type="number" id="ar3_steff" value="86" step="1" min="70" max="95" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Condenser Saturation Temp (<span id="ar3_lbl_tcond">°C</span>):
+            </label>
+            <input type="number" id="ar3_tcond" value="38" step="2" min="25" max="60" oninput="calcAR3()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive SVG Diagram: Q-T Profile & Pinch Point Diagram -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+        <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin:0 0 12px 0;">Interactive Temperature-Heat Exchange (Q-T) Diagram</h3>
+        <div style="width:100%;overflow-x:auto;">
+          <svg id="ar3_svg" viewBox="0 0 800 280" style="width:100%;height:auto;max-height:300px;background:#0f172a;border-radius:8px;display:block;"></svg>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-top:6px;flex-wrap:wrap;">
+          <span>🔴 Flue Gas Cooling Line: \(Q = \dot{m}_g c_{p,g} (T_{g,in} - T_{g,out})\)</span>
+          <span>⚡ HP Evaporator Pinch Point: \(\Delta T_{pinch} = T_{gas,evap,out} - T_{sat}\)</span>
+          <span>🔵 Steam-Water Heating Profile: Economizer → Evaporator Latent Plateau → Superheater</span>
+        </div>
+      </div>
+
+      <!-- KPI Output Dashboard Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:1.5rem;">
+        <div style="background:var(--surface-sunken);border-left:4px solid #2563eb;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">HP Steam Flow (\(\dot{m}_{s,hp}\))</div>
+          <div id="ar3_out_steam" style="font-size:1.5rem;font-weight:800;color:#2563eb;margin:4px 0;">-- t/h</div>
+          <div id="ar3_sub_steam" style="font-size:0.75rem;color:var(--text-secondary);">-- kg/s @ P=-- bar</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #10b981;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Total Heat Recovery Duty (\(Q_{tot}\))</div>
+          <div id="ar3_out_qtot" style="font-size:1.5rem;font-weight:800;color:#10b981;margin:4px 0;">-- MWth</div>
+          <div id="ar3_sub_qtot" style="font-size:0.75rem;color:var(--text-secondary);">HP Duty: -- MWth</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #f59e0b;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Stack Flue Temp (\(T_{stack}\))</div>
+          <div id="ar3_out_tstack" style="font-size:1.5rem;font-weight:800;color:#f59e0b;margin:4px 0;">-- °C</div>
+          <div id="ar3_sub_tstack" style="font-size:0.75rem;color:var(--text-secondary);">Acid Dew Point Margin: -- °C</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #8b5cf6;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Steam Turbine Output (\(P_{ST}\))</div>
+          <div id="ar3_out_pst" style="font-size:1.5rem;font-weight:800;color:#8b5cf6;margin:4px 0;">-- MWe</div>
+          <div id="ar3_sub_pst" style="font-size:0.75rem;color:var(--text-secondary);">CCGT Gross Generation Addition</div>
+        </div>
+      </div>
+
+      <!-- Actionable Utility: Copy Summary Box -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+          <h4 style="margin:0;font-size:0.95rem;font-weight:700;color:var(--text-primary);">HRSG Thermodynamic Diagnostic & Sizing Report</h4>
+          <button id="ar3_copy_btn" onclick="copyAR3Report()" style="background:#2563eb;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:700;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background 0.2s;">
+            <span>📋 Copy Diagnostic Summary</span>
+          </button>
+        </div>
+        <textarea id="ar3_report" readonly style="width:100%;height:110px;background:var(--surface-sunken);border:1px solid var(--border-color);border-radius:6px;padding:10px;font-family:monospace;font-size:0.82rem;color:var(--text-secondary);resize:none;box-sizing:border-box;"></textarea>
+      </div>
+
+      <!-- Engineering Pedagogy & Derivation Section -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">First-Principles Combined Cycle Thermodynamics: HRSG Pinch Point Mechanics</h2>
+        
+        <div style="line-height:1.65;font-size:0.92rem;color:var(--text-secondary);">
+          <p>
+            In a combined-cycle power plant (CCGT), the Heat Recovery Steam Generator (HRSG) extracts high-enthalpy thermal energy from gas turbine flue gas (550°C - 650°C) to generate multi-pressure superheated steam for a Rankine steam turbine. The maximum steam generation rate is not dictated by total exhaust enthalpy, but rather is strictly constrained by the <strong>Pinch Point Temperature Difference</strong> in the evaporator bundle.
+          </p>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">1. Saturation Properties & Drum Thermodynamics</h4>
+          <p>
+            At high drum pressure \(P_{hp}\), saturation temperature \(T_{sat}\) and latent heat of vaporization \(h_{fg}\) are governed by steam tables. For steam at 125 bar:
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(T_{sat}(P) \approx 42.6776 \cdot P^{0.231} + 179.91\) (approximate Antoine / Wagner fits)<br>
+            \(h_{fg}(P) \approx 2257 - 12.8 \cdot (P - 1) + 0.045 \cdot (P - 1)^2\) (kJ/kg)
+          </div>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">2. The Pinch Point Constraint on Steam Generation</h4>
+          <p>
+            The pinch point is the minimum temperature difference between the gas leaving the evaporator bundle (\(T_{g,evap,out}\)) and the water boiling inside the evaporator tubes (\(T_{sat}\)):
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(T_{g,evap,out} = T_{sat}(P_{hp}) + \Delta T_{pinch}\)
+          </div>
+          <p>
+            Energy conservation across the combined superheater and evaporator section establishes the absolute upper boundary on steam mass flow:
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(Q_{sh+evap} = \dot{m}_g \cdot c_{p,g} \cdot (T_{g,in} - T_{g,evap,out}) \cdot (1 - \eta_{loss})\)<br>
+            \(\dot{m}_{s,hp} = \frac{Q_{sh+evap}}{[h_{steam}(T_{sh}, P_{hp}) - h_{water}(T_{econ,out}, P_{hp})]}\)
+          </div>
+          <p>
+            Where \(T_{econ,out} = T_{sat} - \Delta T_{approach}\).
+          </p>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">3. Economizer Heat Balance & Approach Point</h4>
+          <p>
+            The economizer preheats subcooled feedwater from supply temperature \(T_{fw}\) up to \(T_{econ,out}\). To strictly prevent two-phase flow and water hammer in the economizer headers during load fluctuations, the approach point must remain positive (typically \(\Delta T_{app} = 4 - 8^\circ\text{C}\)).
+          </p>
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">5 Fatal Engineering Traps in Combined Cycle HRSG Design</h2>
+        
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#ef4444;font-size:0.95rem;font-weight:700;">1. Economizer Steaming & Chugging Flow Instability</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Specifying an approach temperature that is too small (< 2°C) or operating at part load where gas temperature entering the economizer rises causes premature boiling inside economizer tube bundles. Vapor bubble formation triggers sudden flow choking, geysering, violent water hammer oscillations in headers, and fatigue failure of tube-to-header welded joints.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#f59e0b;font-size:0.95rem;font-weight:700;">2. Cold-End Sulfuric Acid Dew Point Corrosion</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              If fuel contains even minor trace sulfur (e.g. natural gas odorant mercaptans or dual-fuel distillate), combustion generates \(\text{SO}_3\). Sulfuric acid dew point typically sits at 95°C to 130°C. If stack gas or LP economizer tube wall temperature drops below this threshold, concentrated sulfuric acid condenses directly onto carbon steel tubes, chewing through finned tubes within months. Feedwater preheating loops are critical.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#10b981;font-size:0.95rem;font-weight:700;">3. Thermal Shock & Cracking at Attemperator Desuperheaters</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Interstage superheater spray attemperators inject subcooled water to control final steam temperature. Oversizing spray valves or operating with poor atomization allows unevaporated water droplets to impinge directly onto red-hot inner pipe walls (550°C). The severe thermal gradient induces cyclic quench fatigue, tearing thermal liner sleeves apart and shooting shrapnel directly into the high-pressure steam turbine blades.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#3b82f6;font-size:0.95rem;font-weight:700;">4. Flow-Accelerated Corrosion (FAC) in LP Evaporator Circuits</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Low-pressure (LP) evaporator circuits (operating at 3 to 6 bar, 130°C - 160°C) represent the maximum thermodynamic susceptibility zone for two-phase Flow-Accelerated Corrosion. At these temperatures, protective magnetite (\(\text{Fe}_3\text{O}_4\)) layer solubility reaches its peak. Utilizing standard carbon steel elbows and riser tubes results in wall thinning and catastrophic pipe rupture. Minimum 1.25% Cr-Mo alloy steel (P11/T11) is mandatory.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#8b5cf6;font-size:0.95rem;font-weight:700;">5. Creep-Fatigue Interaction in Thick-Walled HP Drums</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              During rapid cycling and fast start-up regimes (common in renewable-heavy grids with daily peaking duty), thick-walled HP steam drums (100 - 180 mm thick carbon steel) suffer massive through-wall thermal stress gradients. If start-up ramp rates exceed 3°C to 5°C/min, inner bore tension sparks low-cycle creep-fatigue cracking around downcomer and riser nozzle penetrations, prompting ASME Section I life exhaustion.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Accordion (DOM + Schema.org) -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">Frequently Asked Questions (FAQ)</h2>
+        
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">Why can't the pinch point temperature difference be reduced to 0°C?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              As the pinch point \(\Delta T_{pinch}\) approaches zero, the required heat transfer surface area (\(A = Q / (U \cdot \text{LMTD})\)) approaches infinity because logarithmic mean temperature difference collapses. Designing below 7°C to 8°C yields rapidly diminishing returns: bundle capital cost, tube weight, and gas-side draft pressure loss (which derates the gas turbine) exceed the marginal value of additional steam produced.
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">Why do modern combined-cycle plants utilize three pressure levels (HP, IP, LP)?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              A single-pressure HRSG leaves substantial thermodynamic exergy unrecovered because the gas cooling curve and water heating curve diverge widely at lower temperatures. Introducing Intermediate Pressure (with reheater) and Low Pressure loops creates multiple pinch steps, nesting the water-steam absorption curve tightly against the gas cooling line and reducing stack temperature from ~200°C down to ~85°C - 100°C, boosting combined-cycle thermal efficiency above 60%.
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">What is supplementary duct firing and when is it employed?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Supplementary duct firing involves firing natural gas duct burners in the oxygen-rich gas turbine exhaust upstream of the superheater. This boosts flue gas temperature up to 800°C - 900°C, doubling steam production and steam turbine peaking capacity during high-demand grid events, albeit at lower incremental fuel efficiency than combined-cycle baseload.
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">How does gas turbine exhaust backpressure impact plant output?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Every 100 mm \(\text{H}_2\text{O}\) (10 mbar / 4 inches w.g.) of exhaust backpressure imposed by HRSG tube bundles, SCR catalysts, and CO catalysts reduces gas turbine power output by approximately 0.4% to 0.6% and increases heat rate by 0.3%. HRSG designers must balance tube pitch and fin density to minimize gas-side pressure drop.
+            </p>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const AR3_PRESETS = {
+        f_class: { mg: 650, tgin: 610, php: 125, tsh: 565 },
+        h_class: { mg: 850, tgin: 645, php: 160, tsh: 585 },
+        e_class: { mg: 420, tgin: 540, php: 85, tsh: 510 },
+        aero: { mg: 135, tgin: 465, php: 60, tsh: 450 }
+      };
+
+      function applyAR3Preset() {
+        let preset = document.getElementById('ar3_preset').value;
+        if (preset !== 'custom' && AR3_PRESETS[preset]) {
+          let data = AR3_PRESETS[preset];
+          let isImp = getAR3Units() === 'imp';
+          document.getElementById('ar3_mg').value = isImp ? (data.mg * 2.20462).toFixed(0) : data.mg;
+          document.getElementById('ar3_tgin').value = isImp ? (data.tgin * 9/5 + 32).toFixed(0) : data.tgin;
+          document.getElementById('ar3_php').value = isImp ? (data.php * 14.5038).toFixed(0) : data.php;
+          document.getElementById('ar3_tsh').value = isImp ? (data.tsh * 9/5 + 32).toFixed(0) : data.tsh;
+          calcAR3();
+        }
+      }
+
+      function getAR3Units() {
+        return document.querySelector('input[name="ar3_units"]:checked').value;
+      }
+
+      function calcAR3() {
+        let isImp = getAR3Units() === 'imp';
+
+        // Update labels
+        document.getElementById('ar3_lbl_mg').innerText = isImp ? 'lb/s' : 'kg/s';
+        document.getElementById('ar3_lbl_tgin').innerText = isImp ? '°F' : '°C';
+        document.getElementById('ar3_lbl_tfw').innerText = isImp ? '°F' : '°C';
+        document.getElementById('ar3_lbl_php').innerText = isImp ? 'psig' : 'bar';
+        document.getElementById('ar3_lbl_tsh').innerText = isImp ? '°F' : '°C';
+        document.getElementById('ar3_lbl_pinch').innerText = isImp ? '°F' : '°C';
+        document.getElementById('ar3_lbl_app').innerText = isImp ? '°F' : '°C';
+        document.getElementById('ar3_lbl_tcond').innerText = isImp ? '°F' : '°C';
+
+        // Read Raw Inputs
+        let mg_raw = parseFloat(document.getElementById('ar3_mg').value) || 650;
+        let tgin_raw = parseFloat(document.getElementById('ar3_tgin').value) || 610;
+        let cpg = parseFloat(document.getElementById('ar3_cpg').value) || 1.11; // kJ/kg-K
+        let tfw_raw = parseFloat(document.getElementById('ar3_tfw').value) || 60;
+        let php_raw = parseFloat(document.getElementById('ar3_php').value) || 125;
+        let tsh_raw = parseFloat(document.getElementById('ar3_tsh').value) || 565;
+        let iplp_frac = (parseFloat(document.getElementById('ar3_iplp_frac').value) || 28) / 100;
+        let loss_frac = (parseFloat(document.getElementById('ar3_loss').value) || 1.0) / 100;
+        let pinch_raw = parseFloat(document.getElementById('ar3_pinch').value) || 10;
+        let app_raw = parseFloat(document.getElementById('ar3_app').value) || 6;
+        let steff = (parseFloat(document.getElementById('ar3_steff').value) || 86) / 100;
+        let tcond_raw = parseFloat(document.getElementById('ar3_tcond').value) || 38;
+
+        // Convert to SI for calculation
+        let mg_kgs = isImp ? mg_raw * 0.453592 : mg_raw;
+        let tgin_C = isImp ? (tgin_raw - 32) * 5 / 9 : tgin_raw;
+        let tfw_C = isImp ? (tfw_raw - 32) * 5 / 9 : tfw_raw;
+        let php_bar = isImp ? (php_raw + 14.7) / 14.5038 : php_raw;
+        let tsh_C = isImp ? (tsh_raw - 32) * 5 / 9 : tsh_raw;
+        let pinch_C = isImp ? pinch_raw * 5 / 9 : pinch_raw;
+        let app_C = isImp ? app_raw * 5 / 9 : app_raw;
+        let tcond_C = isImp ? (tcond_raw - 32) * 5 / 9 : tcond_raw;
+
+        // Steam table approximations for HP steam
+        // Saturation temperature: Tsat = 42.6776 * P^0.231 + 179.91 (approx 327.8 C at 125 bar)
+        let Tsat_C = 42.68 * Math.pow(Math.max(1, php_bar), 0.231) + 179.9;
+        Tsat_C = Math.min(370, Tsat_C);
+
+        // Enthalpies (kJ/kg)
+        // h_water(Tsat - app)
+        let Tecon_out_C = Tsat_C - app_C;
+        let h_econ_out = 4.184 * Tecon_out_C + (php_bar * 0.1); // approx liquid enthalpy
+        let h_fw = 4.184 * tfw_C;
+        // Latent heat h_fg at Tsat
+        let h_fg = Math.max(800, 2257 - 9.8 * (Tsat_C - 100));
+        let h_sat_vapor = h_econ_out + h_fg;
+        // Superheated steam enthalpy
+        let cp_steam = 2.45; // mean cp superheated steam kJ/kg-K
+        let h_sh = h_sat_vapor + cp_steam * Math.max(0, tsh_C - Tsat_C);
+
+        // Evaporator gas exit temperature constrained by Pinch Point
+        let T_g_evap_out_C = Tsat_C + pinch_C;
+
+        // Total heat transferred across Superheater + Evaporator (kW)
+        let Q_sh_evap_kW = mg_kgs * cpg * (tgin_C - T_g_evap_out_C) * (1 - loss_frac);
+        Q_sh_evap_kW = Math.max(1000, Q_sh_evap_kW);
+
+        // Enthalpy difference for HP steam in SH + Evap: h_sh - h_econ_out
+        let delta_h_hp = Math.max(500, h_sh - h_econ_out);
+        // HP Steam generation rate (kg/s)
+        let ms_hp_kgs = Q_sh_evap_kW / delta_h_hp;
+        let ms_hp_th = (ms_hp_kgs * 3600) / 1000;
+
+        // HP Economizer heat duty
+        let Q_econ_hp_kW = ms_hp_kgs * (h_econ_out - h_fw);
+        let T_g_econ_out_C = T_g_evap_out_C - (Q_econ_hp_kW / (mg_kgs * cpg * (1 - loss_frac)));
+
+        // Additional IP / LP loop heat duty
+        let Q_hp_total_kW = Q_sh_evap_kW + Q_econ_hp_kW;
+        let Q_iplp_kW = Q_hp_total_kW * (iplp_frac / (1 - iplp_frac));
+        let Q_hrsg_total_kW = Q_hp_total_kW + Q_iplp_kW;
+        let Q_hrsg_total_MW = Q_hrsg_total_kW / 1000;
+
+        // Final Stack Flue Gas Temperature
+        let T_stack_C = tgin_C - (Q_hrsg_total_kW / (mg_kgs * cpg * (1 - loss_frac)));
+        T_stack_C = Math.max(75, Math.min(tgin_C - 50, T_stack_C));
+
+        // Steam Turbine Rankine Electrical Power Output (MWe)
+        // Ideal enthalpy drop across steam turbine expanding from HP/tsh down to condenser Pcond (~0.065 bar, 38C)
+        // Ideal isentropic expansion drop ~ 1150 kJ/kg
+        let delta_h_turb = 1120 * steff; // kJ/kg
+        let P_st_hp_MWe = (ms_hp_kgs * delta_h_turb) / 1000;
+        let P_st_total_MWe = P_st_hp_MWe * (1 + iplp_frac * 0.75);
+
+        // Acid dew point margin (assume natural gas dewpoint ~ 95°C)
+        let acid_dew_point = 95;
+        let dew_margin = T_stack_C - acid_dew_point;
+
+        // Display KPI outputs
+        if (isImp) {
+          let ms_klbh = ms_hp_th * 2.20462;
+          let Q_mmbtu = Q_hrsg_total_MW * 3.412142;
+          let Tstack_F = T_stack_C * 9 / 5 + 32;
+          let dew_margin_F = dew_margin * 9 / 5;
+
+          document.getElementById('ar3_out_steam').innerText = ms_klbh.toFixed(1) + ' klb/hr';
+          document.getElementById('ar3_sub_steam').innerText = (ms_hp_kgs * 2.20462).toFixed(1) + ' lb/s @ ' + php_raw.toFixed(0) + ' psig';
+          document.getElementById('ar3_out_qtot').innerText = Q_mmbtu.toFixed(1) + ' MMBtu/hr';
+          document.getElementById('ar3_sub_qtot').innerText = (Q_hrsg_total_MW).toFixed(1) + ' MWth total';
+          document.getElementById('ar3_out_tstack').innerText = Tstack_F.toFixed(0) + ' °F';
+          document.getElementById('ar3_sub_tstack').innerText = 'Acid Margin: ' + (dew_margin > 0 ? '+' : '') + dew_margin_F.toFixed(0) + ' °F';
+          document.getElementById('ar3_out_pst').innerText = P_st_total_MWe.toFixed(1) + ' MWe';
+          document.getElementById('ar3_sub_pst').innerText = 'ST Rankine Power Gen';
+        } else {
+          document.getElementById('ar3_out_steam').innerText = ms_hp_th.toFixed(1) + ' t/h';
+          document.getElementById('ar3_sub_steam').innerText = ms_hp_kgs.toFixed(1) + ' kg/s @ ' + php_bar.toFixed(1) + ' bar';
+          document.getElementById('ar3_out_qtot').innerText = Q_hrsg_total_MW.toFixed(1) + ' MWth';
+          document.getElementById('ar3_sub_qtot').innerText = (Q_hp_total_kW / 1000).toFixed(1) + ' MW HP Loop';
+          document.getElementById('ar3_out_tstack').innerText = T_stack_C.toFixed(0) + ' °C';
+          document.getElementById('ar3_sub_tstack').innerText = 'Acid Margin: ' + (dew_margin > 0 ? '+' : '') + dew_margin.toFixed(1) + ' °C';
+          document.getElementById('ar3_out_pst').innerText = P_st_total_MWe.toFixed(1) + ' MWe';
+          document.getElementById('ar3_sub_pst').innerText = 'ST Rankine Power Gen';
+        }
+
+        // Draw Q-T SVG Diagram
+        drawAR3SVG(tgin_C, T_g_evap_out_C, T_stack_C, tsh_C, Tsat_C, Tecon_out_C, tfw_C, pinch_C, app_C);
+
+        // Update Report Text
+        let rep = [
+          '=== COMBINED CYCLE GAS TURBINE HRSG THERMODYNAMIC SIZING REPORT ===',
+          'Standard: ASME PTC 4.4 / EPRI HRSG Guidelines / Kehlhofer CCGT',
+          'Gas Turbine Flue Gas: ' + mg_kgs.toFixed(1) + ' kg/s (' + (mg_kgs * 2.20462).toFixed(1) + ' lb/s) @ ' + tgin_C.toFixed(1) + ' °C (' + (tgin_C * 9/5 + 32).toFixed(1) + ' °F)',
+          'HP Operating Drum Pressure: ' + php_bar.toFixed(1) + ' bar (' + (php_bar * 14.5038).toFixed(0) + ' psig) | Tsat: ' + Tsat_C.toFixed(1) + ' °C',
+          'Pinch Point Offset (Delta T pinch): ' + pinch_C.toFixed(1) + ' °C | Evaporator Gas Exit: ' + T_g_evap_out_C.toFixed(1) + ' °C',
+          'Economizer Approach Offset (Delta T app): ' + app_C.toFixed(1) + ' °C | Econ Water Exit: ' + Tecon_out_C.toFixed(1) + ' °C',
+          'MAXIMUM HP STEAM GENERATION: ' + ms_hp_th.toFixed(1) + ' t/h (' + (ms_hp_th * 2.20462).toFixed(1) + ' klb/hr, ' + ms_hp_kgs.toFixed(1) + ' kg/s)',
+          'Superheated Steam Outlet: ' + tsh_C.toFixed(1) + ' °C (' + (tsh_C * 9/5 + 32).toFixed(1) + ' °F)',
+          'Total Heat Recovery Duty: ' + Q_hrsg_total_MW.toFixed(1) + ' MWth (' + (Q_hrsg_total_MW * 3.412142).toFixed(1) + ' MMBtu/hr)',
+          '  - HP Superheater + Evaporator: ' + (Q_sh_evap_kW / 1000).toFixed(1) + ' MWth',
+          '  - HP Economizer: ' + (Q_econ_hp_kW / 1000).toFixed(1) + ' MWth',
+          '  - IP / LP / Reheater Loops: ' + (Q_iplp_kW / 1000).toFixed(1) + ' MWth',
+          'HRSG Stack Exhaust Gas Temp: ' + T_stack_C.toFixed(0) + ' °C (' + (T_stack_C * 9/5 + 32).toFixed(0) + ' °F)',
+          'Acid Dew Point Margin (Tstack - 95°C): ' + (dew_margin > 0 ? '+' : '') + dew_margin.toFixed(1) + ' °C (' + (dew_margin > 0 ? 'SAFE' : 'RISK OF COLD-END ACID CONDENSATION') + ')',
+          'Steam Turbine Rankine Electrical Output: ' + P_st_total_MWe.toFixed(1) + ' MWe (Isentropic Eff: ' + (steff * 100).toFixed(0) + '%)'
+        ].join('\n');
+        document.getElementById('ar3_report').value = rep;
+      }
+
+      function drawAR3SVG(tgin, tgevap, tstack, tsh, tsat, tecon, tfw, pinch, app) {
+        let svg = document.getElementById('ar3_svg');
+        let parts = [];
+
+        parts.push('<rect width="800" height="280" fill="#0b1120" rx="8" />');
+
+        let gx = 60, gy = 35, gw = 680, gh = 200;
+        parts.push('<rect x="' + gx + '" y="' + gy + '" width="' + gw + '" height="' + gh + '" fill="#020617" stroke="#1e293b" rx="6" />');
+        parts.push('<text x="' + (gx + gw/2) + '" y="' + (gy + 18) + '" fill="#f8fafc" font-size="11" text-anchor="middle" font-weight="700">HRSG Heat-Temperature (Q-T) Pinch Point Profile</text>');
+
+        // Axes
+        parts.push('<line x1="' + (gx + 50) + '" y1="' + (gy + gh - 30) + '" x2="' + (gx + gw - 30) + '" y2="' + (gy + gh - 30) + '" stroke="#475569" stroke-width="1.5" />');
+        parts.push('<line x1="' + (gx + 50) + '" y1="' + (gy + 30) + '" x2="' + (gx + 50) + '" y2="' + (gy + gh - 30) + '" stroke="#475569" stroke-width="1.5" />');
+        parts.push('<text x="' + (gx + gw - 30) + '" y="' + (gy + gh - 15) + '" fill="#94a3b8" font-size="9" text-anchor="end">Cumulative Heat Transferred Q (0 → 100%) →</text>');
+        parts.push('<text x="' + (gx + 45) + '" y="' + (gy + 35) + '" fill="#94a3b8" font-size="9" text-anchor="end">Temp (°C)</text>');
+
+        // Temperature Y scaler
+        function tempY(t) {
+          let frac = (t - 40) / (650 - 40);
+          return (gy + gh - 35) - frac * (gh - 70);
+        }
+
+        let y_tgin = tempY(tgin);
+        let y_tstack = tempY(tstack);
+        let y_tsh = tempY(tsh);
+        let y_tsat = tempY(tsat);
+        let y_tecon = tempY(tecon);
+        let y_tfw = tempY(tfw);
+
+        // Flue Gas Cooling Line (Red) from left (0% heat, Tgin) to right (100% heat, Tstack)
+        let x_start = gx + 50;
+        let x_end = gx + gw - 40;
+        parts.push('<line x1="' + x_start + '" y1="' + y_tgin + '" x2="' + x_end + '" y2="' + y_tstack + '" stroke="#ef4444" stroke-width="3" />');
+        parts.push('<text x="' + (x_start + 8) + '" y="' + (y_tgin - 8) + '" fill="#ef4444" font-size="9" font-weight="700">Flue Gas In (' + tgin.toFixed(0) + '°C)</text>');
+        parts.push('<text x="' + (x_end - 5) + '" y="' + (y_tstack - 8) + '" fill="#ef4444" font-size="9" font-weight="700" text-anchor="end">Stack (' + tstack.toFixed(0) + '°C)</text>');
+
+        // Water/Steam Absorption Line (Blue/Cyan)
+        // Superheater: from Q=0 (Tsh) to Q_sh (Tsat)
+        let x_sh_end = x_start + (x_end - x_start) * 0.28;
+        // Evaporator latent boiling plateau: from x_sh_end to x_evap_end (constant Tsat)
+        let x_evap_end = x_start + (x_end - x_start) * 0.65;
+        // Economizer: from x_evap_end (Tecon) to x_end (Tfw)
+        
+        // Superheater line
+        parts.push('<line x1="' + x_start + '" y1="' + y_tsh + '" x2="' + x_sh_end + '" y2="' + y_tsat + '" stroke="#38bdf8" stroke-width="2.5" />');
+        parts.push('<text x="' + (x_start + 8) + '" y="' + (y_tsh + 14) + '" fill="#38bdf8" font-size="9">HP Steam (' + tsh.toFixed(0) + '°C)</text>');
+
+        // Evaporator boiling plateau (horizontal line at Tsat)
+        parts.push('<line x1="' + x_sh_end + '" y1="' + y_tsat + '" x2="' + x_evap_end + '" y2="' + y_tsat + '" stroke="#3b82f6" stroke-width="3" />');
+        parts.push('<text x="' + ((x_sh_end + x_evap_end)/2) + '" y="' + (y_tsat + 14) + '" fill="#60a5fa" font-size="9" text-anchor="middle">Boiling Evaporator Plateau (Tsat=' + tsat.toFixed(0) + '°C)</text>');
+
+        // Economizer line
+        parts.push('<line x1="' + x_evap_end + '" y1="' + y_tecon + '" x2="' + x_end + '" y2="' + y_tfw + '" stroke="#10b981" stroke-width="2.5" />');
+        parts.push('<text x="' + (x_end - 5) + '" y="' + (y_tfw + 14) + '" fill="#10b981" font-size="9" text-anchor="end">Feedwater (' + tfw.toFixed(0) + '°C)</text>');
+
+        // Pinch Point Marker at Evaporator Exit (x_evap_end)
+        let gas_y_at_pinch = y_tgin + (y_tstack - y_tgin) * 0.65;
+        parts.push('<line x1="' + x_evap_end + '" y1="' + gas_y_at_pinch + '" x2="' + x_evap_end + '" y2="' + y_tsat + '" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,3" />');
+        parts.push('<circle cx="' + x_evap_end + '" cy="' + gas_y_at_pinch + '" r="4" fill="#f59e0b" />');
+        parts.push('<circle cx="' + x_evap_end + '" cy="' + y_tsat + '" r="4" fill="#f59e0b" />');
+        parts.push('<text x="' + (x_evap_end + 8) + '" y="' + ((gas_y_at_pinch + y_tsat)/2 + 4) + '" fill="#f59e0b" font-size="9" font-weight="800">Pinch ΔT (' + pinch.toFixed(1) + '°C)</text>');
+
+        svg.innerHTML = parts.join('');
+      }
+
+      function copyAR3Report() {
+        let text = document.getElementById('ar3_report').value;
+        let btn = document.getElementById('ar3_copy_btn');
+        navigator.clipboard.writeText(text).then(function() {
+          let orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Report Copied!</span>';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '#2563eb';
+          }, 2500);
+        });
+      }
+
+      // Initialize on load
+      setTimeout(calcAR3, 50);
+    </script>
+  
+`;
+
+writeFileSync(join(calcDir, 'gas-turbine-combined-cycle-heat-recovery-hrsg-calculator.html'), renderTradePage({
+  title: 'Combined Cycle Gas Turbine HRSG Steam & Pinch Point Calculator | ASME PTC 4.4',
+  metaDescription: 'Industrial power plant heat recovery steam generator (HRSG) sizing calculator. Computes high-pressure steam generation, pinch point and approach temperature differences, Q-T temperature heat profile, stack gas temperature, and steam turbine output per ASME PTC 4.4.',
+  canonical: 'https://digitaltoolsshed.com/calc/gas-turbine-combined-cycle-heat-recovery-hrsg-calculator.html',
+  content: toolAR3Html,
+  bodyContent: toolAR3Html,
+  faq: [
+    {
+      q: 'Why cannot the pinch point temperature difference be reduced to 0°C?',
+      a: 'As the pinch point approaches zero, the required heat transfer surface area approaches infinity because logarithmic mean temperature difference collapses. Designing below 7°C to 8°C yields rapidly diminishing returns: bundle capital cost, tube weight, and gas-side draft pressure loss (which derates the gas turbine) exceed the marginal value of additional steam produced.'
+    },
+    {
+      q: 'Why do modern combined-cycle plants utilize three pressure levels (HP, IP, LP)?',
+      a: 'A single-pressure HRSG leaves substantial thermodynamic exergy unrecovered because the gas cooling curve and water heating curve diverge widely at lower temperatures. Introducing Intermediate Pressure (with reheater) and Low Pressure loops creates multiple pinch steps, nesting the water-steam absorption curve tightly against the gas cooling line and reducing stack temperature from ~200°C down to ~85°C - 100°C, boosting combined-cycle thermal efficiency above 60%.'
+    },
+    {
+      q: 'What is supplementary duct firing and when is it employed?',
+      a: 'Supplementary duct firing involves firing natural gas duct burners in the oxygen-rich gas turbine exhaust upstream of the superheater. This boosts flue gas temperature up to 800°C - 900°C, doubling steam production and steam turbine peaking capacity during high-demand grid events, albeit at lower incremental fuel efficiency than combined-cycle baseload.'
+    },
+    {
+      q: 'How does gas turbine exhaust backpressure impact plant output?',
+      a: 'Every 100 mm H2O (10 mbar / 4 inches w.g.) of exhaust backpressure imposed by HRSG tube bundles, SCR catalysts, and CO catalysts reduces gas turbine power output by approximately 0.4% to 0.6% and increases heat rate by 0.3%. HRSG designers must balance tube pitch and fin density to minimize gas-side pressure drop.'
+    }
+  ]
+}));
+
+
+
+// ==========================================
+// Tool AR4: Cantilever Retaining Wall Active & Passive Earth Pressure Calculator (Coulomb & Mononobe-Okabe)
+// ==========================================
+const toolAR4Html = `
+
+    <div class="calc-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:1.5rem;">
+        <div>
+          <h1 style="font-size:1.75rem;font-weight:800;color:var(--text-primary);margin:0 0 6px 0;">Cantilever Retaining Wall Earth Pressure & Seismic Calculator</h1>
+          <p style="color:var(--text-secondary);margin:0;font-size:0.95rem;">Coulomb Wall Friction Wedge, Mononobe-Okabe Dynamic Thrust & Stability Factor of Safety</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:0.85rem;font-weight:600;color:var(--text-muted);">Standard:</span>
+          <span style="background:var(--accent-blue-subtle, rgba(37,99,235,0.1));color:var(--accent-blue,#2563eb);padding:4px 10px;border-radius:6px;font-size:0.8rem;font-weight:700;">AASHTO LRFD Sec 11 / ASCE 7-22 / Seed-Whitman</span>
+        </div>
+      </div>
+
+      <!-- Controls & Unit Toggle -->
+      <div style="background:var(--surface-sunken);padding:1rem;border-radius:10px;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Unit System:</span>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;color:var(--text-secondary);">
+            <input type="radio" name="ar4_units" value="si" checked onchange="calcAR4()"> Metric (SI: m, kN/m³, kN/m, kNm/m)
+          </label>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:0.88rem;color:var(--text-secondary);">
+            <input type="radio" name="ar4_units" value="imp" onchange="calcAR4()"> Imperial (US: ft, pcf, lbf/ft, kip-ft/ft)
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Backfill Soil Type:</span>
+          <select id="ar4_preset" onchange="applyAR4Preset()" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border-color);background:var(--surface);color:var(--text-primary);font-size:0.88rem;">
+            <option value="custom">Custom Soil Parameters</option>
+            <option value="dense_sand" selected>Dense Clean Granular Backfill (ϕ=36°, γ=19 kN/m³)</option>
+            <option value="medium_sand">Medium Sand / Gravelly Sand (ϕ=32°, γ=18 kN/m³)</option>
+            <option value="silty_sand">Loose Silty Sand / SM (ϕ=28°, γ=17.5 kN/m³)</option>
+            <option value="crushed_stone">Well-Graded Crushed Rock / GW (ϕ=40°, γ=20.5 kN/m³)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Main Input Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:1.5rem;">
+        <!-- Column 1: Wall & Backfill Geometry -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">1</span>
+            Wall & Slope Geometry
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Total Retained Height \(H\) (<span id="ar4_lbl_h">m</span>):
+            </label>
+            <input type="number" id="ar4_h" value="5.0" step="0.2" min="1.0" max="20.0" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Backfill Slope Inclination \(\beta\) (degrees):
+            </label>
+            <input type="number" id="ar4_beta" value="12" step="1" min="0" max="32" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">Must be less than soil friction angle ϕ</span>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Wall Backface Batter \(\theta\) (degrees from vertical):
+            </label>
+            <input type="number" id="ar4_theta" value="0" step="1" min="-15" max="25" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">0° = vertical back face; >0 = battered backwards</span>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Base Footing Width \(B\) (<span id="ar4_lbl_b">m</span>):
+            </label>
+            <input type="number" id="ar4_b" value="3.2" step="0.1" min="0.5" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">Typical: 0.5H to 0.7H</span>
+          </div>
+        </div>
+
+        <!-- Column 2: Soil Strength & Friction -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">2</span>
+            Soil Geotechnical Strength
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Internal Friction Angle \(\phi\) (degrees):
+            </label>
+            <input type="number" id="ar4_phi" value="36" step="1" min="20" max="48" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Wall-Soil Interface Friction \(\delta\) (degrees):
+            </label>
+            <input type="number" id="ar4_delta" value="24" step="1" min="0" max="35" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">AASHTO typical: \(\delta = \frac{2}{3} \phi\) for concrete wall</span>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Soil Unit Weight \(\gamma\) (<span id="ar4_lbl_gamma">kN/m³</span>):
+            </label>
+            <input type="number" id="ar4_gamma" value="19.0" step="0.5" min="12.0" max="25.0" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Base Soil Friction Coeff \(\mu = \tan(\delta_b)\):
+            </label>
+            <input type="number" id="ar4_mu" value="0.52" step="0.02" min="0.25" max="0.75" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+
+        <!-- Column 3: Seismic & Surcharge Loading -->
+        <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--accent-blue,#2563eb);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;">3</span>
+            Seismic Acceleration & Surcharge
+          </h3>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Horizontal Seismic Coeff \(k_h\) (g):
+            </label>
+            <input type="number" id="ar4_kh" value="0.18" step="0.02" min="0" max="0.5" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">AASHTO peak ground accel PGA / 2</span>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Vertical Seismic Coeff \(k_v\) (g):
+            </label>
+            <input type="number" id="ar4_kv" value="0.0" step="0.02" min="-0.3" max="0.3" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Uniform Traffic Surcharge \(q\) (<span id="ar4_lbl_q">kPa</span>):
+            </label>
+            <input type="number" id="ar4_q" value="12" step="2" min="0" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">AASHTO standard: ~12 kPa (equivalent to 2 ft of soil)</span>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px;">
+              Passive Key Embedment Depth \(D_p\) (<span id="ar4_lbl_dp">m</span>):
+            </label>
+            <input type="number" id="ar4_dp" value="0.8" step="0.1" min="0" oninput="calcAR4()" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;background:var(--surface-sunken);color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive SVG Diagram: Retaining Wall Cross-Section & Pressure Wedges -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+        <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin:0 0 12px 0;">Retaining Wall Cross-Section & Mononobe-Okabe Pressure Distribution</h3>
+        <div style="width:100%;overflow-x:auto;">
+          <svg id="ar4_svg" viewBox="0 0 800 280" style="width:100%;height:auto;max-height:300px;background:#0f172a;border-radius:8px;display:block;"></svg>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-top:6px;flex-wrap:wrap;">
+          <span>📐 Static Coulomb Wedge: \(P_a = \frac{1}{2} \gamma H^2 K_a\) @ \(H/3\)</span>
+          <span>⚡ Mononobe-Okabe Dynamic Increment: \(\Delta P_{ae} = P_{ae} - P_a\) @ \(0.6 H\)</span>
+          <span>🛡️ Safety Checks: \(FS_{overturn} \ge 2.0\) (static), \(FS_{sliding} \ge 1.5\) (static)</span>
+        </div>
+      </div>
+
+      <!-- KPI Output Dashboard Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:1.5rem;">
+        <div style="background:var(--surface-sunken);border-left:4px solid #2563eb;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Coulomb Active Coeff (\(K_a\))</div>
+          <div id="ar4_out_ka" style="font-size:1.5rem;font-weight:800;color:#2563eb;margin:4px 0;">--</div>
+          <div id="ar4_sub_ka" style="font-size:0.75rem;color:var(--text-secondary);">Static Thrust: -- kN/m</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #10b981;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Seismic Coeff (\(K_{ae}\))</div>
+          <div id="ar4_out_kae" style="font-size:1.5rem;font-weight:800;color:#10b981;margin:4px 0;">--</div>
+          <div id="ar4_sub_kae" style="font-size:0.75rem;color:var(--text-secondary);">Total Dynamic: -- kN/m</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #f59e0b;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Overturn Safety Factor (\(FS_{ot}\))</div>
+          <div id="ar4_out_fsot" style="font-size:1.5rem;font-weight:800;color:#f59e0b;margin:4px 0;">--</div>
+          <div id="ar4_sub_fsot" style="font-size:0.75rem;color:var(--text-secondary);">Target: ≥ 2.0 (Stat) / ≥ 1.5 (Seis)</div>
+        </div>
+        <div style="background:var(--surface-sunken);border-left:4px solid #8b5cf6;padding:1rem;border-radius:8px;">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Sliding Safety Factor (\(FS_{sl}\))</div>
+          <div id="ar4_out_fssl" style="font-size:1.5rem;font-weight:800;color:#8b5cf6;margin:4px 0;">--</div>
+          <div id="ar4_sub_fssl" style="font-size:0.75rem;color:var(--text-secondary);">Target: ≥ 1.5 (Stat) / ≥ 1.1 (Seis)</div>
+        </div>
+      </div>
+
+      <!-- Actionable Utility: Copy Summary Box -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+          <h4 style="margin:0;font-size:0.95rem;font-weight:700;color:var(--text-primary);">Retaining Wall Structural & Geotechnical Summary</h4>
+          <button id="ar4_copy_btn" onclick="copyAR4Report()" style="background:#2563eb;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:700;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background 0.2s;">
+            <span>📋 Copy Diagnostic Summary</span>
+          </button>
+        </div>
+        <textarea id="ar4_report" readonly style="width:100%;height:110px;background:var(--surface-sunken);border:1px solid var(--border-color);border-radius:6px;padding:10px;font-family:monospace;font-size:0.82rem;color:var(--text-secondary);resize:none;box-sizing:border-box;"></textarea>
+      </div>
+
+      <!-- Engineering Pedagogy & Derivation Section -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">First-Principles Geotechnical Mechanics: Coulomb & Mononobe-Okabe</h2>
+        
+        <div style="line-height:1.65;font-size:0.92rem;color:var(--text-secondary);">
+          <p>
+            While Rankine's earth pressure theory assumes an idealized vertical wall backface with zero wall friction (\(\delta = 0\)), Charles-Augustin de Coulomb (1776) formulated the limit equilibrium of a planar soil failure wedge accounting for wall friction \(\delta\), wall batter angle \(\theta\), and sloping backfill \(\beta\). In 1926-1929, Japanese engineers Mononobe and Okabe extended Coulomb's theory into the pseudo-static seismic regime.
+          </p>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">1. Coulomb Active Earth Pressure Coefficient (\(K_a\))</h4>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(K_a = \frac{\cos^2(\phi - \theta)}{\cos^2\theta \cdot \cos(\theta + \delta) \cdot \left[ 1 + \sqrt{\frac{\sin(\phi + \delta)\sin(\phi - \beta)}{\cos(\theta + \delta)\cos(\theta - \beta)}} \right]^2}\)
+          </div>
+          <p>
+            The total static active thrust per unit length of wall is:
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(P_a = \frac{1}{2} \gamma H^2 K_a + q H K_a\)
+          </div>
+          <p>
+            Acting at an angle \(\delta\) to the normal of the wall back face, with the soil component located at \(H/3\) above the base and uniform surcharge component at \(H/2\).
+          </p>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">2. Mononobe-Okabe (M-O) Seismic Active Coefficient (\(K_{ae}\))</h4>
+          <p>
+            During earthquake ground shaking, inertial forces rotate the apparent gravitational vector by the seismic angle \(\psi\):
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(\psi = \arctan\left( \frac{k_h}{1 - k_v} \right)\)<br>
+            \(K_{ae} = \frac{\cos^2(\phi - \theta - \psi)}{\cos\psi \cdot \cos^2\theta \cdot \cos(\delta + \theta + \psi) \cdot \left[ 1 + \sqrt{\frac{\sin(\phi + \delta)\sin(\phi - \beta - \psi)}{\cos(\delta + \theta + \psi)\cos(\beta - \theta)}} \right]^2}\)
+          </div>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">3. Seed-Whitman Dynamic Thrust Partitioning</h4>
+          <p>
+            Total seismic thrust is decomposed into static active thrust \(P_a\) and dynamic thrust increment \(\Delta P_{ae}\):
+          </p>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(P_{ae} = \frac{1}{2} \gamma H^2 (1 - k_v) K_{ae}\)<br>
+            \(\Delta P_{ae} = P_{ae} - P_a\)
+          </div>
+          <p>
+            Following Seed & Whitman (1970) and AASHTO LRFD conventions, \(\Delta P_{ae}\) acts at \(0.6 H\) above the footing base, exerting a much longer moment arm than the static thrust at \(H/3\).
+          </p>
+
+          <h4 style="color:var(--text-primary);margin:1.2rem 0 0.5rem 0;">4. Overturning and Sliding Factors of Safety</h4>
+          <div style="background:var(--surface-sunken);padding:10px 14px;border-radius:6px;margin:8px 0;font-family:monospace;font-size:0.88rem;">
+            \(FS_{overturn} = \frac{\sum M_R}{\sum M_O} = \frac{W_{wall} \cdot x_w + W_{soil,heel} \cdot x_s + P_{av} \cdot B}{P_{ah} \cdot y_a}\)<br>
+            \(FS_{sliding} = \frac{\mu \cdot \sum V + P_p}{P_{ah}}\ge 1.5\text{ (Static) or } 1.1\text{ (Seismic)}\)
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 Fatal Engineering Traps -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">5 Fatal Engineering Traps in Retaining Wall Design</h2>
+        
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#ef4444;font-size:0.95rem;font-weight:700;">1. Weep Hole Clogging & Water Table Surcharge</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Over 70% of cantilever retaining wall failures stem from inadequate drainage. If weep holes clog with silt or geocomposite drainage mats are omitted, rainwater saturates the backfill. Hydrostatic water pressure (\(\gamma_w = 9.81\text{ kN/m}^3\)) acts with \(K_w = 1.0\) against the wall, doubling the total overturning moment and instantly triggering catastrophic rotational failure.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#f59e0b;font-size:0.95rem;font-weight:700;">2. Mononobe-Okabe Mathematical Singularity (\(\phi - \beta - \psi < 0\))</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              When combining a steep backfill slope (e.g., \(\beta = 25^\circ\)) with a moderate friction angle (\(\phi = 30^\circ\)) and moderate ground acceleration (\(\psi = 10^\circ\)), the term \(\phi - \beta - \psi\) becomes negative. The square root in the M-O denominator produces an imaginary number, meaning an infinite failure wedge forms and equilibrium is impossible without global slope regrading or ground tiebacks.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#10b981;font-size:0.95rem;font-weight:700;">3. Over-Reliance on Passive Soil Resistance at the Toe</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Designers frequently rely heavily on passive resistance (\(P_p\)) at the front toe to satisfy sliding safety factors. However, the upper 0.5 to 1.0 meter of soil in front of the toe is susceptible to future utility trench excavations, frost heave loosening, and erosion. AASHTO LRFD explicitly mandates ignoring the upper 0.6 m of passive soil unless permanently protected by concrete pavement.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#3b82f6;font-size:0.95rem;font-weight:700;">4. Bearing Eccentricity Beyond the Middle Third (Middle Third Rule)</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              If the overturning moment is large, the resultant base normal force shifts towards the front toe. If eccentricity \(e = |B/2 - x_R| > B/6\), tensile stresses develop at the heel of the footing. Soil cannot support tension; footing heel separates from the subgrade, concentrating all vertical load onto a narrow strip at the toe, causing local bearing capacity failure and progressive wall tipping.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface-sunken);padding:1rem;border-radius:6px;">
+            <h4 style="margin:0 0 4px 0;color:#8b5cf6;font-size:0.95rem;font-weight:700;">5. Stem-Base Cold Joint Shear Key Omission</h4>
+            <p style="margin:0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Cantilever walls are cast in two separate concrete pours: the base footing first, followed by the vertical stem. The horizontal construction joint at the stem-footing interface is subjected to maximum shear force \(V_{max}\). Without a formed shear key or roughened interface per ACI 318 Section 22.9 (shear-friction), the cold joint can slide horizontally under combined seismic shaking.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Accordion (DOM + Schema.org) -->
+      <div style="background:var(--surface);border:1px solid var(--border-color);border-radius:10px;padding:1.5rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--text-primary);margin-top:0;margin-bottom:1rem;">Frequently Asked Questions (FAQ)</h2>
+        
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">Why does Coulomb's active coefficient Ka yield lower values than Rankine's?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Rankine assumes zero wall-soil interface friction (\(\delta = 0\)), causing the resultant earth pressure to act parallel to the backfill surface. Coulomb accounts for wall friction (typically \(\delta = \frac{2}{3} \phi\)), which directs part of the soil thrust downwards along the wall face. This downward frictional component stabilizes the soil wedge and reduces horizontal active thrust by 10% to 25%.
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">Why is the dynamic seismic increment applied at 0.6H instead of H/3?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Static earth pressure follows a triangular distribution with maximum pressure at the base, resulting in a resultant at \(H/3\). During earthquake vibrations, cyclic ground motions amplify near the wall crest due to structural flexibility and soil resonance, producing an inverted triangular dynamic pressure distribution with its centroid located between \(0.55 H\) and \(0.67 H\). Seed & Whitman established \(0.6 H\) as the standard design convention.
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">How does backfill slope angle β impact wall stability?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              Increasing the backfill slope \(\beta\) dramatically increases active pressure coefficient \(K_a\). For example, with \(\phi = 32^\circ\), increasing \(\beta\) from 0° (horizontal) to 20° increases \(K_a\) from ~0.30 to ~0.45 (a 50% increase in overturning lateral thrust). Furthermore, it directs the thrust vector steeper upward, increasing base sliding force.
+            </p>
+          </details>
+
+          <details style="background:var(--surface-sunken);padding:12px;border-radius:6px;cursor:pointer;">
+            <summary style="font-weight:700;color:var(--text-primary);font-size:0.92rem;">When should a shear key be installed beneath the footing?</summary>
+            <p style="margin:8px 0 0 0;font-size:0.85rem;color:var(--text-secondary);line-height:1.5;">
+              A shear key is a concrete projection extending 0.3 to 0.8 m below the footing base into undisturbed competent soil. It is specified when the sliding factor of safety without a key is less than 1.5. The key shifts the failure plane down into undisturbed subgrade, mobilizing passive resistance in front of the key and allowing design against full internal soil friction rather than interface friction.
+            </p>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const AR4_PRESETS = {
+        dense_sand: { phi: 36, gamma: 19.0, delta: 24, mu: 0.55 },
+        medium_sand: { phi: 32, gamma: 18.0, delta: 21, mu: 0.48 },
+        silty_sand: { phi: 28, gamma: 17.5, delta: 18, mu: 0.42 },
+        crushed_stone: { phi: 40, gamma: 20.5, delta: 26, mu: 0.60 }
+      };
+
+      function applyAR4Preset() {
+        let preset = document.getElementById('ar4_preset').value;
+        if (preset !== 'custom' && AR4_PRESETS[preset]) {
+          let data = AR4_PRESETS[preset];
+          let isImp = getAR4Units() === 'imp';
+          document.getElementById('ar4_phi').value = data.phi;
+          document.getElementById('ar4_delta').value = data.delta;
+          document.getElementById('ar4_mu').value = data.mu;
+          document.getElementById('ar4_gamma').value = isImp ? (data.gamma * 6.36588).toFixed(1) : data.gamma;
+          calcAR4();
+        }
+      }
+
+      function getAR4Units() {
+        return document.querySelector('input[name="ar4_units"]:checked').value;
+      }
+
+      function toRad(deg) {
+        return deg * Math.PI / 180;
+      }
+
+      function calcAR4() {
+        let isImp = getAR4Units() === 'imp';
+
+        // Update labels
+        document.getElementById('ar4_lbl_h').innerText = isImp ? 'ft' : 'm';
+        document.getElementById('ar4_lbl_b').innerText = isImp ? 'ft' : 'm';
+        document.getElementById('ar4_lbl_gamma').innerText = isImp ? 'pcf' : 'kN/m³';
+        document.getElementById('ar4_lbl_q').innerText = isImp ? 'psf' : 'kPa';
+        document.getElementById('ar4_lbl_dp').innerText = isImp ? 'ft' : 'm';
+
+        // Read Inputs
+        let H_raw = parseFloat(document.getElementById('ar4_h').value) || 5.0;
+        let beta_deg = parseFloat(document.getElementById('ar4_beta').value) || 12;
+        let theta_deg = parseFloat(document.getElementById('ar4_theta').value) || 0;
+        let B_raw = parseFloat(document.getElementById('ar4_b').value) || 3.2;
+        let phi_deg = parseFloat(document.getElementById('ar4_phi').value) || 36;
+        let delta_deg = parseFloat(document.getElementById('ar4_delta').value) || 24;
+        let gamma_raw = parseFloat(document.getElementById('ar4_gamma').value) || 19.0;
+        let mu_base = parseFloat(document.getElementById('ar4_mu').value) || 0.52;
+        let kh = parseFloat(document.getElementById('ar4_kh').value) || 0.18;
+        let kv = parseFloat(document.getElementById('ar4_kv').value) || 0.0;
+        let q_raw = parseFloat(document.getElementById('ar4_q').value) || 12;
+        let Dp_raw = parseFloat(document.getElementById('ar4_dp').value) || 0.8;
+
+        // Convert to SI
+        let H_m = isImp ? H_raw * 0.3048 : H_raw;
+        let B_m = isImp ? B_raw * 0.3048 : B_raw;
+        let gamma = isImp ? gamma_raw * 0.157087 : gamma_raw; // kN/m3
+        let q_kPa = isImp ? q_raw * 0.0478803 : q_raw; // kPa (kN/m2)
+        let Dp_m = isImp ? Dp_raw * 0.3048 : Dp_raw;
+
+        // Radians
+        let phi = toRad(phi_deg);
+        let delta = toRad(delta_deg);
+        let beta = toRad(beta_deg);
+        let theta = toRad(theta_deg);
+
+        // Seismic angle psi = arctan(kh / (1 - kv))
+        let denom_psi = Math.max(0.01, 1 - kv);
+        let psi = Math.atan(kh / denom_psi);
+        let psi_deg = psi * 180 / Math.PI;
+
+        // 1. Coulomb Ka Calculation
+        let num_Ka = Math.pow(Math.cos(phi - theta), 2);
+        let term_rad_Ka = Math.sin(phi + delta) * Math.sin(phi - beta) / (Math.cos(theta + delta) * Math.cos(theta - beta));
+        let Ka = 0.3;
+        if (term_rad_Ka >= 0) {
+          let den_Ka = Math.pow(Math.cos(theta), 2) * Math.cos(theta + delta) * Math.pow(1 + Math.sqrt(term_rad_Ka), 2);
+          Ka = num_Ka / den_Ka;
+        }
+
+        // 2. Mononobe-Okabe Kae Calculation
+        let Kae = Ka * 1.35;
+        let term_rad_Kae = Math.sin(phi + delta) * Math.sin(phi - beta - psi) / (Math.cos(delta + theta + psi) * Math.cos(beta - theta));
+        let isSingular = false;
+        if (term_rad_Kae < 0 || (phi - beta - psi) < 0) {
+          isSingular = true;
+          Kae = Ka * (1 + 2.5 * kh); // empirical fallback if mathematical singularity
+        } else {
+          let num_Kae = Math.pow(Math.cos(phi - theta - psi), 2);
+          let den_Kae = Math.cos(psi) * Math.pow(Math.cos(theta), 2) * Math.cos(delta + theta + psi) * Math.pow(1 + Math.sqrt(term_rad_Kae), 2);
+          Kae = num_Kae / den_Kae;
+        }
+
+        // 3. Thrust Calculations (per meter width of wall)
+        // Static active thrust Pa
+        let Pa_soil = 0.5 * gamma * Math.pow(H_m, 2) * Ka; // kN/m
+        let Pa_surch = q_kPa * H_m * Ka; // kN/m
+        let Pa_total = Pa_soil + Pa_surch; // kN/m
+
+        // Dynamic active thrust Pae
+        let Pae_soil = 0.5 * gamma * Math.pow(H_m, 2) * (1 - kv) * Kae;
+        let dP_ae = Math.max(0, Pae_soil - Pa_soil); // dynamic increment
+
+        // Horizontal & Vertical components of thrusts
+        // Angle of thrust relative to horizontal: alpha = delta + theta
+        let alpha = delta + theta;
+        let Pah_stat = Pa_total * Math.cos(alpha);
+        let Pav_stat = Pa_total * Math.sin(alpha);
+
+        let dP_ae_h = dP_ae * Math.cos(alpha);
+        let dP_ae_v = dP_ae * Math.sin(alpha);
+
+        let Pah_seis = Pah_stat + dP_ae_h;
+        let Pav_seis = Pav_stat + dP_ae_v;
+
+        // Passive Resistance Pp at toe (Rankine / Coulomb passive)
+        let Kp = (1 + Math.sin(phi)) / (1 - Math.sin(phi)); // Rankine safe lower bound
+        let Pp = 0.5 * gamma * Math.pow(Dp_m, 2) * Kp; // kN/m
+
+        // Concrete Wall Weights Estimation (assuming stem 0.35m top, 0.55m bottom, base slab 0.6m thick)
+        let gamma_conc = 24.0; // kN/m3
+        let t_base = Math.max(0.4, 0.1 * H_m);
+        let stem_h = H_m - t_base;
+        let t_stem = Math.max(0.35, 0.08 * H_m);
+        let W_stem = stem_h * t_stem * gamma_conc;
+        let W_base = B_m * t_base * gamma_conc;
+        // Heel soil weight (soil block above heel)
+        let heel_len = Math.max(0.5, B_m - t_stem - 0.8);
+        let W_soil_heel = heel_len * stem_h * gamma;
+        let W_total_vert_stat = W_stem + W_base + W_soil_heel + Pav_stat;
+        let W_total_vert_seis = W_stem + W_base + W_soil_heel + Pav_seis;
+
+        // Moments about Toe (Point O)
+        // Resisting Moments (Mr)
+        let arm_stem = 0.8 + t_stem / 2;
+        let arm_base = B_m / 2;
+        let arm_heel_soil = B_m - heel_len / 2;
+        let Mr_stat = (W_stem * arm_stem) + (W_base * arm_base) + (W_soil_heel * arm_heel_soil) + (Pav_stat * B_m);
+        let Mr_seis = (W_stem * arm_stem) + (W_base * arm_base) + (W_soil_heel * arm_heel_soil) + (Pav_seis * B_m);
+
+        // Overturning Moments (Mo)
+        // Pa_soil acts at H/3, Pa_surch acts at H/2, dP_ae acts at 0.6H
+        let arm_Pa_soil = H_m / 3;
+        let arm_Pa_surch = H_m / 2;
+        let arm_dP_ae = 0.6 * H_m;
+        let Mo_stat = (Pa_soil * Math.cos(alpha) * arm_Pa_soil) + (Pa_surch * Math.cos(alpha) * arm_Pa_surch);
+        let Mo_seis = Mo_stat + (dP_ae_h * arm_dP_ae);
+
+        // Factors of Safety
+        let FS_ot_stat = Mo_stat > 0 ? (Mr_stat / Mo_stat) : 9.9;
+        let FS_ot_seis = Mo_seis > 0 ? (Mr_seis / Mo_seis) : 9.9;
+
+        // Sliding Factor of Safety
+        let Res_slide_stat = (mu_base * W_total_vert_stat) + Pp;
+        let Res_slide_seis = (mu_base * W_total_vert_seis) + (Pp * 0.7); // reduced passive during seismic
+        let FS_sl_stat = Pah_stat > 0 ? (Res_slide_stat / Pah_stat) : 9.9;
+        let FS_sl_seis = Pah_seis > 0 ? (Res_slide_seis / Pah_seis) : 9.9;
+
+        // Base Stem Bending Moment (kN-m/m)
+        let M_stem_stat = (0.5 * gamma * Math.pow(stem_h, 3) * Ka / 3) + (q_kPa * Math.pow(stem_h, 2) * Ka / 2);
+        let M_stem_seis = M_stem_stat + (dP_ae * Math.cos(alpha) * (0.6 * stem_h));
+
+        // Display KPI outputs
+        if (isImp) {
+          let Pa_lbf = Pa_total * 68.5218;
+          let Pae_lbf = (Pa_total + dP_ae) * 68.5218;
+          let Mstem_kipft = M_stem_seis * 0.224809 * 3.28084;
+
+          document.getElementById('ar4_out_ka').innerText = Ka.toFixed(3);
+          document.getElementById('ar4_sub_ka').innerText = 'Static: ' + Pa_lbf.toFixed(0) + ' lbf/ft';
+          document.getElementById('ar4_out_kae').innerText = Kae.toFixed(3);
+          document.getElementById('ar4_sub_kae').innerText = 'Seismic: ' + Pae_lbf.toFixed(0) + ' lbf/ft';
+          document.getElementById('ar4_out_fsot').innerText = FS_ot_seis.toFixed(2);
+          document.getElementById('ar4_sub_fsot').innerText = 'Stat: ' + FS_ot_stat.toFixed(2) + ' / Seis: ' + FS_ot_seis.toFixed(2);
+          document.getElementById('ar4_out_fssl').innerText = FS_sl_seis.toFixed(2);
+          document.getElementById('ar4_sub_fssl').innerText = 'Stat: ' + FS_sl_stat.toFixed(2) + ' / Seis: ' + FS_sl_seis.toFixed(2);
+        } else {
+          document.getElementById('ar4_out_ka').innerText = Ka.toFixed(3);
+          document.getElementById('ar4_sub_ka').innerText = 'Static: ' + Pa_total.toFixed(1) + ' kN/m';
+          document.getElementById('ar4_out_kae').innerText = Kae.toFixed(3);
+          document.getElementById('ar4_sub_kae').innerText = 'Total Seis: ' + (Pa_total + dP_ae).toFixed(1) + ' kN/m';
+          document.getElementById('ar4_out_fsot').innerText = FS_ot_seis.toFixed(2);
+          document.getElementById('ar4_sub_fsot').innerText = 'Stat: ' + FS_ot_stat.toFixed(2) + ' / Seis: ' + FS_ot_seis.toFixed(2);
+          document.getElementById('ar4_out_fssl').innerText = FS_sl_seis.toFixed(2);
+          document.getElementById('ar4_sub_fssl').innerText = 'Stat: ' + FS_sl_stat.toFixed(2) + ' / Seis: ' + FS_sl_seis.toFixed(2);
+        }
+
+        // Draw Retaining Wall SVG
+        drawAR4SVG(H_m, B_m, beta_deg, phi_deg, kh, FS_ot_stat, FS_sl_stat);
+
+        // Update Report Text
+        let rep = [
+          '=== CANTILEVER RETAINING WALL GEOTECHNICAL & SEISMIC REPORT ===',
+          'Standards: AASHTO LRFD Bridge Specs (Sec 11) / ASCE 7-22 / Seed-Whitman',
+          'Geometry: Height H = ' + H_m.toFixed(2) + ' m (' + (H_m * 3.28084).toFixed(1) + ' ft) | Base B = ' + B_m.toFixed(2) + ' m | Backfill Slope beta = ' + beta_deg + '°',
+          'Soil Properties: phi = ' + phi_deg + '° | delta = ' + delta_deg + '° | gamma = ' + gamma.toFixed(1) + ' kN/m³ | Surcharge q = ' + q_kPa.toFixed(1) + ' kPa',
+          'Seismic Acceleration: kh = ' + kh.toFixed(2) + ' g | kv = ' + kv.toFixed(2) + ' g | Seismic angle psi = ' + psi_deg.toFixed(1) + '°',
+          'COULOMB ACTIVE PRESSURE COEFF (Ka): ' + Ka.toFixed(3),
+          '  - Total Static Thrust Pa: ' + Pa_total.toFixed(1) + ' kN/m (' + (Pa_total * 68.52).toFixed(0) + ' lbf/ft) @ H/3 = ' + arm_Pa_soil.toFixed(2) + ' m',
+          'MONONOBE-OKABE SEISMIC COEFF (Kae): ' + Kae.toFixed(3) + (isSingular ? ' (⚠️ Saturated slope limit applied)' : ''),
+          '  - Total Seismic Thrust Pae: ' + (Pa_total + dP_ae).toFixed(1) + ' kN/m',
+          '  - Dynamic Thrust Increment Delta Pae: ' + dP_ae.toFixed(1) + ' kN/m @ 0.6H = ' + arm_dP_ae.toFixed(2) + ' m',
+          'STABILITY FACTORS OF SAFETY:',
+          '  - Overturning FS (Static): ' + FS_ot_stat.toFixed(2) + ' (Criteria: >= 2.0 -> ' + (FS_ot_stat >= 2.0 ? 'PASS' : 'FAIL') + ')',
+          '  - Overturning FS (Seismic): ' + FS_ot_seis.toFixed(2) + ' (Criteria: >= 1.5 -> ' + (FS_ot_seis >= 1.5 ? 'PASS' : 'FAIL') + ')',
+          '  - Sliding FS (Static): ' + FS_sl_stat.toFixed(2) + ' (Criteria: >= 1.5 -> ' + (FS_sl_stat >= 1.5 ? 'PASS' : 'FAIL') + ')',
+          '  - Sliding FS (Seismic): ' + FS_sl_seis.toFixed(2) + ' (Criteria: >= 1.1 -> ' + (FS_sl_seis >= 1.1 ? 'PASS' : 'FAIL') + ')',
+          'Stem Base Bending Moment: ' + M_stem_stat.toFixed(1) + ' kNm/m (Static) | ' + M_stem_seis.toFixed(1) + ' kNm/m (Seismic)',
+          'Engineering Recommendation: ' + (FS_sl_seis < 1.1 ? 'Install continuous base shear key to prevent seismic sliding failure.' : 'Stability criteria fully satisfied.')
+        ].join('\n');
+        document.getElementById('ar4_report').value = rep;
+      }
+
+      function drawAR4SVG(H, B, beta, phi, kh, fsot, fssl) {
+        let svg = document.getElementById('ar4_svg');
+        let parts = [];
+
+        parts.push('<rect width="800" height="280" fill="#0b1120" rx="8" />');
+
+        // Retaining Wall Section on Left (Centered around x=260, y=220)
+        let ox = 220, oy = 220;
+        let scale = 32; // px per meter
+        let wh = H * scale;
+        let wb = B * scale;
+
+        // Ground base subgrade
+        parts.push('<rect x="' + (ox - 60) + '" y="' + oy + '" width="' + (wb + 180) + '" height="50" fill="#1e293b" />');
+        parts.push('<line x1="' + (ox - 60) + '" y1="' + oy + '" x2="' + (ox + wb + 120) + '" y2="' + oy + '" stroke="#475569" stroke-width="2" />');
+
+        // Footing Slab (e.g. 0.5m thick)
+        let t_base = 0.5 * scale;
+        parts.push('<rect x="' + ox + '" y="' + (oy - t_base) + '" width="' + wb + '" height="' + t_base + '" fill="#64748b" stroke="#cbd5e1" stroke-width="1.5" />');
+
+        // Vertical Concrete Stem (toe 0.8m, stem 0.5m)
+        let toe_w = 0.8 * scale;
+        let stem_w = 0.45 * scale;
+        let stem_x = ox + toe_w;
+        let stem_top_y = oy - wh;
+        parts.push('<polygon points="' + stem_x + ',' + (oy - t_base) + ' ' + (stem_x + stem_w) + ',' + (oy - t_base) + ' ' + (stem_x + stem_w * 0.7) + ',' + stem_top_y + ' ' + stem_x + ',' + stem_top_y + '" fill="#94a3b8" stroke="#cbd5e1" stroke-width="1.5" />');
+        parts.push('<text x="' + (stem_x + stem_w/2) + '" y="' + (stem_top_y + wh/2) + '" fill="#0f172a" font-size="9" text-anchor="middle" font-weight="700" transform="rotate(-90 ' + (stem_x + stem_w/2) + ' ' + (stem_top_y + wh/2) + ')">Concrete Stem (H=' + H.toFixed(1) + 'm)</text>');
+
+        // Sloping Backfill Wedge behind stem
+        let heel_x = ox + wb;
+        let slope_rad = beta * Math.PI / 180;
+        let slope_rise = Math.tan(slope_rad) * 140;
+        parts.push('<polygon points="' + (stem_x + stem_w) + ',' + (oy - t_base) + ' ' + heel_x + ',' + (oy - t_base) + ' ' + (stem_x + stem_w + 140) + ',' + (stem_top_y - slope_rise) + ' ' + (stem_x + stem_w) + ',' + stem_top_y + '" fill="#78350f" opacity="0.45" />');
+        parts.push('<line x1="' + (stem_x + stem_w) + '" y1="' + stem_top_y + '" x2="' + (stem_x + stem_w + 140) + '" y2="' + (stem_top_y - slope_rise) + '" stroke="#d97706" stroke-width="2.5" />');
+        parts.push('<text x="' + (stem_x + stem_w + 70) + '" y="' + (stem_top_y - slope_rise/2 - 6) + '" fill="#fbbf24" font-size="9" font-weight="700">Backfill Slope β=' + beta + '°</text>');
+
+        // Coulomb Failure Wedge Line (approx 45° + phi/2)
+        let fail_ang = (45 + phi/2) * Math.PI / 180;
+        let fail_dx = wh / Math.tan(fail_ang);
+        parts.push('<line x1="' + (stem_x + stem_w) + '" y1="' + (oy - t_base) + '" x2="' + (stem_x + stem_w + fail_dx) + '" y2="' + stem_top_y + '" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,4" />');
+        parts.push('<text x="' + (stem_x + stem_w + fail_dx - 5) + '" y="' + (stem_top_y + 16) + '" fill="#ef4444" font-size="8" text-anchor="end">Coulomb Slip Plane (45+ϕ/2)</text>');
+
+        // Lateral Earth Pressure Distribution on right of wall
+        // Triangle (Static Pa) in yellow/orange
+        let p_base_w = 45;
+        parts.push('<polygon points="' + (stem_x + stem_w) + ',' + stem_top_y + ' ' + (stem_x + stem_w) + ',' + (oy - t_base) + ' ' + (stem_x + stem_w + p_base_w) + ',' + (oy - t_base) + '" fill="#eab308" opacity="0.3" />');
+        // Static Resultant Arrow at H/3
+        let y_pa = (oy - t_base) - wh / 3;
+        parts.push('<line x1="' + (stem_x + stem_w + 50) + '" y1="' + y_pa + '" x2="' + (stem_x + stem_w) + '" y2="' + y_pa + '" stroke="#eab308" stroke-width="3" marker-end="url(#arrow_yellow)" />');
+        parts.push('<text x="' + (stem_x + stem_w + 55) + '" y="' + (y_pa + 4) + '" fill="#fde047" font-size="9" font-weight="800">Pa (Static @ H/3)</text>');
+
+        // Dynamic Seismic Increment Arrow at 0.6H (Red)
+        if (kh > 0) {
+          let y_pae = (oy - t_base) - wh * 0.6;
+          parts.push('<line x1="' + (stem_x + stem_w + 65) + '" y1="' + y_pae + '" x2="' + (stem_x + stem_w) + '" y2="' + y_pae + '" stroke="#ef4444" stroke-width="3" marker-end="url(#arrow_red)" />');
+          parts.push('<text x="' + (stem_x + stem_w + 70) + '" y="' + (y_pae + 4) + '" fill="#f87171" font-size="9" font-weight="800">ΔPae (Seismic @ 0.6H)</text>');
+        }
+
+        // Stability Check Gauge Card on Right
+        let bx = 510, by = 35, bw = 250, bh = 200;
+        parts.push('<rect x="' + bx + '" y="' + by + '" width="' + bw + '" height="' + bh + '" fill="#020617" stroke="#1e293b" rx="6" />');
+        parts.push('<text x="' + (bx + bw/2) + '" y="' + (by + 20) + '" fill="#f8fafc" font-size="11" text-anchor="middle" font-weight="700">Stability Limit States</text>');
+
+        // Overturning Gauge
+        let ot_pass = fsot >= 2.0;
+        parts.push('<text x="' + (bx + 16) + '" y="' + (by + 52) + '" fill="#94a3b8" font-size="10" font-weight="600">Overturning FS (Static):</text>');
+        parts.push('<text x="' + (bx + bw - 16) + '" y="' + (by + 52) + '" fill="' + (ot_pass ? '#10b981' : '#ef4444') + '" font-size="11" font-weight="800" text-anchor="end">' + fsot.toFixed(2) + ' (' + (ot_pass ? 'SAFE' : 'FAIL') + ')</text>');
+        parts.push('<rect x="' + (bx + 16) + '" y="' + (by + 58) + '" width="218" height="8" fill="#1e293b" rx="4" />');
+        parts.push('<rect x="' + (bx + 16) + '" y="' + (by + 58) + '" width="' + Math.min(218, (fsot / 3.0) * 218) + '" height="8" fill="' + (ot_pass ? '#10b981' : '#ef4444') + '" rx="4" />');
+
+        // Sliding Gauge
+        let sl_pass = fssl >= 1.5;
+        parts.push('<text x="' + (bx + 16) + '" y="' + (by + 95) + '" fill="#94a3b8" font-size="10" font-weight="600">Base Sliding FS (Static):</text>');
+        parts.push('<text x="' + (bx + bw - 16) + '" y="' + (by + 95) + '" fill="' + (sl_pass ? '#10b981' : '#ef4444') + '" font-size="11" font-weight="800" text-anchor="end">' + fssl.toFixed(2) + ' (' + (sl_pass ? 'SAFE' : 'FAIL') + ')</text>');
+        parts.push('<rect x="' + (bx + 16) + '" y="' + (by + 101) + '" width="218" height="8" fill="#1e293b" rx="4" />');
+        parts.push('<rect x="' + (bx + 16) + '" y="' + (by + 101) + '" width="' + Math.min(218, (fssl / 2.5) * 218) + '" height="8" fill="' + (sl_pass ? '#10b981' : '#ef4444') + '" rx="4" />');
+
+        // Key recommendations
+        parts.push('<rect x="' + (bx + 16) + '" y="' + (by + 128) + '" width="218" height="55" fill="#0f172a" rx="4" stroke="#334155" />');
+        parts.push('<text x="' + (bx + 24) + '" y="' + (by + 144) + '" fill="#38bdf8" font-size="9" font-weight="700">AASHTO Design Guidance:</text>');
+        parts.push('<text x="' + (bx + 24) + '" y="' + (by + 158) + '" fill="#94a3b8" font-size="8.5">• Target B/H ratio: 0.50 - 0.70</text>');
+        parts.push('<text x="' + (bx + 24) + '" y="' + (by + 172) + '" fill="#94a3b8" font-size="8.5">• Provide continuous drain filter</text>');
+
+        svg.innerHTML = parts.join('');
+      }
+
+      function copyAR4Report() {
+        let text = document.getElementById('ar4_report').value;
+        let btn = document.getElementById('ar4_copy_btn');
+        navigator.clipboard.writeText(text).then(function() {
+          let orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Report Copied!</span>';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '#2563eb';
+          }, 2500);
+        });
+      }
+
+      // Initialize on load
+      setTimeout(calcAR4, 50);
+    </script>
+  
+`;
+
+writeFileSync(join(calcDir, 'retaining-wall-active-earth-pressure-coulomb-calculator.html'), renderTradePage({
+  title: 'Cantilever Retaining Wall Earth Pressure & Seismic Calculator | Coulomb & Mononobe-Okabe',
+  metaDescription: 'Geotechnical cantilever retaining wall design calculator. Computes Coulomb active and passive earth pressure coefficients, Mononobe-Okabe pseudo-static seismic thrust increment, overturning safety factor, sliding resistance, and stem bending moment per AASHTO LRFD and ASCE 7-22.',
+  canonical: 'https://digitaltoolsshed.com/calc/retaining-wall-active-earth-pressure-coulomb-calculator.html',
+  content: toolAR4Html,
+  bodyContent: toolAR4Html,
+  faq: [
+    {
+      q: 'Why does Coulomb active coefficient Ka yield lower values than Rankine?',
+      a: 'Rankine assumes zero wall-soil interface friction (delta = 0), causing the resultant earth pressure to act parallel to the backfill surface. Coulomb accounts for wall friction (typically delta = 2/3 phi), which directs part of the soil thrust downwards along the wall face. This downward frictional component stabilizes the soil wedge and reduces horizontal active thrust by 10% to 25%.'
+    },
+    {
+      q: 'Why is the dynamic seismic increment applied at 0.6H instead of H/3?',
+      a: 'Static earth pressure follows a triangular distribution with maximum pressure at the base, resulting in a resultant at H/3. During earthquake vibrations, cyclic ground motions amplify near the wall crest due to structural flexibility and soil resonance, producing an inverted triangular dynamic pressure distribution with its centroid located between 0.55H and 0.67H. Seed & Whitman established 0.6H as standard convention.'
+    },
+    {
+      q: 'How does backfill slope angle beta impact wall stability?',
+      a: 'Increasing the backfill slope beta dramatically increases active pressure coefficient Ka. For example, with phi = 32°, increasing beta from 0° (horizontal) to 20° increases Ka from ~0.30 to ~0.45 (a 50% increase in overturning lateral thrust). Furthermore, it directs the thrust vector steeper upward, increasing base sliding force.'
+    },
+    {
+      q: 'When should a shear key be installed beneath the footing?',
+      a: 'A shear key is a concrete projection extending 0.3 to 0.8 m below the footing base into undisturbed competent soil. It is specified when the sliding factor of safety without a key is less than 1.5. The key shifts the failure plane down into undisturbed subgrade, mobilizing passive resistance in front of the key and allowing design against full internal soil friction rather than interface friction.'
+    }
+  ]
+}));
+
+
+console.log('  ✓ Built Trade & Construction Suite (119 calculators in /calc/)');
 }
 
